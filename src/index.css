@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+
+  /* Spacing scale per CLAUDE.md design tokens */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Neutral surface */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f7f8;
+  --color-border: #e5e5e8;
+
+  /* Text */
+  --color-text: #1a1a1f;
+  --color-text-muted: #6b6b76;
+
+  /* Primary (single restrained accent) */
+  --color-primary: #4338ca;
+  --color-primary-hover: #3730a3;
+
+  /* Semantic colors */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-surface: #16171d;
+    --color-surface-muted: #1c1d24;
+    --color-border: #2c2d36;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-primary: #818cf8;
+    --color-primary-hover: #a5b4fc;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
