@@ -90,6 +90,19 @@ body {
   background: var(--color-background);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  touch-action: pan-x pan-y;
+}
+
+/* iOS Safari auto-zooms the page when focusing a text field smaller than
+   16px — this floor keeps every input/select/textarea at 16px on phone-width
+   viewports (where zoom-on-focus actually happens) without touching desktop
+   sizing, so component text-size classes elsewhere don't need to change. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Scrolls normally but without a visible scrollbar track. */
