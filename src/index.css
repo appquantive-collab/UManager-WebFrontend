@@ -1,61 +1,103 @@
 @import "tailwindcss";
 
+/* Design tokens imported from the Stitch "AI Wholesale ERP Platform" project.
+   Shared verbatim with the mobile app so both surfaces render identically. */
 @theme {
-  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-
-  /* Spacing scale per CLAUDE.md design tokens */
-  --spacing-4: 4px;
-  --spacing-8: 8px;
-  --spacing-12: 12px;
-  --spacing-16: 16px;
-  --spacing-20: 20px;
-  --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
+  --font-sans: "Geist", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-headline: "Space Grotesk", var(--font-sans);
+  --font-label: "JetBrains Mono", ui-monospace, monospace;
 
   /* Radius scale */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 10px;
+  --radius-lg: 12px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
+  --radius-full: 9999px;
 
-  /* Neutral surface */
+  /* Shadows — soft, slate-tinted */
+  --shadow-elevation-0: none;
+  --shadow-elevation-1: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-elevation-2: 0 2px 8px 0 rgba(15, 23, 42, 0.06);
+  --shadow-elevation-3: 0 12px 32px 0 rgba(15, 23, 42, 0.16);
+
+  /* Surfaces — slate-tinted light theme */
+  --color-background: #f8fafc;
   --color-surface: #ffffff;
-  --color-surface-muted: #f7f7f8;
-  --color-border: #e5e5e8;
+  --color-surface-muted: #f1f5f9;
+  --color-surface-variant: #f1f5f9;
+  --color-surface-container-high: #e2e8f0;
+  --color-border: #e2e8f0;
+  --color-outline: #94a3b8;
 
   /* Text */
-  --color-text: #1a1a1f;
-  --color-text-muted: #6b6b76;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
 
-  /* Primary (single restrained accent) */
-  --color-primary: #4338ca;
-  --color-primary-hover: #3730a3;
+  /* Primary — violet */
+  --color-primary: #6d28d9;
+  --color-primary-hover: #5b21b6;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #f5f3ff;
+  --color-on-primary-container: #5b21b6;
+
+  /* Secondary — lighter violet */
+  --color-secondary: #7c3aed;
+  --color-secondary-container: #f3e8ff;
+  --color-on-secondary-container: #581c87;
 
   /* Semantic colors */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
+  --color-success: #059669;
+  --color-success-container: #dcfce7;
+  --color-warning: #b45309;
+  --color-warning-container: #fef3c7;
   --color-danger: #dc2626;
-  --color-info: #2563eb;
-}
+  --color-danger-container: #fee2e2;
+  --color-info: #4f46e5;
+  --color-info-container: #e0e7ff;
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-surface: #16171d;
-    --color-surface-muted: #1c1d24;
-    --color-border: #2c2d36;
-    --color-text: #f3f4f6;
-    --color-text-muted: #9ca3af;
-    --color-primary: #818cf8;
-    --color-primary-hover: #a5b4fc;
-  }
+  /* Type scale from the Stitch design system */
+  --text-headline-xl: 32px;
+  --text-headline-xl--line-height: 38px;
+  --text-headline-xl--font-weight: 700;
+  --text-headline-lg: 24px;
+  --text-headline-lg--line-height: 30px;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-sm: 18px;
+  --text-headline-sm--line-height: 24px;
+  --text-headline-sm--font-weight: 600;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-sm: 12px;
+  --text-body-sm--line-height: 16px;
+  --text-label-lg: 13px;
+  --text-label-lg--line-height: 18px;
+  --text-label-lg--font-weight: 500;
+  --text-label-md: 11px;
+  --text-label-md--line-height: 14px;
+  --text-label-md--font-weight: 500;
+  --text-label-sm: 10px;
+  --text-label-sm--line-height: 12px;
+  --text-label-sm--font-weight: 600;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--color-surface-muted);
+  background: var(--color-background);
   color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrolls normally but without a visible scrollbar track. */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
