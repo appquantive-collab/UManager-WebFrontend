@@ -158,12 +158,7 @@ export function DashboardPage() {
   return (
     <>
       <div className="lg:hidden">
-        <MobileDashboard
-          businessName={profile?.tenant?.businessName}
-          aiLayout={profile?.tenant?.aiDashboardLayout}
-          summary={summary}
-          userName={profile?.name}
-        />
+        <MobileDashboard aiLayout={profile?.tenant?.aiDashboardLayout} summary={summary} />
       </div>
       <DesktopDashboard
         businessName={profile?.tenant?.businessName}

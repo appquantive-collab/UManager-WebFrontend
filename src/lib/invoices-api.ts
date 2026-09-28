@@ -80,3 +80,7 @@ export function recordPayment(
 export function listInvoices(): Promise<Invoice[]> {
   return apiFetch("/invoices");
 }
+
+export function getInvoice(id: string): Promise<Invoice> {
+  return apiFetch(`/invoices/${id}`);
+}

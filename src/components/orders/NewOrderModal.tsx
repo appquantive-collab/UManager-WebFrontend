@@ -5,7 +5,7 @@ import { AlertTriangle, Check, Loader2, Plus, Sparkles, Trash2, X } from "lucide
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
 import { parseOrderText, createOrder, type OrderLineItemInput } from "../../lib/orders-api";
-import { listCustomers, createCustomer, type Customer } from "../../lib/customers-api";
+import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
 import { ApiError } from "../../lib/api";
 
 interface DraftItem extends OrderLineItemInput {
@@ -307,7 +307,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       autoFocus
                     />
                     <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
-                      {customersQuery.data?.map((c: Customer) => (
+                      {customersQuery.data?.map((c: CustomerListItem) => (
                         <button
                           key={c._id}
                           type="button"

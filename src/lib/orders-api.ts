@@ -71,3 +71,26 @@ export function listOrders(options?: { billable?: boolean }): Promise<Order[]> {
   const qs = options?.billable ? "?billable=true" : "";
   return apiFetch(`/orders${qs}`);
 }
+
+export function getOrder(id: string): Promise<Order> {
+  return apiFetch(`/orders/${id}`);
+}
+
+export interface UpdateOrderInput {
+  items?: OrderLineItemInput[];
+  notes?: string;
+}
+
+export function updateOrder(id: string, input: UpdateOrderInput): Promise<Order> {
+  return apiFetch(`/orders/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateOrderStatus(id: string, status: "pending" | "confirmed" | "cancelled"): Promise<Order> {
+  return apiFetch(`/orders/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}

@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { AlertTriangle, Check, FileText, Plus, Receipt, ReceiptText, Trash2, X } from "lucide-react";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
-import { listCustomers, createCustomer, type Customer } from "../../lib/customers-api";
+import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
 import {
   getCustomerPendingItems,
   createBill,
@@ -214,7 +214,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                   autoFocus
                 />
                 <div className="mt-2 max-h-56 space-y-1 overflow-y-auto">
-                  {filteredCustomers?.map((c: Customer) => (
+                  {filteredCustomers?.map((c: CustomerListItem) => (
                     <button
                       key={c._id}
                       type="button"

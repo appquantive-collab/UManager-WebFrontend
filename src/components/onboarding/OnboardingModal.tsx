@@ -2,18 +2,53 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import {
+  Bike,
+  BookOpen,
   Boxes,
+  Briefcase,
   Building2,
+  Coffee,
+  Cookie,
   CreditCard,
+  Dog,
+  Flame,
+  FlaskConical,
+  Flower2,
+  Footprints,
+  Gamepad2,
+  Gem,
+  Gift,
+  Grid3x3,
+  HardHat,
+  Landmark,
+  Layers,
   Loader2,
+  Milk,
+  Monitor,
+  Music,
+  Nut,
   Package,
+  PackageOpen,
   Pill,
+  Printer,
+  Recycle,
+  Scissors,
+  ShoppingBag,
+  ShowerHead,
   Shirt,
+  Smartphone,
+  Sofa,
   Sparkles,
+  SprayCan,
+  Sprout,
+  Trophy,
+  UtensilsCrossed,
   Users,
   Warehouse,
+  Watch,
   Wrench,
   X,
+  Zap,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
@@ -24,11 +59,47 @@ import { ApiError } from "../../lib/api";
 const categories: { value: BusinessCategory; label: string; icon: typeof Package }[] = [
   { value: "fmcg", label: "FMCG", icon: Package },
   { value: "electronics", label: "Electronics", icon: Boxes },
+  { value: "mobile_accessories", label: "Mobile & Accessories", icon: Smartphone },
   { value: "pharma", label: "Pharma", icon: Pill },
   { value: "apparel", label: "Apparel", icon: Shirt },
+  { value: "footwear", label: "Footwear", icon: Footprints },
+  { value: "textiles_fabric", label: "Textiles & Fabric", icon: Scissors },
   { value: "auto_parts", label: "Auto Parts", icon: Wrench },
-  { value: "grocery", label: "Grocery", icon: Building2},
+  { value: "two_wheeler_parts", label: "Two-Wheeler Parts", icon: Bike },
+  { value: "grocery", label: "Grocery", icon: Building2 },
   { value: "hardware", label: "Hardware", icon: Warehouse },
+  { value: "sanitary_plumbing", label: "Sanitary & Plumbing", icon: ShowerHead },
+  { value: "electrical_goods", label: "Electrical Goods", icon: Zap },
+  { value: "paints_chemicals", label: "Paints & Chemicals", icon: FlaskConical },
+  { value: "building_materials", label: "Building Materials", icon: HardHat },
+  { value: "furniture", label: "Furniture", icon: Sofa },
+  { value: "musical_instruments", label: "Musical Instruments", icon: Music },
+  { value: "sports_goods", label: "Sports Goods", icon: Trophy },
+  { value: "toys_games", label: "Toys & Games", icon: Gamepad2 },
+  { value: "stationery_books", label: "Stationery & Books", icon: BookOpen },
+  { value: "gift_items", label: "Gift Items", icon: Gift },
+  { value: "cosmetics_beauty", label: "Cosmetics & Beauty", icon: Sparkles },
+  { value: "jewellery_artificial", label: "Jewellery (Artificial)", icon: Gem },
+  { value: "bags_luggage", label: "Bags & Luggage", icon: Briefcase },
+  { value: "kitchenware_utensils", label: "Kitchenware & Utensils", icon: UtensilsCrossed },
+  { value: "plastic_goods", label: "Plastic Goods", icon: Recycle },
+  { value: "packaging_materials", label: "Packaging Materials", icon: PackageOpen },
+  { value: "confectionery_bakery", label: "Confectionery & Bakery", icon: Cookie },
+  { value: "dry_fruits_spices", label: "Dry Fruits & Spices", icon: Nut },
+  { value: "tea_coffee", label: "Tea & Coffee", icon: Coffee },
+  { value: "dairy_products", label: "Dairy Products", icon: Milk },
+  { value: "agro_seeds_fertilizers", label: "Agro, Seeds & Fertilizers", icon: Sprout },
+  { value: "cattle_feed", label: "Cattle Feed", icon: Dog },
+  { value: "tiles_sanitaryware", label: "Tiles & Sanitaryware", icon: Grid3x3 },
+  { value: "glass_hardware", label: "Glass & Hardware", icon: Layers },
+  { value: "computer_it", label: "Computer & IT", icon: Monitor },
+  { value: "printing_stationery", label: "Printing & Stationery", icon: Printer },
+  { value: "cleaning_supplies", label: "Cleaning Supplies", icon: SprayCan },
+  { value: "fireworks", label: "Fireworks", icon: Flame },
+  { value: "readymade_garments", label: "Readymade Garments", icon: ShoppingBag },
+  { value: "saree_ethnic_wear", label: "Saree & Ethnic Wear", icon: Flower2 },
+  { value: "watches_eyewear", label: "Watches & Eyewear", icon: Watch },
+  { value: "religious_puja_items", label: "Religious & Puja Items", icon: Landmark },
   { value: "other", label: "Other", icon: Sparkles },
 ];
 
@@ -139,23 +210,26 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
               <p className="mt-1 text-sm text-text-muted">This helps us tailor UManager to how you work.</p>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">Business category</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-sm font-medium text-text-muted">Business category</p>
+                  <span className="text-[11px] text-text-muted/70">Swipe to see more →</span>
+                </div>
+                <div className="scrollbar-hide -mx-6 grid auto-cols-18 grid-flow-col grid-rows-2 gap-2 overflow-x-auto px-6 pb-1">
                   {categories.map((c) => (
                     <button
                       key={c.value}
                       type="button"
                       onClick={() => setCategory(c.value)}
                       className={clsx(
-                        "flex flex-col items-center gap-1.5 rounded-xl border p-2.5 outline-none transition-colors",
+                        "flex w-18 flex-col items-center gap-1.5 rounded-xl border p-2.5 outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-primary/40",
                         category === c.value
                           ? "border-primary bg-primary-container text-primary"
                           : "border-border text-text-muted hover:border-primary/30"
                       )}
                     >
-                      <c.icon size={18} />
-                      <span className="text-center text-[11px] font-medium leading-tight">{c.label}</span>
+                      <c.icon size={18} className="shrink-0" />
+                      <span className="text-center text-[10.5px] font-medium leading-tight">{c.label}</span>
                     </button>
                   ))}
                 </div>

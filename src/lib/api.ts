@@ -54,6 +54,11 @@ async function refreshAccessToken(): Promise<string> {
   return refreshPromise;
 }
 
+// Endpoints that authenticate a user rather than act on an existing session —
+// a 401 from these always means "wrong credentials," never "expired token,"
+// so they must never trigger the refresh-and-retry flow below.
+const AUTH_ENTRY_POINTS = ["/auth/login", "/auth/login-phone", "/auth/register", "/auth/refresh"];
+
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken;
 
@@ -62,7 +67,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     headers: buildHeaders(token, options.headers),
   });
 
-  if (res.status === 401 && path !== "/auth/refresh") {
+  if (res.status === 401 && !AUTH_ENTRY_POINTS.includes(path)) {
     try {
       const newToken = await refreshAccessToken();
       const retryRes = await fetch(`${API_BASE_URL}${path}`, {
@@ -81,5 +86,20 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   if (!res.ok) return parseErrorBody(res);
 
   if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
+
+// For file uploads: unlike apiFetch, this must NOT set Content-Type — the
+// browser sets its own multipart/form-data boundary when given a FormData body.
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const token = useAuthStore.getState().accessToken;
+
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
+  if (!res.ok) return parseErrorBody(res);
   return res.json() as Promise<T>;
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Boxes, Package, Plus, SquarePen, Trash2 } from "lucide-react";
+import { Boxes, Package, Plus, QrCode, SquarePen, Trash2 } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -18,6 +18,7 @@ import { createStockMovement, getStockLevels, type CreateMovementInput } from ".
 import { MobileInventoryStock } from "./MobileInventoryStock";
 import { ProductForm } from "./ProductForm";
 import { StockForm } from "./StockForm";
+import { ProductQrModal } from "../../components/inventory/ProductQrModal";
 
 const currency = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -38,6 +39,7 @@ export function InventoryPage() {
   );
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
+  const [qrProduct, setQrProduct] = useState<Product | null>(null);
 
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ["products"],
@@ -158,9 +160,17 @@ export function InventoryPage() {
                 <tr key={product._id} className="hover:bg-surface-muted">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <IconChip color={colorForCategory(product.category)}>
-                        <Package size={16} strokeWidth={1.75} />
-                      </IconChip>
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl}
+                          alt=""
+                          className="h-8 w-8 shrink-0 rounded-lg border border-border object-cover"
+                        />
+                      ) : (
+                        <IconChip color={colorForCategory(product.category)}>
+                          <Package size={16} strokeWidth={1.75} />
+                        </IconChip>
+                      )}
                       <span className="font-medium text-text">{product.name}</span>
                     </div>
                   </td>
@@ -188,6 +198,14 @@ export function InventoryPage() {
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
                         <Boxes size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`View QR code for ${product.name}`}
+                        onClick={() => setQrProduct(product)}
+                        className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
+                      >
+                        <QrCode size={16} />
                       </button>
                       <button
                         type="button"
@@ -261,6 +279,12 @@ export function InventoryPage() {
           </Button>
         </div>
       </Dialog>
+
+      <ProductQrModal
+        productId={qrProduct?._id ?? null}
+        productName={qrProduct?.name}
+        onClose={() => setQrProduct(null)}
+      />
     </>
   );
 }

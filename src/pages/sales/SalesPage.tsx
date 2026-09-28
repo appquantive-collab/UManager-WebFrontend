@@ -9,6 +9,8 @@ import { formatCurrency } from "../../lib/format";
 import { listOrders, type Order } from "../../lib/orders-api";
 import { listInvoices, type Invoice } from "../../lib/invoices-api";
 import { MobileSalesOrders } from "./MobileSalesOrders";
+import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
+import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
 import { useNewOrderModalStore } from "../../lib/new-order-store";
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 
@@ -54,7 +56,7 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function OrdersTable() {
+function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const ordersQuery = useQuery({ queryKey: ["orders"], queryFn: () => listOrders() });
 
@@ -90,7 +92,11 @@ function OrdersTable() {
         </thead>
         <tbody className="divide-y divide-surface-variant">
           {orders.map((order) => (
-            <tr key={order._id} className="hover:bg-surface-muted">
+            <tr
+              key={order._id}
+              onClick={() => onSelect(order)}
+              className="cursor-pointer hover:bg-surface-muted"
+            >
               <td className="px-4 py-3 font-medium text-text">{customerName(order)}</td>
               <td className="px-4 py-3 text-text-muted">{order.items.length}</td>
               <td className="px-4 py-3 text-text-muted">{order.source === "ai_parsed" ? "AI Order" : "Manual"}</td>
@@ -107,7 +113,7 @@ function OrdersTable() {
   );
 }
 
-function InvoicesTable() {
+function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
   const invoicesQuery = useQuery({ queryKey: ["invoices"], queryFn: listInvoices });
 
@@ -143,7 +149,11 @@ function InvoicesTable() {
         </thead>
         <tbody className="divide-y divide-surface-variant">
           {invoices.map((invoice) => (
-            <tr key={invoice._id} className="hover:bg-surface-muted">
+            <tr
+              key={invoice._id}
+              onClick={() => onSelect(invoice)}
+              className="cursor-pointer hover:bg-surface-muted"
+            >
               <td className="px-4 py-3 font-medium text-text">{invoice.invoiceNumber}</td>
               <td className="px-4 py-3 text-text">{customerName(invoice)}</td>
               <td className="px-4 py-3 text-text-muted">{invoice.billType === "gst" ? "GST" : "Record"}</td>
@@ -170,6 +180,8 @@ export function SalesPage() {
   const [tab, setTab] = useState("orders");
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   return (
     <>
@@ -191,12 +203,15 @@ export function SalesPage() {
 
         <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
-        {tab === "orders" && <OrdersTable />}
-        {tab === "invoices" && <InvoicesTable />}
+        {tab === "orders" && <OrdersTable onSelect={setSelectedOrder} />}
+        {tab === "invoices" && <InvoicesTable onSelect={setSelectedInvoice} />}
         {tab === "quotations" && <ComingSoon label="Quotations" />}
         {tab === "returns" && <ComingSoon label="Returns" />}
         {tab === "payments" && <ComingSoon label="Payments" />}
       </div>
+
+      <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      <InvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
     </>
   );
 }

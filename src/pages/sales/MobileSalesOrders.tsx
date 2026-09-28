@@ -3,8 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FileText, Receipt, Sparkles, Undo2 } from "lucide-react";
 import { SearchInput } from "../../components/ui/SearchInput";
+import { Badge } from "../../components/ui/Badge";
 import { formatCurrency } from "../../lib/format";
 import { listOrders, type Order } from "../../lib/orders-api";
+import { listInvoices, type Invoice } from "../../lib/invoices-api";
+import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
+import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
 
 const salesTabs = [
   { key: "orders", label: "Orders", icon: Receipt },
@@ -15,8 +19,8 @@ const salesTabs = [
 
 type FilterKey = "all" | "pending" | "delivered" | "cancelled";
 
-function customerName(order: Order): string {
-  return typeof order.customerId === "string" ? "Unknown customer" : order.customerId.name;
+function customerName(entity: { customerId: { name: string } | string }): string {
+  return typeof entity.customerId === "string" ? "Unknown customer" : entity.customerId.name;
 }
 
 function timeAgo(iso: string): string {
@@ -30,11 +34,23 @@ function timeAgo(iso: string): string {
   return `${days}d ago`;
 }
 
-const statusBadge: Record<Order["status"], { label: string; className: string }> = {
+const orderStatusBadge: Record<Order["status"], { label: string; className: string }> = {
   pending: { label: "Pending", className: "bg-warning-container text-warning" },
   confirmed: { label: "Confirmed", className: "bg-info-container text-info" },
   delivered: { label: "Billed", className: "bg-success-container text-success" },
   cancelled: { label: "Cancelled", className: "bg-danger-container text-danger" },
+};
+
+const paymentStatusTone = {
+  unpaid: "danger",
+  partial: "warning",
+  paid: "success",
+} as const;
+
+const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
+  unpaid: "Unpaid",
+  partial: "Partial",
+  paid: "Paid",
 };
 
 export function MobileSalesOrders({
@@ -47,9 +63,14 @@ export function MobileSalesOrders({
   const [tab, setTab] = useState("orders");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [search, setSearch] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   const ordersQuery = useQuery({ queryKey: ["orders"], queryFn: () => listOrders() });
   const orders = ordersQuery.data ?? [];
+
+  const invoicesQuery = useQuery({ queryKey: ["invoices"], queryFn: listInvoices, enabled: tab === "invoices" });
+  const invoices = invoicesQuery.data ?? [];
 
   const filters = useMemo(() => {
     const pending = orders.filter((o) => o.status === "pending" || o.status === "confirmed").length;
@@ -72,6 +93,11 @@ export function MobileSalesOrders({
     const query = search.trim().toLowerCase();
     const matchesSearch = !query || customerName(o).toLowerCase().includes(query);
     return matchesFilter && matchesSearch;
+  });
+
+  const filteredInvoices = invoices.filter((inv) => {
+    const query = search.trim().toLowerCase();
+    return !query || customerName(inv).toLowerCase().includes(query) || inv.invoiceNumber.toLowerCase().includes(query);
   });
 
   const grossValue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
@@ -98,15 +124,7 @@ export function MobileSalesOrders({
         </div>
       </div>
 
-      {tab !== "orders" ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-16 text-center">
-          <FileText size={24} className="text-text-muted" strokeWidth={1.5} />
-          <h3 className="mt-3 text-sm font-semibold text-text">
-            {salesTabs.find((t) => t.key === tab)?.label} coming soon
-          </h3>
-          <p className="mt-1 text-sm text-text-muted">This section is being designed.</p>
-        </div>
-      ) : (
+      {tab === "orders" && (
         <>
           <div className="rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
             <div className="mb-2 flex items-center gap-1.5">
@@ -189,11 +207,13 @@ export function MobileSalesOrders({
           ) : (
             <div className="space-y-3">
               {filteredOrders.map((order) => {
-                const status = statusBadge[order.status];
+                const status = orderStatusBadge[order.status];
                 return (
-                  <div
+                  <button
                     key={order._id}
-                    className="relative overflow-hidden rounded-xl border border-border bg-surface shadow-elevation-1"
+                    type="button"
+                    onClick={() => setSelectedOrder(order)}
+                    className="relative w-full overflow-hidden rounded-xl border border-border bg-surface text-left shadow-elevation-1 outline-none transition-shadow active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary/40"
                   >
                     <div className="p-3.5">
                       <div className="flex items-start justify-between gap-2">
@@ -218,7 +238,7 @@ export function MobileSalesOrders({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -234,6 +254,67 @@ export function MobileSalesOrders({
           </button>
         </>
       )}
+
+      {tab === "invoices" && (
+        <>
+          <SearchInput
+            placeholder="Search by customer or invoice #…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          {invoicesQuery.isLoading ? (
+            <p className="py-8 text-center text-sm text-text-muted">Loading invoices…</p>
+          ) : filteredInvoices.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
+              <FileText size={22} className="text-text-muted" strokeWidth={1.5} />
+              <p className="mt-2 text-sm font-medium text-text">No invoices found</p>
+              <p className="mt-0.5 text-xs text-text-muted">Bill a customer from Sales to generate one.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredInvoices.map((invoice) => (
+                <button
+                  key={invoice._id}
+                  type="button"
+                  onClick={() => setSelectedInvoice(invoice)}
+                  className="w-full rounded-xl border border-border bg-surface p-3.5 text-left shadow-elevation-1 outline-none transition-shadow active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="truncate text-[15px] font-semibold text-text">{invoice.invoiceNumber}</span>
+                      <p className="mt-0.5 font-label text-[11px] text-text-muted">
+                        {customerName(invoice)} · {invoice.billType === "gst" ? "GST" : "Record"} · {timeAgo(invoice.createdAt)}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <span className="block font-headline text-[15px] font-bold text-text">
+                        {formatCurrency(invoice.totalAmount)}
+                      </span>
+                      <span className="mt-1 inline-block">
+                        <Badge tone={paymentStatusTone[invoice.paymentStatus]}>{paymentStatusLabel[invoice.paymentStatus]}</Badge>
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {(tab === "quotes" || tab === "returns") && (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-16 text-center">
+          <FileText size={24} className="text-text-muted" strokeWidth={1.5} />
+          <h3 className="mt-3 text-sm font-semibold text-text">
+            {salesTabs.find((t) => t.key === tab)?.label} coming soon
+          </h3>
+          <p className="mt-1 text-sm text-text-muted">This section is being designed.</p>
+        </div>
+      )}
+
+      <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      <InvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
     </div>
   );
 }

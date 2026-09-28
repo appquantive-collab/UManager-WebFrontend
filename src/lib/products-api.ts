@@ -1,4 +1,4 @@
-import { apiFetch } from "./api";
+import { apiFetch, apiUpload } from "./api";
 
 export interface Product {
   _id: string;
@@ -8,6 +8,7 @@ export interface Product {
   barcode?: string;
   category?: string;
   brand?: string;
+  imageUrl?: string;
   unit: string;
   hsn?: string;
   gstPercent?: number;
@@ -23,10 +24,11 @@ export interface Product {
 
 export interface ProductInput {
   name: string;
-  sku: string;
+  sku?: string;
   barcode?: string;
   category?: string;
   brand?: string;
+  imageUrl?: string;
   unit: string;
   hsn?: string;
   gstPercent?: number;
@@ -57,4 +59,14 @@ export function updateProduct(id: string, input: Partial<ProductInput>): Promise
 
 export function deleteProduct(id: string): Promise<void> {
   return apiFetch<void>(`/products/${id}`, { method: "DELETE" });
+}
+
+export function uploadProductImage(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("image", file);
+  return apiUpload<{ url: string }>("/uploads/product-image", formData);
+}
+
+export function getProductQr(id: string): Promise<{ sku: string; qrDataUrl: string }> {
+  return apiFetch(`/products/${id}/qr`);
 }

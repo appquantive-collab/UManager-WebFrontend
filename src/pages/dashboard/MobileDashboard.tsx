@@ -56,13 +56,11 @@ const statusLabel: Record<string, { label: string; className: string }> = {
 };
 
 interface MobileDashboardProps {
-  businessName?: string;
-  userName?: string;
   aiLayout?: AiDashboardLayout | null;
   summary?: DashboardSummary;
 }
 
-export function MobileDashboard({ businessName, userName, aiLayout, summary }: MobileDashboardProps) {
+export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
   const [briefOpen, setBriefOpen] = useState(false);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
@@ -87,9 +85,6 @@ export function MobileDashboard({ businessName, userName, aiLayout, summary }: M
 
   const labelFor = (key: SectionKey, fallback: string) =>
     aiLayout?.sections.find((s) => s.key === key)?.label || fallback;
-
-  const firstName = userName?.trim().split(/\s+/)[0] ?? "";
-  const greeting = firstName ? `Good Morning, ${firstName}` : "Good Morning";
 
   const fallbackBrief = summary
     ? `Today's sales are ${formatCurrency(summary.todaySales)}. ${
@@ -406,13 +401,6 @@ export function MobileDashboard({ businessName, userName, aiLayout, summary }: M
 
   return (
     <div className="space-y-4">
-      <section className="flex items-center justify-between gap-3 pt-1">
-        <div className="min-w-0">
-          <h2 className="truncate font-headline text-lg font-bold tracking-tight text-text">{greeting}</h2>
-          {businessName ? <p className="truncate text-xs text-text-muted">{businessName}</p> : null}
-        </div>
-      </section>
-
       {orderedSections.map((key) => sectionRenderers[key]())}
 
       <footer className="flex items-center justify-between rounded-xl border border-border bg-surface p-3">
