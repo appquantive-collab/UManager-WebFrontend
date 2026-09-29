@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { AlertTriangle, Check, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
-import { parseOrderText, createOrder, type OrderLineItemInput } from "../../lib/orders-api";
+import { parseOrderText, createOrder, type OrderLineItemInput, type RawMaterialWarning } from "../../lib/orders-api";
 import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
 import { ApiError } from "../../lib/api";
 
@@ -22,7 +22,7 @@ function emptyItem(): DraftItem {
   return { key: nextKey(), productName: "", quantity: 1, unit: "pcs", unitPrice: 0, isNewProduct: true };
 }
 
-type Mode = "choose" | "ai" | "manual" | "review";
+type Mode = "choose" | "ai" | "manual" | "review" | "warning";
 
 export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -41,6 +41,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
   const [rawTextForSave, setRawTextForSave] = useState<string | undefined>(undefined);
   const [source, setSource] = useState<"manual" | "ai_parsed">("manual");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [rawMaterialWarnings, setRawMaterialWarnings] = useState<RawMaterialWarning[]>([]);
 
   const customersQuery = useQuery({
     queryKey: ["customers", customerQuery],
@@ -98,10 +99,15 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
 
   const saveOrderMutation = useMutation({
     mutationFn: createOrder,
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      resetAndClose();
+      if (result.rawMaterialWarnings.length > 0) {
+        setRawMaterialWarnings(result.rawMaterialWarnings);
+        setMode("warning");
+      } else {
+        resetAndClose();
+      }
     },
     onError: (err) => {
       setSaveError(err instanceof ApiError ? err.message : "Couldn't save the order. Please try again.");
@@ -119,6 +125,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setShowNewCustomerForm(false);
       setItems([]);
       setSaveError(null);
+      setRawMaterialWarnings([]);
     }
   }, [open]);
 
@@ -495,6 +502,36 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   )}
                 </Button>
               </div>
+            </>
+          )}
+
+          {mode === "warning" && (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-container text-warning">
+                  <AlertTriangle size={18} />
+                </span>
+                <h2 className="text-lg font-bold text-text">Order saved — raw materials running low</h2>
+              </div>
+              <p className="mt-2 text-sm text-text-muted">
+                The order was saved. These products don't have enough raw material stock to fully produce the
+                ordered quantity yet:
+              </p>
+
+              <div className="mt-4 space-y-2">
+                {rawMaterialWarnings.map((w) => (
+                  <div key={w.productId} className="rounded-lg border border-warning/40 bg-warning-container/20 px-3.5 py-2.5">
+                    <p className="text-sm font-medium text-text">{w.productName}</p>
+                    <p className="text-xs text-text-muted">
+                      Ordered {w.orderedQuantity}, can currently make {w.producibleQuantity}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <Button className="mt-5 w-full" onClick={resetAndClose}>
+                Got it
+              </Button>
             </>
           )}
         </div>

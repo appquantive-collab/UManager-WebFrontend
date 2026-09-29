@@ -1,5 +1,11 @@
 import { apiFetch, apiUpload } from "./api";
 
+export interface BomLine {
+  rawMaterialId: string;
+  quantity: number;
+  unit: string;
+}
+
 export interface Product {
   _id: string;
   tenantId: string;
@@ -18,6 +24,8 @@ export interface Product {
   minimumPrice?: number;
   reorderLevel: number;
   isActive: boolean;
+  isRawMaterial: boolean;
+  bom: BomLine[];
   createdAt: string;
   updatedAt: string;
 }
@@ -37,10 +45,17 @@ export interface ProductInput {
   retailPrice: number;
   minimumPrice?: number;
   reorderLevel: number;
+  isRawMaterial?: boolean;
+  bom?: BomLine[];
 }
 
-export function listProducts(): Promise<Product[]> {
-  return apiFetch<Product[]>("/products");
+export function listProducts(options?: { rawMaterial?: boolean }): Promise<Product[]> {
+  const qs = options?.rawMaterial !== undefined ? `?rawMaterial=${options.rawMaterial}` : "";
+  return apiFetch<Product[]>(`/products${qs}`);
+}
+
+export function getProduct(id: string): Promise<Product> {
+  return apiFetch<Product>(`/products/${id}`);
 }
 
 export function createProduct(input: ProductInput): Promise<Product> {

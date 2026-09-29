@@ -1,24 +1,25 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Boxes, Package, Plus, QrCode, SquarePen, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Boxes, Hammer, Package, Plus, QrCode, SquarePen, Trash2 } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { IconChip } from "../../components/ui/IconChip";
 import { SearchInput } from "../../components/ui/SearchInput";
-import {
-  createProduct,
-  deleteProduct,
-  listProducts,
-  updateProduct,
-  type Product,
-  type ProductInput,
-} from "../../lib/products-api";
+import { Tabs } from "../../components/ui/Tabs";
+import { deleteProduct, listProducts, type Product } from "../../lib/products-api";
+import { assembleProduct } from "../../lib/assembly-api";
 import { createStockMovement, getStockLevels, type CreateMovementInput } from "../../lib/stock-api";
 import { MobileInventoryStock } from "./MobileInventoryStock";
-import { ProductForm } from "./ProductForm";
 import { StockForm } from "./StockForm";
+import { AssembleForm } from "./AssembleForm";
 import { ProductQrModal } from "../../components/inventory/ProductQrModal";
+
+const inventoryTabs = [
+  { key: "products", label: "Products" },
+  { key: "raw-materials", label: "Raw Materials" },
+];
 
 const currency = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -33,38 +34,22 @@ function colorForCategory(category?: string): string {
 
 export function InventoryPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("products");
   const [search, setSearch] = useState("");
-  const [dialogState, setDialogState] = useState<{ mode: "create" } | { mode: "edit"; product: Product } | null>(
-    null
-  );
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [qrProduct, setQrProduct] = useState<Product | null>(null);
+  const [assembleProductState, setAssembleProductState] = useState<Product | null>(null);
 
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ["products"],
-    queryFn: listProducts,
+    queryFn: () => listProducts(),
   });
 
   const { data: stockLevels } = useQuery({
     queryKey: ["stock-levels"],
     queryFn: getStockLevels,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (input: ProductInput) => createProduct(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      setDialogState(null);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<ProductInput> }) => updateProduct(id, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      setDialogState(null);
-    },
   });
 
   const deleteMutation = useMutation({
@@ -84,17 +69,31 @@ export function InventoryPage() {
     },
   });
 
-  const filtered = useMemo(() => {
+  const assembleMutation = useMutation({
+    mutationFn: (input: { warehouseId: string; quantity: number; note?: string }) =>
+      assembleProduct({ ...input, productId: assembleProductState!._id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["stock-levels"] });
+      queryClient.invalidateQueries({ queryKey: ["producible", assembleProductState?._id] });
+      setAssembleProductState(null);
+    },
+  });
+
+  const scoped = useMemo(() => {
     if (!products) return [];
+    return products.filter((p) => (tab === "raw-materials" ? p.isRawMaterial : !p.isRawMaterial));
+  }, [products, tab]);
+
+  const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return products;
-    return products.filter(
+    if (!query) return scoped;
+    return scoped.filter(
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.sku.toLowerCase().includes(query) ||
         p.category?.toLowerCase().includes(query)
     );
-  }, [products, search]);
+  }, [scoped, search]);
 
   return (
     <>
@@ -103,10 +102,11 @@ export function InventoryPage() {
       </div>
 
       <div className="hidden space-y-6 lg:block">
-      <div className="flex justify-end">
-        <Button onClick={() => setDialogState({ mode: "create" })}>
+      <div className="flex items-center justify-between gap-3">
+        <Tabs tabs={inventoryTabs} active={tab} onChange={setTab} />
+        <Button onClick={() => navigate(tab === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}>
           <Plus size={16} className="mr-1.5" strokeWidth={2} />
-          Add product
+          {tab === "raw-materials" ? "Add raw material" : "Add product"}
         </Button>
       </div>
 
@@ -127,15 +127,21 @@ export function InventoryPage() {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={Package}
-          title={products && products.length > 0 ? "No matching products" : "No products yet"}
+          title={scoped.length > 0 ? "No matching results" : tab === "raw-materials" ? "No raw materials yet" : "No products yet"}
           description={
-            products && products.length > 0
+            scoped.length > 0
               ? "Try a different search term."
-              : "Add your first product to start tracking inventory, pricing, and stock."
+              : tab === "raw-materials"
+                ? "Add raw materials here, then reference them in a product's Bill of Materials."
+                : "Add your first product to start tracking inventory, pricing, and stock."
           }
           action={
-            !products || products.length === 0 ? (
-              <Button onClick={() => setDialogState({ mode: "create" })}>Add product</Button>
+            scoped.length === 0 ? (
+              <Button
+                onClick={() => navigate(tab === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
+              >
+                {tab === "raw-materials" ? "Add raw material" : "Add product"}
+              </Button>
             ) : undefined
           }
         />
@@ -199,6 +205,16 @@ export function InventoryPage() {
                       >
                         <Boxes size={16} />
                       </button>
+                      {product.bom.length > 0 ? (
+                        <button
+                          type="button"
+                          aria-label={`Assemble ${product.name} from raw materials`}
+                          onClick={() => setAssembleProductState(product)}
+                          className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
+                        >
+                          <Hammer size={16} />
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         aria-label={`View QR code for ${product.name}`}
@@ -210,7 +226,7 @@ export function InventoryPage() {
                       <button
                         type="button"
                         aria-label={`Edit ${product.name}`}
-                        onClick={() => setDialogState({ mode: "edit", product })}
+                        onClick={() => navigate(`/app/inventory/${product._id}/edit`)}
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
                         <SquarePen size={16} />
@@ -233,23 +249,6 @@ export function InventoryPage() {
       )}
       </div>
 
-      <Dialog
-        open={dialogState !== null}
-        onClose={() => setDialogState(null)}
-        title={dialogState?.mode === "edit" ? "Edit product" : "Add product"}
-      >
-        <ProductForm
-          key={dialogState?.mode === "edit" ? dialogState.product._id : "create"}
-          initialValues={dialogState?.mode === "edit" ? dialogState.product : undefined}
-          onCancel={() => setDialogState(null)}
-          onSubmit={(input) =>
-            dialogState?.mode === "edit"
-              ? updateMutation.mutateAsync({ id: dialogState.product._id, input })
-              : createMutation.mutateAsync(input)
-          }
-        />
-      </Dialog>
-
       <Dialog open={stockProduct !== null} onClose={() => setStockProduct(null)} title="Add / adjust stock">
         {stockProduct ? (
           <StockForm
@@ -257,6 +256,21 @@ export function InventoryPage() {
             product={stockProduct}
             onCancel={() => setStockProduct(null)}
             onSubmit={(input) => stockMutation.mutateAsync({ ...input, productId: stockProduct._id })}
+          />
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        open={assembleProductState !== null}
+        onClose={() => setAssembleProductState(null)}
+        title="Assemble from raw materials"
+      >
+        {assembleProductState ? (
+          <AssembleForm
+            key={assembleProductState._id}
+            product={assembleProductState}
+            onCancel={() => setAssembleProductState(null)}
+            onSubmit={(input) => assembleMutation.mutateAsync(input)}
           />
         ) : null}
       </Dialog>

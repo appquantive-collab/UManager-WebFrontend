@@ -1,18 +1,20 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
-import { AlertTriangle, Ban, CheckCircle2, Package, PackagePlus, Plus, Warehouse } from "lucide-react";
+import { AlertTriangle, Ban, CheckCircle2, Hammer, Package, PackagePlus, Plus, Warehouse } from "lucide-react";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { Dialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
 import { listProducts, type Product } from "../../lib/products-api";
 import { createStockMovement, getStockLevels, listWarehouses, type CreateMovementInput } from "../../lib/stock-api";
+import { assembleProduct } from "../../lib/assembly-api";
 import { StockForm } from "./StockForm";
-import { ProductForm } from "./ProductForm";
-import { createProduct, type ProductInput } from "../../lib/products-api";
+import { AssembleForm } from "./AssembleForm";
 import { formatCurrency } from "../../lib/format";
 
 type StatusFilter = "all" | "low" | "out";
+type TypeFilter = "products" | "raw-materials";
 
 function stockStatus(quantity: number, reorderLevel: number): "normal" | "low" | "out" {
   if (quantity <= 0) return "out";
@@ -28,13 +30,15 @@ const statusBadge: Record<"normal" | "low" | "out", { label: string; className: 
 
 export function MobileInventoryStock() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [warehouseFilter, setWarehouseFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("products");
   const [search, setSearch] = useState("");
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
-  const [addProductOpen, setAddProductOpen] = useState(false);
+  const [assembleProductState, setAssembleProductState] = useState<Product | null>(null);
 
-  const productsQuery = useQuery({ queryKey: ["products"], queryFn: listProducts });
+  const productsQuery = useQuery({ queryKey: ["products"], queryFn: () => listProducts() });
   const stockLevelsQuery = useQuery({ queryKey: ["stock-levels"], queryFn: getStockLevels });
   const warehousesQuery = useQuery({ queryKey: ["warehouses"], queryFn: listWarehouses });
 
@@ -47,15 +51,19 @@ export function MobileInventoryStock() {
     },
   });
 
-  const createProductMutation = useMutation({
-    mutationFn: (input: ProductInput) => createProduct(input),
+  const assembleMutation = useMutation({
+    mutationFn: (input: { warehouseId: string; quantity: number; note?: string }) =>
+      assembleProduct({ ...input, productId: assembleProductState!._id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      setAddProductOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["stock-levels"] });
+      queryClient.invalidateQueries({ queryKey: ["producible", assembleProductState?._id] });
+      setAssembleProductState(null);
     },
   });
 
-  const products = productsQuery.data ?? [];
+  const products = (productsQuery.data ?? []).filter((p) =>
+    typeFilter === "raw-materials" ? p.isRawMaterial : !p.isRawMaterial
+  );
   const stockLevels = stockLevelsQuery.data ?? {};
   const warehouses = warehousesQuery.data ?? [];
 
@@ -117,11 +125,13 @@ export function MobileInventoryStock() {
           </div>
           <button
             type="button"
-            onClick={() => setAddProductOpen(true)}
+            onClick={() => navigate(typeFilter === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
             className="flex items-center gap-1 rounded-full bg-primary-container px-2.5 py-1 text-primary outline-none transition-colors hover:bg-primary-container/80 focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <Plus size={14} />
-            <span className="font-label text-[10px] font-semibold tracking-wide">Add Product</span>
+            <span className="font-label text-[10px] font-semibold tracking-wide">
+              {typeFilter === "raw-materials" ? "Add Raw Material" : "Add Product"}
+            </span>
           </button>
         </div>
 
@@ -216,6 +226,29 @@ export function MobileInventoryStock() {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-variant p-1">
+        <button
+          type="button"
+          onClick={() => setTypeFilter("products")}
+          className={clsx(
+            "rounded-lg py-1.5 font-label text-xs font-semibold tracking-wide outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+            typeFilter === "products" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
+          )}
+        >
+          Products
+        </button>
+        <button
+          type="button"
+          onClick={() => setTypeFilter("raw-materials")}
+          className={clsx(
+            "rounded-lg py-1.5 font-label text-xs font-semibold tracking-wide outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+            typeFilter === "raw-materials" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
+          )}
+        >
+          Raw Materials
+        </button>
+      </div>
+
       <div className="scrollbar-hide flex items-center gap-1.5 overflow-x-auto pb-0.5">
         {statusFilters.map((f) => (
           <button
@@ -241,14 +274,25 @@ export function MobileInventoryStock() {
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
           <Package size={22} className="text-text-muted" strokeWidth={1.5} />
           <p className="mt-2 text-sm font-medium text-text">
-            {products.length === 0 ? "No products yet" : "No matching products"}
+            {products.length === 0
+              ? typeFilter === "raw-materials"
+                ? "No raw materials yet"
+                : "No products yet"
+              : "No matching results"}
           </p>
           <p className="mt-0.5 text-xs text-text-muted">
-            {products.length === 0 ? "Add your first product to start tracking stock." : "Try a different search or filter."}
+            {products.length === 0
+              ? typeFilter === "raw-materials"
+                ? "Add raw materials here, then reference them in a product's Bill of Materials."
+                : "Add your first product to start tracking stock."
+              : "Try a different search or filter."}
           </p>
           {products.length === 0 && (
-            <Button className="mt-3" onClick={() => setAddProductOpen(true)}>
-              Add product
+            <Button
+              className="mt-3"
+              onClick={() => navigate(typeFilter === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
+            >
+              {typeFilter === "raw-materials" ? "Add raw material" : "Add product"}
             </Button>
           )}
         </div>
@@ -262,6 +306,7 @@ export function MobileInventoryStock() {
               warehouseBreakdown={stockLevels[product._id]?.warehouses ?? {}}
               warehouses={warehouses}
               onAddStock={() => setStockProduct(product)}
+              onAssemble={product.bom.length > 0 ? () => setAssembleProductState(product) : undefined}
             />
           ))}
         </div>
@@ -278,8 +323,19 @@ export function MobileInventoryStock() {
         ) : null}
       </Dialog>
 
-      <Dialog open={addProductOpen} onClose={() => setAddProductOpen(false)} title="Add product">
-        <ProductForm onCancel={() => setAddProductOpen(false)} onSubmit={(input) => createProductMutation.mutateAsync(input)} />
+      <Dialog
+        open={assembleProductState !== null}
+        onClose={() => setAssembleProductState(null)}
+        title="Assemble from raw materials"
+      >
+        {assembleProductState ? (
+          <AssembleForm
+            key={assembleProductState._id}
+            product={assembleProductState}
+            onCancel={() => setAssembleProductState(null)}
+            onSubmit={(input) => assembleMutation.mutateAsync(input)}
+          />
+        ) : null}
       </Dialog>
     </div>
   );
@@ -291,12 +347,14 @@ function SkuCard({
   warehouseBreakdown,
   warehouses,
   onAddStock,
+  onAssemble,
 }: {
   product: Product;
   quantity: number;
   warehouseBreakdown: Record<string, number>;
   warehouses: { _id: string; name: string }[];
   onAddStock: () => void;
+  onAssemble?: () => void;
 }) {
   const status = stockStatus(quantity, product.reorderLevel);
   const badge = statusBadge[status];
@@ -346,7 +404,7 @@ function SkuCard({
         <StatCell label="PRICE" value={formatCurrency(product.wholesalePrice)} />
       </div>
 
-      <div className="grid grid-cols-1 gap-2 pt-1">
+      <div className={clsx("grid gap-2 pt-1", onAssemble ? "grid-cols-2" : "grid-cols-1")}>
         <button
           type="button"
           onClick={onAddStock}
@@ -354,6 +412,15 @@ function SkuCard({
         >
           <PackagePlus size={16} /> Add / Adjust Stock
         </button>
+        {onAssemble ? (
+          <button
+            type="button"
+            onClick={onAssemble}
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-surface py-2 font-label text-xs font-semibold text-text transition-all active:scale-95 hover:bg-surface-muted"
+          >
+            <Hammer size={16} /> Assemble
+          </button>
+        ) : null}
       </div>
     </div>
   );

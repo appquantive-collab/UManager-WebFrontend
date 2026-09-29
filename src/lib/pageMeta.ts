@@ -9,6 +9,7 @@ export const pageMeta: Record<string, PageMeta> = {
   "/app/sales": { title: "Sales", subtitle: "Orders, invoices, and payments." },
   "/app/purchases": { title: "Purchases", subtitle: "Purchase orders and supplier payments." },
   "/app/inventory": { title: "Inventory", subtitle: "Manage your products and pricing." },
+  "/app/inventory/new": { title: "Add product", subtitle: "Create a new product or raw material." },
   "/app/customers": { title: "Customers", subtitle: "Customer accounts, credit, and ledgers." },
   "/app/suppliers": { title: "Suppliers", subtitle: "Supplier accounts and payment ledgers." },
   "/app/warehouses": { title: "Warehouses", subtitle: "Locations, stock value, and transfers." },
@@ -19,5 +20,8 @@ export const pageMeta: Record<string, PageMeta> = {
 };
 
 export function getPageMeta(pathname: string): PageMeta {
+  if (/^\/app\/inventory\/[^/]+\/edit$/.test(pathname)) {
+    return { title: "Edit product", subtitle: "Update product or raw material details." };
+  }
   return pageMeta[pathname] ?? { title: "UManager", subtitle: "" };
 }

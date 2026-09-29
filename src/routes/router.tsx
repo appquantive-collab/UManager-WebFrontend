@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { TenantAdminLayout } from "../layouts/TenantAdminLayout";
 import { DashboardPage } from "../pages/DashboardPage";
 import { InventoryPage } from "../pages/inventory/InventoryPage";
+import { ProductFormPage } from "../pages/inventory/ProductFormPage";
 import { SalesPage } from "../pages/sales/SalesPage";
 import { PurchasesPage } from "../pages/purchases/PurchasesPage";
 import { CustomersPage } from "../pages/customers/CustomersPage";
@@ -33,6 +34,8 @@ export const router = createBrowserRouter([
           { path: "sales", element: <SalesPage /> },
           { path: "purchases", element: <PurchasesPage /> },
           { path: "inventory", element: <InventoryPage /> },
+          { path: "inventory/new", element: <ProductFormPage /> },
+          { path: "inventory/:id/edit", element: <ProductFormPage /> },
           { path: "customers", element: <CustomersPage /> },
           { path: "suppliers", element: <SuppliersPage /> },
           { path: "warehouses", element: <WarehousesPage /> },

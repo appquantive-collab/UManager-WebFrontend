@@ -60,7 +60,14 @@ export interface Order {
   updatedAt: string;
 }
 
-export function createOrder(input: CreateOrderInput): Promise<Order> {
+export interface RawMaterialWarning {
+  productId: string;
+  productName: string;
+  orderedQuantity: number;
+  producibleQuantity: number;
+}
+
+export function createOrder(input: CreateOrderInput): Promise<Order & { rawMaterialWarnings: RawMaterialWarning[] }> {
   return apiFetch("/orders", {
     method: "POST",
     body: JSON.stringify(input),
