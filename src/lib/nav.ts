@@ -47,6 +47,5 @@ export const mobileBottomNav: NavItem[] = [
   { label: "Home", path: "/app", icon: LayoutDashboard },
   { label: "Sales", path: "/app/sales", icon: Receipt },
   { label: "Stock", path: "/app/inventory", icon: Package },
-  { label: "AI Intel", path: "/app/ai", icon: Sparkles },
-  { label: "Parties", path: "/app/customers", icon: Users },
+  { label: "Staff", path: "/app/staff", icon: UserCog },
 ];

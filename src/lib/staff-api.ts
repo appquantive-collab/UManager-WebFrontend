@@ -1,6 +1,7 @@
 import { apiFetch } from "./api";
 
 export type StaffRole = "MANAGER" | "SALESMAN" | "WAREHOUSE_STAFF";
+export type PayType = "salary" | "daily_wage";
 
 export interface Department {
   _id: string;
@@ -12,6 +13,13 @@ export interface Designation {
   title: string;
 }
 
+export interface DaySchedule {
+  dayOfWeek: number;
+  isDayOff: boolean;
+  startTime?: string;
+  endTime?: string;
+}
+
 export interface StaffMember {
   _id: string;
   name: string;
@@ -19,6 +27,10 @@ export interface StaffMember {
   role: StaffRole;
   departmentId: Department | null;
   designationId: Designation | null;
+  weeklySchedule: DaySchedule[];
+  payType: PayType;
+  monthlySalary?: number;
+  dailyWage?: number;
   isActive: boolean;
   createdAt: string;
 }
@@ -29,6 +41,10 @@ export interface CreateStaffInput {
   role: StaffRole;
   departmentId?: string;
   designationId?: string;
+  weeklySchedule?: DaySchedule[];
+  payType: PayType;
+  monthlySalary?: number;
+  dailyWage?: number;
 }
 
 export interface UpdateStaffInput {
@@ -37,6 +53,10 @@ export interface UpdateStaffInput {
   role?: StaffRole;
   departmentId?: string | null;
   designationId?: string | null;
+  weeklySchedule?: DaySchedule[];
+  payType?: PayType;
+  monthlySalary?: number;
+  dailyWage?: number;
   isActive?: boolean;
 }
 

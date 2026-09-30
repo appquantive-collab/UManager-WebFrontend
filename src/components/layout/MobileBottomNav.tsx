@@ -8,9 +8,9 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ onQuickAction }: MobileBottomNavProps) {
-  const [home, sales, stock, ai, parties] = mobileBottomNav;
+  const [home, sales, stock, staff] = mobileBottomNav;
   const left = [home, sales];
-  const right = [stock, ai, parties];
+  const right = [stock, staff];
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     clsx(

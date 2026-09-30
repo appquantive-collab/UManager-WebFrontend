@@ -16,12 +16,16 @@ export const pageMeta: Record<string, PageMeta> = {
   "/app/reports": { title: "Reports", subtitle: "Business performance across sales, purchases, and inventory." },
   "/app/ai": { title: "AI Assistant", subtitle: "Ask about your business or review AI-generated insights." },
   "/app/staff": { title: "Staff", subtitle: "Hire people and give each access to only the features they need." },
+  "/app/staff/new": { title: "Add staff member", subtitle: "Add a new team member, their schedule, and pay." },
   "/app/settings": { title: "Settings", subtitle: "Business configuration and preferences." },
 };
 
 export function getPageMeta(pathname: string): PageMeta {
   if (/^\/app\/inventory\/[^/]+\/edit$/.test(pathname)) {
     return { title: "Edit product", subtitle: "Update product or raw material details." };
+  }
+  if (/^\/app\/staff\/[^/]+\/edit$/.test(pathname)) {
+    return { title: "Edit staff member", subtitle: "Update role, schedule, or pay details." };
   }
   return pageMeta[pathname] ?? { title: "UManager", subtitle: "" };
 }

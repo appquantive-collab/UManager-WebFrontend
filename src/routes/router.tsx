@@ -11,6 +11,7 @@ import { WarehousesPage } from "../pages/warehouses/WarehousesPage";
 import { ReportsPage } from "../pages/reports/ReportsPage";
 import { AiPage } from "../pages/ai/AiPage";
 import { StaffPage } from "../pages/staff/StaffPage";
+import { StaffFormPage } from "../pages/staff/StaffFormPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { LoginPage } from "../pages/auth/LoginPage";
 import { RegisterPage } from "../pages/auth/RegisterPage";
@@ -42,6 +43,8 @@ export const router = createBrowserRouter([
           { path: "reports", element: <ReportsPage /> },
           { path: "ai", element: <AiPage /> },
           { path: "staff", element: <StaffPage /> },
+          { path: "staff/new", element: <StaffFormPage /> },
+          { path: "staff/:id/edit", element: <StaffFormPage /> },
           { path: "settings", element: <SettingsPage /> },
         ],
       },

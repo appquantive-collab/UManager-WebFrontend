@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Building2, Phone, Plus, ShieldCheck, UserCog } from "lucide-react";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
@@ -7,9 +8,16 @@ import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
+import { Tabs } from "../../components/ui/Tabs";
 import { listStaff, type StaffMember } from "../../lib/staff-api";
-import { AddStaffModal } from "../../components/staff/AddStaffModal";
-import { StaffDetailModal } from "../../components/staff/StaffDetailModal";
+import { AttendanceTab } from "./AttendanceTab";
+import { PayrollTab } from "./PayrollTab";
+
+const tabs = [
+  { key: "team", label: "Team" },
+  { key: "attendance", label: "Attendance" },
+  { key: "payroll", label: "Payroll" },
+];
 
 const filters = [
   { key: "all", label: "All" },
@@ -23,11 +31,10 @@ const roleLabel: Record<StaffMember["role"], string> = {
   WAREHOUSE_STAFF: "Warehouse Staff",
 };
 
-export function StaffPage() {
+function TeamTab() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [addOpen, setAddOpen] = useState(false);
-  const [selected, setSelected] = useState<StaffMember | null>(null);
 
   const staffQuery = useQuery({ queryKey: ["staff"], queryFn: listStaff });
   const staff = staffQuery.data ?? [];
@@ -46,7 +53,7 @@ export function StaffPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={() => setAddOpen(true)}>
+        <Button onClick={() => navigate("/app/staff/new")}>
           <Plus size={16} className="mr-1.5" strokeWidth={2.5} />
           Add Staff
         </Button>
@@ -64,7 +71,7 @@ export function StaffPage() {
           icon={UserCog}
           title="No staff members found"
           description="Try a different search or filter, or add your first team member."
-          action={<Button onClick={() => setAddOpen(true)}>Add Staff</Button>}
+          action={<Button onClick={() => navigate("/app/staff/new")}>Add Staff</Button>}
         />
       ) : (
         <div className="space-y-3">
@@ -72,7 +79,7 @@ export function StaffPage() {
             <button
               key={member._id}
               type="button"
-              onClick={() => setSelected(member)}
+              onClick={() => navigate(`/app/staff/${member._id}/edit`)}
               className="flex w-full items-center justify-between rounded-2xl bg-surface p-5 text-left shadow-elevation-1 outline-none transition-shadow hover:shadow-elevation-2 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <div className="flex items-center gap-4">
@@ -100,6 +107,7 @@ export function StaffPage() {
                       </span>
                     ) : null}
                     {member.designationId ? <span>{member.designationId.title}</span> : null}
+                    <span>{member.payType === "salary" ? "Salaried" : "Daily wage"}</span>
                   </div>
                 </div>
               </div>
@@ -107,9 +115,19 @@ export function StaffPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
 
-      <AddStaffModal open={addOpen} onClose={() => setAddOpen(false)} />
-      <StaffDetailModal staff={selected} onClose={() => setSelected(null)} />
+export function StaffPage() {
+  const [tab, setTab] = useState("team");
+
+  return (
+    <div className="space-y-4">
+      <Tabs tabs={tabs} active={tab} onChange={setTab} />
+      {tab === "team" && <TeamTab />}
+      {tab === "attendance" && <AttendanceTab />}
+      {tab === "payroll" && <PayrollTab />}
     </div>
   );
 }

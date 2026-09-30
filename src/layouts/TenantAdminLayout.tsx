@@ -20,6 +20,20 @@ import { useNewSaleModalStore } from "../lib/new-sale-store";
 
 const ONBOARDING_SKIPPED_KEY = "umanager.onboarding-skipped";
 
+// Full-page forms (not modals) get their own Cancel/Save actions, so the
+// global FAB and bottom nav would only sit on top of the form with nothing
+// useful to add — hide them on these routes instead of the usual pages.
+const FULL_PAGE_FORM_PATTERNS = [
+  /^\/app\/inventory\/new$/,
+  /^\/app\/inventory\/[^/]+\/edit$/,
+  /^\/app\/staff\/new$/,
+  /^\/app\/staff\/[^/]+\/edit$/,
+];
+
+function isFullPageForm(pathname: string): boolean {
+  return FULL_PAGE_FORM_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
 function initialsFor(name: string): string {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
@@ -223,19 +237,23 @@ export function TenantAdminLayout() {
           userInitials={initialsFor(user?.name ?? "?")}
         />
 
-        {/* Bottom padding clears the fixed mobile nav bar. */}
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-4 lg:px-8 lg:pb-6 lg:pt-6">
+        {/* Bottom padding clears the fixed mobile nav bar — skipped on full-page forms, which have no bottom nav to clear. */}
+        <main className={clsx("flex-1 overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-24")}>
           <Outlet />
         </main>
       </div>
 
-      <MobileBottomNav onQuickAction={() => setQuickActionsOpen(true)} />
-      <QuickActionSheet
-        open={quickActionsOpen}
-        onClose={() => setQuickActionsOpen(false)}
-        onNewOrder={openNewOrder}
-        onNewSale={openNewSale}
-      />
+      {!isFullPageForm(location.pathname) && (
+        <>
+          <MobileBottomNav onQuickAction={() => setQuickActionsOpen(true)} />
+          <QuickActionSheet
+            open={quickActionsOpen}
+            onClose={() => setQuickActionsOpen(false)}
+            onNewOrder={openNewOrder}
+            onNewSale={openNewSale}
+          />
+        </>
+      )}
       <OnboardingModal open={showOnboarding} onClose={dismissOnboarding} />
       <NewOrderModal open={newOrderOpen} onClose={closeNewOrder} />
       <NewSaleModal open={newSaleOpen} onClose={closeNewSale} />
