@@ -4,10 +4,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000
 
 export class ApiError extends Error {
   status: number;
+  code?: string;
+  retryAfterSeconds?: number;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, code?: string, retryAfterSeconds?: number) {
     super(message);
     this.status = status;
+    this.code = code;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -23,7 +27,12 @@ async function parseErrorBody(res: Response): Promise<never> {
   const body = await res.json().catch(() => ({}));
   const message =
     typeof body.error === "string" ? body.error : (body.error?.message ?? `Request failed: ${res.status}`);
-  throw new ApiError(message, res.status);
+  throw new ApiError(
+    message,
+    res.status,
+    typeof body.code === "string" ? body.code : undefined,
+    typeof body.retryAfterSeconds === "number" ? body.retryAfterSeconds : undefined
+  );
 }
 
 // Concurrent 401s must share a single refresh call — otherwise every in-flight
@@ -57,7 +66,7 @@ async function refreshAccessToken(): Promise<string> {
 // Endpoints that authenticate a user rather than act on an existing session —
 // a 401 from these always means "wrong credentials," never "expired token,"
 // so they must never trigger the refresh-and-retry flow below.
-const AUTH_ENTRY_POINTS = ["/auth/login", "/auth/login-phone", "/auth/register", "/auth/refresh"];
+const AUTH_ENTRY_POINTS = ["/auth/login", "/auth/otp/request", "/auth/otp/verify", "/auth/register", "/auth/refresh"];
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken;

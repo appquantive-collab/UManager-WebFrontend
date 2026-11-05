@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   CalendarDays,
   ChevronDown,
@@ -23,36 +24,25 @@ import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { formatCurrency } from "../../lib/format";
 
 const quickActions = [
-  { key: "new_order", label: "New Order", icon: Sparkles, className: "bg-primary-container text-primary" },
-  { key: "new_sale", label: "New Sale", icon: ShoppingCart, className: "bg-success-container text-success" },
-  { key: "voice_order", label: "Voice Order", icon: Mic, className: "bg-info-container text-info" },
-  { key: "scan_stock", label: "Scan Stock", icon: ScanLine, className: "bg-surface-muted text-text" },
+  { key: "new_order", i18nKey: "dashboard.mobileDashboard.quickActions.newOrder", icon: Sparkles, className: "bg-primary-container text-primary" },
+  { key: "new_sale", i18nKey: "dashboard.mobileDashboard.quickActions.newSale", icon: ShoppingCart, className: "bg-success-container text-success" },
+  { key: "voice_order", i18nKey: "dashboard.mobileDashboard.quickActions.voiceOrder", icon: Mic, className: "bg-info-container text-info" },
+  { key: "scan_stock", i18nKey: "dashboard.mobileDashboard.quickActions.scanStock", icon: ScanLine, className: "bg-surface-muted text-text" },
 ];
 
 const SECTION_ORDER = ["ai_brief", "quick_actions", "immediate_operations", "ledger_metrics", "order_flow"] as const;
 type SectionKey = (typeof SECTION_ORDER)[number];
-
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
 
 function initialsFor(name: string): string {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
 }
 
-const statusLabel: Record<string, { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-warning-container text-warning" },
-  confirmed: { label: "Confirmed", className: "bg-info-container text-info" },
-  delivered: { label: "Billed", className: "bg-success-container text-success" },
-  cancelled: { label: "Cancelled", className: "bg-danger-container text-danger" },
+const statusClassName: Record<string, string> = {
+  pending: "bg-warning-container text-warning",
+  confirmed: "bg-info-container text-info",
+  delivered: "bg-success-container text-success",
+  cancelled: "bg-danger-container text-danger",
 };
 
 interface MobileDashboardProps {
@@ -61,6 +51,7 @@ interface MobileDashboardProps {
 }
 
 export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
+  const { t } = useTranslation();
   const [briefOpen, setBriefOpen] = useState(false);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
@@ -68,6 +59,24 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
   const quickActionHandlers: Record<string, (() => void) | undefined> = {
     new_order: openNewOrder,
     new_sale: openNewSale,
+  };
+
+  const timeAgo = (iso: string): string => {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return t("dashboard.mobileDashboard.justNow");
+    if (mins < 60) return t("dashboard.mobileDashboard.minutesAgo", { count: mins });
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return t("dashboard.mobileDashboard.hoursAgo", { count: hours });
+    const days = Math.floor(hours / 24);
+    return t("dashboard.mobileDashboard.daysAgo", { count: days });
+  };
+
+  const statusLabel: Record<string, { label: string; className: string }> = {
+    pending: { label: t("dashboard.mobileDashboard.statusLabel.pending"), className: statusClassName.pending },
+    confirmed: { label: t("dashboard.mobileDashboard.statusLabel.confirmed"), className: statusClassName.confirmed },
+    delivered: { label: t("dashboard.mobileDashboard.statusLabel.delivered"), className: statusClassName.delivered },
+    cancelled: { label: t("dashboard.mobileDashboard.statusLabel.cancelled"), className: statusClassName.cancelled },
   };
 
   const orderedSections = useMemo<SectionKey[]>(() => {
@@ -87,16 +96,24 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
     aiLayout?.sections.find((s) => s.key === key)?.label || fallback;
 
   const fallbackBrief = summary
-    ? `Today's sales are ${formatCurrency(summary.todaySales)}. ${
+    ? `${t("dashboard.mobileDashboard.fallbackBriefSales", { amount: formatCurrency(summary.todaySales) })} ${
         summary.lowStockCount > 0
-          ? `${summary.lowStockCount} product${summary.lowStockCount === 1 ? " is" : "s are"} below reorder level.`
-          : "No products are below reorder level."
+          ? t(
+              summary.lowStockCount === 1
+                ? "dashboard.mobileDashboard.fallbackBriefLowStockOne"
+                : "dashboard.mobileDashboard.fallbackBriefLowStockOther",
+              { count: summary.lowStockCount }
+            )
+          : t("dashboard.mobileDashboard.fallbackBriefNoLowStock")
       } ${
         summary.topOverdueCustomerName
-          ? `${summary.topOverdueCustomerName} has ${formatCurrency(summary.topOverdueAmount)} overdue.`
-          : "No overdue payments."
+          ? t("dashboard.mobileDashboard.fallbackBriefOverdue", {
+              name: summary.topOverdueCustomerName,
+              amount: formatCurrency(summary.topOverdueAmount),
+            })
+          : t("dashboard.mobileDashboard.fallbackBriefNoOverdue")
       }`
-    : "Loading your business brief…";
+    : t("dashboard.mobileDashboard.loadingBrief");
 
   const sectionRenderers: Record<SectionKey, () => React.ReactNode> = {
     ai_brief: () => (
@@ -118,10 +135,10 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
             </span>
             <div>
               <span className="block font-label text-[10px] font-bold uppercase tracking-widest text-primary">
-                Business Brief
+                {t("dashboard.mobileDashboard.businessBriefLabel")}
               </span>
               <h3 className="font-headline text-[15px] font-semibold leading-tight text-text">
-                {labelFor("ai_brief", "Autonomous Business Brief")}
+                {labelFor("ai_brief", t("dashboard.mobileDashboard.autonomousBusinessBrief"))}
               </h3>
             </div>
           </div>
@@ -158,7 +175,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
               <action.icon size={22} />
             </span>
             <span className="mt-2 text-center font-label text-[11px] font-semibold text-text">
-              {aiLayout?.quickActionLabels[action.key] || action.label}
+              {aiLayout?.quickActionLabels[action.key] || t(action.i18nKey)}
             </span>
           </button>
         ))}
@@ -173,21 +190,29 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           ? {
               icon: Package,
               iconClass: "bg-danger-container text-danger",
-              badge: `${summary!.lowStockCount} Low Stock`,
+              badge: t("dashboard.mobileDashboard.lowStockBadge", { count: summary!.lowStockCount }),
               badgeClass: "bg-danger-container text-danger",
-              title: summary!.lowStockItems.slice(0, 2).join(" • ") || "Low stock items",
-              detail: "Below reorder level",
+              title: summary!.lowStockItems.slice(0, 2).join(" • ") || t("dashboard.mobileDashboard.lowStockItemsFallback"),
+              detail: t("dashboard.mobileDashboard.belowReorderLevel"),
             }
           : null,
         hasOverdue
           ? {
               icon: Wallet,
               iconClass: "bg-primary-container text-primary",
-              badge: `${formatCurrency(summary!.receivables)} Overdue`,
+              badge: t("dashboard.mobileDashboard.overdueBadge", { amount: formatCurrency(summary!.receivables) }),
               badgeClass: "bg-primary-container text-primary",
-              title: `${summary!.overdueCustomerCount} ${summary!.overdueCustomerCount === 1 ? "Party" : "Parties"} Pending`,
+              title: t(
+                summary!.overdueCustomerCount === 1
+                  ? "dashboard.mobileDashboard.partyPendingOne"
+                  : "dashboard.mobileDashboard.partyPendingOther",
+                { count: summary!.overdueCustomerCount }
+              ),
               detail: summary!.topOverdueCustomerName
-                ? `Top: ${summary!.topOverdueCustomerName} (${formatCurrency(summary!.topOverdueAmount)})`
+                ? t("dashboard.mobileDashboard.topOverdue", {
+                    name: summary!.topOverdueCustomerName,
+                    amount: formatCurrency(summary!.topOverdueAmount),
+                  })
                 : "",
             }
           : null,
@@ -199,19 +224,19 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
             <div className="flex items-center gap-1.5">
               <span className={clsx("h-2 w-2 rounded-full", cards.length > 0 ? "bg-danger" : "bg-success")} />
               <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
-                {labelFor("immediate_operations", "Immediate Operations")}
+                {labelFor("immediate_operations", t("dashboard.mobileDashboard.immediateOperations"))}
               </h3>
             </div>
             {cards.length > 0 && (
               <span className="rounded-full bg-danger-container px-2 py-0.5 font-label text-[11px] font-bold text-danger">
-                {cards.length} Pending
+                {t("dashboard.mobileDashboard.pendingCount", { count: cards.length })}
               </span>
             )}
           </div>
 
           {cards.length === 0 ? (
             <div className="rounded-xl border border-border bg-surface p-4 text-center text-sm text-text-muted">
-              All clear — no low stock or overdue payments.
+              {t("dashboard.mobileDashboard.allClear")}
             </div>
           ) : (
             <div className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-1">
@@ -246,16 +271,18 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
         <section key="ledger_metrics" className="space-y-2.5">
           <div className="flex items-center justify-between">
             <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
-              {labelFor("ledger_metrics", "Ledger & Logistics Metrics")}
+              {labelFor("ledger_metrics", t("dashboard.mobileDashboard.ledgerMetrics"))}
             </h3>
-            <span className="font-label text-[10px] font-medium text-text-muted">Updated real-time</span>
+            <span className="font-label text-[10px] font-medium text-text-muted">
+              {t("dashboard.mobileDashboard.updatedRealTime")}
+            </span>
           </div>
 
           <div className="rounded-2xl border border-border bg-surface p-4 shadow-elevation-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <span className="block font-label text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Today&apos;s Total Billing
+                  {t("dashboard.mobileDashboard.todaysTotalBilling")}
                 </span>
                 <div className="mt-1 flex items-baseline gap-2">
                   <span className="font-headline text-3xl font-bold tracking-tight text-text">
@@ -275,7 +302,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   )}
                 </div>
                 <span className="mt-1 block font-label text-[11px] text-text-muted">
-                  vs {formatCurrency(summary?.yesterdaySales ?? 0)} yesterday
+                  {t("dashboard.mobileDashboard.vsYesterday", { amount: formatCurrency(summary?.yesterdaySales ?? 0) })}
                 </span>
               </div>
             </div>
@@ -284,7 +311,9 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">Month Sales</span>
+                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  {t("dashboard.mobileDashboard.monthSales")}
+                </span>
                 <CalendarDays size={17} className="text-primary" />
               </div>
               <div className="mt-2.5">
@@ -296,7 +325,9 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">Inventory Val.</span>
+                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  {t("dashboard.mobileDashboard.inventoryValShort")}
+                </span>
                 <Warehouse size={17} className="text-success" />
               </div>
               <div className="mt-2.5">
@@ -305,14 +336,16 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                 </span>
                 <div className="mt-1.5 flex items-center gap-1 font-label text-[11px] text-text-muted">
                   <Hash size={13} />
-                  <span>{summary?.totalSkus ?? 0} Total SKUs</span>
+                  <span>{t("dashboard.mobileDashboard.totalSkus", { count: summary?.totalSkus ?? 0 })}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">Receivables</span>
+                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  {t("dashboard.mobileDashboard.receivables")}
+                </span>
                 <Wallet size={17} className="text-info" />
               </div>
               <div className="mt-2.5">
@@ -323,23 +356,25 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-danger" />
                     <span className="font-label text-[10px] font-bold text-danger">
-                      {summary.overdueCustomerCount} overdue
+                      {t("dashboard.mobileDashboard.overdueCount", { count: summary.overdueCustomerCount })}
                     </span>
                   </div>
                 ) : (
-                  <span className="mt-1.5 block font-label text-[10px] text-text-muted">All clear</span>
+                  <span className="mt-1.5 block font-label text-[10px] text-text-muted">{t("dashboard.mobileDashboard.allClear")}</span>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">Payables</span>
+                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  {t("dashboard.mobileDashboard.payables")}
+                </span>
                 <span className="text-[10px] text-text-muted">—</span>
               </div>
               <div className="mt-2.5">
-                <span className="block font-headline text-lg font-bold text-text-muted">Not tracked</span>
-                <span className="mt-0.5 block font-label text-[10px] text-text-muted">No purchases module yet</span>
+                <span className="block font-headline text-lg font-bold text-text-muted">{t("dashboard.mobileDashboard.notTracked")}</span>
+                <span className="mt-0.5 block font-label text-[10px] text-text-muted">{t("dashboard.mobileDashboard.noPurchasesModuleYet")}</span>
               </div>
             </div>
           </div>
@@ -353,14 +388,14 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           <div className="flex items-center gap-1.5">
             <Receipt size={18} className="text-primary" />
             <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
-              {labelFor("order_flow", "Live Order Flow")}
+              {labelFor("order_flow", t("dashboard.mobileDashboard.liveOrderFlow"))}
             </h3>
           </div>
         </div>
 
         {!summary || summary.recentOrders.length === 0 ? (
           <div className="rounded-xl border border-border bg-surface p-4 text-center text-sm text-text-muted">
-            No orders yet.
+            {t("dashboard.mobileDashboard.noOrdersYet")}
           </div>
         ) : (
           <div className="space-y-2">
@@ -380,7 +415,13 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                         <span className="truncate text-[13px] font-semibold text-text">{order.customerName}</span>
                       </div>
                       <p className="truncate font-label text-[11px] text-text-muted">
-                        {order.itemCount} item{order.itemCount === 1 ? "" : "s"} · {timeAgo(order.createdAt)}
+                        {t(
+                          order.itemCount === 1
+                            ? "dashboard.mobileDashboard.itemsCountOne"
+                            : "dashboard.mobileDashboard.itemsCountOther",
+                          { count: order.itemCount }
+                        )}{" "}
+                        · {timeAgo(order.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -407,7 +448,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
         <div className="flex items-center gap-2">
           <ShieldCheck size={18} className="text-success" />
           <div className="flex flex-col">
-            <span className="font-label text-[11px] font-bold text-text">All data synced</span>
+            <span className="font-label text-[11px] font-bold text-text">{t("dashboard.mobileDashboard.allDataSynced")}</span>
           </div>
         </div>
       </footer>

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FileText, Receipt, Sparkles, Undo2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { Badge } from "../../components/ui/Badge";
 import { formatCurrency } from "../../lib/format";
@@ -10,48 +11,13 @@ import { listInvoices, type Invoice } from "../../lib/invoices-api";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
 import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
 
-const salesTabs = [
-  { key: "orders", label: "Orders", icon: Receipt },
-  { key: "invoices", label: "Invoices", icon: FileText },
-  { key: "quotes", label: "Quotes", icon: FileText },
-  { key: "returns", label: "Returns", icon: Undo2 },
-];
-
 type FilterKey = "all" | "pending" | "delivered" | "cancelled";
-
-function customerName(entity: { customerId: { name: string } | string }): string {
-  return typeof entity.customerId === "string" ? "Unknown customer" : entity.customerId.name;
-}
-
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-const orderStatusBadge: Record<Order["status"], { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-warning-container text-warning" },
-  confirmed: { label: "Confirmed", className: "bg-info-container text-info" },
-  delivered: { label: "Billed", className: "bg-success-container text-success" },
-  cancelled: { label: "Cancelled", className: "bg-danger-container text-danger" },
-};
 
 const paymentStatusTone = {
   unpaid: "danger",
   partial: "warning",
   paid: "success",
 } as const;
-
-const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
-  unpaid: "Unpaid",
-  partial: "Partial",
-  paid: "Paid",
-};
 
 export function MobileSalesOrders({
   onNewOrder,
@@ -60,7 +26,43 @@ export function MobileSalesOrders({
   onNewOrder?: () => void;
   onNewSale?: () => void;
 }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("orders");
+
+  const salesTabs = [
+    { key: "orders", label: t("sales.mobileSalesOrders.tabs.orders"), icon: Receipt },
+    { key: "invoices", label: t("sales.mobileSalesOrders.tabs.invoices"), icon: FileText },
+    { key: "quotes", label: t("sales.mobileSalesOrders.tabs.quotes"), icon: FileText },
+    { key: "returns", label: t("sales.mobileSalesOrders.tabs.returns"), icon: Undo2 },
+  ];
+
+  function customerName(entity: { customerId: { name: string } | string }): string {
+    return typeof entity.customerId === "string" ? t("sales.mobileSalesOrders.unknownCustomer") : entity.customerId.name;
+  }
+
+  function timeAgo(iso: string): string {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return t("sales.mobileSalesOrders.justNow");
+    if (mins < 60) return t("sales.mobileSalesOrders.minutesAgo", { count: mins });
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return t("sales.mobileSalesOrders.hoursAgo", { count: hours });
+    const days = Math.floor(hours / 24);
+    return t("sales.mobileSalesOrders.daysAgo", { count: days });
+  }
+
+  const orderStatusBadge: Record<Order["status"], { label: string; className: string }> = {
+    pending: { label: t("sales.mobileSalesOrders.statusLabel.pending"), className: "bg-warning-container text-warning" },
+    confirmed: { label: t("sales.mobileSalesOrders.statusLabel.confirmed"), className: "bg-info-container text-info" },
+    delivered: { label: t("sales.mobileSalesOrders.statusLabel.delivered"), className: "bg-success-container text-success" },
+    cancelled: { label: t("sales.mobileSalesOrders.statusLabel.cancelled"), className: "bg-danger-container text-danger" },
+  };
+
+  const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
+    unpaid: t("sales.mobileSalesOrders.paymentStatusLabel.unpaid"),
+    partial: t("sales.mobileSalesOrders.paymentStatusLabel.partial"),
+    paid: t("sales.mobileSalesOrders.paymentStatusLabel.paid"),
+  };
   const [filter, setFilter] = useState<FilterKey>("all");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -77,12 +79,13 @@ export function MobileSalesOrders({
     const delivered = orders.filter((o) => o.status === "delivered").length;
     const cancelled = orders.filter((o) => o.status === "cancelled").length;
     return [
-      { key: "all" as const, label: "All Orders", count: orders.length },
-      { key: "pending" as const, label: "Pending", count: pending },
-      { key: "delivered" as const, label: "Billed", count: delivered },
-      { key: "cancelled" as const, label: "Cancelled", count: cancelled },
+      { key: "all" as const, label: t("sales.mobileSalesOrders.filterAllOrders"), count: orders.length },
+      { key: "pending" as const, label: t("sales.mobileSalesOrders.filterPending"), count: pending },
+      { key: "delivered" as const, label: t("sales.mobileSalesOrders.filterBilled"), count: delivered },
+      { key: "cancelled" as const, label: t("sales.mobileSalesOrders.filterCancelled"), count: cancelled },
     ];
-  }, [orders]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, t]);
 
   const filteredOrders = orders.filter((o) => {
     const matchesFilter =
@@ -107,18 +110,18 @@ export function MobileSalesOrders({
     <div className="space-y-3">
       <div className="rounded-xl border border-border bg-surface-muted p-1">
         <div className="grid grid-cols-4 gap-1">
-          {salesTabs.map((t) => (
+          {salesTabs.map((tabItem) => (
             <button
-              key={t.key}
+              key={tabItem.key}
               type="button"
-              onClick={() => setTab(t.key)}
+              onClick={() => setTab(tabItem.key)}
               className={clsx(
                 "flex items-center justify-center gap-1 rounded-lg py-2 font-label text-[11px] font-semibold tracking-wide outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40",
-                tab === t.key ? "bg-primary text-on-primary shadow-elevation-1" : "text-text-muted hover:text-text"
+                tab === tabItem.key ? "bg-primary text-on-primary shadow-elevation-1" : "text-text-muted hover:text-text"
               )}
             >
-              <t.icon size={14} />
-              {t.label}
+              <tabItem.icon size={14} />
+              {tabItem.label}
             </button>
           ))}
         </div>
@@ -130,22 +133,22 @@ export function MobileSalesOrders({
             <div className="mb-2 flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-primary" />
               <span className="font-label text-[10px] font-semibold uppercase tracking-wider text-primary">
-                Order Summary
+                {t("sales.mobileSalesOrders.orderSummary")}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">Gross Value</span>
+                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.grossValue")}</span>
                 <span className="mt-0.5 block font-label text-[11px] font-bold text-primary">
                   {formatCurrency(grossValue)}
                 </span>
               </div>
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">Orders</span>
+                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.orders")}</span>
                 <span className="mt-0.5 block font-label text-[13px] font-bold text-text">{orders.length}</span>
               </div>
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">Avg Ticket</span>
+                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.avgTicket")}</span>
                 <span className="mt-0.5 block truncate font-label text-[13px] font-bold text-text">
                   {formatCurrency(avgTicket)}
                 </span>
@@ -155,7 +158,7 @@ export function MobileSalesOrders({
 
           <div className="flex items-center gap-2">
             <SearchInput
-              placeholder="Search by customer…"
+              placeholder={t("sales.mobileSalesOrders.searchByCustomer")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -167,7 +170,7 @@ export function MobileSalesOrders({
             className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary-container/40 text-primary outline-none transition-colors hover:border-primary active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <Sparkles size={16} />
-            <span className="font-label text-[12px] font-bold uppercase tracking-wide">New Order (Type or Paste)</span>
+            <span className="font-label text-[12px] font-bold uppercase tracking-wide">{t("sales.mobileSalesOrders.newOrderTypeOrPaste")}</span>
           </button>
 
           <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto pb-1">
@@ -197,12 +200,12 @@ export function MobileSalesOrders({
           </div>
 
           {ordersQuery.isLoading ? (
-            <p className="py-8 text-center text-sm text-text-muted">Loading orders…</p>
+            <p className="py-8 text-center text-sm text-text-muted">{t("sales.mobileSalesOrders.loadingOrders")}</p>
           ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
               <Receipt size={22} className="text-text-muted" strokeWidth={1.5} />
-              <p className="mt-2 text-sm font-medium text-text">No orders found</p>
-              <p className="mt-0.5 text-xs text-text-muted">Try a different filter or create a new order.</p>
+              <p className="mt-2 text-sm font-medium text-text">{t("sales.mobileSalesOrders.noOrdersFoundTitle")}</p>
+              <p className="mt-0.5 text-xs text-text-muted">{t("sales.mobileSalesOrders.noOrdersFoundDescription")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -224,7 +227,10 @@ export function MobileSalesOrders({
                           <div className="min-w-0">
                             <span className="truncate text-[15px] font-semibold text-text">{customerName(order)}</span>
                             <p className="mt-0.5 font-label text-[11px] text-text-muted">
-                              {order.items.length} item{order.items.length === 1 ? "" : "s"} · {timeAgo(order.createdAt)}
+                              {order.items.length === 1
+                                ? t("sales.mobileSalesOrders.itemsCountOne", { count: order.items.length })
+                                : t("sales.mobileSalesOrders.itemsCountOther", { count: order.items.length })}{" "}
+                              · {timeAgo(order.createdAt)}
                             </p>
                           </div>
                         </div>
@@ -250,7 +256,7 @@ export function MobileSalesOrders({
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-headline text-[15px] font-bold text-on-primary shadow-elevation-1 outline-none transition-all active:scale-[0.98] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <Receipt size={18} />
-            New Sale
+            {t("sales.mobileSalesOrders.newSale")}
           </button>
         </>
       )}
@@ -258,18 +264,18 @@ export function MobileSalesOrders({
       {tab === "invoices" && (
         <>
           <SearchInput
-            placeholder="Search by customer or invoice #…"
+            placeholder={t("sales.mobileSalesOrders.searchByCustomerOrInvoice")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
           {invoicesQuery.isLoading ? (
-            <p className="py-8 text-center text-sm text-text-muted">Loading invoices…</p>
+            <p className="py-8 text-center text-sm text-text-muted">{t("sales.mobileSalesOrders.loadingInvoices")}</p>
           ) : filteredInvoices.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
               <FileText size={22} className="text-text-muted" strokeWidth={1.5} />
-              <p className="mt-2 text-sm font-medium text-text">No invoices found</p>
-              <p className="mt-0.5 text-xs text-text-muted">Bill a customer from Sales to generate one.</p>
+              <p className="mt-2 text-sm font-medium text-text">{t("sales.mobileSalesOrders.noInvoicesFoundTitle")}</p>
+              <p className="mt-0.5 text-xs text-text-muted">{t("sales.mobileSalesOrders.noInvoicesFoundDescription")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -284,7 +290,7 @@ export function MobileSalesOrders({
                     <div className="min-w-0">
                       <span className="truncate text-[15px] font-semibold text-text">{invoice.invoiceNumber}</span>
                       <p className="mt-0.5 font-label text-[11px] text-text-muted">
-                        {customerName(invoice)} · {invoice.billType === "gst" ? "GST" : "Record"} · {timeAgo(invoice.createdAt)}
+                        {customerName(invoice)} · {invoice.billType === "gst" ? t("sales.mobileSalesOrders.gst") : t("sales.mobileSalesOrders.record")} · {timeAgo(invoice.createdAt)}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
@@ -307,9 +313,9 @@ export function MobileSalesOrders({
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-16 text-center">
           <FileText size={24} className="text-text-muted" strokeWidth={1.5} />
           <h3 className="mt-3 text-sm font-semibold text-text">
-            {salesTabs.find((t) => t.key === tab)?.label} coming soon
+            {t("sales.mobileSalesOrders.comingSoon", { label: salesTabs.find((tabItem) => tabItem.key === tab)?.label })}
           </h3>
-          <p className="mt-1 text-sm text-text-muted">This section is being designed.</p>
+          <p className="mt-1 text-sm text-text-muted">{t("sales.mobileSalesOrders.beingDesigned")}</p>
         </div>
       )}
 

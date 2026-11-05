@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthLayout } from "../../layouts/AuthLayout";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
@@ -11,32 +12,37 @@ import { SuccessModal } from "../../components/ui/SuccessModal";
 import { register as registerTenant } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../lib/auth-store";
+import { showError } from "../../lib/toast";
+import i18n, { currentLanguage } from "../../lib/i18n";
 
 const registerSchema = z.object({
-  ownerName: z.string().min(2, "Your name is required"),
-  businessName: z.string().min(2, "Business name is required"),
-  phone: z.string().regex(/^\d{10}$/, "Enter a valid 10-digit mobile number"),
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  agreeToTerms: z.literal(true, { message: "You must agree to the Terms & Privacy Policy" }),
+  ownerName: z.string().min(2, { error: () => i18n.t("auth.register.fullNameRequired") }),
+  businessName: z.string().min(2, { error: () => i18n.t("auth.register.businessNameRequired") }),
+  phone: z.string().regex(/^\d{10}$/, { error: () => i18n.t("auth.register.phoneInvalid") }),
+  email: z.string().email({ error: () => i18n.t("auth.register.emailInvalid") }),
+  password: z.string().min(8, { error: () => i18n.t("auth.register.passwordTooShort") }),
+  agreeToTerms: z.literal(true, { error: () => i18n.t("auth.register.agreeToTermsRequired") }),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setSession = useAuthStore((state) => state.setSession);
-  const [formError, setFormError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const {
     register: registerField,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
 
   const onSubmit = async (values: RegisterFormValues) => {
-    setFormError(null);
     try {
       const session = await registerTenant({
         businessName: values.businessName,
@@ -45,45 +51,46 @@ export function RegisterPage() {
         email: values.email,
         password: values.password,
         phone: values.phone,
+        preferredLanguage: currentLanguage(),
       });
       setSession(session);
       setShowSuccess(true);
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("auth.register.genericError"));
     }
   };
 
   return (
-    <AuthLayout title="Get started with wholesale" subtitle="Set up your wholesale account in just a minute">
+    <AuthLayout title={t("auth.register.title")} subtitle={t("auth.register.subtitle")}>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <TextField
-          label="Full name"
+          label={t("auth.register.fullName")}
           autoComplete="name"
           error={errors.ownerName?.message}
           {...registerField("ownerName")}
         />
         <TextField
-          label="Business name"
+          label={t("auth.register.businessName")}
           autoComplete="organization"
-          placeholder="e.g. Sharma Traders & Distributors"
+          placeholder={t("auth.register.businessNamePlaceholder")}
           error={errors.businessName?.message}
           {...registerField("businessName")}
         />
         <PhoneField
-          label="Mobile number"
+          label={t("auth.register.mobileNumber")}
           placeholder="98230 45812"
           error={errors.phone?.message}
           {...registerField("phone")}
         />
         <TextField
-          label="Email"
+          label={t("auth.register.email")}
           type="email"
           autoComplete="email"
           error={errors.email?.message}
           {...registerField("email")}
         />
         <TextField
-          label="Create password"
+          label={t("auth.register.createPassword")}
           type="password"
           autoComplete="new-password"
           error={errors.password?.message}
@@ -97,36 +104,34 @@ export function RegisterPage() {
             {...registerField("agreeToTerms")}
           />
           <span>
-            I agree to the{" "}
+            {t("auth.register.agreeToTermsPrefix")}{" "}
             <a href="#" className="font-medium text-primary hover:underline">
-              Terms
+              {t("auth.register.terms")}
             </a>{" "}
             &amp;{" "}
             <a href="#" className="font-medium text-primary hover:underline">
-              Privacy Policy
+              {t("auth.register.privacyPolicy")}
             </a>
           </span>
         </label>
         {errors.agreeToTerms ? <p className="-mt-2 text-xs text-danger">{errors.agreeToTerms.message}</p> : null}
 
-        {formError ? <p className="text-sm text-danger">{formError}</p> : null}
-
         <Button type="submit" isLoading={isSubmitting} className="mt-1 w-full">
-          Create Wholesale Account
+          {t("auth.register.createAccount")}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-text-muted">
-        Already have an account?{" "}
+        {t("auth.register.alreadyHaveAccount")}{" "}
         <Link to="/login" className="font-medium text-primary hover:underline">
-          Log In
+          {t("auth.register.logIn")}
         </Link>
       </p>
 
       <SuccessModal
         open={showSuccess}
-        title="Account created!"
-        message="Your wholesale workspace is ready."
+        title={t("auth.register.successTitle")}
+        message={t("auth.register.successMessage")}
         redirectSeconds={3}
         onComplete={() => navigate("/app", { replace: true })}
       />

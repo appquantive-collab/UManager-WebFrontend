@@ -3,36 +3,42 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
 import type { Product } from "../../lib/products-api";
 import { getProductStockLevel, listWarehouses, type StockMovementType } from "../../lib/stock-api";
+import i18n from "../../lib/i18n";
 
 type Direction = "in" | "out";
 
 const inTypes: { value: StockMovementType; label: string }[] = [
-  { value: "purchase", label: "Purchase" },
-  { value: "customer_return", label: "Customer return" },
-  { value: "transfer_in", label: "Transfer in" },
-  { value: "adjustment", label: "Adjustment (correction)" },
-  { value: "opening", label: "Opening stock" },
+  { value: "purchase", label: "inventory.stockForm.typePurchase" },
+  { value: "customer_return", label: "inventory.stockForm.typeCustomerReturn" },
+  { value: "transfer_in", label: "inventory.stockForm.typeTransferIn" },
+  { value: "adjustment", label: "inventory.stockForm.typeAdjustment" },
+  { value: "opening", label: "inventory.stockForm.typeOpening" },
 ];
 
 const outTypes: { value: StockMovementType; label: string }[] = [
-  { value: "sale", label: "Sale" },
-  { value: "damage", label: "Damage / loss" },
-  { value: "supplier_return", label: "Supplier return" },
-  { value: "transfer_out", label: "Transfer out" },
-  { value: "adjustment", label: "Adjustment (correction)" },
+  { value: "sale", label: "inventory.stockForm.typeSale" },
+  { value: "damage", label: "inventory.stockForm.typeDamage" },
+  { value: "supplier_return", label: "inventory.stockForm.typeSupplierReturn" },
+  { value: "transfer_out", label: "inventory.stockForm.typeTransferOut" },
+  { value: "adjustment", label: "inventory.stockForm.typeAdjustment" },
 ];
 
 const stockFormSchema = z.object({
-  warehouseId: z.string().min(1, "Select a warehouse"),
-  movementType: z.string().min(1, "Select a reason"),
-  quantity: z.coerce.number().int("Must be a whole number").positive("Must be greater than 0"),
+  warehouseId: z.string().min(1, { error: () => i18n.t("inventory.stockForm.selectWarehouse") }),
+  movementType: z.string().min(1, { error: () => i18n.t("inventory.stockForm.selectReason") }),
+  quantity: z.coerce
+    .number()
+    .int({ error: () => i18n.t("inventory.stockForm.mustBeWholeNumber") })
+    .positive({ error: () => i18n.t("inventory.stockForm.mustBeGreaterThanZero") }),
   note: z.string().optional(),
 });
 
@@ -46,8 +52,8 @@ interface StockFormProps {
 }
 
 export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
+  const { t } = useTranslation();
   const [direction, setDirection] = useState<Direction>("in");
-  const [formError, setFormError] = useState<string | null>(null);
 
   const { data: warehouses } = useQuery({ queryKey: ["warehouses"], queryFn: listWarehouses });
   const { data: stockLevel } = useQuery({
@@ -63,6 +69,8 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<StockFormInput, unknown, StockFormValues>({
     resolver: zodResolver(stockFormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: { movementType: "purchase", quantity: 1 },
   });
 
@@ -77,7 +85,6 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
   };
 
   const submit = async (values: StockFormValues) => {
-    setFormError(null);
     try {
       const signedQuantity = direction === "in" ? values.quantity : -values.quantity;
       await onSubmit({
@@ -87,7 +94,7 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
         note: values.note,
       });
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("inventory.stockForm.genericError"));
     }
   };
 
@@ -96,8 +103,10 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
       <div className="rounded-lg border border-border bg-surface-variant/50 px-3.5 py-2.5">
         <div className="text-sm font-medium text-text">{product.name}</div>
         <div className="text-xs text-text-muted">
-          SKU: {product.sku}
-          {stockLevel ? <> · Current stock (all warehouses): {stockLevel.total}</> : null}
+          {t("inventory.qrModal.skuLabel", { sku: product.sku })}
+          {stockLevel ? (
+            <> · {t("inventory.stockForm.currentStockAllWarehouses", { total: stockLevel.total })}</>
+          ) : null}
         </div>
       </div>
 
@@ -110,7 +119,7 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
             direction === "in" ? "bg-success text-white" : "text-text-muted hover:text-text"
           )}
         >
-          <Plus size={16} /> Add stock
+          <Plus size={16} /> {t("inventory.stockForm.addStock")}
         </button>
         <button
           type="button"
@@ -120,13 +129,13 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
             direction === "out" ? "bg-danger text-white" : "text-text-muted hover:text-text"
           )}
         >
-          <Minus size={16} /> Remove / adjust down
+          <Minus size={16} /> {t("inventory.stockForm.removeOrAdjustDown")}
         </button>
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="warehouseId" className="text-sm font-medium text-text-muted">
-          Warehouse
+          {t("inventory.stockForm.warehouse")}
         </label>
         <select
           id="warehouseId"
@@ -136,7 +145,7 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
           )}
           {...register("warehouseId")}
         >
-          <option value="">Select warehouse…</option>
+          <option value="">{t("inventory.stockForm.selectWarehousePlaceholder")}</option>
           {warehouses?.map((w) => (
             <option key={w._id} value={w._id}>
               {w.name}
@@ -145,13 +154,15 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
         </select>
         {errors.warehouseId ? <span className="text-xs text-danger">{errors.warehouseId.message}</span> : null}
         {watchedWarehouseId ? (
-          <span className="text-xs text-text-muted">Current stock here: {warehouseStock}</span>
+          <span className="text-xs text-text-muted">
+            {t("inventory.stockForm.currentStockHere", { quantity: warehouseStock })}
+          </span>
         ) : null}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="movementType" className="text-sm font-medium text-text-muted">
-          Reason
+          {t("inventory.stockForm.reason")}
         </label>
         <select
           id="movementType"
@@ -161,16 +172,16 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
           )}
           {...register("movementType")}
         >
-          {types.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
+          {types.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {t(opt.label)}
             </option>
           ))}
         </select>
       </div>
 
       <TextField
-        label={direction === "in" ? "Quantity to add" : "Quantity to remove"}
+        label={direction === "in" ? t("inventory.stockForm.quantityToAdd") : t("inventory.stockForm.quantityToRemove")}
         type="number"
         min={1}
         step="1"
@@ -178,16 +189,18 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
         {...register("quantity")}
       />
 
-      <TextField label="Note (optional)" placeholder="e.g. GRN-882 delivery or damaged in transit" {...register("note")} />
-
-      {formError ? <p className="text-sm text-danger">{formError}</p> : null}
+      <TextField
+        label={t("inventory.stockForm.noteOptional")}
+        placeholder={t("inventory.stockForm.notePlaceholder")}
+        {...register("note")}
+      />
 
       <div className="mt-2 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          {t("inventory.stockForm.cancel")}
         </Button>
         <Button type="submit" isLoading={isSubmitting}>
-          {direction === "in" ? "Add stock" : "Remove stock"}
+          {direction === "in" ? t("inventory.stockForm.addStock") : t("inventory.stockForm.removeStock")}
         </Button>
       </div>
     </form>

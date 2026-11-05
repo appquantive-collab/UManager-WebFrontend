@@ -2,36 +2,89 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthLayout } from "../../layouts/AuthLayout";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { PhoneField } from "../../components/ui/PhoneField";
-import { login, loginByPhone } from "../../lib/auth-api";
+import { login, requestLoginOtp, verifyLoginOtp } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../lib/auth-store";
+import { showError, showSuccess } from "../../lib/toast";
+import i18n from "../../lib/i18n";
 
 const phoneSchema = z.object({
-  phone: z.string().regex(/^\d{10}$/, "Enter a valid 10-digit mobile number"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  phone: z.string().regex(/^\d{10}$/, { error: () => i18n.t("auth.login.phoneInvalid") }),
 });
 type PhoneFormValues = z.infer<typeof phoneSchema>;
 
+const codeSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, { error: () => i18n.t("auth.otp.codeInvalidFormat") }),
+});
+type CodeFormValues = z.infer<typeof codeSchema>;
+
+function formatPhone(phone: string): string {
+  return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+}
+
+function otpErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) {
+    const key = `auth.otp.errors.${err.code}`;
+    if (err.code && i18n.exists(key)) return i18n.t(key, { seconds: err.retryAfterSeconds ?? 30 });
+    return err.message;
+  }
+  return i18n.t("auth.login.genericError");
+}
+
 const credentialsSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().email({ error: () => i18n.t("auth.login.emailInvalid") }),
+  password: z.string().min(8, { error: () => i18n.t("auth.login.passwordTooShort") }),
 });
 type CredentialsFormValues = z.infer<typeof credentialsSchema>;
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const setSession = useAuthStore((state) => state.setSession);
-  const [formError, setFormError] = useState<string | null>(null);
   const [useEmail, setUseEmail] = useState(false);
+  const [otpPhone, setOtpPhone] = useState<string | null>(null);
+  const [resendAt, setResendAt] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const [isResending, setIsResending] = useState(false);
+  const verifyingRef = useRef(false);
 
-  const phoneForm = useForm<PhoneFormValues>({ resolver: zodResolver(phoneSchema) });
-  const credentialsForm = useForm<CredentialsFormValues>({ resolver: zodResolver(credentialsSchema) });
+  const phoneForm = useForm<PhoneFormValues>({
+    resolver: zodResolver(phoneSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
+  const codeForm = useForm<CodeFormValues>({
+    resolver: zodResolver(codeSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: { code: "" },
+  });
+
+  useEffect(() => {
+    if (!otpPhone) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [otpPhone]);
+
+  const resendSecondsLeft = Math.max(0, Math.ceil((resendAt - now) / 1000));
+
+  const startCooldown = (seconds: number) => {
+    const current = Date.now();
+    setNow(current);
+    setResendAt(current + seconds * 1000);
+  };
+  const credentialsForm = useForm<CredentialsFormValues>({
+    resolver: zodResolver(credentialsSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
 
   const redirectAfterLogin = () => {
     const redirectTo = (location.state as { from?: string })?.from ?? "/app";
@@ -39,63 +92,136 @@ export function LoginPage() {
   };
 
   const onPhoneSubmit = async (values: PhoneFormValues) => {
-    setFormError(null);
     try {
-      const session = await loginByPhone(values.phone, values.password);
-      setSession(session);
-      redirectAfterLogin();
+      const result = await requestLoginOtp(values.phone);
+      codeForm.reset({ code: "" });
+      setOtpPhone(values.phone);
+      startCooldown(result.resendAfterSeconds);
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      // A code already went out moments ago — let them enter it instead of blocking them.
+      if (err instanceof ApiError && err.code === "RESEND_COOLDOWN") {
+        codeForm.reset({ code: "" });
+        setOtpPhone(values.phone);
+        startCooldown(err.retryAfterSeconds ?? 30);
+        return;
+      }
+      showError(otpErrorMessage(err));
     }
   };
 
+  const onCodeSubmit = async (values: CodeFormValues) => {
+    if (!otpPhone || verifyingRef.current) return;
+    verifyingRef.current = true;
+    try {
+      const session = await verifyLoginOtp(otpPhone, values.code);
+      setSession(session);
+      redirectAfterLogin();
+    } catch (err) {
+      showError(otpErrorMessage(err));
+      codeForm.reset({ code: "" });
+    } finally {
+      verifyingRef.current = false;
+    }
+  };
+
+  const resendCode = async () => {
+    if (!otpPhone) return;
+    setIsResending(true);
+    try {
+      const result = await requestLoginOtp(otpPhone);
+      codeForm.reset({ code: "" });
+      startCooldown(result.resendAfterSeconds);
+      showSuccess(t("auth.otp.codeSent"));
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "RESEND_COOLDOWN") startCooldown(err.retryAfterSeconds ?? 30);
+      showError(otpErrorMessage(err));
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const codeField = codeForm.register("code", {
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+      const digits = event.target.value.replace(/\D/g, "").slice(0, 6);
+      if (digits !== event.target.value) codeForm.setValue("code", digits, { shouldValidate: true });
+      if (digits.length === 6) void codeForm.handleSubmit(onCodeSubmit)();
+    },
+  });
+
   const onCredentialsSubmit = async (values: CredentialsFormValues) => {
-    setFormError(null);
     try {
       const session = await login(values);
       setSession(session);
       redirectAfterLogin();
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("auth.login.genericError"));
     }
   };
 
+  if (!useEmail && otpPhone) {
+    return (
+      <AuthLayout title={t("auth.otp.codeTitle")} subtitle={t("auth.otp.codeSubtitle", { phone: formatPhone(otpPhone) })}>
+        <form className="flex flex-col gap-4" onSubmit={codeForm.handleSubmit(onCodeSubmit)} noValidate>
+          <TextField
+            label={t("auth.otp.codeLabel")}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            autoFocus
+            placeholder="••••••"
+            className="text-center text-2xl font-bold tracking-[0.5em]"
+            error={codeForm.formState.errors.code?.message}
+            {...codeField}
+          />
+
+          <Button type="submit" isLoading={codeForm.formState.isSubmitting} className="w-full">
+            {t("auth.otp.verify")}
+          </Button>
+
+          <div className="flex items-center justify-between text-sm">
+            <button
+              type="button"
+              onClick={() => setOtpPhone(null)}
+              className="font-medium text-text-muted outline-none hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              {t("auth.otp.changeNumber")}
+            </button>
+            {resendSecondsLeft > 0 ? (
+              <span className="text-text-muted">{t("auth.otp.resendIn", { seconds: resendSecondsLeft })}</span>
+            ) : (
+              <button
+                type="button"
+                onClick={resendCode}
+                disabled={isResending}
+                className="font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50"
+              >
+                {t("auth.otp.resend")}
+              </button>
+            )}
+          </div>
+        </form>
+      </AuthLayout>
+    );
+  }
+
   if (!useEmail) {
     return (
-      <AuthLayout title="Welcome back" subtitle="Enter your mobile number to sign in">
+      <AuthLayout title={t("auth.login.phoneTitle")} subtitle={t("auth.login.phoneSubtitle")}>
         <form className="flex flex-col gap-4" onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} noValidate>
           <PhoneField
-            label="Mobile number"
+            label={t("auth.login.mobileNumber")}
             placeholder="98230 45812"
             error={phoneForm.formState.errors.phone?.message}
             {...phoneForm.register("phone")}
           />
-          <TextField
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            error={phoneForm.formState.errors.password?.message}
-            {...phoneForm.register("password")}
-          />
-
-          {formError ? <p className="text-sm text-danger">{formError}</p> : null}
-
-          <div className="flex justify-end">
-            <Link
-              to="/forgot-password"
-              className="text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              Forgot password?
-            </Link>
-          </div>
 
           <Button type="submit" isLoading={phoneForm.formState.isSubmitting} className="w-full">
-            Continue
+            {t("auth.otp.sendCode")}
           </Button>
 
           <div className="flex items-center gap-3 py-1">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-text-muted">or</span>
+            <span className="text-xs font-medium text-text-muted">{t("auth.login.or")}</span>
             <span className="h-px flex-1 bg-border" />
           </div>
 
@@ -103,20 +229,20 @@ export function LoginPage() {
             <button
               type="button"
               disabled
-              title="Coming soon"
+              title={t("auth.login.comingSoon")}
               className="flex h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-muted opacity-60"
             >
               <WhatsAppIcon />
-              WhatsApp
+              {t("auth.login.whatsapp")}
             </button>
             <button
               type="button"
               disabled
-              title="Coming soon"
+              title={t("auth.login.comingSoon")}
               className="flex h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-muted opacity-60"
             >
               <GoogleIcon />
-              Google
+              {t("auth.login.google")}
             </button>
           </div>
         </form>
@@ -124,20 +250,17 @@ export function LoginPage() {
         <p className="mt-6 text-center text-sm text-text-muted">
           <button
             type="button"
-            onClick={() => {
-              setUseEmail(true);
-              setFormError(null);
-            }}
+            onClick={() => setUseEmail(true)}
             className="font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            Sign in with email instead
+            {t("auth.login.signInWithEmailInstead")}
           </button>
         </p>
 
         <p className="mt-3 text-center text-sm text-text-muted">
-          Don&apos;t have a business yet?{" "}
+          {t("auth.login.noBusinessYet")}{" "}
           <Link to="/register" className="font-medium text-primary hover:underline">
-            Sign Up
+            {t("auth.login.signUp")}
           </Link>
         </p>
       </AuthLayout>
@@ -145,49 +268,44 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Sign in" subtitle="Access your business workspace">
+    <AuthLayout title={t("auth.login.emailTitle")} subtitle={t("auth.login.emailSubtitle")}>
       <form className="flex flex-col gap-4" onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} noValidate>
         <TextField
-          label="Email"
+          label={t("common.email")}
           type="email"
           autoComplete="email"
           error={credentialsForm.formState.errors.email?.message}
           {...credentialsForm.register("email")}
         />
         <TextField
-          label="Password"
+          label={t("common.password")}
           type="password"
           autoComplete="current-password"
           error={credentialsForm.formState.errors.password?.message}
           {...credentialsForm.register("password")}
         />
 
-        {formError ? <p className="text-sm text-danger">{formError}</p> : null}
-
         <div className="flex justify-end">
           <Link
             to="/forgot-password"
             className="text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            Forgot password?
+            {t("auth.login.forgotPassword")}
           </Link>
         </div>
 
         <Button type="submit" isLoading={credentialsForm.formState.isSubmitting} className="w-full">
-          Sign in
+          {t("auth.login.signIn")}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-text-muted">
         <button
           type="button"
-          onClick={() => {
-            setUseEmail(false);
-            setFormError(null);
-          }}
+          onClick={() => setUseEmail(false)}
           className="font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
         >
-          Sign in with mobile number instead
+          {t("auth.login.signInWithMobileInstead")}
         </button>
       </p>
     </AuthLayout>

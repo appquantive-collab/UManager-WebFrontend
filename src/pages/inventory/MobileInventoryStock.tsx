@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { AlertTriangle, Ban, CheckCircle2, Hammer, Package, PackagePlus, Plus, Warehouse } from "lucide-react";
 import { SearchInput } from "../../components/ui/SearchInput";
@@ -22,13 +23,14 @@ function stockStatus(quantity: number, reorderLevel: number): "normal" | "low" |
   return "normal";
 }
 
-const statusBadge: Record<"normal" | "low" | "out", { label: string; className: string; icon: typeof CheckCircle2 }> = {
-  normal: { label: "In Stock", className: "bg-success-container text-success", icon: CheckCircle2 },
-  low: { label: "Low Stock", className: "bg-warning-container text-warning", icon: AlertTriangle },
-  out: { label: "Out of Stock", className: "bg-danger-container text-danger", icon: Ban },
+const statusBadge: Record<"normal" | "low" | "out", { labelKey: string; className: string; icon: typeof CheckCircle2 }> = {
+  normal: { labelKey: "inventory.mobileStock.statusInStock", className: "bg-success-container text-success", icon: CheckCircle2 },
+  low: { labelKey: "inventory.mobileStock.statusLowStock", className: "bg-warning-container text-warning", icon: AlertTriangle },
+  out: { labelKey: "inventory.mobileStock.statusOutOfStock", className: "bg-danger-container text-danger", icon: Ban },
 };
 
 export function MobileInventoryStock() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [warehouseFilter, setWarehouseFilter] = useState<string>("all");
@@ -90,14 +92,14 @@ export function MobileInventoryStock() {
   }, [products, stockLevels, warehouseFilter]);
 
   const warehouseTabs = [
-    { key: "all", label: "All Warehouses", count: totals.totalSkus },
+    { key: "all", label: t("inventory.mobileStock.allWarehouses"), count: totals.totalSkus },
     ...warehouses.map((w) => ({ key: w._id, label: w.name, count: null as number | null })),
   ];
 
   const statusFilters: { key: StatusFilter; label: string; dotClass: string | null }[] = [
-    { key: "all", label: `All (${totals.totalSkus})`, dotClass: null },
-    { key: "low", label: `Low Stock (${totals.lowCount})`, dotClass: "bg-warning" },
-    { key: "out", label: `Out of Stock (${totals.outCount})`, dotClass: "bg-danger" },
+    { key: "all", label: t("inventory.mobileStock.statusAll", { count: totals.totalSkus }), dotClass: null },
+    { key: "low", label: t("inventory.mobileStock.statusLow", { count: totals.lowCount }), dotClass: "bg-warning" },
+    { key: "out", label: t("inventory.mobileStock.statusOut", { count: totals.outCount }), dotClass: "bg-danger" },
   ];
 
   const filtered = useMemo(() => {
@@ -121,7 +123,7 @@ export function MobileInventoryStock() {
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Warehouse size={20} className="text-primary" />
-            <span className="font-headline text-[15px] font-semibold text-text">Inventory &amp; Warehouses</span>
+            <span className="font-headline text-[15px] font-semibold text-text">{t("inventory.mobileStock.title")}</span>
           </div>
           <button
             type="button"
@@ -130,7 +132,7 @@ export function MobileInventoryStock() {
           >
             <Plus size={14} />
             <span className="font-label text-[10px] font-semibold tracking-wide">
-              {typeFilter === "raw-materials" ? "Add Raw Material" : "Add Product"}
+              {typeFilter === "raw-materials" ? t("inventory.mobileStock.addRawMaterial") : t("inventory.mobileStock.addProduct")}
             </span>
           </button>
         </div>
@@ -167,7 +169,7 @@ export function MobileInventoryStock() {
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
           <div className="flex items-center justify-between">
-            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">VALUATION</span>
+            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.valuation")}</span>
           </div>
           <div className="mt-1.5">
             <div className="font-headline text-base font-bold tracking-tight text-text">
@@ -177,7 +179,7 @@ export function MobileInventoryStock() {
         </div>
         <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
           <div className="flex items-center justify-between">
-            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">TOTAL SKUS</span>
+            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.totalSkus")}</span>
           </div>
           <div className="mt-1.5">
             <div className="font-headline text-base font-bold tracking-tight text-text">{totals.totalSkus}</div>
@@ -198,7 +200,7 @@ export function MobileInventoryStock() {
                 totals.lowCount + totals.outCount > 0 ? "text-danger" : "text-text-muted"
               )}
             >
-              REORDER
+              {t("inventory.mobileStock.reorder")}
             </span>
             {totals.lowCount + totals.outCount > 0 && <AlertTriangle size={16} className="text-danger" />}
           </div>
@@ -209,10 +211,12 @@ export function MobileInventoryStock() {
                 totals.lowCount + totals.outCount > 0 ? "text-danger" : "text-text"
               )}
             >
-              {totals.lowCount + totals.outCount} Items
+              {t("inventory.mobileStock.items", { count: totals.lowCount + totals.outCount })}
             </div>
             {totals.outCount > 0 && (
-              <div className="font-label text-[11px] font-medium text-danger">{totals.outCount} Out of stock</div>
+              <div className="font-label text-[11px] font-medium text-danger">
+                {t("inventory.mobileStock.outOfStockCount", { count: totals.outCount })}
+              </div>
             )}
           </div>
         </div>
@@ -222,7 +226,7 @@ export function MobileInventoryStock() {
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or SKU..."
+          placeholder={t("inventory.mobileStock.searchPlaceholder")}
         />
       </div>
 
@@ -235,7 +239,7 @@ export function MobileInventoryStock() {
             typeFilter === "products" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
           )}
         >
-          Products
+          {t("inventory.mobileStock.products")}
         </button>
         <button
           type="button"
@@ -245,7 +249,7 @@ export function MobileInventoryStock() {
             typeFilter === "raw-materials" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
           )}
         >
-          Raw Materials
+          {t("inventory.mobileStock.rawMaterials")}
         </button>
       </div>
 
@@ -269,30 +273,30 @@ export function MobileInventoryStock() {
       </div>
 
       {isLoading ? (
-        <p className="py-8 text-center text-sm text-text-muted">Loading inventory…</p>
+        <p className="py-8 text-center text-sm text-text-muted">{t("inventory.mobileStock.loadingInventory")}</p>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
           <Package size={22} className="text-text-muted" strokeWidth={1.5} />
           <p className="mt-2 text-sm font-medium text-text">
             {products.length === 0
               ? typeFilter === "raw-materials"
-                ? "No raw materials yet"
-                : "No products yet"
-              : "No matching results"}
+                ? t("inventory.mobileStock.noRawMaterialsYet")
+                : t("inventory.mobileStock.noProductsYet")
+              : t("inventory.mobileStock.noMatchingResults")}
           </p>
           <p className="mt-0.5 text-xs text-text-muted">
             {products.length === 0
               ? typeFilter === "raw-materials"
-                ? "Add raw materials here, then reference them in a product's Bill of Materials."
-                : "Add your first product to start tracking stock."
-              : "Try a different search or filter."}
+                ? t("inventory.mobileStock.noRawMaterialsDescription")
+                : t("inventory.mobileStock.noProductsDescription")
+              : t("inventory.mobileStock.tryDifferentFilter")}
           </p>
           {products.length === 0 && (
             <Button
               className="mt-3"
               onClick={() => navigate(typeFilter === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
             >
-              {typeFilter === "raw-materials" ? "Add raw material" : "Add product"}
+              {typeFilter === "raw-materials" ? t("inventory.mobileStock.addRawMaterialShort") : t("inventory.mobileStock.addProductShort")}
             </Button>
           )}
         </div>
@@ -312,7 +316,7 @@ export function MobileInventoryStock() {
         </div>
       )}
 
-      <Dialog open={stockProduct !== null} onClose={() => setStockProduct(null)} title="Add / adjust stock">
+      <Dialog open={stockProduct !== null} onClose={() => setStockProduct(null)} title={t("inventory.mobileStock.addOrAdjustStockTitle")}>
         {stockProduct ? (
           <StockForm
             key={stockProduct._id}
@@ -326,7 +330,7 @@ export function MobileInventoryStock() {
       <Dialog
         open={assembleProductState !== null}
         onClose={() => setAssembleProductState(null)}
-        title="Assemble from raw materials"
+        title={t("inventory.mobileStock.assembleTitle")}
       >
         {assembleProductState ? (
           <AssembleForm
@@ -356,6 +360,7 @@ function SkuCard({
   onAddStock: () => void;
   onAssemble?: () => void;
 }) {
+  const { t } = useTranslation();
   const status = stockStatus(quantity, product.reorderLevel);
   const badge = statusBadge[status];
   const warehouseNameById = new Map(warehouses.map((w) => [w._id, w.name]));
@@ -364,7 +369,7 @@ function SkuCard({
       ? Object.entries(warehouseBreakdown)
           .map(([id, qty]) => `${warehouseNameById.get(id) ?? "—"}: ${qty}`)
           .join(" | ")
-      : "No stock recorded";
+      : t("inventory.mobileStock.noStockRecorded");
 
   return (
     <div className="flex flex-col space-y-3 rounded-2xl border border-border bg-surface p-4 shadow-elevation-1">
@@ -378,7 +383,7 @@ function SkuCard({
               <span className="truncate text-sm font-semibold text-text">{product.name}</span>
             </div>
             <div className="mt-0.5 flex items-center gap-1.5">
-              <span className="font-label text-xs font-bold text-primary">SKU: {product.sku}</span>
+              <span className="font-label text-xs font-bold text-primary">{t("inventory.qrModal.skuLabel", { sku: product.sku })}</span>
               {product.category ? (
                 <>
                   <span className="text-border">•</span>
@@ -394,14 +399,14 @@ function SkuCard({
             badge.className
           )}
         >
-          <badge.icon size={13} /> {badge.label}
+          <badge.icon size={13} /> {t(badge.labelKey)}
         </span>
       </div>
 
       <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-surface-muted p-2.5">
-        <StatCell label="ON HAND" value={`${quantity} ${product.unit}`} />
-        <StatCell label="WAREHOUSE SPLIT" value={splitLabel} small />
-        <StatCell label="PRICE" value={formatCurrency(product.wholesalePrice)} />
+        <StatCell label={t("inventory.mobileStock.onHand")} value={`${quantity} ${product.unit}`} />
+        <StatCell label={t("inventory.mobileStock.warehouseSplit")} value={splitLabel} small />
+        <StatCell label={t("inventory.mobileStock.price")} value={formatCurrency(product.wholesalePrice)} />
       </div>
 
       <div className={clsx("grid gap-2 pt-1", onAssemble ? "grid-cols-2" : "grid-cols-1")}>
@@ -410,7 +415,7 @@ function SkuCard({
           onClick={onAddStock}
           className="flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2 font-label text-xs font-semibold text-on-primary shadow-elevation-1 transition-all active:scale-95 hover:bg-primary-hover"
         >
-          <PackagePlus size={16} /> Add / Adjust Stock
+          <PackagePlus size={16} /> {t("inventory.mobileStock.addOrAdjustStockButton")}
         </button>
         {onAssemble ? (
           <button
@@ -418,7 +423,7 @@ function SkuCard({
             onClick={onAssemble}
             className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-surface py-2 font-label text-xs font-semibold text-text transition-all active:scale-95 hover:bg-surface-muted"
           >
-            <Hammer size={16} /> Assemble
+            <Hammer size={16} /> {t("inventory.mobileStock.assembleButton")}
           </button>
         ) : null}
       </div>

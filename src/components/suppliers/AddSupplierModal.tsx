@@ -1,59 +1,94 @@
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Dialog } from "../ui/Dialog";
 import { TextField } from "../ui/TextField";
 import { Button } from "../ui/Button";
 import { createSupplier } from "../../lib/suppliers-api";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
+import i18n from "../../lib/i18n";
+
+const schema = z.object({
+  name: z.string().min(1, { error: () => i18n.t("suppliers.addSupplierModal.nameRequired") }),
+  phone: z.string().optional(),
+  gstin: z.string().optional(),
+});
+type FormValues = z.infer<typeof schema>;
 
 export function AddSupplierModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [gstin, setGstin] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: { name: "", phone: "", gstin: "" },
+  });
 
   const mutation = useMutation({
     mutationFn: createSupplier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
-      setName("");
-      setPhone("");
-      setGstin("");
-      setError(null);
+      reset({ name: "", phone: "", gstin: "" });
       onClose();
     },
     onError: (err) => {
-      setError(err instanceof ApiError ? err.message : "Could not add supplier. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("suppliers.addSupplierModal.addError"));
     },
   });
 
-  const handleSubmit = () => {
-    if (!name.trim()) return;
-    setError(null);
+  const submit = (values: FormValues) => {
     mutation.mutate({
-      name: name.trim(),
-      phone: phone.trim() || undefined,
-      gstin: gstin.trim() || undefined,
+      name: values.name.trim(),
+      phone: values.phone?.trim() || undefined,
+      gstin: values.gstin?.trim() || undefined,
     });
   };
 
+  const handleClose = () => {
+    reset({ name: "", phone: "", gstin: "" });
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} title="Add supplier">
-      <div className="space-y-4">
-        <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Coca-Cola Distributors" autoFocus />
-        <TextField label="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" />
-        <TextField label="GSTIN (optional)" value={gstin} onChange={(e) => setGstin(e.target.value)} placeholder="e.g. 09ABCDE1234F1Z5" />
-        {error ? <p className="text-sm text-danger">{error}</p> : null}
+    <Dialog open={open} onClose={handleClose} title={t("suppliers.addSupplierModal.title")}>
+      <form className="space-y-4" onSubmit={handleSubmit(submit)} noValidate>
+        <TextField
+          label={t("common.name")}
+          placeholder={t("suppliers.addSupplierModal.namePlaceholder")}
+          autoFocus
+          error={errors.name?.message}
+          {...register("name")}
+        />
+        <TextField
+          label={t("suppliers.addSupplierModal.phoneLabel")}
+          placeholder="+91 98765 43210"
+          error={errors.phone?.message}
+          {...register("phone")}
+        />
+        <TextField
+          label={t("suppliers.addSupplierModal.gstinLabel")}
+          placeholder={t("suppliers.addSupplierModal.gstinPlaceholder")}
+          error={errors.gstin?.message}
+          {...register("gstin")}
+        />
         <div className="flex gap-3 pt-1">
-          <Button variant="secondary" className="flex-1" onClick={onClose}>
-            Cancel
+          <Button type="button" variant="secondary" className="flex-1" onClick={handleClose}>
+            {t("common.cancel")}
           </Button>
-          <Button className="flex-1" disabled={!name.trim() || mutation.isPending} onClick={handleSubmit}>
-            {mutation.isPending ? "Adding…" : "Add supplier"}
+          <Button type="submit" className="flex-1" isLoading={isSubmitting || mutation.isPending}>
+            {t("suppliers.addSupplierModal.submit")}
           </Button>
         </div>
-      </div>
+      </form>
     </Dialog>
   );
 }

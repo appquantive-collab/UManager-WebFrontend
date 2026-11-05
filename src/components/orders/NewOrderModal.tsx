@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { AlertTriangle, Check, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
 import { parseOrderText, createOrder, type OrderLineItemInput, type RawMaterialWarning } from "../../lib/orders-api";
 import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
+import i18n from "../../lib/i18n";
+
+const newCustomerSchema = z.object({
+  name: z.string().min(1, i18n.t("orders.common.nameRequired")),
+  phone: z.string().optional(),
+});
+type NewCustomerValues = z.infer<typeof newCustomerSchema>;
 
 interface DraftItem extends OrderLineItemInput {
   key: string;
@@ -25,23 +37,33 @@ function emptyItem(): DraftItem {
 type Mode = "choose" | "ai" | "manual" | "review" | "warning";
 
 export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<Mode>("choose");
   const [orderText, setOrderText] = useState("");
-  const [parseError, setParseError] = useState<string | null>(null);
 
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [customerQuery, setCustomerQuery] = useState("");
   const [showCustomerPicker, setShowCustomerPicker] = useState(false);
-  const [newCustomerName, setNewCustomerName] = useState("");
-  const [newCustomerPhone, setNewCustomerPhone] = useState("");
   const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
 
   const [items, setItems] = useState<DraftItem[]>([]);
   const [rawTextForSave, setRawTextForSave] = useState<string | undefined>(undefined);
   const [source, setSource] = useState<"manual" | "ai_parsed">("manual");
-  const [saveError, setSaveError] = useState<string | null>(null);
   const [rawMaterialWarnings, setRawMaterialWarnings] = useState<RawMaterialWarning[]>([]);
+
+  const {
+    register: registerNewCustomer,
+    handleSubmit: handleNewCustomerSubmit,
+    reset: resetNewCustomerForm,
+    setValue: setNewCustomerValue,
+    formState: { errors: newCustomerErrors },
+  } = useForm<NewCustomerValues>({
+    resolver: zodResolver(newCustomerSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: { name: "", phone: "" },
+  });
 
   const customersQuery = useQuery({
     queryKey: ["customers", customerQuery],
@@ -59,7 +81,6 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
   const parseMutation = useMutation({
     mutationFn: parseOrderText,
     onSuccess: (preview) => {
-      setParseError(null);
       setItems(
         preview.items.map((i) => ({
           key: nextKey(),
@@ -81,7 +102,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setMode("review");
     },
     onError: (err) => {
-      setParseError(err instanceof ApiError ? err.message : "Couldn't parse that text. Try again or fill manually.");
+      showError(err instanceof ApiError ? err.message : t("orders.newOrderModal.couldNotParse"));
     },
   });
 
@@ -92,8 +113,10 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setCustomerId(customer._id);
       setShowNewCustomerForm(false);
       setShowCustomerPicker(false);
-      setNewCustomerName("");
-      setNewCustomerPhone("");
+      resetNewCustomerForm({ name: "", phone: "" });
+    },
+    onError: (err) => {
+      showError(err instanceof ApiError ? err.message : t("orders.common.couldNotAddCustomer"));
     },
   });
 
@@ -110,7 +133,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       }
     },
     onError: (err) => {
-      setSaveError(err instanceof ApiError ? err.message : "Couldn't save the order. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("orders.newOrderModal.couldNotSaveOrder"));
     },
   });
 
@@ -118,16 +141,15 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
     if (!open) {
       setMode("choose");
       setOrderText("");
-      setParseError(null);
       setCustomerId(null);
       setCustomerQuery("");
       setShowCustomerPicker(false);
       setShowNewCustomerForm(false);
+      resetNewCustomerForm({ name: "", phone: "" });
       setItems([]);
-      setSaveError(null);
       setRawMaterialWarnings([]);
     }
-  }, [open]);
+  }, [open, resetNewCustomerForm]);
 
   if (!open) return null;
 
@@ -162,7 +184,6 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
 
   const handleSave = () => {
     if (!customerId) return;
-    setSaveError(null);
     saveOrderMutation.mutate({
       customerId,
       items: items.map((i) => ({
@@ -184,7 +205,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
         <button
           type="button"
           onClick={resetAndClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <X size={18} />
@@ -193,8 +214,8 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
         <div className="overflow-y-auto p-6">
           {mode === "choose" && (
             <>
-              <h2 className="text-lg font-bold text-text">New order</h2>
-              <p className="mt-1 text-sm text-text-muted">Paste what the party told you, or fill in a form.</p>
+              <h2 className="text-lg font-bold text-text">{t("orders.newOrderModal.title")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("orders.newOrderModal.subtitle")}</p>
 
               <button
                 type="button"
@@ -205,9 +226,9 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   <Sparkles size={18} />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-text">Type or paste the order</span>
+                  <span className="block text-sm font-semibold text-text">{t("orders.newOrderModal.typeOrPaste")}</span>
                   <span className="mt-0.5 block text-xs text-text-muted">
-                    e.g. "Rajesh Musical se 25 dholak, 20 bongo..." — AI figures out the party and items.
+                    {t("orders.newOrderModal.typeOrPasteExample")}
                   </span>
                 </span>
               </button>
@@ -221,9 +242,9 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   <Plus size={18} />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-text">Fill in manually</span>
+                  <span className="block text-sm font-semibold text-text">{t("orders.newOrderModal.fillManually")}</span>
                   <span className="mt-0.5 block text-xs text-text-muted">
-                    Pick a customer and add items one by one.
+                    {t("orders.newOrderModal.fillManuallyDescription")}
                   </span>
                 </span>
               </button>
@@ -232,37 +253,28 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
 
           {mode === "ai" && (
             <>
-              <h2 className="text-lg font-bold text-text">Type the order</h2>
-              <p className="mt-1 text-sm text-text-muted">Write it the way you'd say it — Hindi, English, or mixed.</p>
+              <h2 className="text-lg font-bold text-text">{t("orders.newOrderModal.aiTitle")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("orders.newOrderModal.aiSubtitle")}</p>
 
               <textarea
                 value={orderText}
                 onChange={(e) => setOrderText(e.target.value)}
                 rows={6}
-                placeholder="new order aaya hai Rajesh Musical se 25 aam ki lakdhi ki dholak natbold wali, 20 bongo full ready, 200 damru 5 inchi wale"
+                placeholder={t("orders.newOrderModal.aiTextareaPlaceholder")}
                 className="mt-4 w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary"
               />
 
-              {parseError ? (
-                <p className="mt-2 flex items-center gap-1.5 text-sm text-danger">
-                  <AlertTriangle size={14} /> {parseError}
-                </p>
-              ) : null}
-
               <div className="mt-5 flex gap-3">
                 <Button variant="secondary" className="flex-1" onClick={() => setMode("choose")}>
-                  Back
+                  {t("common.back")}
                 </Button>
                 <Button
                   className="flex-1"
                   disabled={orderText.trim().length < 3}
                   isLoading={parseMutation.isPending}
-                  onClick={() => {
-                    setParseError(null);
-                    parseMutation.mutate(orderText.trim());
-                  }}
+                  onClick={() => parseMutation.mutate(orderText.trim())}
                 >
-                  Parse order
+                  {t("orders.newOrderModal.parseOrder")}
                 </Button>
               </div>
             </>
@@ -271,12 +283,12 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
           {mode === "review" && (
             <>
               <h2 className="text-lg font-bold text-text">
-                {source === "ai_parsed" ? "Review parsed order" : "New order"}
+                {source === "ai_parsed" ? t("orders.newOrderModal.reviewParsedOrder") : t("orders.newOrderModal.newOrder")}
               </h2>
-              <p className="mt-1 text-sm text-text-muted">Confirm the customer and items before saving.</p>
+              <p className="mt-1 text-sm text-text-muted">{t("orders.newOrderModal.reviewSubtitle")}</p>
 
               <div className="mt-5">
-                <p className="mb-1.5 text-sm font-medium text-text-muted">Customer</p>
+                <p className="mb-1.5 text-sm font-medium text-text-muted">{t("orders.newOrderModal.customer")}</p>
                 {selectedCustomer ? (
                   <div className="flex items-center justify-between rounded-lg border border-border bg-surface-variant px-3.5 py-2.5">
                     <div>
@@ -290,7 +302,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       onClick={() => setShowCustomerPicker(true)}
                       className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
-                      Change
+                      {t("orders.newOrderModal.change")}
                     </button>
                   </div>
                 ) : (
@@ -300,17 +312,17 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                     className="flex w-full items-center gap-2 rounded-lg border border-warning bg-warning-container/40 px-3.5 py-2.5 text-left text-sm font-medium text-text outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                   >
                     <AlertTriangle size={15} className="shrink-0 text-warning" />
-                    Select or add a customer
+                    {t("orders.newOrderModal.selectOrAddCustomer")}
                   </button>
                 )}
 
                 {showCustomerPicker && (
                   <div className="mt-2 rounded-lg border border-border bg-surface p-3">
                     <TextField
-                      label="Search customers"
+                      label={t("orders.common.searchCustomers")}
                       value={customerQuery}
                       onChange={(e) => setCustomerQuery(e.target.value)}
-                      placeholder="Type a name…"
+                      placeholder={t("orders.common.typeAName")}
                       autoFocus
                     />
                     <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
@@ -329,7 +341,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                         </button>
                       ))}
                       {customersQuery.data?.length === 0 && (
-                        <p className="px-2.5 py-2 text-sm text-text-muted">No matches.</p>
+                        <p className="px-2.5 py-2 text-sm text-text-muted">{t("common.noMatches")}</p>
                       )}
                     </div>
 
@@ -338,45 +350,40 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                         type="button"
                         onClick={() => {
                           setShowNewCustomerForm(true);
-                          setNewCustomerName(customerQuery);
+                          setNewCustomerValue("name", customerQuery);
                         }}
                         className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
-                        <Plus size={14} /> Add new customer
+                        <Plus size={14} /> {t("orders.common.addNewCustomer")}
                       </button>
                     ) : (
-                      <div className="mt-2 space-y-2 border-t border-border pt-2">
+                      <form
+                        className="mt-2 space-y-2 border-t border-border pt-2"
+                        onSubmit={handleNewCustomerSubmit((values) =>
+                          createCustomerMutation.mutate({
+                            name: values.name.trim(),
+                            phone: values.phone?.trim() || undefined,
+                          })
+                        )}
+                        noValidate
+                      >
+                        <TextField label={t("common.name")} error={newCustomerErrors.name?.message} {...registerNewCustomer("name")} />
                         <TextField
-                          label="Name"
-                          value={newCustomerName}
-                          onChange={(e) => setNewCustomerName(e.target.value)}
+                          label={t("orders.common.phoneOptional")}
+                          error={newCustomerErrors.phone?.message}
+                          {...registerNewCustomer("phone")}
                         />
-                        <TextField
-                          label="Phone (optional)"
-                          value={newCustomerPhone}
-                          onChange={(e) => setNewCustomerPhone(e.target.value)}
-                        />
-                        <Button
-                          className="w-full"
-                          disabled={!newCustomerName.trim()}
-                          isLoading={createCustomerMutation.isPending}
-                          onClick={() =>
-                            createCustomerMutation.mutate({
-                              name: newCustomerName.trim(),
-                              phone: newCustomerPhone.trim() || undefined,
-                            })
-                          }
-                        >
-                          Save customer
+                        <Button type="submit" className="w-full" isLoading={createCustomerMutation.isPending}>
+                          {t("orders.common.saveCustomer")}
                         </Button>
-                      </div>
+                      </form>
                     )}
                   </div>
                 )}
               </div>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">Items ({items.length})</p>
+                <p className="mb-2 text-sm font-medium text-text-muted">{t("orders.newOrderModal.items", { count: items.length })}</p>
                 <div className="space-y-2.5">
                   {items.map((item) => (
                     <div
@@ -389,17 +396,17 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       <div className="flex items-center justify-between gap-2">
                         {item.isNewProduct ? (
                           <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
-                            <AlertTriangle size={12} /> New product
+                            <AlertTriangle size={12} /> {t("orders.newOrderModal.newProduct")}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-success">
-                            <Check size={12} /> Matched
+                            <Check size={12} /> {t("orders.newOrderModal.matched")}
                           </span>
                         )}
                         <button
                           type="button"
                           onClick={() => removeItem(item.key)}
-                          aria-label="Remove item"
+                          aria-label={t("orders.common.removeItem")}
                           className="rounded-full p-1 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-danger focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                           <Trash2 size={14} />
@@ -409,13 +416,13 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       <input
                         value={item.productName}
                         onChange={(e) => updateItem(item.key, { productName: e.target.value })}
-                        placeholder="Product name"
+                        placeholder={t("orders.common.productNamePlaceholder")}
                         className="mt-2 w-full rounded-lg border border-transparent bg-surface-variant px-3 py-2 text-sm text-text outline-none focus:border-primary"
                       />
 
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         <div>
-                          <label className="text-xs text-text-muted">Qty</label>
+                          <label className="text-xs text-text-muted">{t("orders.common.qty")}</label>
                           <input
                             type="number"
                             min={0.001}
@@ -426,7 +433,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-text-muted">Unit</label>
+                          <label className="text-xs text-text-muted">{t("orders.common.unit")}</label>
                           <input
                             value={item.unit}
                             onChange={(e) => updateItem(item.key, { unit: e.target.value })}
@@ -442,7 +449,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                                 : "text-text-muted"
                             )}
                           >
-                            Price {item.isNewProduct ? "*" : ""}
+                            {t("orders.common.price")} {item.isNewProduct ? "*" : ""}
                           </label>
                           <input
                             type="number"
@@ -468,26 +475,20 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   onClick={addBlankItem}
                   className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
-                  <Plus size={14} /> Add item
+                  <Plus size={14} /> {t("orders.common.addItem")}
                 </button>
               </div>
 
               <div className="mt-5 flex items-center justify-between rounded-lg bg-surface-variant px-3.5 py-2.5">
-                <span className="text-sm font-medium text-text-muted">Total</span>
+                <span className="text-sm font-medium text-text-muted">{t("common.total")}</span>
                 <span className="text-base font-bold text-text">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </span>
               </div>
 
-              {saveError ? (
-                <p className="mt-3 flex items-center gap-1.5 text-sm text-danger">
-                  <AlertTriangle size={14} /> {saveError}
-                </p>
-              ) : null}
-
               <div className="mt-5 flex gap-3">
                 <Button variant="secondary" className="flex-1" onClick={resetAndClose}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   className="flex-1"
@@ -498,7 +499,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   {saveOrderMutation.isPending ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
-                    "Save order"
+                    t("orders.newOrderModal.saveOrder")
                   )}
                 </Button>
               </div>
@@ -511,11 +512,10 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-container text-warning">
                   <AlertTriangle size={18} />
                 </span>
-                <h2 className="text-lg font-bold text-text">Order saved — raw materials running low</h2>
+                <h2 className="text-lg font-bold text-text">{t("orders.newOrderModal.warningTitle")}</h2>
               </div>
               <p className="mt-2 text-sm text-text-muted">
-                The order was saved. These products don't have enough raw material stock to fully produce the
-                ordered quantity yet:
+                {t("orders.newOrderModal.warningSubtitle")}
               </p>
 
               <div className="mt-4 space-y-2">
@@ -523,14 +523,14 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                   <div key={w.productId} className="rounded-lg border border-warning/40 bg-warning-container/20 px-3.5 py-2.5">
                     <p className="text-sm font-medium text-text">{w.productName}</p>
                     <p className="text-xs text-text-muted">
-                      Ordered {w.orderedQuantity}, can currently make {w.producibleQuantity}
+                      {t("orders.newOrderModal.orderedCanMake", { ordered: w.orderedQuantity, producible: w.producibleQuantity })}
                     </p>
                   </div>
                 ))}
               </div>
 
               <Button className="mt-5 w-full" onClick={resetAndClose}>
-                Got it
+                {t("orders.newOrderModal.gotIt")}
               </Button>
             </>
           )}

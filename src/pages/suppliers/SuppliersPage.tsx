@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Building2, Phone, Plus } from "lucide-react";
 import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
@@ -8,6 +9,7 @@ import { listSuppliers } from "../../lib/suppliers-api";
 import { AddSupplierModal } from "../../components/suppliers/AddSupplierModal";
 
 export function SuppliersPage() {
+  const { t } = useTranslation();
   const [addOpen, setAddOpen] = useState(false);
   const suppliersQuery = useQuery({ queryKey: ["suppliers"], queryFn: () => listSuppliers() });
   const suppliers = suppliersQuery.data ?? [];
@@ -17,18 +19,18 @@ export function SuppliersPage() {
       <div className="flex justify-end">
         <Button onClick={() => setAddOpen(true)}>
           <Plus size={16} className="mr-1.5" strokeWidth={2} />
-          Add supplier
+          {t("suppliers.suppliersPage.addSupplier")}
         </Button>
       </div>
 
       {suppliersQuery.isLoading ? (
-        <p className="p-6 text-sm text-text-muted">Loading suppliers…</p>
+        <p className="p-6 text-sm text-text-muted">{t("suppliers.suppliersPage.loading")}</p>
       ) : suppliers.length === 0 ? (
         <EmptyState
           icon={Building2}
-          title="No suppliers yet"
-          description="Add your first supplier to start recording purchases."
-          action={<Button onClick={() => setAddOpen(true)}>Add supplier</Button>}
+          title={t("suppliers.suppliersPage.emptyTitle")}
+          description={t("suppliers.suppliersPage.emptyDescription")}
+          action={<Button onClick={() => setAddOpen(true)}>{t("suppliers.suppliersPage.addSupplier")}</Button>}
         />
       ) : (
         <div className="space-y-3">
@@ -47,18 +49,18 @@ export function SuppliersPage() {
                       {supplier.phone}
                     </div>
                   ) : null}
-                  {supplier.gstin ? <div className="mt-0.5 text-xs text-text-muted">GSTIN: {supplier.gstin}</div> : null}
+                  {supplier.gstin ? <div className="mt-0.5 text-xs text-text-muted">{t("suppliers.suppliersPage.gstinLabel", { gstin: supplier.gstin })}</div> : null}
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-6 sm:gap-8">
                 <div className="text-left sm:text-right">
-                  <div className="text-xs text-text-muted">Total Purchased</div>
-                  <div className="mt-0.5 text-sm text-text-muted">Not tracked yet</div>
+                  <div className="text-xs text-text-muted">{t("suppliers.suppliersPage.totalPurchased")}</div>
+                  <div className="mt-0.5 text-sm text-text-muted">{t("suppliers.suppliersPage.notTrackedYet")}</div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-xs text-text-muted">Outstanding</div>
-                  <div className="mt-0.5 text-sm text-text-muted">Not tracked yet</div>
+                  <div className="text-xs text-text-muted">{t("suppliers.suppliersPage.outstanding")}</div>
+                  <div className="mt-0.5 text-sm text-text-muted">{t("suppliers.suppliersPage.notTrackedYet")}</div>
                 </div>
               </div>
             </div>

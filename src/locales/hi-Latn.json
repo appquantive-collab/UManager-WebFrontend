@@ -1,0 +1,1408 @@
+{
+  "brand": {
+    "name": "SethSathi",
+    "assistantName": "Munshi AI"
+  },
+  "splash": {
+    "greeting": "Namaste! Aapka digital AI munshi",
+    "tagline": "Dukaan aur vyapaar ka aasaan, bharosemand hisaab",
+    "featureAi": "Munshi AI se poochein",
+    "featureBilling": "GST bill",
+    "featureStock": "Stock ka hisaab",
+    "start": "Shuru karein",
+    "madeFor": "Bharat ke vyapariyon ke liye bana",
+    "photoAlt": "Namaste karte hue Munshi AI",
+    "loading": "SethSathi load ho raha hai"
+  },
+  "common": {
+    "cancel": "Cancel karein",
+    "save": "Save karein",
+    "saveChanges": "Changes save karein",
+    "close": "Band karein",
+    "back": "Peeche",
+    "continue": "Aage badhein",
+    "confirm": "Confirm karein",
+    "dismiss": "Hatayein",
+    "delete": "Delete karein",
+    "edit": "Edit karein",
+    "add": "Add karein",
+    "search": "Search karein",
+    "loading": "Load ho raha hai…",
+    "somethingWentWrong": "Kuch gadbad ho gayi. Dobara try karein.",
+    "optional": "optional",
+    "yes": "Haan",
+    "no": "Nahi",
+    "skipForNow": "Abhi skip karein",
+    "done": "Ho gaya",
+    "name": "Naam",
+    "phone": "Phone number",
+    "email": "Email",
+    "password": "Password",
+    "note": "Note",
+    "noMatches": "Kuch nahi mila.",
+    "total": "Total",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "layout": {
+    "tenantAdmin": "Tenant Admin",
+    "expandSidebar": "Sidebar badi karein",
+    "collapseSidebar": "Sidebar chhoti karein",
+    "closeNavigation": "Navigation band karein",
+    "searchPlaceholder": "Search karein...",
+    "account": "Account",
+    "logOut": "Log out karein",
+    "toggleTheme": "Theme badlein",
+    "notifications": "Notifications"
+  },
+  "quickActions": {
+    "create": "Create"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "sales": "Sales",
+    "purchases": "Purchases",
+    "inventory": "Inventory",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "warehouses": "Warehouses",
+    "reports": "Reports",
+    "ai": "Munshi AI",
+    "staff": "Staff",
+    "settings": "Settings",
+    "products": "Products",
+    "home": "Home",
+    "stock": "Stock"
+  },
+  "language": {
+    "label": "Bhasha",
+    "en": "English",
+    "hi": "हिन्दी",
+    "hiLatn": "Hinglish",
+    "changedSuccess": "Bhasha badal di gayi"
+  },
+  "onboardingLabels": {
+    "category": {
+      "fmcg": "FMCG",
+      "electronics": "Electronics",
+      "mobile_accessories": "Mobile & Accessories",
+      "pharma": "Pharma / Dawai",
+      "apparel": "Kapde (Apparel)",
+      "footwear": "Jute-Chappal (Footwear)",
+      "textiles_fabric": "Kapda / Textile",
+      "auto_parts": "Auto Parts",
+      "two_wheeler_parts": "Two-Wheeler Parts",
+      "grocery": "Grocery / Kirana",
+      "hardware": "Hardware",
+      "sanitary_plumbing": "Sanitary & Plumbing",
+      "electrical_goods": "Electrical Saman",
+      "paints_chemicals": "Paint & Chemical",
+      "building_materials": "Building Material",
+      "furniture": "Furniture",
+      "musical_instruments": "Musical Instruments",
+      "sports_goods": "Sports ka Saman",
+      "toys_games": "Khilone & Games",
+      "stationery_books": "Stationery & Kitabein",
+      "gift_items": "Gift Items",
+      "cosmetics_beauty": "Cosmetics & Beauty",
+      "jewellery_artificial": "Artificial Jewellery",
+      "bags_luggage": "Bags & Luggage",
+      "kitchenware_utensils": "Bartan (Kitchenware)",
+      "plastic_goods": "Plastic ka Saman",
+      "packaging_materials": "Packaging Material",
+      "confectionery_bakery": "Confectionery & Bakery",
+      "dry_fruits_spices": "Dry Fruits & Masale",
+      "tea_coffee": "Chai & Coffee",
+      "dairy_products": "Dairy Products",
+      "agro_seeds_fertilizers": "Beej & Khaad (Agro)",
+      "cattle_feed": "Pashu Chara",
+      "tiles_sanitaryware": "Tiles & Sanitaryware",
+      "glass_hardware": "Glass & Hardware",
+      "computer_it": "Computer & IT",
+      "printing_stationery": "Printing & Stationery",
+      "cleaning_supplies": "Cleaning ka Saman",
+      "fireworks": "Patakhe (Fireworks)",
+      "readymade_garments": "Readymade Kapde",
+      "saree_ethnic_wear": "Saree & Ethnic Wear",
+      "watches_eyewear": "Ghadi & Chashma",
+      "religious_puja_items": "Puja ka Saman",
+      "other": "Kuch aur"
+    },
+    "customerType": {
+      "wholesale": "Wholesale / B2B",
+      "retail": "Retail",
+      "both": "Dono"
+    },
+    "orderVolume": {
+      "lt_100": "100 se kam orders/month",
+      "100_500": "100–500 orders/month",
+      "500_2000": "500–2,000 orders/month",
+      "gt_2000": "2,000+ orders/month"
+    },
+    "goal": {
+      "inventory_tracking": "Inventory track karna",
+      "credit_payments": "Credit & payment collection",
+      "multi_warehouse": "Multi-warehouse ka kaam",
+      "staff_management": "Staff & role management",
+      "ai_insights": "AI se business insights",
+      "reporting": "Reports & analytics"
+    }
+  },
+  "settingsPage": {
+    "tabs": {
+      "business": "Business",
+      "language": "Bhasha",
+      "tax": "Tax",
+      "invoice": "Invoice",
+      "notifications": "Notifications",
+      "integrations": "Integrations",
+      "subscription": "Subscription"
+    },
+    "businessName": "Business ka naam",
+    "businessType": "Business type",
+    "currency": "Currency",
+    "editingNotAvailable": "Business settings edit karna abhi available nahi hai.",
+    "businessProfile": "Business profile",
+    "businessProfileDescription": "Aapka dashboard aur recommendations personalize karne ke liye use hota hai.",
+    "complete": "Complete",
+    "notSetUp": "Set up nahi hai",
+    "category": "Category",
+    "customers": "Customers",
+    "orderVolume": "Order volume",
+    "warehousesAndStaff": "Warehouse & staff",
+    "warehousesStaffCount": "{{warehouses}} warehouses · {{staff}} staff",
+    "priorities": "Priorities",
+    "notes": "Notes",
+    "aiPersonalizedActive": "AI-personalized dashboard active hai",
+    "updateBusinessProfile": "Business profile update karein",
+    "notCompletedYet": "Aapne apna business profile abhi complete nahi kiya hai.",
+    "completeSetup": "Setup complete karein",
+    "comingSoon": "{{label}} settings jald aa rahi hain",
+    "beingDesigned": "Yeh section design ho raha hai.",
+    "languageDescription": "Woh bhasha chunein jisme SethSathi dikhega. Yeh aapke account mein save hoga aur har device par saath rahega."
+  },
+  "pageMeta": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Aaj ka business overview."
+    },
+    "sales": {
+      "title": "Sales",
+      "subtitle": "Orders, invoices, aur payments."
+    },
+    "purchases": {
+      "title": "Purchases",
+      "subtitle": "Purchase orders aur supplier payments."
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "Apne products aur pricing manage karein."
+    },
+    "inventoryNew": {
+      "title": "Product add karein",
+      "subtitle": "Naya product ya raw material banayein."
+    },
+    "inventoryEdit": {
+      "title": "Product edit karein",
+      "subtitle": "Product ya raw material ki details update karein."
+    },
+    "customers": {
+      "title": "Customers",
+      "subtitle": "Customer accounts, credit, aur ledgers."
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "subtitle": "Supplier accounts aur payment ledgers."
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "subtitle": "Locations, stock value, aur transfers."
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Sales, purchases, aur inventory ka business performance."
+    },
+    "ai": {
+      "title": "Munshi AI",
+      "subtitle": "Apne business ke baare mein poochein ya AI insights dekhein."
+    },
+    "staff": {
+      "title": "Staff",
+      "subtitle": "Logon ko hire karein aur sirf zaroori features ka access dein."
+    },
+    "staffNew": {
+      "title": "Staff member add karein",
+      "subtitle": "Naya team member, uska schedule, aur pay add karein."
+    },
+    "staffEdit": {
+      "title": "Staff member edit karein",
+      "subtitle": "Role, schedule, ya pay ki details update karein."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Business configuration aur preferences."
+    },
+    "fallback": {
+      "title": "SethSathi",
+      "subtitle": ""
+    }
+  },
+  "auth": {
+    "login": {
+      "phoneTitle": "Welcome back",
+      "phoneSubtitle": "Sign in karne ke liye apna mobile number daalein",
+      "mobileNumber": "Mobile number",
+      "phoneInvalid": "Valid 10-digit mobile number daalein",
+      "passwordTooShort": "Password kam se kam 8 characters ka hona chahiye",
+      "forgotPassword": "Password bhool gaye?",
+      "continue": "Continue",
+      "or": "ya",
+      "comingSoon": "Coming soon",
+      "whatsapp": "WhatsApp",
+      "google": "Google",
+      "signInWithEmailInstead": "Email se sign in karein",
+      "noBusinessYet": "Abhi business nahi hai?",
+      "signUp": "Sign Up",
+      "emailTitle": "Sign in",
+      "emailSubtitle": "Apne business workspace mein access karein",
+      "emailInvalid": "Valid email daalein",
+      "signIn": "Sign in",
+      "signInWithMobileInstead": "Mobile number se sign in karein",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein."
+    },
+    "register": {
+      "title": "Wholesale ke saath shuru karein",
+      "subtitle": "Sirf ek minute mein apna wholesale account set up karein",
+      "fullName": "Full name",
+      "fullNameRequired": "Aapka naam zaroori hai",
+      "businessName": "Business name",
+      "businessNamePlaceholder": "e.g. Sharma Traders & Distributors",
+      "businessNameRequired": "Business name zaroori hai",
+      "mobileNumber": "Mobile number",
+      "phoneInvalid": "Valid 10-digit mobile number daalein",
+      "email": "Email",
+      "emailInvalid": "Valid email daalein",
+      "createPassword": "Password banayein",
+      "passwordTooShort": "Password kam se kam 8 characters ka hona chahiye",
+      "agreeToTermsPrefix": "Main inse agree karta/karti hoon:",
+      "terms": "Terms",
+      "privacyPolicy": "Privacy Policy",
+      "agreeToTermsRequired": "Aapko Terms & Privacy Policy se agree karna hoga",
+      "createAccount": "Wholesale Account Banayein",
+      "alreadyHaveAccount": "Pehle se account hai?",
+      "logIn": "Log In",
+      "successTitle": "Account ban gaya!",
+      "successMessage": "Aapka wholesale workspace ready hai.",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein."
+    },
+    "forgotPassword": {
+      "title": "Apna password reset karein",
+      "subtitle": "Apna registered mobile number ya email daalein, hum aapko password reset karne ke liye ek OTP bhejenge.",
+      "identifierInvalid": "Apna mobile number ya email daalein",
+      "sentTitle": "Reset instructions request ho gaya",
+      "sentMessage": "Agar account match karta hai, to aapko jald hi ek code milega. Is workspace ke liye reset delivery abhi finalize ho rahi hai — agar code na mile to support se contact karein.",
+      "backToLogin": "Log In par wapas jayein",
+      "identifierLabel": "Mobile number ya email",
+      "identifierPlaceholder": "e.g. +91 98765 43210 ya name@domain.co",
+      "sendResetCode": "Reset Code Bhejein",
+      "backToLoginArrow": "← Log In par wapas jayein"
+    },
+    "layout": {
+      "backToHome": "Home par wapas",
+      "panelHeading": "Aapki dukaan ka hisaab, ek bharosemand munshi ki tarah",
+      "panelDescription": "Stock, bill, payment aur customer — sab ek jagah, English, Hindi ya Hinglish mein.",
+      "highlightStock": "Har warehouse ka stock, hamesha up-to-date",
+      "highlightBilling": "GST bill, payment aur udhaar ek jagah",
+      "highlightAi": "Munshi AI se apne business ke baare mein kuch bhi poochein"
+    },
+    "otp": {
+      "sendCode": "OTP bhejein",
+      "codeTitle": "Code daalein",
+      "codeSubtitle": "Humne {{phone}} par 6 digit ka code bheja hai",
+      "codeLabel": "6 digit code",
+      "codeInvalidFormat": "6 digit ka code daalein",
+      "verify": "Verify karke sign in karein",
+      "changeNumber": "Number badlein",
+      "resendIn": "{{seconds}}s mein code dobara bhejein",
+      "resend": "Code dobara bhejein",
+      "codeSent": "Code bhej diya gaya",
+      "errors": {
+        "NO_ACCOUNT": "Is mobile number se koi account nahi mila",
+        "RESEND_COOLDOWN": "Naya code maangne se pehle {{seconds}}s rukein",
+        "TOO_MANY_REQUESTS": "Bahut zyada code maange gaye. Thodi der baad try karein.",
+        "SMS_NOT_CONFIGURED": "Mobile se login abhi chalu nahi hai. Email se sign in karein.",
+        "SMS_FAILED": "Code nahi bhej paaye. Dobara try karein.",
+        "CODE_EXPIRED": "Yeh code expire ho gaya. Naya code maangein.",
+        "CODE_INVALID": "Galat code. Check karke dobara daalein.",
+        "TOO_MANY_ATTEMPTS": "Bahut baar galat code daala gaya. Naya code maangein."
+      }
+    }
+  },
+  "onboarding": {
+    "skipForNow": "Abhi skip karein",
+    "step1": {
+      "heading": "Apne business ke baare mein batayein",
+      "subheading": "Isse SethSathi ko aapke kaam karne ke tareeke ke hisaab se dhalne mein madad milti hai.",
+      "categoryLabel": "Business category",
+      "customersLabel": "Aapke customers kaun hain?",
+      "groups": {
+        "foodFmcgGrocery": "Food, FMCG & Grocery",
+        "fashionTextiles": "Fashion & Textiles",
+        "electronicsIt": "Electronics & IT",
+        "hardwareHomeBuilding": "Hardware, Home & Building",
+        "autoTransport": "Auto & Transport",
+        "healthBeauty": "Health & Beauty",
+        "stationeryGiftsLeisure": "Stationery, Gifts & Leisure",
+        "other": "Other"
+      }
+    },
+    "step2": {
+      "heading": "Aapka operation",
+      "subheading": "Aaj aapka operation lagbhag kitna bada hai?",
+      "orderVolumeLabel": "Monthly order volume",
+      "warehouses": "Warehouses",
+      "staffMembers": "Staff members"
+    },
+    "step3": {
+      "heading": "Sabse zyada kya matter karta hai?",
+      "subheading": "{{max}} tak priorities chunein.",
+      "painPointsLabel": "Kuch khaas jo aapko slow kar raha hai? (optional)",
+      "painPointsPlaceholder": "e.g. Expiry dates track karna, customer payments ke peeche bhaagna…",
+      "finishSetup": "Setup Finish Karein"
+    },
+    "generating": {
+      "heading": "Setup ho raha hai",
+      "subheading": "Aapki business profile save ho rahi hai aur dashboard personalize ho raha hai…"
+    },
+    "done": {
+      "heading": "Sab kuch ready hai",
+      "subheading": "Aapka dashboard ready hai.",
+      "goToDashboard": "Dashboard par jayein"
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "genericError": "Kuch gadbad ho gayi. Dobara try karein."
+  },
+  "inventory": {
+    "tabs": {
+      "products": "Products",
+      "rawMaterials": "Raw Materials"
+    },
+    "inventoryPage": {
+      "addRawMaterial": "Raw material add karein",
+      "addProduct": "Product add karein",
+      "searchPlaceholder": "Name, SKU, ya category se search karein",
+      "loadingProducts": "Products load ho rahe hain…",
+      "loadFailed": "Products load nahi ho sake. Dobara try karein.",
+      "noMatchingResults": "Koi matching result nahi mila",
+      "noRawMaterialsYet": "Abhi koi raw material nahi hai",
+      "noProductsYet": "Abhi koi product nahi hai",
+      "tryDifferentSearch": "Alag search term try karein.",
+      "noRawMaterialsDescription": "Yahan raw materials add karein, phir unhe kisi product ke Bill of Materials mein reference karein.",
+      "noProductsDescription": "Inventory, pricing, aur stock track karna shuru karne ke liye apna pehla product add karein.",
+      "columnProduct": "Product",
+      "columnSku": "SKU",
+      "columnCategory": "Category",
+      "columnStock": "Stock",
+      "columnPurchase": "Purchase",
+      "columnWholesale": "Wholesale",
+      "columnRetail": "Retail",
+      "columnReorderLevel": "Reorder Level",
+      "addOrAdjustStockFor": "{{name}} ke liye stock add ya adjust karein",
+      "assembleFor": "{{name}} ko raw materials se assemble karein",
+      "viewQrFor": "{{name}} ka QR code dekhein",
+      "editFor": "{{name}} edit karein",
+      "deleteFor": "{{name}} delete karein",
+      "addOrAdjustStockTitle": "Stock add / adjust karein",
+      "assembleTitle": "Raw materials se assemble karein",
+      "deleteProductTitle": "Product delete karein",
+      "deleteConfirm": "Kya aap <bold>{{name}}</bold> ko delete karna chahte hain? Yeh wapas nahi ho sakta.",
+      "cancel": "Cancel karein",
+      "delete": "Delete karein"
+    },
+    "productForm": {
+      "nameRequired": "Name is required",
+      "unitRequired": "Unit is required",
+      "mustBeZeroOrMore": "0 ya usse zyada hona chahiye",
+      "couldNotCreateCategory": "Category create nahi ho saki. Dobara try karein.",
+      "couldNotCreateBrand": "Brand create nahi ho saka. Dobara try karein.",
+      "couldNotUploadImage": "Image upload nahi ho saki. Dobara try karein.",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
+      "basics": "Basics",
+      "removeImage": "Image remove karein",
+      "productImageAlt": "Product",
+      "photo": "Photo",
+      "productName": "Product name",
+      "skuOptional": "SKU (optional)",
+      "skuPlaceholder": "Blank chhodne par auto-generate ho jayega",
+      "scanBarcodeToFillSku": "SKU fill karne ke liye barcode scan karein",
+      "unit": "Unit",
+      "isRawMaterialLabel": "Yeh ek raw material hai",
+      "isRawMaterialHint": "(dusre products banane mein use hota hai, directly becha nahi jata)",
+      "categoryOptional": "Category (optional)",
+      "noCategory": "Koi category nahi",
+      "brandOptional": "Brand (optional)",
+      "noBrand": "Koi brand nahi",
+      "rawMaterialsUsed": "Use hone wale raw materials",
+      "rawMaterialsUsedSubtitle": "Optional — agar is product ka stock directly track hota hai to isse khali chhod dein.",
+      "addMaterial": "Material add karein",
+      "noRawMaterialsConfigured": "Koi raw material configure nahi hai.",
+      "selectRawMaterial": "Raw material select karein…",
+      "removeRawMaterial": "Raw material remove karein",
+      "unitPlaceholder": "unit",
+      "noRawMaterialsExist": "Abhi koi raw material exist nahi karta — pehle Raw Materials tab se ek add karein.",
+      "pricing": "Pricing",
+      "purchasePrice": "Purchase price",
+      "wholesalePrice": "Wholesale price",
+      "retailPrice": "Retail price",
+      "stock": "Stock",
+      "reorderLevel": "Reorder level",
+      "cancel": "Cancel karein",
+      "saveChanges": "Changes save karein",
+      "addProduct": "Product add karein"
+    },
+    "productFormPage": {
+      "backToInventory": "Inventory par wapas jayein",
+      "editProductTitle": "Product edit karein",
+      "addProductTitle": "Product add karein",
+      "editProductSubtitle": "Product ya raw material ki details update karein.",
+      "addProductSubtitle": "Naya product ya raw material banayein.",
+      "loadingProduct": "Product load ho raha hai…",
+      "loadFailed": "Yeh product load nahi ho saka."
+    },
+    "stockForm": {
+      "typePurchase": "Purchase",
+      "typeCustomerReturn": "Customer return",
+      "typeTransferIn": "Transfer in",
+      "typeAdjustment": "Adjustment (correction)",
+      "typeOpening": "Opening stock",
+      "typeSale": "Sale",
+      "typeDamage": "Damage / loss",
+      "typeSupplierReturn": "Supplier return",
+      "typeTransferOut": "Transfer out",
+      "selectWarehouse": "Ek warehouse select karein",
+      "selectReason": "Ek reason select karein",
+      "mustBeWholeNumber": "Whole number hona chahiye",
+      "mustBeGreaterThanZero": "0 se zyada hona chahiye",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
+      "currentStockAllWarehouses": "Current stock (sab warehouses): {{total}}",
+      "addStock": "Stock add karein",
+      "removeOrAdjustDown": "Remove / adjust down karein",
+      "warehouse": "Warehouse",
+      "selectWarehousePlaceholder": "Warehouse select karein…",
+      "currentStockHere": "Yahan current stock: {{quantity}}",
+      "reason": "Reason",
+      "quantityToAdd": "Add karne ke liye quantity",
+      "quantityToRemove": "Remove karne ke liye quantity",
+      "noteOptional": "Note (optional)",
+      "notePlaceholder": "e.g. GRN-882 delivery ya transit mein damage hua",
+      "cancel": "Cancel karein",
+      "removeStock": "Stock remove karein"
+    },
+    "assembleForm": {
+      "selectWarehouse": "Ek warehouse select karein",
+      "mustBeWholeNumber": "Whole number hona chahiye",
+      "mustBeGreaterThanZero": "0 se zyada hona chahiye",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
+      "canCurrentlyMakeUnlimited": "Abhi unlimited aur bana sakte hain",
+      "canCurrentlyMake": "Abhi {{count}} aur bana sakte hain",
+      "requiredPerUnit": "({{required}} {{unit}}/unit)",
+      "inStock": "{{stock}} {{unit}} stock mein",
+      "warehouse": "Warehouse",
+      "selectWarehousePlaceholder": "Warehouse select karein…",
+      "quantityToAssemble": "Assemble karne ke liye quantity",
+      "notEnoughStock": "{{quantity}} units ke liye raw material stock kam hai — phir bhi assemble karne par ek ya zyada raw materials negative ho jayenge.",
+      "noteOptional": "Note (optional)",
+      "notePlaceholder": "e.g. Batch #12 assembly",
+      "cancel": "Cancel karein",
+      "assemble": "Assemble karein"
+    },
+    "mobileStock": {
+      "title": "Inventory & Warehouses",
+      "addRawMaterial": "Raw Material Add Karein",
+      "addProduct": "Product Add Karein",
+      "allWarehouses": "All Warehouses",
+      "valuation": "VALUATION",
+      "totalSkus": "TOTAL SKUS",
+      "reorder": "REORDER",
+      "items": "{{count}} Items",
+      "outOfStockCount": "{{count}} Out of stock",
+      "searchPlaceholder": "Name ya SKU se search karein...",
+      "products": "Products",
+      "rawMaterials": "Raw Materials",
+      "statusAll": "All ({{count}})",
+      "statusLow": "Low Stock ({{count}})",
+      "statusOut": "Out of Stock ({{count}})",
+      "loadingInventory": "Inventory load ho rahi hai…",
+      "noRawMaterialsYet": "Abhi koi raw material nahi hai",
+      "noProductsYet": "Abhi koi product nahi hai",
+      "noMatchingResults": "Koi matching result nahi mila",
+      "noRawMaterialsDescription": "Yahan raw materials add karein, phir unhe kisi product ke Bill of Materials mein reference karein.",
+      "noProductsDescription": "Stock track karna shuru karne ke liye apna pehla product add karein.",
+      "tryDifferentFilter": "Alag search ya filter try karein.",
+      "addRawMaterialShort": "Raw material add karein",
+      "addProductShort": "Product add karein",
+      "addOrAdjustStockTitle": "Stock add / adjust karein",
+      "assembleTitle": "Raw materials se assemble karein",
+      "statusInStock": "In Stock",
+      "statusLowStock": "Low Stock",
+      "statusOutOfStock": "Out of Stock",
+      "onHand": "ON HAND",
+      "warehouseSplit": "WAREHOUSE SPLIT",
+      "price": "PRICE",
+      "noStockRecorded": "Koi stock record nahi hai",
+      "addOrAdjustStockButton": "Stock Add / Adjust Karein",
+      "assembleButton": "Assemble Karein"
+    },
+    "barcodeScanner": {
+      "title": "Barcode / QR scan karein",
+      "close": "Close",
+      "cameraError": "Camera access nahi ho saka. Permissions check karein aur dobara try karein.",
+      "hint": "Camera ko barcode ya QR code par point karein."
+    },
+    "qrModal": {
+      "defaultTitle": "Product ka QR code",
+      "close": "Close",
+      "generating": "Generate ho raha hai…",
+      "altText": "SKU {{sku}} ka QR code",
+      "skuLabel": "SKU: {{sku}}",
+      "download": "Download karein",
+      "generateFailed": "QR code generate nahi ho saka."
+    }
+  },
+  "staff": {
+    "roles": {
+      "manager": "Manager",
+      "salesman": "Salesman",
+      "warehouseStaff": "Warehouse Staff"
+    },
+    "staffPage": {
+      "tabTeam": "Team",
+      "tabAttendance": "Attendance",
+      "tabPayroll": "Payroll",
+      "filterAll": "All",
+      "filterActive": "Active",
+      "filterSuspended": "Suspended",
+      "addStaff": "Staff Add Karein",
+      "searchPlaceholder": "Naam ya phone se staff search karein…",
+      "loadingStaff": "Staff load ho raha hai…",
+      "noStaffFound": "Koi staff member nahi mila",
+      "noStaffFoundDescription": "Alag search ya filter try karein, ya apna pehla team member add karein.",
+      "active": "Active",
+      "suspended": "Suspended",
+      "salaried": "Salaried",
+      "dailyWage": "Daily wage"
+    },
+    "staffForm": {
+      "nameTooShort": "Name kam se kam 2 characters ka hona chahiye",
+      "mustBeGreaterThanZero": "0 se zyada hona chahiye",
+      "couldNotCreateDepartment": "Department create nahi ho saka. Dobara try karein.",
+      "couldNotCreateDesignation": "Designation create nahi ho saka. Dobara try karein.",
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
+      "dayOff": "Day off",
+      "to": "se",
+      "basics": "Basics",
+      "name": "Naam",
+      "namePlaceholder": "Full name",
+      "phoneOptional": "Phone (optional)",
+      "phonePlaceholder": "10-digit mobile number",
+      "role": "Role",
+      "departmentOptional": "Department (optional)",
+      "noDepartment": "Koi department nahi",
+      "designationOptional": "Designation (optional)",
+      "noDesignation": "Koi designation nahi",
+      "weeklySchedule": "Weekly schedule",
+      "weeklyScheduleSubtitle": "Hafte ke har din ke liye working hours set karein ya day off mark karein.",
+      "pay": "Pay",
+      "payType": "Pay type",
+      "monthlySalary": "Monthly salary",
+      "dailyWage": "Daily wage",
+      "monthlySalaryCurrency": "Monthly salary (₹)",
+      "monthlySalaryPlaceholder": "e.g. 25000",
+      "dailyWageCurrency": "Daily wage (₹)",
+      "dailyWagePlaceholder": "e.g. 500",
+      "salaryHint": "Attendance kuch bhi ho, har mahine poori salary milegi.",
+      "dailyWageHint": "Monthly pay marked attendance se calculate hoti hai (present days × rate).",
+      "cancel": "Cancel karein",
+      "saveChanges": "Changes save karein",
+      "addStaff": "Staff add karein",
+      "days": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
+    },
+    "staffFormPage": {
+      "backToStaff": "Staff par wapas jayein",
+      "editStaffTitle": "Staff member edit karein",
+      "addStaffTitle": "Staff member add karein",
+      "editStaffSubtitle": "Role, schedule, ya pay ki details update karein.",
+      "addStaffSubtitle": "Naya team member, uska schedule, aur pay add karein.",
+      "loadingStaffMember": "Staff member load ho raha hai…",
+      "loadFailed": "Yeh staff member nahi mil saka."
+    },
+    "attendanceTab": {
+      "statusPresent": "Present",
+      "statusHalfDay": "Half Day",
+      "statusAbsent": "Absent",
+      "statusLeave": "Leave",
+      "markAllPresent": "Sabko present mark karein",
+      "save": "Save karein",
+      "saveWithCount": "Save karein ({{count}})",
+      "loadingAttendance": "Attendance load ho rahi hai…",
+      "noActiveStaff": "Abhi koi active staff member nahi hai."
+    },
+    "payrollTab": {
+      "generateForAllStaff": "Sab staff ke liye generate karein",
+      "couldNotGeneratePayroll": "Payroll generate nahi ho saka.",
+      "couldNotGeneratePayrollForAll": "Sab staff ke liye payroll generate nahi ho saka.",
+      "couldNotRecordPayment": "Payment record nahi ho saka.",
+      "skipped": "{{count}} skip kiye: {{details}}",
+      "totalPayroll": "Total payroll ({{month}})",
+      "unpaid": "Unpaid",
+      "loadingPayroll": "Payroll load ho raha hai…",
+      "noActiveStaff": "Abhi koi active staff member nahi hai.",
+      "salaried": "Salaried",
+      "dailyWage": "Daily wage",
+      "presentHalfDay": "{{present}} present, {{halfDays}} half-day",
+      "paid": "Paid",
+      "markPaid": "Paid mark karein",
+      "generate": "Generate karein"
+    }
+  },
+  "orders": {
+    "common": {
+      "qty": "Qty",
+      "unit": "Unit",
+      "price": "Price",
+      "productNamePlaceholder": "Product name",
+      "removeItem": "Item hatayein",
+      "addItem": "Item add karein",
+      "searchCustomers": "Customers search karein",
+      "typeAName": "Naam type karein…",
+      "addNewCustomer": "Naya customer add karein",
+      "phoneOptional": "Phone (optional)",
+      "saveCustomer": "Customer save karein",
+      "nameRequired": "Name is required",
+      "couldNotAddCustomer": "Could not add customer. Please try again.",
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "newOrderModal": {
+      "title": "New order",
+      "subtitle": "Party ne jo bataya wo paste karein, ya form fill karein.",
+      "typeOrPaste": "Order type karein ya paste karein",
+      "typeOrPasteExample": "jaise \"Rajesh Musical se 25 dholak, 20 bongo...\" — AI party aur items khud figure out kar lega.",
+      "fillManually": "Manually fill karein",
+      "fillManuallyDescription": "Customer pick karein aur items ek-ek karke add karein.",
+      "aiTitle": "Order type karein",
+      "aiSubtitle": "Jaise aap bolte hain waise likhein — Hindi, English, ya mixed.",
+      "aiTextareaPlaceholder": "new order aaya hai Rajesh Musical se 25 aam ki lakdhi ki dholak natbold wali, 20 bongo full ready, 200 damru 5 inchi wale",
+      "parseOrder": "Order parse karein",
+      "couldNotParse": "Couldn't parse that text. Try again or fill manually.",
+      "reviewParsedOrder": "Parsed order review karein",
+      "newOrder": "New order",
+      "reviewSubtitle": "Save karne se pehle customer aur items confirm karein.",
+      "customer": "Customer",
+      "change": "Change karein",
+      "selectOrAddCustomer": "Customer select ya add karein",
+      "items": "Items ({{count}})",
+      "newProduct": "New product",
+      "matched": "Matched",
+      "saveOrder": "Order save karein",
+      "couldNotSaveOrder": "Couldn't save the order. Please try again.",
+      "warningTitle": "Order save ho gaya — raw materials kam hain",
+      "warningSubtitle": "Order save ho gaya hai. Is quantity ko fully produce karne ke liye in products ke paas abhi itna raw material stock nahi hai:",
+      "orderedCanMake": "Order kiya {{ordered}}, abhi bana sakte hain {{producible}}",
+      "gotIt": "Got it"
+    },
+    "orderDetailModal": {
+      "unknownCustomer": "Unknown customer",
+      "notEditable": "Yeh order {{status}} hai aur ab edit nahi ho sakta.",
+      "items": "Items ({{count}})",
+      "newProduct": "New product",
+      "item": "Item",
+      "notes": "Notes",
+      "notesPlaceholder": "Is order ke baare mein optional notes…",
+      "confirm": "Confirm karein",
+      "cancelOrder": "Order cancel karein",
+      "close": "Close",
+      "saveChanges": "Changes save karein",
+      "couldNotSaveChanges": "Couldn't save changes. Please try again.",
+      "couldNotUpdateStatus": "Couldn't update status. Please try again."
+    },
+    "invoiceDetailModal": {
+      "unknownCustomer": "Unknown customer",
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partially Paid",
+        "paid": "Paid"
+      },
+      "methodLabel": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bankTransfer": "Bank Transfer",
+        "cheque": "Cheque",
+        "credit": "Credit",
+        "other": "Other"
+      },
+      "billTypeGst": "GST Bill",
+      "billTypeRecord": "Record Bill",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "paymentHistory": "Payment history",
+      "recordAPayment": "Payment record karein",
+      "amount": "Amount",
+      "upToAmount": "{{amount}} tak",
+      "amountMustBePositive": "0 se zyada hona chahiye",
+      "amountExceedsRemaining": "Remaining {{amount}} se exceed nahi ho sakta",
+      "method": "Method",
+      "noteOptional": "Note (optional)",
+      "recordPayment": "Payment record karein",
+      "couldNotRecordPayment": "Couldn't record payment. Please try again.",
+      "close": "Close",
+      "gstPercentSuffix": " · GST {{percent}}%"
+    }
+  },
+  "sales": {
+    "newSaleModal": {
+      "nameRequired": "Name is required",
+      "couldNotAddCustomer": "Could not add customer. Please try again.",
+      "couldNotGenerateBill": "Couldn't generate the bill. Please try again.",
+      "couldNotRecordPayment": "Couldn't record the payment. Please try again.",
+      "close": "Close",
+      "customerStepTitle": "New sale",
+      "customerStepSubtitle": "Woh party pick karein jise aap bill kar rahe hain.",
+      "searchCustomers": "Customers search karein",
+      "typeAName": "Naam type karein…",
+      "addNewCustomer": "Naya customer add karein",
+      "phoneOptional": "Phone (optional)",
+      "saveAndContinue": "Save & continue",
+      "loadingPendingOrders": "Unke pending orders load ho rahe hain…",
+      "everythingOrdered": "Unhone jo bhi order kiya hai — edit karein, remove karein, ya items add karein.",
+      "noPendingOrders": "Is party ke liye koi pending order nahi hai — bill karne ke liye items add karein.",
+      "newItem": "New item",
+      "fromOrder": "Order se",
+      "removeItem": "Item hatayein",
+      "productNamePlaceholder": "Product name",
+      "qty": "Qty",
+      "unit": "Unit",
+      "price": "Price",
+      "addItem": "Item add karein",
+      "total": "Total",
+      "back": "Back",
+      "continue": "Continue",
+      "chooseBillType": "Bill type choose karein",
+      "totalSuffix": "{{amount}} total",
+      "gstBill": "GST Bill",
+      "gstBillDescription": "Formal tax invoice jisme har item par uske tax rate ke hisaab se GST add hota hai.",
+      "recordBill": "Record Bill",
+      "recordBillDescription": "Simple receipt, koi tax add nahi hota — cash/retail sales ke liye jinhe tax invoice ki zaroorat nahi hai.",
+      "generateBill": "Bill generate karein",
+      "recordPaymentReceived": "Mili hui payment record karein.",
+      "subtotal": "Subtotal",
+      "gst": "GST",
+      "paymentMethod": "Payment method",
+      "methodLabel": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bank": "Bank",
+        "cheque": "Cheque",
+        "credit": "Credit"
+      },
+      "amountReceived": "Amount received",
+      "partialPaymentRemaining": "Partial payment — {{amount}} due rahega.",
+      "skipForNow": "Abhi skip karein",
+      "confirmPayment": "Payment confirm karein",
+      "saleComplete": "Sale complete",
+      "gstBillShort": "GST bill",
+      "recordBillShort": "Record bill",
+      "fullyPaid": "Fully paid",
+      "partiallyPaid": "Partially paid",
+      "done": "Ho gaya"
+    },
+    "salesPage": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "quotations": "Quotations",
+        "returns": "Returns",
+        "payments": "Payments"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partial",
+        "paid": "Paid"
+      },
+      "unknownCustomer": "Unknown customer",
+      "loadingOrders": "Orders load ho rahe hain…",
+      "noOrdersYetTitle": "Abhi koi sales order nahi hai",
+      "noOrdersYetDescription": "Orders aur invoices track karna shuru karne ke liye apna pehla sales order banayein.",
+      "newOrder": "New order",
+      "newSale": "New sale",
+      "customer": "Customer",
+      "items": "Items",
+      "source": "Source",
+      "status": "Status",
+      "amount": "Amount",
+      "date": "Date",
+      "aiOrder": "AI Order",
+      "manual": "Manual",
+      "loadingInvoices": "Invoices load ho rahe hain…",
+      "noInvoicesYetTitle": "Abhi koi invoice nahi hai",
+      "noInvoicesYetDescription": "Apna pehla invoice banane ke liye kisi customer ko bill karein.",
+      "invoice": "Invoice",
+      "type": "Type",
+      "gst": "GST",
+      "record": "Record",
+      "comingSoon": "{{label}} jald aa raha hai",
+      "beingDesigned": "Yeh section design ho raha hai.",
+      "quotationsLabel": "Quotations",
+      "returnsLabel": "Returns",
+      "paymentsLabel": "Payments"
+    },
+    "mobileSalesOrders": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "quotes": "Quotes",
+        "returns": "Returns"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partial",
+        "paid": "Paid"
+      },
+      "unknownCustomer": "Unknown customer",
+      "justNow": "abhi-abhi",
+      "minutesAgo": "{{count}}m pehle",
+      "hoursAgo": "{{count}}h pehle",
+      "daysAgo": "{{count}}d pehle",
+      "orderSummary": "Order Summary",
+      "grossValue": "Gross Value",
+      "orders": "Orders",
+      "avgTicket": "Avg Ticket",
+      "searchByCustomer": "Customer se search karein…",
+      "newOrderTypeOrPaste": "New Order (Type or Paste)",
+      "filterAllOrders": "All Orders",
+      "filterPending": "Pending",
+      "filterBilled": "Billed",
+      "filterCancelled": "Cancelled",
+      "loadingOrders": "Orders load ho rahe hain…",
+      "noOrdersFoundTitle": "Koi order nahi mila",
+      "noOrdersFoundDescription": "Alag filter try karein ya naya order banayein.",
+      "itemsCountOne": "{{count}} item",
+      "itemsCountOther": "{{count}} items",
+      "newSale": "New Sale",
+      "searchByCustomerOrInvoice": "Customer ya invoice # se search karein…",
+      "loadingInvoices": "Invoices load ho rahe hain…",
+      "noInvoicesFoundTitle": "Koi invoice nahi mila",
+      "noInvoicesFoundDescription": "Ek banane ke liye Sales se kisi customer ko bill karein.",
+      "gst": "GST",
+      "record": "Record",
+      "comingSoon": "{{label}} jald aa raha hai",
+      "beingDesigned": "Yeh section design ho raha hai."
+    }
+  },
+  "purchases": {
+    "purchasesPage": {
+      "tabs": {
+        "orders": "Purchase Orders",
+        "purchases": "Purchases",
+        "returns": "Purchase Returns",
+        "payments": "Supplier Payments"
+      },
+      "newPurchaseOrder": "New purchase order",
+      "noPurchaseOrdersYetTitle": "Abhi koi purchase order nahi hai",
+      "noPurchaseOrdersYetDescription": "Incoming stock track karna shuru karne ke liye ek purchase order banayein.",
+      "po": "PO",
+      "supplier": "Supplier",
+      "items": "Items",
+      "status": "Status",
+      "amount": "Amount",
+      "date": "Date",
+      "comingSoon": "{{label}} jald aa raha hai",
+      "beingDesigned": "Yeh section design ho raha hai.",
+      "purchasesLabel": "Purchases",
+      "purchaseReturnsLabel": "Purchase Returns",
+      "supplierPaymentsLabel": "Supplier Payments"
+    }
+  },
+  "dashboard": {
+    "mobileDashboard": {
+      "quickActions": {
+        "newOrder": "New Order",
+        "newSale": "New Sale",
+        "voiceOrder": "Voice Order",
+        "scanStock": "Scan Stock"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "justNow": "abhi-abhi",
+      "minutesAgo": "{{count}}m pehle",
+      "hoursAgo": "{{count}}h pehle",
+      "daysAgo": "{{count}}d pehle",
+      "businessBriefLabel": "Business Brief",
+      "autonomousBusinessBrief": "Autonomous Business Brief",
+      "loadingBrief": "Aapki business brief load ho rahi hai…",
+      "fallbackBriefSales": "Aaj ki sales {{amount}} hai.",
+      "fallbackBriefLowStockOne": "{{count}} product reorder level se neeche hai.",
+      "fallbackBriefLowStockOther": "{{count}} products reorder level se neeche hain.",
+      "fallbackBriefNoLowStock": "Koi bhi product reorder level se neeche nahi hai.",
+      "fallbackBriefOverdue": "{{name}} ke {{amount}} overdue hain.",
+      "fallbackBriefNoOverdue": "Koi payment overdue nahi hai.",
+      "immediateOperations": "Immediate Operations",
+      "pendingCount": "{{count}} Pending",
+      "allClear": "Sab clear hai — koi low stock ya overdue payment nahi.",
+      "lowStockBadge": "{{count}} Low Stock",
+      "lowStockItemsFallback": "Low stock items",
+      "belowReorderLevel": "Reorder level se neeche",
+      "overdueBadge": "{{amount}} Overdue",
+      "partyPendingOne": "{{count}} Party Pending",
+      "partyPendingOther": "{{count}} Parties Pending",
+      "topOverdue": "Top: {{name}} ({{amount}})",
+      "ledgerMetrics": "Ledger & Logistics Metrics",
+      "updatedRealTime": "Real-time update hota hai",
+      "todaysTotalBilling": "Aaj ki Total Billing",
+      "vsYesterday": "kal ke {{amount}} ke mukable",
+      "monthSales": "Month Sales",
+      "inventoryValShort": "Inventory Val.",
+      "totalSkus": "{{count}} Total SKUs",
+      "receivables": "Receivables",
+      "overdueCount": "{{count}} overdue",
+      "payables": "Payables",
+      "notTracked": "Track nahi ho raha",
+      "noPurchasesModuleYet": "Abhi purchases module nahi hai",
+      "liveOrderFlow": "Live Order Flow",
+      "noOrdersYet": "Abhi tak koi order nahi hai.",
+      "itemsCountOne": "{{count}} item",
+      "itemsCountOther": "{{count}} items",
+      "allDataSynced": "Sara data sync ho gaya hai"
+    },
+    "dashboardPage": {
+      "welcomeBack": "Welcome back, {{businessName}}",
+      "todaysSales": "Today's Sales",
+      "vsYesterday": "kal ke mukable {{sign}}{{percent}}%",
+      "todaysPurchases": "Today's Purchases",
+      "notTrackedYet": "Abhi track nahi ho raha",
+      "inventoryValue": "Inventory Value",
+      "receivables": "Receivables",
+      "customersOverdueOne": "{{count}} customer overdue",
+      "customersOverdueOther": "{{count}} customers overdue",
+      "salesTrend": "Sales Trend",
+      "last7Days": "Last 7 din",
+      "salesTooltipLabel": "Sales",
+      "topProducts": "Top Products",
+      "noSalesYet": "Abhi tak koi sale nahi hui — billed products yahan dikhenge.",
+      "recentActivity": "Recent Activity",
+      "noActivityYet": "Abhi tak koi activity nahi hai.",
+      "minutesAgo": "{{count}} min{{plural}} pehle",
+      "hoursAgo": "{{count}} hour{{plural}} pehle",
+      "daysAgo": "{{count}} din pehle",
+      "aiBusinessSummary": "AI Business Summary",
+      "loadingSummary": "Aapki business summary load ho rahi hai…",
+      "fallbackSummarySales": "Aaj ki sales {{amount}} hai.",
+      "fallbackSummaryLowStockOne": "{{count}} product reorder level se neeche hai.",
+      "fallbackSummaryLowStockOther": "{{count}} products reorder level se neeche hain.",
+      "fallbackSummaryNoLowStock": "Koi bhi product reorder level se neeche nahi hai.",
+      "fallbackSummaryOverdue": "{{name}} ke {{amount}} overdue hain.",
+      "fallbackSummaryNoOverdue": "Koi payment overdue nahi hai."
+    }
+  },
+  "ai": {
+    "aiPage": {
+      "heading": "Munshi AI — aapka business assistant"
+    },
+    "aiChatPanel": {
+      "promptSuggestions": {
+        "todaysSales": "Aaj kitni sale hui?",
+        "pendingPayment": "Kiska payment pending hai?",
+        "lowStock": "Kitne products low stock mein hain?"
+      },
+      "markAttendance": "{{staffName}} ko {{date}} par {{status}} mark karein",
+      "staffFallback": "staff",
+      "newOrderFor": "{{customerName}} ke liye new order: {{itemsText}}",
+      "customerFallback": "customer",
+      "couldNotConfirmAction": "Yeh action confirm nahi ho paaya.",
+      "couldNotDismissAction": "Yeh action dismiss nahi ho paaya.",
+      "dismiss": "Dismiss karein",
+      "confirm": "Confirm karein",
+      "confirmed": "Confirmed",
+      "dismissed": "Dismissed",
+      "loadingConversation": "Conversation load ho rahi hai…",
+      "askAboutBusiness": "Apne business ke baare mein mujhse poochein",
+      "askAboutBusinessDescription": "Sales, dues, stock levels — ya mujhse attendance mark karne ya order banane ke liye kahein.",
+      "thinking": "Soch raha hoon…",
+      "inputPlaceholder": "Apne business ke baare mein poochein, jaise Aaj kitni sale hui?",
+      "send": "Send karein",
+      "disclaimer": "AI ke draft kiye gaye actions ko aapke business data par asar dalne se pehle hamesha aapki review aur confirmation chahiye hoti hai.",
+      "couldNotReachAssistant": "AI assistant tak nahi pahunch paaye. Dobara try karein."
+    }
+  },
+  "reports": {
+    "reportsPage": {
+      "tabs": {
+        "sales": "Sales",
+        "purchases": "Purchases",
+        "inventory": "Inventory",
+        "financial": "Financial"
+      },
+      "today": "Today",
+      "thisWeek": "Is Week",
+      "thisMonth": "Is Month",
+      "inventoryValue": "Inventory Value",
+      "grossProfitMonth": "Gross Profit (Month)",
+      "reportComingSoon": "{{label}} report jald aa raha hai",
+      "beingDesigned": "Yeh report design ho raha hai.",
+      "purchasesLabel": "Purchases",
+      "inventoryLabel": "Inventory"
+    }
+  },
+  "layoutExtra": {
+    "mobileTopBar": {
+      "openNavigation": "Navigation kholein",
+      "search": "Search",
+      "notifications": "Notifications",
+      "live": "LIVE"
+    },
+    "quickActionSheet": {
+      "title": "Quick Actions",
+      "close": "Band karein",
+      "closeQuickActions": "Quick actions band karein",
+      "newOrder": "New Order",
+      "newSale": "New Sale",
+      "addPurchase": "Add Purchase",
+      "addStock": "Add Stock",
+      "addCustomer": "Add Customer",
+      "receivePayment": "Receive Payment",
+      "scanProduct": "Scan Product",
+      "voiceEntry": "Voice Entry"
+    }
+  },
+  "ui": {
+    "successModal": {
+      "redirecting": "Aapke dashboard par {{seconds}}s mein redirect ho rahe hain…"
+    },
+    "dialog": {
+      "closeDialog": "Dialog band karein",
+      "close": "Band karein"
+    }
+  },
+  "landing": {
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "solutions": "Solutions",
+      "pricing": "Pricing",
+      "resources": "Resources",
+      "signIn": "Sign in",
+      "requestDemo": "Request Demo",
+      "openMenu": "Menu kholein",
+      "closeMenu": "Menu band karein"
+    },
+    "hero": {
+      "badge": "Wholesalers, retailers aur badhte business ke liye banaya gaya.",
+      "headingSmart": "Smart",
+      "headingInventory": "Inventory",
+      "headingSubline": "Management, Simplified",
+      "description": "Stock, purchases, sales, customers, suppliers, payments, aur business operations — sab ek hi intelligent platform se manage karein.",
+      "getStarted": "Get Started",
+      "requestDemo": "Request Demo"
+    },
+    "features": {
+      "eyebrow": "Features",
+      "heading": "Aapke business ki har zaroorat, ek hi jagah",
+      "description": "Paper registers, spreadsheets, aur WhatsApp order-taking ki jagah ab ek connected system use karein.",
+      "items": {
+        "inventory": {
+          "title": "Real-time inventory",
+          "description": "Har warehouse ka stock pure movement ledger ke saath track karein — audit trail kabhi nahi khoyega."
+        },
+        "salesPurchases": {
+          "title": "Sales & purchases",
+          "description": "Quotations, orders, invoices, aur supplier POs ek hi flow mein, draft se payment tak."
+        },
+        "customersSuppliers": {
+          "title": "Customers & suppliers",
+          "description": "Har party ke liye credit limits, ledgers, aur payment history."
+        },
+        "aiAssistant": {
+          "title": "AI business assistant",
+          "description": "Aasan bhasha mein poochein — \"Aaj kitni sale hui?\" — aur apne real data par based jawab paayein."
+        },
+        "voiceOcr": {
+          "title": "Voice & OCR entry",
+          "description": "Sale bolkar batayein ya paper invoice scan karein; books mein jaane se pehle draft review karein."
+        },
+        "multiWarehouse": {
+          "title": "Multi-warehouse",
+          "description": "Har location ka independent stock, transfers aur approvals ke saath."
+        },
+        "reports": {
+          "title": "Reports jo kaam ke hain",
+          "description": "Sales, inventory valuation, receivables, aur profit — hamesha current, kabhi purani spreadsheets nahi."
+        },
+        "tenantAudit": {
+          "title": "Tenant isolation & audit logs",
+          "description": "Har action scoped, permissioned, aur logged hai — teams ke liye banaya gaya, sirf individuals ke liye nahi."
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "heading": "Aapke business ke saath badhne wale plans",
+      "mostPopular": "Most popular",
+      "getStarted": "Get Started",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "price": "Free",
+          "description": "Spreadsheets se nikal rahe ek business ke liye.",
+          "features": [
+            "1 business",
+            "2 users",
+            "1 warehouse",
+            "Sales & customers",
+            "Basic reports"
+          ]
+        },
+        "business": {
+          "name": "Business",
+          "price": "Contact us",
+          "description": "Multiple staff wale badhte wholesalers ke liye.",
+          "features": [
+            "Multiple users & warehouses",
+            "Purchases & suppliers",
+            "AI assistant & automations",
+            "Advanced reports"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Contact us",
+          "description": "Scale par kaam karne wale established distributors ke liye.",
+          "features": [
+            "Unlimited users",
+            "Advanced permissions",
+            "API & integrations",
+            "Priority support"
+          ]
+        }
+      }
+    },
+    "footer": {
+      "ctaHeading": "Apna poora business ek hi jagah se chalane ke liye ready hain?",
+      "ctaDescription": "Minutes mein apna workspace set up karein — shuru karne ke liye credit card ki zaroorat nahi.",
+      "getStarted": "Get Started",
+      "copyright": "© {{year}} SethSathi. All rights reserved.",
+      "features": "Features",
+      "pricing": "Pricing",
+      "signIn": "Sign in"
+    },
+    "mockup": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "inventory": "Inventory",
+        "sales": "Sales",
+        "purchases": "Purchases",
+        "customers": "Customers",
+        "suppliers": "Suppliers",
+        "warehouses": "Warehouses",
+        "aiAssistant": "AI Assistant",
+        "automations": "Automations",
+        "staff": "Staff",
+        "settings": "Settings"
+      },
+      "searchPlaceholder": "Products, customers, invoices search karein...",
+      "businessOverview": "Business Overview",
+      "executiveSummary": "Aaj ke operations ki executive summary",
+      "statLabels": {
+        "todaysSales": "Today's Sales",
+        "inventoryValue": "Inventory Value",
+        "receivables": "Receivables",
+        "orders": "Orders"
+      },
+      "revenueTrend": "Revenue Trend",
+      "last7Days": "Last 7 din",
+      "topProducts": "Top Products"
+    }
+  },
+  "customers": {
+    "customersPage": {
+      "searchPlaceholder": "Parties search karein…",
+      "addCustomer": "Add customer",
+      "loadingParties": "Parties load ho rahi hain…",
+      "emptyTitle": "Abhi koi customer nahi hai",
+      "emptyDescriptionMobile": "Orders aur credit track karna shuru karne ke liye apna pehla customer add karein.",
+      "emptyDescriptionDesktop": "Sales aur credit track karna shuru karne ke liye apna pehla customer add karein.",
+      "totalPurchases": "Total Purchases",
+      "outstanding": "Outstanding",
+      "creditLimit": "Credit Limit",
+      "lastPurchase": "Last Purchase"
+    },
+    "addCustomerModal": {
+      "title": "Add customer",
+      "nameRequired": "Name is required",
+      "creditLimitMin": "0 ya usse zyada hona chahiye",
+      "namePlaceholder": "e.g. Sharma Traders",
+      "phoneLabel": "Phone (optional)",
+      "creditLimitLabel": "Credit limit (optional)",
+      "submit": "Add customer",
+      "addError": "Customer add nahi ho saka. Dobara try karein."
+    },
+    "partyPortfolioModal": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "payments": "Payments"
+      },
+      "loading": "Party portfolio load ho raha hai…",
+      "loadError": "Yeh customer load nahi ho saka.",
+      "inactive": "Inactive",
+      "pendingOrders": "Pending Orders",
+      "noOrders": "Is customer se abhi koi order nahi aaya hai.",
+      "noInvoices": "Is customer ke liye abhi koi invoice generate nahi hua hai.",
+      "noPayments": "Is customer ke liye abhi koi payment record nahi hai.",
+      "itemCountOne": "{{count}} item",
+      "itemCountMany": "{{count}} items",
+      "aiOrder": "AI Order",
+      "manualOrder": "Manual",
+      "gstBill": "GST Bill",
+      "recordBill": "Record Bill"
+    }
+  },
+  "suppliers": {
+    "suppliersPage": {
+      "addSupplier": "Add supplier",
+      "loading": "Suppliers load ho rahe hain…",
+      "emptyTitle": "Abhi koi supplier nahi hai",
+      "emptyDescription": "Purchases record karna shuru karne ke liye apna pehla supplier add karein.",
+      "gstinLabel": "GSTIN: {{gstin}}",
+      "totalPurchased": "Total Purchased",
+      "outstanding": "Outstanding",
+      "notTrackedYet": "Abhi track nahi ho raha"
+    },
+    "addSupplierModal": {
+      "title": "Add supplier",
+      "nameRequired": "Name is required",
+      "namePlaceholder": "e.g. Coca-Cola Distributors",
+      "phoneLabel": "Phone (optional)",
+      "gstinLabel": "GSTIN (optional)",
+      "gstinPlaceholder": "e.g. 09ABCDE1234F1Z5",
+      "submit": "Add supplier",
+      "addError": "Supplier add nahi ho saka. Dobara try karein."
+    }
+  },
+  "warehouses": {
+    "warehousesPage": {
+      "addWarehouse": "Add warehouse",
+      "loading": "Warehouses load ho rahe hain…",
+      "emptyTitle": "Abhi koi warehouse nahi hai",
+      "emptyDescription": "Location ke hisaab se stock track karna shuru karne ke liye ek warehouse add karein.",
+      "noLocationSet": "Koi location set nahi hai",
+      "stockValue": "Stock Value",
+      "skusStocked": "SKUs Stocked"
+    },
+    "addWarehouseModal": {
+      "title": "Add warehouse",
+      "nameRequired": "Name is required",
+      "namePlaceholder": "e.g. Noida Warehouse",
+      "locationLabel": "Location (optional)",
+      "locationPlaceholder": "e.g. Sector 63, Noida",
+      "submit": "Add warehouse",
+      "addError": "Warehouse add nahi ho saka. Dobara try karein."
+    }
+  },
+  "welcomeChat": {
+    "online": "Online",
+    "close": "Chat band karein",
+    "typing": "Munshi AI likh raha hai",
+    "send": "Bhejein",
+    "chooseAbove": "Upar se ek option chunein",
+    "greeting": "Namaste! Main Munshi AI hoon, SethSathi par aapka digital munshi. Kya aapka pehle se account hai, ya hum milkar naya account banayein?",
+    "choiceRegister": "Naya account banayein",
+    "choiceLogin": "Mera account hai — login karein",
+    "goingToLogin": "Theek hai! Aapko login page par le chalte hain…",
+    "askLanguage": "Bahut badhiya, chaliye milkar aapka account banate hain. Pehle bataiye, aap kis bhasha mein baat karna chahenge?",
+    "languageSet": "Ho gaya! Ab se main aapse Hinglish mein baat karunga.",
+    "askName": "Aapka poora naam kya hai?",
+    "askBusiness": "Aapse milkar khushi hui, {{name}}! Aapke business ka naam kya hai?",
+    "askPhone": "Aapka 10 digit ka mobile number kya hai? Isi se aap OTP ke zariye login karenge.",
+    "askEmail": "Aur aapka email address? Isse bhi aap login kar sakte hain.",
+    "askPassword": "Aakhri step: email se login ke liye kam se kam 8 characters ka password banaiye.",
+    "placeholders": {
+      "name": "jaise Ramesh Kumar",
+      "business": "jaise Sharma Traders",
+      "phone": "98230 45812",
+      "email": "name@example.com",
+      "password": "Kam se kam 8 characters"
+    },
+    "errors": {
+      "nameTooShort": "Kripya apna poora naam likhein (kam se kam 2 akshar).",
+      "businessTooShort": "Kripya business ka naam likhein (kam se kam 2 akshar).",
+      "phoneInvalid": "Yeh sahi 10 digit ka mobile number nahi lag raha. Kripya dobara likhein.",
+      "emailInvalid": "Yeh sahi email address nahi lag raha. Check karke dobara likhein.",
+      "passwordTooShort": "Password kam se kam 8 characters ka hona chahiye. Thoda lamba password likhein.",
+      "emailTaken": "Is email se pehle se ek account hai. Doosra email likhein, ya login karein.",
+      "phoneTaken": "Is mobile number se pehle se ek account hai. Doosra number likhein, ya login karein.",
+      "generic": "Maaf kijiye, abhi account nahi ban paaya. {{message}}"
+    },
+    "previewIntro": "Yeh raha aapke account ka preview. Kripya check kar lijiye ki sab sahi hai:",
+    "previewUpdated": "Update ho gaya! Yeh raha naya preview:",
+    "previewTitle": "Account preview",
+    "fields": {
+      "name": "Poora naam",
+      "business": "Business ka naam",
+      "phone": "Mobile number",
+      "email": "Email",
+      "password": "Password",
+      "language": "Bhasha"
+    },
+    "termsNote": "Account banakar aap Terms & Privacy Policy se sahmat hote hain.",
+    "confirm": "Sab sahi hai, account banayein",
+    "edit": "Kuch badalna hai",
+    "whichEdit": "Zaroor — kya badalna chahenge?",
+    "editPrompt": {
+      "name": "Apna poora naam likhein:",
+      "business": "Business ka naam likhein:",
+      "phone": "Apna 10 digit ka mobile number likhein:",
+      "email": "Apna email address likhein:",
+      "password": "Naya password likhein (kam se kam 8 characters):",
+      "language": "Aap kaunsi bhasha chahenge?"
+    },
+    "creating": "Aapka account ban raha hai… bas ek pal.",
+    "success": "Badhai ho, {{name}}! {{business}} ab SethSathi par taiyaar hai.",
+    "successHelp": "Aaj se Munshi AI har kaam mein aapki madad karega — bill banana, stock sambhalna, customers ka udhaar aur payment, staff ki attendance, aur aapke business ke har sawaal ka jawaab. Bas mujhse poochiye!",
+    "goHome": "Mere dashboard par chalein",
+    "loginInstead": "Login karein"
+  }
+}

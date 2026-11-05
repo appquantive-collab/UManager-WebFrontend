@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 export type UserRole = "SUPER_ADMIN" | "OWNER" | "MANAGER" | "SALESMAN" | "WAREHOUSE_STAFF";
+export type PreferredLanguage = "en" | "hi" | "hi-Latn";
 
 export interface AuthUser {
   userId: string;
@@ -8,6 +9,7 @@ export interface AuthUser {
   role: UserRole;
   name: string;
   email: string;
+  preferredLanguage: PreferredLanguage;
 }
 
 interface AuthState {

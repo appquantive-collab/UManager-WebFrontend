@@ -1,0 +1,1408 @@
+{
+  "brand": {
+    "name": "सेठसाथी",
+    "assistantName": "मुंशी AI"
+  },
+  "splash": {
+    "greeting": "नमस्ते! आपका डिजिटल AI मुंशी",
+    "tagline": "दुकान और व्यापार का आसान, भरोसेमंद हिसाब",
+    "featureAi": "मुंशी AI से पूछें",
+    "featureBilling": "GST बिल",
+    "featureStock": "स्टॉक का हिसाब",
+    "start": "शुरू करें",
+    "madeFor": "भारत के व्यापारियों के लिए बना",
+    "photoAlt": "नमस्ते करते हुए मुंशी AI",
+    "loading": "सेठसाथी लोड हो रहा है"
+  },
+  "common": {
+    "cancel": "कैंसल करें",
+    "save": "सेव करें",
+    "saveChanges": "बदलाव सेव करें",
+    "close": "बंद करें",
+    "back": "पीछे",
+    "continue": "आगे बढ़ें",
+    "confirm": "कन्फर्म करें",
+    "dismiss": "हटाएं",
+    "delete": "डिलीट करें",
+    "edit": "एडिट करें",
+    "add": "जोड़ें",
+    "search": "सर्च करें",
+    "loading": "लोड हो रहा है…",
+    "somethingWentWrong": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
+    "optional": "वैकल्पिक",
+    "yes": "हां",
+    "no": "नहीं",
+    "skipForNow": "अभी के लिए छोड़ें",
+    "done": "हो गया",
+    "name": "नाम",
+    "phone": "फोन नंबर",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "note": "नोट",
+    "noMatches": "कुछ नहीं मिला।",
+    "total": "टोटल",
+    "amount": "अमाउंट",
+    "status": "स्टेटस",
+    "actions": "एक्शन"
+  },
+  "layout": {
+    "tenantAdmin": "टेनेंट एडमिन",
+    "expandSidebar": "साइडबार बड़ा करें",
+    "collapseSidebar": "साइडबार छोटा करें",
+    "closeNavigation": "नेविगेशन बंद करें",
+    "searchPlaceholder": "सर्च करें...",
+    "account": "अकाउंट",
+    "logOut": "लॉग आउट करें",
+    "toggleTheme": "थीम बदलें",
+    "notifications": "नोटिफिकेशन"
+  },
+  "quickActions": {
+    "create": "बनाएं"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "sales": "सेल्स",
+    "purchases": "परचेज़",
+    "inventory": "इन्वेंटरी",
+    "customers": "कस्टमर्स",
+    "suppliers": "सप्लायर्स",
+    "warehouses": "वेयरहाउस",
+    "reports": "रिपोर्ट्स",
+    "ai": "मुंशी AI",
+    "staff": "स्टाफ",
+    "settings": "सेटिंग्स",
+    "products": "प्रोडक्ट्स",
+    "home": "होम",
+    "stock": "स्टॉक"
+  },
+  "language": {
+    "label": "भाषा",
+    "en": "English",
+    "hi": "हिन्दी",
+    "hiLatn": "Hinglish",
+    "changedSuccess": "भाषा बदल दी गई"
+  },
+  "onboardingLabels": {
+    "category": {
+      "fmcg": "एफएमसीजी",
+      "electronics": "इलेक्ट्रॉनिक्स",
+      "mobile_accessories": "मोबाइल और एक्सेसरीज़",
+      "pharma": "दवाई (फार्मा)",
+      "apparel": "कपड़े",
+      "footwear": "जूते-चप्पल",
+      "textiles_fabric": "कपड़ा और टेक्सटाइल",
+      "auto_parts": "ऑटो पार्ट्स",
+      "two_wheeler_parts": "टू-व्हीलर पार्ट्स",
+      "grocery": "किराना",
+      "hardware": "हार्डवेयर",
+      "sanitary_plumbing": "सैनिटरी और प्लंबिंग",
+      "electrical_goods": "इलेक्ट्रिकल सामान",
+      "paints_chemicals": "पेंट और केमिकल",
+      "building_materials": "बिल्डिंग मटेरियल",
+      "furniture": "फर्नीचर",
+      "musical_instruments": "म्यूजिकल इंस्ट्रूमेंट्स",
+      "sports_goods": "स्पोर्ट्स का सामान",
+      "toys_games": "खिलौने और गेम्स",
+      "stationery_books": "स्टेशनरी और किताबें",
+      "gift_items": "गिफ्ट आइटम",
+      "cosmetics_beauty": "कॉस्मेटिक्स और ब्यूटी",
+      "jewellery_artificial": "आर्टिफिशियल ज्वेलरी",
+      "bags_luggage": "बैग्स और लगेज",
+      "kitchenware_utensils": "बर्तन",
+      "plastic_goods": "प्लास्टिक का सामान",
+      "packaging_materials": "पैकेजिंग मटेरियल",
+      "confectionery_bakery": "कन्फेक्शनरी और बेकरी",
+      "dry_fruits_spices": "ड्राई फ्रूट्स और मसाले",
+      "tea_coffee": "चाय और कॉफी",
+      "dairy_products": "डेयरी प्रोडक्ट्स",
+      "agro_seeds_fertilizers": "बीज और खाद",
+      "cattle_feed": "पशु चारा",
+      "tiles_sanitaryware": "टाइल्स और सैनिटरीवेयर",
+      "glass_hardware": "ग्लास और हार्डवेयर",
+      "computer_it": "कंप्यूटर और आईटी",
+      "printing_stationery": "प्रिंटिंग और स्टेशनरी",
+      "cleaning_supplies": "सफाई का सामान",
+      "fireworks": "पटाखे",
+      "readymade_garments": "रेडीमेड कपड़े",
+      "saree_ethnic_wear": "साड़ी और एथनिक वेयर",
+      "watches_eyewear": "घड़ी और चश्मा",
+      "religious_puja_items": "पूजा का सामान",
+      "other": "कुछ और"
+    },
+    "customerType": {
+      "wholesale": "होलसेल / बी2बी",
+      "retail": "रिटेल",
+      "both": "दोनों"
+    },
+    "orderVolume": {
+      "lt_100": "100 से कम ऑर्डर/महीना",
+      "100_500": "100–500 ऑर्डर/महीना",
+      "500_2000": "500–2,000 ऑर्डर/महीना",
+      "gt_2000": "2,000+ ऑर्डर/महीना"
+    },
+    "goal": {
+      "inventory_tracking": "इन्वेंटरी ट्रैक करना",
+      "credit_payments": "क्रेडिट और पेमेंट कलेक्शन",
+      "multi_warehouse": "मल्टी-वेयरहाउस का काम",
+      "staff_management": "स्टाफ और रोल मैनेजमेंट",
+      "ai_insights": "एआई से बिज़नेस इनसाइट्स",
+      "reporting": "रिपोर्ट्स और एनालिटिक्स"
+    }
+  },
+  "settingsPage": {
+    "tabs": {
+      "business": "बिज़नेस",
+      "language": "भाषा",
+      "tax": "टैक्स",
+      "invoice": "इनवॉइस",
+      "notifications": "नोटिफिकेशन",
+      "integrations": "इंटीग्रेशन",
+      "subscription": "सब्सक्रिप्शन"
+    },
+    "businessName": "बिज़नेस का नाम",
+    "businessType": "बिज़नेस टाइप",
+    "currency": "करंसी",
+    "editingNotAvailable": "बिज़नेस सेटिंग्स एडिट करना अभी उपलब्ध नहीं है।",
+    "businessProfile": "बिज़नेस प्रोफाइल",
+    "businessProfileDescription": "आपका डैशबोर्ड और रिकमेंडेशन पर्सनलाइज़ करने के लिए इस्तेमाल होता है।",
+    "complete": "पूरा हो गया",
+    "notSetUp": "सेट अप नहीं है",
+    "category": "कैटेगरी",
+    "customers": "कस्टमर्स",
+    "orderVolume": "ऑर्डर वॉल्यूम",
+    "warehousesAndStaff": "वेयरहाउस और स्टाफ",
+    "warehousesStaffCount": "{{warehouses}} वेयरहाउस · {{staff}} स्टाफ",
+    "priorities": "प्रायोरिटी",
+    "notes": "नोट्स",
+    "aiPersonalizedActive": "एआई-पर्सनलाइज़्ड डैशबोर्ड एक्टिव है",
+    "updateBusinessProfile": "बिज़नेस प्रोफाइल अपडेट करें",
+    "notCompletedYet": "आपने अभी अपना बिज़नेस प्रोफाइल पूरा नहीं किया है।",
+    "completeSetup": "सेटअप पूरा करें",
+    "comingSoon": "{{label}} सेटिंग्स जल्द आ रही हैं",
+    "beingDesigned": "यह सेक्शन डिज़ाइन हो रहा है।",
+    "languageDescription": "वह भाषा चुनें जिसमें सेठसाथी दिखेगा। यह आपके अकाउंट में सेव होगा और हर डिवाइस पर साथ रहेगा।"
+  },
+  "pageMeta": {
+    "dashboard": {
+      "title": "डैशबोर्ड",
+      "subtitle": "आज का बिज़नेस ओवरव्यू।"
+    },
+    "sales": {
+      "title": "सेल्स",
+      "subtitle": "ऑर्डर, इनवॉइस, और पेमेंट्स।"
+    },
+    "purchases": {
+      "title": "परचेज़",
+      "subtitle": "परचेज़ ऑर्डर और सप्लायर पेमेंट्स।"
+    },
+    "inventory": {
+      "title": "इन्वेंटरी",
+      "subtitle": "अपने प्रोडक्ट्स और प्राइसिंग मैनेज करें।"
+    },
+    "inventoryNew": {
+      "title": "प्रोडक्ट जोड़ें",
+      "subtitle": "नया प्रोडक्ट या रॉ मटेरियल बनाएं।"
+    },
+    "inventoryEdit": {
+      "title": "प्रोडक्ट एडिट करें",
+      "subtitle": "प्रोडक्ट या रॉ मटेरियल की डिटेल्स अपडेट करें।"
+    },
+    "customers": {
+      "title": "कस्टमर्स",
+      "subtitle": "कस्टमर अकाउंट्स, क्रेडिट, और लेजर।"
+    },
+    "suppliers": {
+      "title": "सप्लायर्स",
+      "subtitle": "सप्लायर अकाउंट्स और पेमेंट लेजर।"
+    },
+    "warehouses": {
+      "title": "वेयरहाउस",
+      "subtitle": "लोकेशन, स्टॉक वैल्यू, और ट्रांसफर।"
+    },
+    "reports": {
+      "title": "रिपोर्ट्स",
+      "subtitle": "सेल्स, परचेज़, और इन्वेंटरी का बिज़नेस परफॉरमेंस।"
+    },
+    "ai": {
+      "title": "मुंशी AI",
+      "subtitle": "अपने बिज़नेस के बारे में पूछें या एआई इनसाइट्स देखें।"
+    },
+    "staff": {
+      "title": "स्टाफ",
+      "subtitle": "लोगों को हायर करें और सिर्फ ज़रूरी फीचर्स का एक्सेस दें।"
+    },
+    "staffNew": {
+      "title": "स्टाफ मेंबर जोड़ें",
+      "subtitle": "नया टीम मेंबर, उसका शेड्यूल, और पे जोड़ें।"
+    },
+    "staffEdit": {
+      "title": "स्टाफ मेंबर एडिट करें",
+      "subtitle": "रोल, शेड्यूल, या पे की डिटेल्स अपडेट करें।"
+    },
+    "settings": {
+      "title": "सेटिंग्स",
+      "subtitle": "बिज़नेस कॉन्फिगरेशन और प्रिफरेंसेज़।"
+    },
+    "fallback": {
+      "title": "सेठसाथी",
+      "subtitle": ""
+    }
+  },
+  "auth": {
+    "login": {
+      "phoneTitle": "वापसी पर स्वागत है",
+      "phoneSubtitle": "साइन इन करने के लिए अपना मोबाइल नंबर डालें",
+      "mobileNumber": "मोबाइल नंबर",
+      "phoneInvalid": "सही 10-डिजिट का मोबाइल नंबर डालें",
+      "passwordTooShort": "पासवर्ड कम से कम 8 कैरेक्टर का होना चाहिए",
+      "forgotPassword": "पासवर्ड भूल गए?",
+      "continue": "आगे बढ़ें",
+      "or": "या",
+      "comingSoon": "जल्द आ रहा है",
+      "whatsapp": "WhatsApp",
+      "google": "Google",
+      "signInWithEmailInstead": "ईमेल से साइन इन करें",
+      "noBusinessYet": "अभी बिज़नेस नहीं है?",
+      "signUp": "साइन अप करें",
+      "emailTitle": "साइन इन करें",
+      "emailSubtitle": "अपने बिज़नेस वर्कस्पेस में एक्सेस करें",
+      "emailInvalid": "सही ईमेल डालें",
+      "signIn": "साइन इन करें",
+      "signInWithMobileInstead": "मोबाइल नंबर से साइन इन करें",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।"
+    },
+    "register": {
+      "title": "होलसेल के साथ शुरुआत करें",
+      "subtitle": "सिर्फ एक मिनट में अपना होलसेल अकाउंट सेट अप करें",
+      "fullName": "पूरा नाम",
+      "fullNameRequired": "आपका नाम ज़रूरी है",
+      "businessName": "बिज़नेस का नाम",
+      "businessNamePlaceholder": "जैसे Sharma Traders & Distributors",
+      "businessNameRequired": "बिज़नेस का नाम ज़रूरी है",
+      "mobileNumber": "मोबाइल नंबर",
+      "phoneInvalid": "सही 10-डिजिट का मोबाइल नंबर डालें",
+      "email": "ईमेल",
+      "emailInvalid": "सही ईमेल डालें",
+      "createPassword": "पासवर्ड बनाएं",
+      "passwordTooShort": "पासवर्ड कम से कम 8 कैरेक्टर का होना चाहिए",
+      "agreeToTermsPrefix": "मैं इससे सहमत हूं:",
+      "terms": "टर्म्स",
+      "privacyPolicy": "प्राइवेसी पॉलिसी",
+      "agreeToTermsRequired": "आपको टर्म्स और प्राइवेसी पॉलिसी से सहमत होना होगा",
+      "createAccount": "होलसेल अकाउंट बनाएं",
+      "alreadyHaveAccount": "क्या आपका अकाउंट पहले से है?",
+      "logIn": "लॉग इन करें",
+      "successTitle": "अकाउंट बन गया!",
+      "successMessage": "आपका होलसेल वर्कस्पेस तैयार है।",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।"
+    },
+    "forgotPassword": {
+      "title": "अपना पासवर्ड रीसेट करें",
+      "subtitle": "अपना रजिस्टर्ड मोबाइल नंबर या ईमेल डालें, हम आपको पासवर्ड रीसेट करने के लिए एक OTP भेजेंगे।",
+      "identifierInvalid": "अपना मोबाइल नंबर या ईमेल डालें",
+      "sentTitle": "रीसेट इंस्ट्रक्शंस की रिक्वेस्ट भेज दी गई",
+      "sentMessage": "अगर अकाउंट मैच करता है, तो आपको जल्द ही एक कोड मिलेगा। इस वर्कस्पेस के लिए रीसेट डिलीवरी अभी फाइनल हो रही है — अगर कोड न मिले तो सपोर्ट से संपर्क करें।",
+      "backToLogin": "लॉग इन पर वापस जाएं",
+      "identifierLabel": "मोबाइल नंबर या ईमेल",
+      "identifierPlaceholder": "जैसे +91 98765 43210 या name@domain.co",
+      "sendResetCode": "रीसेट कोड भेजें",
+      "backToLoginArrow": "← लॉग इन पर वापस जाएं"
+    },
+    "layout": {
+      "backToHome": "होम पर वापस",
+      "panelHeading": "आपकी दुकान का हिसाब, एक भरोसेमंद मुंशी की तरह",
+      "panelDescription": "स्टॉक, बिल, पेमेंट और कस्टमर — सब एक जगह, अंग्रेज़ी, हिंदी या हिंग्लिश में।",
+      "highlightStock": "हर वेयरहाउस का स्टॉक, हमेशा अप-टू-डेट",
+      "highlightBilling": "GST बिल, पेमेंट और उधार एक जगह",
+      "highlightAi": "मुंशी AI से अपने बिज़नेस के बारे में कुछ भी पूछें"
+    },
+    "otp": {
+      "sendCode": "OTP भेजें",
+      "codeTitle": "कोड डालें",
+      "codeSubtitle": "हमने {{phone}} पर 6 अंकों का कोड भेजा है",
+      "codeLabel": "6 अंकों का कोड",
+      "codeInvalidFormat": "6 अंकों का कोड डालें",
+      "verify": "वेरिफाई करके साइन इन करें",
+      "changeNumber": "नंबर बदलें",
+      "resendIn": "{{seconds}} सेकंड में कोड दोबारा भेजें",
+      "resend": "कोड दोबारा भेजें",
+      "codeSent": "कोड भेज दिया गया",
+      "errors": {
+        "NO_ACCOUNT": "इस मोबाइल नंबर से कोई अकाउंट नहीं मिला",
+        "RESEND_COOLDOWN": "नया कोड मांगने से पहले {{seconds}} सेकंड रुकें",
+        "TOO_MANY_REQUESTS": "बहुत ज़्यादा कोड मांगे गए। थोड़ी देर बाद कोशिश करें।",
+        "SMS_NOT_CONFIGURED": "मोबाइल से लॉगिन अभी चालू नहीं है। ईमेल से साइन इन करें।",
+        "SMS_FAILED": "कोड नहीं भेज पाए। दोबारा कोशिश करें।",
+        "CODE_EXPIRED": "यह कोड एक्सपायर हो गया। नया कोड मांगें।",
+        "CODE_INVALID": "गलत कोड। जांच कर दोबारा डालें।",
+        "TOO_MANY_ATTEMPTS": "बहुत बार गलत कोड डाला गया। नया कोड मांगें।"
+      }
+    }
+  },
+  "onboarding": {
+    "skipForNow": "अभी के लिए छोड़ें",
+    "step1": {
+      "heading": "अपने बिज़नेस के बारे में बताएं",
+      "subheading": "यह सेठसाथी को आपके काम करने के तरीके के हिसाब से ढालने में मदद करता है।",
+      "categoryLabel": "बिज़नेस कैटेगरी",
+      "customersLabel": "आपके कस्टमर कौन हैं?",
+      "groups": {
+        "foodFmcgGrocery": "फूड, एफएमसीजी और किराना",
+        "fashionTextiles": "फैशन और टेक्सटाइल",
+        "electronicsIt": "इलेक्ट्रॉनिक्स और आईटी",
+        "hardwareHomeBuilding": "हार्डवेयर, होम और बिल्डिंग",
+        "autoTransport": "ऑटो और ट्रांसपोर्ट",
+        "healthBeauty": "हेल्थ और ब्यूटी",
+        "stationeryGiftsLeisure": "स्टेशनरी, गिफ्ट और लेज़र",
+        "other": "अन्य"
+      }
+    },
+    "step2": {
+      "heading": "आपका ऑपरेशन",
+      "subheading": "आज आपका ऑपरेशन लगभग कितना बड़ा है?",
+      "orderVolumeLabel": "हर महीने ऑर्डर वॉल्यूम",
+      "warehouses": "वेयरहाउस",
+      "staffMembers": "स्टाफ मेंबर्स"
+    },
+    "step3": {
+      "heading": "सबसे ज़्यादा क्या मैटर करता है?",
+      "subheading": "{{max}} तक प्रायोरिटी चुनें।",
+      "painPointsLabel": "कोई खास चीज़ जो आपको धीमा कर रही है? (वैकल्पिक)",
+      "painPointsPlaceholder": "जैसे एक्सपायरी डेट ट्रैक करना, कस्टमर पेमेंट के पीछे भागना…",
+      "finishSetup": "सेटअप पूरा करें"
+    },
+    "generating": {
+      "heading": "सेटअप हो रहा है",
+      "subheading": "आपकी बिज़नेस प्रोफाइल सेव हो रही है और डैशबोर्ड पर्सनलाइज़ हो रहा है…"
+    },
+    "done": {
+      "heading": "सब कुछ तैयार है",
+      "subheading": "आपका डैशबोर्ड तैयार है।",
+      "goToDashboard": "डैशबोर्ड पर जाएं"
+    },
+    "back": "पीछे",
+    "continue": "आगे बढ़ें",
+    "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।"
+  },
+  "inventory": {
+    "tabs": {
+      "products": "प्रोडक्ट्स",
+      "rawMaterials": "रॉ मटेरियल"
+    },
+    "inventoryPage": {
+      "addRawMaterial": "रॉ मटेरियल जोड़ें",
+      "addProduct": "प्रोडक्ट जोड़ें",
+      "searchPlaceholder": "नाम, SKU, या कैटेगरी से सर्च करें",
+      "loadingProducts": "प्रोडक्ट्स लोड हो रहे हैं…",
+      "loadFailed": "प्रोडक्ट्स लोड नहीं हो सके। दोबारा कोशिश करें।",
+      "noMatchingResults": "कोई मैचिंग रिजल्ट नहीं मिला",
+      "noRawMaterialsYet": "अभी कोई रॉ मटेरियल नहीं है",
+      "noProductsYet": "अभी कोई प्रोडक्ट नहीं है",
+      "tryDifferentSearch": "कोई दूसरा सर्च टर्म ट्राई करें।",
+      "noRawMaterialsDescription": "यहां रॉ मटेरियल जोड़ें, फिर उन्हें किसी प्रोडक्ट के बिल ऑफ मटेरियल्स में इस्तेमाल करें।",
+      "noProductsDescription": "इन्वेंटरी, प्राइसिंग, और स्टॉक ट्रैक करना शुरू करने के लिए अपना पहला प्रोडक्ट जोड़ें।",
+      "columnProduct": "प्रोडक्ट",
+      "columnSku": "SKU",
+      "columnCategory": "कैटेगरी",
+      "columnStock": "स्टॉक",
+      "columnPurchase": "परचेज़",
+      "columnWholesale": "होलसेल",
+      "columnRetail": "रिटेल",
+      "columnReorderLevel": "रीऑर्डर लेवल",
+      "addOrAdjustStockFor": "{{name}} के लिए स्टॉक जोड़ें या एडजस्ट करें",
+      "assembleFor": "{{name}} को रॉ मटेरियल से असेंबल करें",
+      "viewQrFor": "{{name}} का QR कोड देखें",
+      "editFor": "{{name}} एडिट करें",
+      "deleteFor": "{{name}} डिलीट करें",
+      "addOrAdjustStockTitle": "स्टॉक जोड़ें / एडजस्ट करें",
+      "assembleTitle": "रॉ मटेरियल से असेंबल करें",
+      "deleteProductTitle": "प्रोडक्ट डिलीट करें",
+      "deleteConfirm": "क्या आप <bold>{{name}}</bold> को डिलीट करना चाहते हैं? यह वापस नहीं हो सकता।",
+      "cancel": "कैंसल करें",
+      "delete": "डिलीट करें"
+    },
+    "productForm": {
+      "nameRequired": "नाम ज़रूरी है",
+      "unitRequired": "यूनिट ज़रूरी है",
+      "mustBeZeroOrMore": "0 या उससे ज़्यादा होना चाहिए",
+      "couldNotCreateCategory": "कैटेगरी नहीं बन सकी। दोबारा कोशिश करें।",
+      "couldNotCreateBrand": "ब्रांड नहीं बन सका। दोबारा कोशिश करें।",
+      "couldNotUploadImage": "इमेज अपलोड नहीं हो सकी। दोबारा कोशिश करें।",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
+      "basics": "बेसिक्स",
+      "removeImage": "इमेज हटाएं",
+      "productImageAlt": "प्रोडक्ट",
+      "photo": "फोटो",
+      "productName": "प्रोडक्ट का नाम",
+      "skuOptional": "SKU (वैकल्पिक)",
+      "skuPlaceholder": "खाली छोड़ने पर ऑटो-जनरेट होगा",
+      "scanBarcodeToFillSku": "SKU भरने के लिए बारकोड स्कैन करें",
+      "unit": "यूनिट",
+      "isRawMaterialLabel": "यह एक रॉ मटेरियल है",
+      "isRawMaterialHint": "(दूसरे प्रोडक्ट्स बनाने में इस्तेमाल होता है, सीधे बेचा नहीं जाता)",
+      "categoryOptional": "कैटेगरी (वैकल्पिक)",
+      "noCategory": "कोई कैटेगरी नहीं",
+      "brandOptional": "ब्रांड (वैकल्पिक)",
+      "noBrand": "कोई ब्रांड नहीं",
+      "rawMaterialsUsed": "इस्तेमाल किए गए रॉ मटेरियल",
+      "rawMaterialsUsedSubtitle": "वैकल्पिक — अगर इस प्रोडक्ट का स्टॉक सीधे ट्रैक होता है तो इसे खाली छोड़ दें।",
+      "addMaterial": "मटेरियल जोड़ें",
+      "noRawMaterialsConfigured": "कोई रॉ मटेरियल कॉन्फिगर नहीं किया गया है।",
+      "selectRawMaterial": "रॉ मटेरियल चुनें…",
+      "removeRawMaterial": "रॉ मटेरियल हटाएं",
+      "unitPlaceholder": "यूनिट",
+      "noRawMaterialsExist": "अभी कोई रॉ मटेरियल मौजूद नहीं है — पहले रॉ मटेरियल टैब से एक जोड़ें।",
+      "pricing": "प्राइसिंग",
+      "purchasePrice": "परचेज़ प्राइस",
+      "wholesalePrice": "होलसेल प्राइस",
+      "retailPrice": "रिटेल प्राइस",
+      "stock": "स्टॉक",
+      "reorderLevel": "रीऑर्डर लेवल",
+      "cancel": "कैंसल करें",
+      "saveChanges": "बदलाव सेव करें",
+      "addProduct": "प्रोडक्ट जोड़ें"
+    },
+    "productFormPage": {
+      "backToInventory": "इन्वेंटरी पर वापस जाएं",
+      "editProductTitle": "प्रोडक्ट एडिट करें",
+      "addProductTitle": "प्रोडक्ट जोड़ें",
+      "editProductSubtitle": "प्रोडक्ट या रॉ मटेरियल की डिटेल्स अपडेट करें।",
+      "addProductSubtitle": "नया प्रोडक्ट या रॉ मटेरियल बनाएं।",
+      "loadingProduct": "प्रोडक्ट लोड हो रहा है…",
+      "loadFailed": "यह प्रोडक्ट लोड नहीं हो सका।"
+    },
+    "stockForm": {
+      "typePurchase": "परचेज़",
+      "typeCustomerReturn": "कस्टमर रिटर्न",
+      "typeTransferIn": "ट्रांसफर इन",
+      "typeAdjustment": "एडजस्टमेंट (करेक्शन)",
+      "typeOpening": "ओपनिंग स्टॉक",
+      "typeSale": "सेल",
+      "typeDamage": "डैमेज / नुकसान",
+      "typeSupplierReturn": "सप्लायर रिटर्न",
+      "typeTransferOut": "ट्रांसफर आउट",
+      "selectWarehouse": "एक वेयरहाउस चुनें",
+      "selectReason": "एक वजह चुनें",
+      "mustBeWholeNumber": "पूरा नंबर होना चाहिए",
+      "mustBeGreaterThanZero": "0 से ज़्यादा होना चाहिए",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
+      "currentStockAllWarehouses": "मौजूदा स्टॉक (सभी वेयरहाउस): {{total}}",
+      "addStock": "स्टॉक जोड़ें",
+      "removeOrAdjustDown": "हटाएं / घटाकर एडजस्ट करें",
+      "warehouse": "वेयरहाउस",
+      "selectWarehousePlaceholder": "वेयरहाउस चुनें…",
+      "currentStockHere": "यहां मौजूदा स्टॉक: {{quantity}}",
+      "reason": "वजह",
+      "quantityToAdd": "जोड़ने के लिए क्वांटिटी",
+      "quantityToRemove": "हटाने के लिए क्वांटिटी",
+      "noteOptional": "नोट (वैकल्पिक)",
+      "notePlaceholder": "जैसे GRN-882 डिलीवरी या ट्रांजिट में डैमेज हुआ",
+      "cancel": "कैंसल करें",
+      "removeStock": "स्टॉक हटाएं"
+    },
+    "assembleForm": {
+      "selectWarehouse": "एक वेयरहाउस चुनें",
+      "mustBeWholeNumber": "पूरा नंबर होना चाहिए",
+      "mustBeGreaterThanZero": "0 से ज़्यादा होना चाहिए",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
+      "canCurrentlyMakeUnlimited": "अभी बिना लिमिट के बना सकते हैं",
+      "canCurrentlyMake": "अभी {{count}} और बना सकते हैं",
+      "requiredPerUnit": "({{required}} {{unit}}/यूनिट)",
+      "inStock": "{{stock}} {{unit}} स्टॉक में",
+      "warehouse": "वेयरहाउस",
+      "selectWarehousePlaceholder": "वेयरहाउस चुनें…",
+      "quantityToAssemble": "असेंबल करने के लिए क्वांटिटी",
+      "notEnoughStock": "{{quantity}} यूनिट के लिए रॉ मटेरियल स्टॉक कम है — फिर भी असेंबल करने पर एक या ज़्यादा रॉ मटेरियल माइनस में चले जाएंगे।",
+      "noteOptional": "नोट (वैकल्पिक)",
+      "notePlaceholder": "जैसे बैच #12 असेंबली",
+      "cancel": "कैंसल करें",
+      "assemble": "असेंबल करें"
+    },
+    "mobileStock": {
+      "title": "इन्वेंटरी और वेयरहाउस",
+      "addRawMaterial": "रॉ मटेरियल जोड़ें",
+      "addProduct": "प्रोडक्ट जोड़ें",
+      "allWarehouses": "सभी वेयरहाउस",
+      "valuation": "वैल्यूएशन",
+      "totalSkus": "टोटल SKU",
+      "reorder": "रीऑर्डर",
+      "items": "{{count}} आइटम",
+      "outOfStockCount": "{{count}} स्टॉक में नहीं",
+      "searchPlaceholder": "नाम या SKU से सर्च करें...",
+      "products": "प्रोडक्ट्स",
+      "rawMaterials": "रॉ मटेरियल",
+      "statusAll": "सभी ({{count}})",
+      "statusLow": "स्टॉक कम ({{count}})",
+      "statusOut": "स्टॉक में नहीं ({{count}})",
+      "loadingInventory": "इन्वेंटरी लोड हो रही है…",
+      "noRawMaterialsYet": "अभी कोई रॉ मटेरियल नहीं है",
+      "noProductsYet": "अभी कोई प्रोडक्ट नहीं है",
+      "noMatchingResults": "कोई मैचिंग रिजल्ट नहीं मिला",
+      "noRawMaterialsDescription": "यहां रॉ मटेरियल जोड़ें, फिर उन्हें किसी प्रोडक्ट के बिल ऑफ मटेरियल्स में इस्तेमाल करें।",
+      "noProductsDescription": "स्टॉक ट्रैक करना शुरू करने के लिए अपना पहला प्रोडक्ट जोड़ें।",
+      "tryDifferentFilter": "कोई दूसरा सर्च या फिल्टर ट्राई करें।",
+      "addRawMaterialShort": "रॉ मटेरियल जोड़ें",
+      "addProductShort": "प्रोडक्ट जोड़ें",
+      "addOrAdjustStockTitle": "स्टॉक जोड़ें / एडजस्ट करें",
+      "assembleTitle": "रॉ मटेरियल से असेंबल करें",
+      "statusInStock": "स्टॉक में है",
+      "statusLowStock": "स्टॉक कम है",
+      "statusOutOfStock": "स्टॉक में नहीं है",
+      "onHand": "मौजूदा स्टॉक",
+      "warehouseSplit": "वेयरहाउस स्प्लिट",
+      "price": "प्राइस",
+      "noStockRecorded": "कोई स्टॉक रिकॉर्ड नहीं है",
+      "addOrAdjustStockButton": "स्टॉक जोड़ें / एडजस्ट करें",
+      "assembleButton": "असेंबल करें"
+    },
+    "barcodeScanner": {
+      "title": "बारकोड / QR स्कैन करें",
+      "close": "बंद करें",
+      "cameraError": "कैमरा एक्सेस नहीं हो सका। परमिशन चेक करें और दोबारा कोशिश करें।",
+      "hint": "कैमरे को बारकोड या QR कोड पर पॉइंट करें।"
+    },
+    "qrModal": {
+      "defaultTitle": "प्रोडक्ट का QR कोड",
+      "close": "बंद करें",
+      "generating": "जनरेट हो रहा है…",
+      "altText": "SKU {{sku}} का QR कोड",
+      "skuLabel": "SKU: {{sku}}",
+      "download": "डाउनलोड करें",
+      "generateFailed": "QR कोड जनरेट नहीं हो सका।"
+    }
+  },
+  "staff": {
+    "roles": {
+      "manager": "मैनेजर",
+      "salesman": "सेल्समैन",
+      "warehouseStaff": "वेयरहाउस स्टाफ"
+    },
+    "staffPage": {
+      "tabTeam": "टीम",
+      "tabAttendance": "अटेंडेंस",
+      "tabPayroll": "पेरोल",
+      "filterAll": "सभी",
+      "filterActive": "एक्टिव",
+      "filterSuspended": "सस्पेंड्ड",
+      "addStaff": "स्टाफ जोड़ें",
+      "searchPlaceholder": "नाम या फोन नंबर से स्टाफ सर्च करें…",
+      "loadingStaff": "स्टाफ लोड हो रहा है…",
+      "noStaffFound": "कोई स्टाफ मेंबर नहीं मिला",
+      "noStaffFoundDescription": "कोई दूसरा सर्च या फिल्टर ट्राई करें, या अपना पहला टीम मेंबर जोड़ें।",
+      "active": "एक्टिव",
+      "suspended": "सस्पेंड्ड",
+      "salaried": "सैलरीड",
+      "dailyWage": "डेली वेज"
+    },
+    "staffForm": {
+      "nameTooShort": "नाम कम से कम 2 कैरेक्टर का होना चाहिए",
+      "mustBeGreaterThanZero": "0 से ज़्यादा होना चाहिए",
+      "couldNotCreateDepartment": "डिपार्टमेंट नहीं बन सका। दोबारा कोशिश करें।",
+      "couldNotCreateDesignation": "डेजिगनेशन नहीं बन सका। दोबारा कोशिश करें।",
+      "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
+      "dayOff": "छुट्टी का दिन",
+      "to": "से",
+      "basics": "बेसिक्स",
+      "name": "नाम",
+      "namePlaceholder": "पूरा नाम",
+      "phoneOptional": "फोन नंबर (वैकल्पिक)",
+      "phonePlaceholder": "10-डिजिट का मोबाइल नंबर",
+      "role": "रोल",
+      "departmentOptional": "डिपार्टमेंट (वैकल्पिक)",
+      "noDepartment": "कोई डिपार्टमेंट नहीं",
+      "designationOptional": "डेजिगनेशन (वैकल्पिक)",
+      "noDesignation": "कोई डेजिगनेशन नहीं",
+      "weeklySchedule": "वीकली शेड्यूल",
+      "weeklyScheduleSubtitle": "हफ्ते के हर दिन के लिए वर्किंग ऑवर्स सेट करें या छुट्टी मार्क करें।",
+      "pay": "पे",
+      "payType": "पे टाइप",
+      "monthlySalary": "मंथली सैलरी",
+      "dailyWage": "डेली वेज",
+      "monthlySalaryCurrency": "मंथली सैलरी (₹)",
+      "monthlySalaryPlaceholder": "जैसे 25000",
+      "dailyWageCurrency": "डेली वेज (₹)",
+      "dailyWagePlaceholder": "जैसे 500",
+      "salaryHint": "अटेंडेंस चाहे जो भी हो, हर महीने पूरी सैलरी मिलेगी।",
+      "dailyWageHint": "मंथली पे मार्क की गई अटेंडेंस से कैलकुलेट होती है (प्रेजेंट दिन × रेट)।",
+      "cancel": "कैंसल करें",
+      "saveChanges": "बदलाव सेव करें",
+      "addStaff": "स्टाफ जोड़ें",
+      "days": {
+        "sunday": "रविवार",
+        "monday": "सोमवार",
+        "tuesday": "मंगलवार",
+        "wednesday": "बुधवार",
+        "thursday": "गुरुवार",
+        "friday": "शुक्रवार",
+        "saturday": "शनिवार"
+      }
+    },
+    "staffFormPage": {
+      "backToStaff": "स्टाफ पर वापस जाएं",
+      "editStaffTitle": "स्टाफ मेंबर एडिट करें",
+      "addStaffTitle": "स्टाफ मेंबर जोड़ें",
+      "editStaffSubtitle": "रोल, शेड्यूल, या पे की डिटेल्स अपडेट करें।",
+      "addStaffSubtitle": "नया टीम मेंबर, उसका शेड्यूल, और पे जोड़ें।",
+      "loadingStaffMember": "स्टाफ मेंबर लोड हो रहा है…",
+      "loadFailed": "यह स्टाफ मेंबर नहीं मिल सका।"
+    },
+    "attendanceTab": {
+      "statusPresent": "प्रेजेंट",
+      "statusHalfDay": "हाफ डे",
+      "statusAbsent": "एब्सेंट",
+      "statusLeave": "लीव",
+      "markAllPresent": "सभी को प्रेजेंट मार्क करें",
+      "save": "सेव करें",
+      "saveWithCount": "सेव करें ({{count}})",
+      "loadingAttendance": "अटेंडेंस लोड हो रही है…",
+      "noActiveStaff": "अभी कोई एक्टिव स्टाफ मेंबर नहीं है।"
+    },
+    "payrollTab": {
+      "generateForAllStaff": "सभी स्टाफ के लिए जनरेट करें",
+      "couldNotGeneratePayroll": "पेरोल जनरेट नहीं हो सका।",
+      "couldNotGeneratePayrollForAll": "सभी स्टाफ के लिए पेरोल जनरेट नहीं हो सका।",
+      "couldNotRecordPayment": "पेमेंट रिकॉर्ड नहीं हो सका।",
+      "skipped": "{{count}} स्किप किए: {{details}}",
+      "totalPayroll": "टोटल पेरोल ({{month}})",
+      "unpaid": "अनपेड",
+      "loadingPayroll": "पेरोल लोड हो रहा है…",
+      "noActiveStaff": "अभी कोई एक्टिव स्टाफ मेंबर नहीं है।",
+      "salaried": "सैलरीड",
+      "dailyWage": "डेली वेज",
+      "presentHalfDay": "{{present}} प्रेजेंट, {{halfDays}} हाफ-डे",
+      "paid": "पेड",
+      "markPaid": "पेड मार्क करें",
+      "generate": "जनरेट करें"
+    }
+  },
+  "orders": {
+    "common": {
+      "qty": "क्वांटिटी",
+      "unit": "यूनिट",
+      "price": "प्राइस",
+      "productNamePlaceholder": "प्रोडक्ट का नाम",
+      "removeItem": "आइटम हटाएं",
+      "addItem": "आइटम जोड़ें",
+      "searchCustomers": "कस्टमर सर्च करें",
+      "typeAName": "नाम टाइप करें…",
+      "addNewCustomer": "नया कस्टमर जोड़ें",
+      "phoneOptional": "फोन नंबर (वैकल्पिक)",
+      "saveCustomer": "कस्टमर सेव करें",
+      "nameRequired": "नाम ज़रूरी है",
+      "couldNotAddCustomer": "कस्टमर जोड़ा नहीं जा सका। दोबारा कोशिश करें।",
+      "statusLabel": {
+        "pending": "पेंडिंग",
+        "confirmed": "कन्फर्म्ड",
+        "delivered": "बिल्ड",
+        "cancelled": "कैंसल्ड"
+      }
+    },
+    "newOrderModal": {
+      "title": "नया ऑर्डर",
+      "subtitle": "पार्टी ने जो बताया वो पेस्ट करें, या फॉर्म भरें।",
+      "typeOrPaste": "ऑर्डर टाइप करें या पेस्ट करें",
+      "typeOrPasteExample": "जैसे \"Rajesh Musical se 25 dholak, 20 bongo...\" — एआई पार्टी और आइटम खुद समझ लेगा।",
+      "fillManually": "मैन्युअल भरें",
+      "fillManuallyDescription": "कस्टमर चुनें और आइटम एक-एक करके जोड़ें।",
+      "aiTitle": "ऑर्डर टाइप करें",
+      "aiSubtitle": "जैसे आप बोलते हैं वैसे लिखें — हिंदी, इंग्लिश, या मिक्स।",
+      "aiTextareaPlaceholder": "new order aaya hai Rajesh Musical se 25 aam ki lakdhi ki dholak natbold wali, 20 bongo full ready, 200 damru 5 inchi wale",
+      "parseOrder": "ऑर्डर पार्स करें",
+      "couldNotParse": "यह टेक्स्ट पार्स नहीं हो सका। दोबारा कोशिश करें या मैन्युअल भरें।",
+      "reviewParsedOrder": "पार्स किया गया ऑर्डर रिव्यू करें",
+      "newOrder": "नया ऑर्डर",
+      "reviewSubtitle": "सेव करने से पहले कस्टमर और आइटम कन्फर्म करें।",
+      "customer": "कस्टमर",
+      "change": "बदलें",
+      "selectOrAddCustomer": "कस्टमर चुनें या जोड़ें",
+      "items": "आइटम ({{count}})",
+      "newProduct": "नया प्रोडक्ट",
+      "matched": "मैच हो गया",
+      "saveOrder": "ऑर्डर सेव करें",
+      "couldNotSaveOrder": "ऑर्डर सेव नहीं हो सका। दोबारा कोशिश करें।",
+      "warningTitle": "ऑर्डर सेव हो गया — रॉ मटेरियल कम है",
+      "warningSubtitle": "ऑर्डर सेव हो गया है। इन प्रोडक्ट्स के लिए अभी इतना रॉ मटेरियल स्टॉक नहीं है कि ऑर्डर की गई पूरी क्वांटिटी बन सके:",
+      "orderedCanMake": "ऑर्डर किया {{ordered}}, अभी बन सकता है {{producible}}",
+      "gotIt": "समझ गया"
+    },
+    "orderDetailModal": {
+      "unknownCustomer": "अनजान कस्टमर",
+      "notEditable": "यह ऑर्डर {{status}} है और अब एडिट नहीं हो सकता।",
+      "items": "आइटम ({{count}})",
+      "newProduct": "नया प्रोडक्ट",
+      "item": "आइटम",
+      "notes": "नोट्स",
+      "notesPlaceholder": "इस ऑर्डर के बारे में वैकल्पिक नोट्स…",
+      "confirm": "कन्फर्म करें",
+      "cancelOrder": "ऑर्डर कैंसल करें",
+      "close": "बंद करें",
+      "saveChanges": "बदलाव सेव करें",
+      "couldNotSaveChanges": "बदलाव सेव नहीं हो सके। दोबारा कोशिश करें।",
+      "couldNotUpdateStatus": "स्टेटस अपडेट नहीं हो सका। दोबारा कोशिश करें।"
+    },
+    "invoiceDetailModal": {
+      "unknownCustomer": "अनजान कस्टमर",
+      "paymentStatusLabel": {
+        "unpaid": "अनपेड",
+        "partial": "पार्शियली पेड",
+        "paid": "पेड"
+      },
+      "methodLabel": {
+        "cash": "कैश",
+        "upi": "यूपीआई",
+        "bankTransfer": "बैंक ट्रांसफर",
+        "cheque": "चेक",
+        "credit": "क्रेडिट",
+        "other": "अन्य"
+      },
+      "billTypeGst": "जीएसटी बिल",
+      "billTypeRecord": "रिकॉर्ड बिल",
+      "subtotal": "सबटोटल",
+      "tax": "टैक्स",
+      "total": "टोटल",
+      "paid": "पेड",
+      "remaining": "बाकी",
+      "paymentHistory": "पेमेंट हिस्ट्री",
+      "recordAPayment": "पेमेंट रिकॉर्ड करें",
+      "amount": "अमाउंट",
+      "upToAmount": "{{amount}} तक",
+      "amountMustBePositive": "0 से ज़्यादा होना चाहिए",
+      "amountExceedsRemaining": "बाकी {{amount}} से ज़्यादा नहीं हो सकता",
+      "method": "मेथड",
+      "noteOptional": "नोट (वैकल्पिक)",
+      "recordPayment": "पेमेंट रिकॉर्ड करें",
+      "couldNotRecordPayment": "पेमेंट रिकॉर्ड नहीं हो सका। दोबारा कोशिश करें।",
+      "close": "बंद करें",
+      "gstPercentSuffix": " · जीएसटी {{percent}}%"
+    }
+  },
+  "sales": {
+    "newSaleModal": {
+      "nameRequired": "नाम ज़रूरी है",
+      "couldNotAddCustomer": "कस्टमर जोड़ा नहीं जा सका। दोबारा कोशिश करें।",
+      "couldNotGenerateBill": "बिल जनरेट नहीं हो सका। दोबारा कोशिश करें।",
+      "couldNotRecordPayment": "पेमेंट रिकॉर्ड नहीं हो सका। दोबारा कोशिश करें।",
+      "close": "बंद करें",
+      "customerStepTitle": "नई सेल",
+      "customerStepSubtitle": "वह पार्टी चुनें जिसे आप बिल कर रहे हैं।",
+      "searchCustomers": "कस्टमर सर्च करें",
+      "typeAName": "नाम टाइप करें…",
+      "addNewCustomer": "नया कस्टमर जोड़ें",
+      "phoneOptional": "फोन नंबर (वैकल्पिक)",
+      "saveAndContinue": "सेव करें और आगे बढ़ें",
+      "loadingPendingOrders": "उनके पेंडिंग ऑर्डर लोड हो रहे हैं…",
+      "everythingOrdered": "उन्होंने जो भी ऑर्डर किया है — एडिट करें, हटाएं, या आइटम जोड़ें।",
+      "noPendingOrders": "इस पार्टी के लिए कोई पेंडिंग ऑर्डर नहीं है — बिल करने के लिए आइटम जोड़ें।",
+      "newItem": "नया आइटम",
+      "fromOrder": "ऑर्डर से",
+      "removeItem": "आइटम हटाएं",
+      "productNamePlaceholder": "प्रोडक्ट का नाम",
+      "qty": "क्वांटिटी",
+      "unit": "यूनिट",
+      "price": "प्राइस",
+      "addItem": "आइटम जोड़ें",
+      "total": "टोटल",
+      "back": "पीछे",
+      "continue": "आगे बढ़ें",
+      "chooseBillType": "बिल टाइप चुनें",
+      "totalSuffix": "{{amount}} टोटल",
+      "gstBill": "जीएसटी बिल",
+      "gstBillDescription": "फॉर्मल टैक्स इनवॉइस, हर आइटम पर उसके टैक्स रेट के हिसाब से जीएसटी जोड़ा जाता है।",
+      "recordBill": "रिकॉर्ड बिल",
+      "recordBillDescription": "सिंपल रसीद, कोई टैक्स नहीं जुड़ता — कैश/रिटेल सेल्स के लिए जिन्हें टैक्स इनवॉइस की ज़रूरत नहीं है।",
+      "generateBill": "बिल जनरेट करें",
+      "recordPaymentReceived": "मिली हुई पेमेंट रिकॉर्ड करें।",
+      "subtotal": "सबटोटल",
+      "gst": "जीएसटी",
+      "paymentMethod": "पेमेंट मेथड",
+      "methodLabel": {
+        "cash": "कैश",
+        "upi": "यूपीआई",
+        "bank": "बैंक",
+        "cheque": "चेक",
+        "credit": "क्रेडिट"
+      },
+      "amountReceived": "मिली हुई अमाउंट",
+      "partialPaymentRemaining": "पार्शियल पेमेंट — {{amount}} बाकी रहेगा।",
+      "skipForNow": "अभी के लिए छोड़ें",
+      "confirmPayment": "पेमेंट कन्फर्म करें",
+      "saleComplete": "सेल पूरी हो गई",
+      "gstBillShort": "जीएसटी बिल",
+      "recordBillShort": "रिकॉर्ड बिल",
+      "fullyPaid": "पूरी तरह पेड",
+      "partiallyPaid": "पार्शियली पेड",
+      "done": "हो गया"
+    },
+    "salesPage": {
+      "tabs": {
+        "orders": "ऑर्डर्स",
+        "invoices": "इनवॉइस",
+        "quotations": "कोटेशन",
+        "returns": "रिटर्न्स",
+        "payments": "पेमेंट्स"
+      },
+      "statusLabel": {
+        "pending": "पेंडिंग",
+        "confirmed": "कन्फर्म्ड",
+        "delivered": "बिल्ड",
+        "cancelled": "कैंसल्ड"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "अनपेड",
+        "partial": "पार्शियल",
+        "paid": "पेड"
+      },
+      "unknownCustomer": "अनजान कस्टमर",
+      "loadingOrders": "ऑर्डर्स लोड हो रहे हैं…",
+      "noOrdersYetTitle": "अभी कोई सेल्स ऑर्डर नहीं है",
+      "noOrdersYetDescription": "ऑर्डर्स और इनवॉइस ट्रैक करना शुरू करने के लिए अपना पहला सेल्स ऑर्डर बनाएं।",
+      "newOrder": "नया ऑर्डर",
+      "newSale": "नई सेल",
+      "customer": "कस्टमर",
+      "items": "आइटम",
+      "source": "सोर्स",
+      "status": "स्टेटस",
+      "amount": "अमाउंट",
+      "date": "डेट",
+      "aiOrder": "एआई ऑर्डर",
+      "manual": "मैन्युअल",
+      "loadingInvoices": "इनवॉइस लोड हो रहे हैं…",
+      "noInvoicesYetTitle": "अभी कोई इनवॉइस नहीं है",
+      "noInvoicesYetDescription": "अपना पहला इनवॉइस बनाने के लिए किसी कस्टमर को बिल करें।",
+      "invoice": "इनवॉइस",
+      "type": "टाइप",
+      "gst": "जीएसटी",
+      "record": "रिकॉर्ड",
+      "comingSoon": "{{label}} जल्द आ रहा है",
+      "beingDesigned": "यह सेक्शन डिज़ाइन हो रहा है।",
+      "quotationsLabel": "कोटेशन",
+      "returnsLabel": "रिटर्न्स",
+      "paymentsLabel": "पेमेंट्स"
+    },
+    "mobileSalesOrders": {
+      "tabs": {
+        "orders": "ऑर्डर्स",
+        "invoices": "इनवॉइस",
+        "quotes": "कोट्स",
+        "returns": "रिटर्न्स"
+      },
+      "statusLabel": {
+        "pending": "पेंडिंग",
+        "confirmed": "कन्फर्म्ड",
+        "delivered": "बिल्ड",
+        "cancelled": "कैंसल्ड"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "अनपेड",
+        "partial": "पार्शियल",
+        "paid": "पेड"
+      },
+      "unknownCustomer": "अनजान कस्टमर",
+      "justNow": "अभी-अभी",
+      "minutesAgo": "{{count}} मिनट पहले",
+      "hoursAgo": "{{count}} घंटे पहले",
+      "daysAgo": "{{count}} दिन पहले",
+      "orderSummary": "ऑर्डर समरी",
+      "grossValue": "ग्रॉस वैल्यू",
+      "orders": "ऑर्डर्स",
+      "avgTicket": "एवरेज टिकट",
+      "searchByCustomer": "कस्टमर से सर्च करें…",
+      "newOrderTypeOrPaste": "नया ऑर्डर (टाइप या पेस्ट करें)",
+      "filterAllOrders": "सभी ऑर्डर्स",
+      "filterPending": "पेंडिंग",
+      "filterBilled": "बिल्ड",
+      "filterCancelled": "कैंसल्ड",
+      "loadingOrders": "ऑर्डर्स लोड हो रहे हैं…",
+      "noOrdersFoundTitle": "कोई ऑर्डर नहीं मिला",
+      "noOrdersFoundDescription": "कोई दूसरा फिल्टर ट्राई करें या नया ऑर्डर बनाएं।",
+      "itemsCountOne": "{{count}} आइटम",
+      "itemsCountOther": "{{count}} आइटम",
+      "newSale": "नई सेल",
+      "searchByCustomerOrInvoice": "कस्टमर या इनवॉइस नंबर से सर्च करें…",
+      "loadingInvoices": "इनवॉइस लोड हो रहे हैं…",
+      "noInvoicesFoundTitle": "कोई इनवॉइस नहीं मिला",
+      "noInvoicesFoundDescription": "कोई इनवॉइस बनाने के लिए सेल्स से किसी कस्टमर को बिल करें।",
+      "gst": "जीएसटी",
+      "record": "रिकॉर्ड",
+      "comingSoon": "{{label}} जल्द आ रहा है",
+      "beingDesigned": "यह सेक्शन डिज़ाइन हो रहा है।"
+    }
+  },
+  "purchases": {
+    "purchasesPage": {
+      "tabs": {
+        "orders": "परचेज़ ऑर्डर्स",
+        "purchases": "परचेज़",
+        "returns": "परचेज़ रिटर्न्स",
+        "payments": "सप्लायर पेमेंट्स"
+      },
+      "newPurchaseOrder": "नया परचेज़ ऑर्डर",
+      "noPurchaseOrdersYetTitle": "अभी कोई परचेज़ ऑर्डर नहीं है",
+      "noPurchaseOrdersYetDescription": "आने वाले स्टॉक को ट्रैक करना शुरू करने के लिए एक परचेज़ ऑर्डर बनाएं।",
+      "po": "पीओ",
+      "supplier": "सप्लायर",
+      "items": "आइटम",
+      "status": "स्टेटस",
+      "amount": "अमाउंट",
+      "date": "डेट",
+      "comingSoon": "{{label}} जल्द आ रहा है",
+      "beingDesigned": "यह सेक्शन डिज़ाइन हो रहा है।",
+      "purchasesLabel": "परचेज़",
+      "purchaseReturnsLabel": "परचेज़ रिटर्न्स",
+      "supplierPaymentsLabel": "सप्लायर पेमेंट्स"
+    }
+  },
+  "dashboard": {
+    "mobileDashboard": {
+      "quickActions": {
+        "newOrder": "नया ऑर्डर",
+        "newSale": "नई सेल",
+        "voiceOrder": "वॉइस ऑर्डर",
+        "scanStock": "स्टॉक स्कैन करें"
+      },
+      "statusLabel": {
+        "pending": "पेंडिंग",
+        "confirmed": "कन्फर्म्ड",
+        "delivered": "बिल्ड",
+        "cancelled": "कैंसल्ड"
+      },
+      "justNow": "अभी-अभी",
+      "minutesAgo": "{{count}} मिनट पहले",
+      "hoursAgo": "{{count}} घंटे पहले",
+      "daysAgo": "{{count}} दिन पहले",
+      "businessBriefLabel": "बिज़नेस ब्रीफ",
+      "autonomousBusinessBrief": "ऑटोनॉमस बिज़नेस ब्रीफ",
+      "loadingBrief": "आपकी बिज़नेस ब्रीफ लोड हो रही है…",
+      "fallbackBriefSales": "आज की सेल {{amount}} है।",
+      "fallbackBriefLowStockOne": "{{count}} प्रोडक्ट रीऑर्डर लेवल से नीचे है।",
+      "fallbackBriefLowStockOther": "{{count}} प्रोडक्ट्स रीऑर्डर लेवल से नीचे हैं।",
+      "fallbackBriefNoLowStock": "कोई भी प्रोडक्ट रीऑर्डर लेवल से नीचे नहीं है।",
+      "fallbackBriefOverdue": "{{name}} के {{amount}} ओवरड्यू हैं।",
+      "fallbackBriefNoOverdue": "कोई पेमेंट ओवरड्यू नहीं है।",
+      "immediateOperations": "इमीडिएट ऑपरेशंस",
+      "pendingCount": "{{count}} पेंडिंग",
+      "allClear": "सब ठीक है — कोई लो स्टॉक या ओवरड्यू पेमेंट नहीं।",
+      "lowStockBadge": "{{count}} लो स्टॉक",
+      "lowStockItemsFallback": "लो स्टॉक आइटम",
+      "belowReorderLevel": "रीऑर्डर लेवल से नीचे",
+      "overdueBadge": "{{amount}} ओवरड्यू",
+      "partyPendingOne": "{{count}} पार्टी पेंडिंग",
+      "partyPendingOther": "{{count}} पार्टीज़ पेंडिंग",
+      "topOverdue": "टॉप: {{name}} ({{amount}})",
+      "ledgerMetrics": "लेजर और लॉजिस्टिक्स मेट्रिक्स",
+      "updatedRealTime": "रीयल-टाइम अपडेटेड",
+      "todaysTotalBilling": "आज की टोटल बिलिंग",
+      "vsYesterday": "कल के {{amount}} के मुकाबले",
+      "monthSales": "महीने की सेल्स",
+      "inventoryValShort": "इन्वेंटरी वैल्यू",
+      "totalSkus": "{{count}} टोटल एसकेयू",
+      "receivables": "रिसीवेबल्स",
+      "overdueCount": "{{count}} ओवरड्यू",
+      "payables": "पेएबल्स",
+      "notTracked": "ट्रैक नहीं हो रहा",
+      "noPurchasesModuleYet": "अभी परचेज़ मॉड्यूल नहीं है",
+      "liveOrderFlow": "लाइव ऑर्डर फ्लो",
+      "noOrdersYet": "अभी तक कोई ऑर्डर नहीं है।",
+      "itemsCountOne": "{{count}} आइटम",
+      "itemsCountOther": "{{count}} आइटम्स",
+      "allDataSynced": "सारा डेटा सिंक हो गया है"
+    },
+    "dashboardPage": {
+      "welcomeBack": "वापसी पर स्वागत है, {{businessName}}",
+      "todaysSales": "आज की सेल्स",
+      "vsYesterday": "कल के मुकाबले {{sign}}{{percent}}%",
+      "todaysPurchases": "आज की परचेज़",
+      "notTrackedYet": "अभी ट्रैक नहीं हो रहा",
+      "inventoryValue": "इन्वेंटरी वैल्यू",
+      "receivables": "रिसीवेबल्स",
+      "customersOverdueOne": "{{count}} कस्टमर ओवरड्यू",
+      "customersOverdueOther": "{{count}} कस्टमर्स ओवरड्यू",
+      "salesTrend": "सेल्स ट्रेंड",
+      "last7Days": "पिछले 7 दिन",
+      "salesTooltipLabel": "सेल्स",
+      "topProducts": "टॉप प्रोडक्ट्स",
+      "noSalesYet": "अभी तक कोई सेल नहीं हुई — बिल किए गए प्रोडक्ट्स यहां दिखेंगे।",
+      "recentActivity": "रीसेंट एक्टिविटी",
+      "noActivityYet": "अभी तक कोई एक्टिविटी नहीं है।",
+      "minutesAgo": "{{count}} मिनट पहले",
+      "hoursAgo": "{{count}} घंटे पहले",
+      "daysAgo": "{{count}} दिन पहले",
+      "aiBusinessSummary": "एआई बिज़नेस समरी",
+      "loadingSummary": "आपकी बिज़नेस समरी लोड हो रही है…",
+      "fallbackSummarySales": "आज की सेल {{amount}} है।",
+      "fallbackSummaryLowStockOne": "{{count}} प्रोडक्ट रीऑर्डर लेवल से नीचे है।",
+      "fallbackSummaryLowStockOther": "{{count}} प्रोडक्ट्स रीऑर्डर लेवल से नीचे हैं।",
+      "fallbackSummaryNoLowStock": "कोई भी प्रोडक्ट रीऑर्डर लेवल से नीचे नहीं है।",
+      "fallbackSummaryOverdue": "{{name}} के {{amount}} ओवरड्यू हैं।",
+      "fallbackSummaryNoOverdue": "कोई पेमेंट ओवरड्यू नहीं है।"
+    }
+  },
+  "ai": {
+    "aiPage": {
+      "heading": "मुंशी AI — आपका बिज़नेस असिस्टेंट"
+    },
+    "aiChatPanel": {
+      "promptSuggestions": {
+        "todaysSales": "आज कितनी सेल हुई?",
+        "pendingPayment": "किसका पेमेंट पेंडिंग है?",
+        "lowStock": "कितने प्रोडक्ट्स लो स्टॉक में हैं?"
+      },
+      "markAttendance": "{{staffName}} को {{date}} पर {{status}} मार्क करें",
+      "staffFallback": "स्टाफ",
+      "newOrderFor": "{{customerName}} के लिए नया ऑर्डर: {{itemsText}}",
+      "customerFallback": "कस्टमर",
+      "couldNotConfirmAction": "यह एक्शन कन्फर्म नहीं हो पाया।",
+      "couldNotDismissAction": "यह एक्शन हटाया नहीं जा सका।",
+      "dismiss": "हटाएं",
+      "confirm": "कन्फर्म करें",
+      "confirmed": "कन्फर्म्ड",
+      "dismissed": "हटाया गया",
+      "loadingConversation": "बातचीत लोड हो रही है…",
+      "askAboutBusiness": "अपने बिज़नेस के बारे में मुझसे पूछें",
+      "askAboutBusinessDescription": "सेल्स, पेमेंट, स्टॉक लेवल — या मुझसे अटेंडेंस मार्क करने या ऑर्डर बनाने के लिए कहें।",
+      "thinking": "सोच रहा हूं…",
+      "inputPlaceholder": "अपने बिज़नेस के बारे में पूछें, जैसे आज कितनी सेल हुई?",
+      "send": "भेजें",
+      "disclaimer": "एआई के बनाए एक्शन को आपके बिज़नेस डेटा पर असर डालने से पहले हमेशा आपकी रिव्यू और कन्फर्मेशन चाहिए होती है।",
+      "couldNotReachAssistant": "एआई असिस्टेंट से कनेक्ट नहीं हो पाया। दोबारा कोशिश करें।"
+    }
+  },
+  "reports": {
+    "reportsPage": {
+      "tabs": {
+        "sales": "सेल्स",
+        "purchases": "परचेज़",
+        "inventory": "इन्वेंटरी",
+        "financial": "फाइनेंशियल"
+      },
+      "today": "आज",
+      "thisWeek": "इस हफ्ते",
+      "thisMonth": "इस महीने",
+      "inventoryValue": "इन्वेंटरी वैल्यू",
+      "grossProfitMonth": "ग्रॉस प्रॉफिट (महीना)",
+      "reportComingSoon": "{{label}} रिपोर्ट जल्द आ रही है",
+      "beingDesigned": "यह रिपोर्ट डिज़ाइन हो रही है।",
+      "purchasesLabel": "परचेज़",
+      "inventoryLabel": "इन्वेंटरी"
+    }
+  },
+  "layoutExtra": {
+    "mobileTopBar": {
+      "openNavigation": "नेविगेशन खोलें",
+      "search": "सर्च करें",
+      "notifications": "नोटिफिकेशन",
+      "live": "लाइव"
+    },
+    "quickActionSheet": {
+      "title": "क्विक एक्शन्स",
+      "close": "बंद करें",
+      "closeQuickActions": "क्विक एक्शन्स बंद करें",
+      "newOrder": "नया ऑर्डर",
+      "newSale": "नई सेल",
+      "addPurchase": "परचेज़ जोड़ें",
+      "addStock": "स्टॉक जोड़ें",
+      "addCustomer": "कस्टमर जोड़ें",
+      "receivePayment": "पेमेंट रिसीव करें",
+      "scanProduct": "प्रोडक्ट स्कैन करें",
+      "voiceEntry": "वॉइस एंट्री"
+    }
+  },
+  "ui": {
+    "successModal": {
+      "redirecting": "आपके डैशबोर्ड पर {{seconds}} सेकंड में रीडायरेक्ट हो रहे हैं…"
+    },
+    "dialog": {
+      "closeDialog": "डायलॉग बंद करें",
+      "close": "बंद करें"
+    }
+  },
+  "landing": {
+    "nav": {
+      "home": "होम",
+      "features": "फीचर्स",
+      "solutions": "सोल्यूशंस",
+      "pricing": "प्राइसिंग",
+      "resources": "रिसोर्सेज़",
+      "signIn": "साइन इन करें",
+      "requestDemo": "डेमो के लिए पूछें",
+      "openMenu": "मेनू खोलें",
+      "closeMenu": "मेनू बंद करें"
+    },
+    "hero": {
+      "badge": "होलसेलर्स, रिटेलर्स और बढ़ते बिज़नेस के लिए बनाया गया।",
+      "headingSmart": "स्मार्ट",
+      "headingInventory": "इन्वेंटरी",
+      "headingSubline": "मैनेजमेंट, आसान बनाया गया",
+      "description": "स्टॉक, परचेज़, सेल्स, कस्टमर्स, सप्लायर्स, पेमेंट्स, और बिज़नेस ऑपरेशन — सब एक ही स्मार्ट प्लेटफॉर्म से मैनेज करें।",
+      "getStarted": "शुरू करें",
+      "requestDemo": "डेमो के लिए पूछें"
+    },
+    "features": {
+      "eyebrow": "फीचर्स",
+      "heading": "आपके बिज़नेस की हर ज़रूरत, एक ही जगह",
+      "description": "पेपर रजिस्टर, स्प्रेडशीट, और व्हाट्सऐप पर ऑर्डर लेने की जगह अब एक कनेक्टेड सिस्टम इस्तेमाल करें।",
+      "items": {
+        "inventory": {
+          "title": "रीयल-टाइम इन्वेंटरी",
+          "description": "हर वेयरहाउस का स्टॉक पूरी मूवमेंट लेजर के साथ ट्रैक करें — ऑडिट ट्रेल कभी नहीं खोएगा।"
+        },
+        "salesPurchases": {
+          "title": "सेल्स और परचेज़",
+          "description": "कोटेशन, ऑर्डर, इनवॉइस, और सप्लायर पीओ — ड्राफ्ट से पेमेंट तक सब एक ही फ्लो में।"
+        },
+        "customersSuppliers": {
+          "title": "कस्टमर्स और सप्लायर्स",
+          "description": "हर पार्टी के लिए क्रेडिट लिमिट, लेजर, और पेमेंट हिस्ट्री।"
+        },
+        "aiAssistant": {
+          "title": "एआई बिज़नेस असिस्टेंट",
+          "description": "आसान भाषा में पूछें — \"आज कितनी सेल हुई?\" — और अपने असली डेटा पर आधारित जवाब पाएं।"
+        },
+        "voiceOcr": {
+          "title": "वॉइस और ओसीआर एंट्री",
+          "description": "सेल बोलकर बताएं या पेपर इनवॉइस स्कैन करें; बुक्स में जाने से पहले ड्राफ्ट रिव्यू करें।"
+        },
+        "multiWarehouse": {
+          "title": "मल्टी-वेयरहाउस",
+          "description": "हर लोकेशन का अलग स्टॉक, ट्रांसफर और अप्रूवल के साथ।"
+        },
+        "reports": {
+          "title": "काम के रिपोर्ट्स",
+          "description": "सेल्स, इन्वेंटरी वैल्यूएशन, रिसीवेबल्स, और प्रॉफिट — हमेशा अपडेटेड, कभी पुरानी स्प्रेडशीट नहीं।"
+        },
+        "tenantAudit": {
+          "title": "टेनेंट आइसोलेशन और ऑडिट लॉग्स",
+          "description": "हर एक्शन स्कोप्ड, परमिशन्ड, और लॉग्ड है — टीमों के लिए बनाया गया, सिर्फ एक व्यक्ति के लिए नहीं।"
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "प्राइसिंग",
+      "heading": "आपके बिज़नेस के साथ बढ़ने वाले प्लान",
+      "mostPopular": "सबसे पॉपुलर",
+      "getStarted": "शुरू करें",
+      "plans": {
+        "starter": {
+          "name": "स्टार्टर",
+          "price": "फ्री",
+          "description": "स्प्रेडशीट छोड़ने वाले एक बिज़नेस के लिए।",
+          "features": [
+            "1 बिज़नेस",
+            "2 यूज़र्स",
+            "1 वेयरहाउस",
+            "सेल्स और कस्टमर्स",
+            "बेसिक रिपोर्ट्स"
+          ]
+        },
+        "business": {
+          "name": "बिज़नेस",
+          "price": "कॉन्टैक्ट करें",
+          "description": "कई स्टाफ वाले बढ़ते होलसेलर्स के लिए।",
+          "features": [
+            "कई यूज़र्स और वेयरहाउस",
+            "परचेज़ और सप्लायर्स",
+            "एआई असिस्टेंट और ऑटोमेशन",
+            "एडवांस्ड रिपोर्ट्स"
+          ]
+        },
+        "enterprise": {
+          "name": "एंटरप्राइज़",
+          "price": "कॉन्टैक्ट करें",
+          "description": "बड़े स्तर पर काम करने वाले डिस्ट्रीब्यूटर्स के लिए।",
+          "features": [
+            "अनलिमिटेड यूज़र्स",
+            "एडवांस्ड परमिशन्स",
+            "एपीआई और इंटीग्रेशन",
+            "प्रायोरिटी सपोर्ट"
+          ]
+        }
+      }
+    },
+    "footer": {
+      "ctaHeading": "अपना पूरा बिज़नेस एक ही जगह से चलाने के लिए तैयार हैं?",
+      "ctaDescription": "मिनटों में अपना वर्कस्पेस सेट अप करें — शुरू करने के लिए क्रेडिट कार्ड की ज़रूरत नहीं।",
+      "getStarted": "शुरू करें",
+      "copyright": "© {{year}} सेठसाथी. सभी अधिकार सुरक्षित।",
+      "features": "फीचर्स",
+      "pricing": "प्राइसिंग",
+      "signIn": "साइन इन करें"
+    },
+    "mockup": {
+      "nav": {
+        "dashboard": "डैशबोर्ड",
+        "products": "प्रोडक्ट्स",
+        "inventory": "इन्वेंटरी",
+        "sales": "सेल्स",
+        "purchases": "परचेज़",
+        "customers": "कस्टमर्स",
+        "suppliers": "सप्लायर्स",
+        "warehouses": "वेयरहाउस",
+        "aiAssistant": "एआई असिस्टेंट",
+        "automations": "ऑटोमेशन",
+        "staff": "स्टाफ",
+        "settings": "सेटिंग्स"
+      },
+      "searchPlaceholder": "प्रोडक्ट्स, कस्टमर्स, इनवॉइस सर्च करें...",
+      "businessOverview": "बिज़नेस ओवरव्यू",
+      "executiveSummary": "आज के ऑपरेशन्स की एक्ज़िक्यूटिव समरी",
+      "statLabels": {
+        "todaysSales": "आज की सेल्स",
+        "inventoryValue": "इन्वेंटरी वैल्यू",
+        "receivables": "रिसीवेबल्स",
+        "orders": "ऑर्डर्स"
+      },
+      "revenueTrend": "रेवेन्यू ट्रेंड",
+      "last7Days": "पिछले 7 दिन",
+      "topProducts": "टॉप प्रोडक्ट्स"
+    }
+  },
+  "customers": {
+    "customersPage": {
+      "searchPlaceholder": "पार्टी सर्च करें…",
+      "addCustomer": "कस्टमर जोड़ें",
+      "loadingParties": "पार्टी लोड हो रही हैं…",
+      "emptyTitle": "अभी कोई कस्टमर नहीं है",
+      "emptyDescriptionMobile": "ऑर्डर और क्रेडिट ट्रैक करना शुरू करने के लिए अपना पहला कस्टमर जोड़ें।",
+      "emptyDescriptionDesktop": "सेल्स और क्रेडिट ट्रैक करना शुरू करने के लिए अपना पहला कस्टमर जोड़ें।",
+      "totalPurchases": "टोटल परचेज़",
+      "outstanding": "आउटस्टैंडिंग",
+      "creditLimit": "क्रेडिट लिमिट",
+      "lastPurchase": "लास्ट परचेज़"
+    },
+    "addCustomerModal": {
+      "title": "कस्टमर जोड़ें",
+      "nameRequired": "नाम ज़रूरी है",
+      "creditLimitMin": "0 या उससे ज़्यादा होना चाहिए",
+      "namePlaceholder": "जैसे Sharma Traders",
+      "phoneLabel": "फोन नंबर (वैकल्पिक)",
+      "creditLimitLabel": "क्रेडिट लिमिट (वैकल्पिक)",
+      "submit": "कस्टमर जोड़ें",
+      "addError": "कस्टमर जोड़ा नहीं जा सका। दोबारा कोशिश करें।"
+    },
+    "partyPortfolioModal": {
+      "tabs": {
+        "orders": "ऑर्डर्स",
+        "invoices": "इनवॉइस",
+        "payments": "पेमेंट्स"
+      },
+      "loading": "पार्टी पोर्टफोलियो लोड हो रहा है…",
+      "loadError": "यह कस्टमर लोड नहीं हो सका।",
+      "inactive": "इनएक्टिव",
+      "pendingOrders": "पेंडिंग ऑर्डर्स",
+      "noOrders": "इस कस्टमर से अभी कोई ऑर्डर नहीं आया है।",
+      "noInvoices": "इस कस्टमर के लिए अभी कोई इनवॉइस जनरेट नहीं हुआ है।",
+      "noPayments": "इस कस्टमर के लिए अभी कोई पेमेंट रिकॉर्ड नहीं है।",
+      "itemCountOne": "{{count}} आइटम",
+      "itemCountMany": "{{count}} आइटम",
+      "aiOrder": "एआई ऑर्डर",
+      "manualOrder": "मैन्युअल",
+      "gstBill": "जीएसटी बिल",
+      "recordBill": "रिकॉर्ड बिल"
+    }
+  },
+  "suppliers": {
+    "suppliersPage": {
+      "addSupplier": "सप्लायर जोड़ें",
+      "loading": "सप्लायर्स लोड हो रहे हैं…",
+      "emptyTitle": "अभी कोई सप्लायर नहीं है",
+      "emptyDescription": "परचेज़ रिकॉर्ड करना शुरू करने के लिए अपना पहला सप्लायर जोड़ें।",
+      "gstinLabel": "GSTIN: {{gstin}}",
+      "totalPurchased": "टोटल परचेज़्ड",
+      "outstanding": "आउटस्टैंडिंग",
+      "notTrackedYet": "अभी ट्रैक नहीं हो रहा"
+    },
+    "addSupplierModal": {
+      "title": "सप्लायर जोड़ें",
+      "nameRequired": "नाम ज़रूरी है",
+      "namePlaceholder": "जैसे Coca-Cola Distributors",
+      "phoneLabel": "फोन नंबर (वैकल्पिक)",
+      "gstinLabel": "GSTIN (वैकल्पिक)",
+      "gstinPlaceholder": "जैसे 09ABCDE1234F1Z5",
+      "submit": "सप्लायर जोड़ें",
+      "addError": "सप्लायर जोड़ा नहीं जा सका। दोबारा कोशिश करें।"
+    }
+  },
+  "warehouses": {
+    "warehousesPage": {
+      "addWarehouse": "वेयरहाउस जोड़ें",
+      "loading": "वेयरहाउस लोड हो रहे हैं…",
+      "emptyTitle": "अभी कोई वेयरहाउस नहीं है",
+      "emptyDescription": "लोकेशन के हिसाब से स्टॉक ट्रैक करना शुरू करने के लिए एक वेयरहाउस जोड़ें।",
+      "noLocationSet": "कोई लोकेशन सेट नहीं है",
+      "stockValue": "स्टॉक वैल्यू",
+      "skusStocked": "स्टॉक्ड SKU"
+    },
+    "addWarehouseModal": {
+      "title": "वेयरहाउस जोड़ें",
+      "nameRequired": "नाम ज़रूरी है",
+      "namePlaceholder": "जैसे Noida Warehouse",
+      "locationLabel": "लोकेशन (वैकल्पिक)",
+      "locationPlaceholder": "जैसे Sector 63, Noida",
+      "submit": "वेयरहाउस जोड़ें",
+      "addError": "वेयरहाउस जोड़ा नहीं जा सका। दोबारा कोशिश करें।"
+    }
+  },
+  "welcomeChat": {
+    "online": "ऑनलाइन",
+    "close": "चैट बंद करें",
+    "typing": "मुंशी AI लिख रहा है",
+    "send": "भेजें",
+    "chooseAbove": "ऊपर से एक विकल्प चुनें",
+    "greeting": "नमस्ते! मैं मुंशी AI हूं, सेठसाथी पर आपका डिजिटल मुंशी। क्या आपका पहले से अकाउंट है, या हम मिलकर नया अकाउंट बनाएं?",
+    "choiceRegister": "नया अकाउंट बनाएं",
+    "choiceLogin": "मेरा अकाउंट है — लॉगिन करें",
+    "goingToLogin": "ठीक है! आपको लॉगिन पेज पर ले चलते हैं…",
+    "askLanguage": "बहुत बढ़िया, चलिए मिलकर आपका अकाउंट बनाते हैं। पहले बताइए, आप किस भाषा में बात करना चाहेंगे?",
+    "languageSet": "हो गया! अब से मैं आपसे हिंदी में बात करूंगा।",
+    "askName": "आपका पूरा नाम क्या है?",
+    "askBusiness": "आपसे मिलकर खुशी हुई, {{name}}! आपके बिज़नेस का नाम क्या है?",
+    "askPhone": "आपका 10 अंकों का मोबाइल नंबर क्या है? इसी से आप OTP के ज़रिए लॉगिन करेंगे।",
+    "askEmail": "और आपका ईमेल पता? इससे भी आप लॉगिन कर सकते हैं।",
+    "askPassword": "आखिरी कदम: ईमेल से लॉगिन के लिए कम से कम 8 अक्षरों का पासवर्ड बनाइए।",
+    "placeholders": {
+      "name": "जैसे रमेश कुमार",
+      "business": "जैसे शर्मा ट्रेडर्स",
+      "phone": "98230 45812",
+      "email": "name@example.com",
+      "password": "कम से कम 8 अक्षर"
+    },
+    "errors": {
+      "nameTooShort": "कृपया अपना पूरा नाम लिखें (कम से कम 2 अक्षर)।",
+      "businessTooShort": "कृपया बिज़नेस का नाम लिखें (कम से कम 2 अक्षर)।",
+      "phoneInvalid": "यह सही 10 अंकों का मोबाइल नंबर नहीं लग रहा। कृपया दोबारा लिखें।",
+      "emailInvalid": "यह सही ईमेल पता नहीं लग रहा। जांच कर दोबारा लिखें।",
+      "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए। थोड़ा लंबा पासवर्ड लिखें।",
+      "emailTaken": "इस ईमेल से पहले से एक अकाउंट है। दूसरा ईमेल लिखें, या लॉगिन करें।",
+      "phoneTaken": "इस मोबाइल नंबर से पहले से एक अकाउंट है। दूसरा नंबर लिखें, या लॉगिन करें।",
+      "generic": "माफ़ कीजिए, अभी अकाउंट नहीं बन पाया। {{message}}"
+    },
+    "previewIntro": "यह रहा आपके अकाउंट का प्रीव्यू। कृपया जांच लीजिए कि सब सही है:",
+    "previewUpdated": "अपडेट हो गया! यह रहा नया प्रीव्यू:",
+    "previewTitle": "अकाउंट प्रीव्यू",
+    "fields": {
+      "name": "पूरा नाम",
+      "business": "बिज़नेस का नाम",
+      "phone": "मोबाइल नंबर",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "language": "भाषा"
+    },
+    "termsNote": "अकाउंट बनाकर आप नियम और प्राइवेसी पॉलिसी से सहमत होते हैं।",
+    "confirm": "सब सही है, अकाउंट बनाएं",
+    "edit": "कुछ बदलना है",
+    "whichEdit": "ज़रूर — क्या बदलना चाहेंगे?",
+    "editPrompt": {
+      "name": "अपना पूरा नाम लिखें:",
+      "business": "बिज़नेस का नाम लिखें:",
+      "phone": "अपना 10 अंकों का मोबाइल नंबर लिखें:",
+      "email": "अपना ईमेल पता लिखें:",
+      "password": "नया पासवर्ड लिखें (कम से कम 8 अक्षर):",
+      "language": "आप कौन सी भाषा चाहेंगे?"
+    },
+    "creating": "आपका अकाउंट बन रहा है… बस एक पल।",
+    "success": "बधाई हो, {{name}}! {{business}} अब सेठसाथी पर तैयार है।",
+    "successHelp": "आज से मुंशी AI हर काम में आपकी मदद करेगा — बिल बनाना, स्टॉक संभालना, ग्राहकों का उधार और पेमेंट, स्टाफ की हाज़िरी, और आपके बिज़नेस के हर सवाल का जवाब। बस मुझसे पूछिए!",
+    "goHome": "मेरे डैशबोर्ड पर चलें",
+    "loginInstead": "लॉगिन करें"
+  }
+}

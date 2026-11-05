@@ -50,79 +50,123 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
 import { saveOnboarding, personalizeDashboard } from "../../lib/tenants-api";
 import type { BusinessCategory, BusinessGoal, CustomerType, OrderVolume } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
+import { categoryLabel, customerTypeLabel, goalLabel, orderVolumeLabel } from "../../lib/onboarding-labels";
 
-const categories: { value: BusinessCategory; label: string; icon: typeof Package }[] = [
-  { value: "fmcg", label: "FMCG", icon: Package },
-  { value: "electronics", label: "Electronics", icon: Boxes },
-  { value: "mobile_accessories", label: "Mobile & Accessories", icon: Smartphone },
-  { value: "pharma", label: "Pharma", icon: Pill },
-  { value: "apparel", label: "Apparel", icon: Shirt },
-  { value: "footwear", label: "Footwear", icon: Footprints },
-  { value: "textiles_fabric", label: "Textiles & Fabric", icon: Scissors },
-  { value: "auto_parts", label: "Auto Parts", icon: Wrench },
-  { value: "two_wheeler_parts", label: "Two-Wheeler Parts", icon: Bike },
-  { value: "grocery", label: "Grocery", icon: Building2 },
-  { value: "hardware", label: "Hardware", icon: Warehouse },
-  { value: "sanitary_plumbing", label: "Sanitary & Plumbing", icon: ShowerHead },
-  { value: "electrical_goods", label: "Electrical Goods", icon: Zap },
-  { value: "paints_chemicals", label: "Paints & Chemicals", icon: FlaskConical },
-  { value: "building_materials", label: "Building Materials", icon: HardHat },
-  { value: "furniture", label: "Furniture", icon: Sofa },
-  { value: "musical_instruments", label: "Musical Instruments", icon: Music },
-  { value: "sports_goods", label: "Sports Goods", icon: Trophy },
-  { value: "toys_games", label: "Toys & Games", icon: Gamepad2 },
-  { value: "stationery_books", label: "Stationery & Books", icon: BookOpen },
-  { value: "gift_items", label: "Gift Items", icon: Gift },
-  { value: "cosmetics_beauty", label: "Cosmetics & Beauty", icon: Sparkles },
-  { value: "jewellery_artificial", label: "Jewellery (Artificial)", icon: Gem },
-  { value: "bags_luggage", label: "Bags & Luggage", icon: Briefcase },
-  { value: "kitchenware_utensils", label: "Kitchenware & Utensils", icon: UtensilsCrossed },
-  { value: "plastic_goods", label: "Plastic Goods", icon: Recycle },
-  { value: "packaging_materials", label: "Packaging Materials", icon: PackageOpen },
-  { value: "confectionery_bakery", label: "Confectionery & Bakery", icon: Cookie },
-  { value: "dry_fruits_spices", label: "Dry Fruits & Spices", icon: Nut },
-  { value: "tea_coffee", label: "Tea & Coffee", icon: Coffee },
-  { value: "dairy_products", label: "Dairy Products", icon: Milk },
-  { value: "agro_seeds_fertilizers", label: "Agro, Seeds & Fertilizers", icon: Sprout },
-  { value: "cattle_feed", label: "Cattle Feed", icon: Dog },
-  { value: "tiles_sanitaryware", label: "Tiles & Sanitaryware", icon: Grid3x3 },
-  { value: "glass_hardware", label: "Glass & Hardware", icon: Layers },
-  { value: "computer_it", label: "Computer & IT", icon: Monitor },
-  { value: "printing_stationery", label: "Printing & Stationery", icon: Printer },
-  { value: "cleaning_supplies", label: "Cleaning Supplies", icon: SprayCan },
-  { value: "fireworks", label: "Fireworks", icon: Flame },
-  { value: "readymade_garments", label: "Readymade Garments", icon: ShoppingBag },
-  { value: "saree_ethnic_wear", label: "Saree & Ethnic Wear", icon: Flower2 },
-  { value: "watches_eyewear", label: "Watches & Eyewear", icon: Watch },
-  { value: "religious_puja_items", label: "Religious & Puja Items", icon: Landmark },
-  { value: "other", label: "Other", icon: Sparkles },
+interface CategoryOption {
+  value: BusinessCategory;
+  icon: typeof Package;
+}
+
+const categoryGroups: { labelKey: string; items: CategoryOption[] }[] = [
+  {
+    labelKey: "onboarding.step1.groups.foodFmcgGrocery",
+    items: [
+      { value: "fmcg", icon: Package },
+      { value: "grocery", icon: Building2 },
+      { value: "confectionery_bakery", icon: Cookie },
+      { value: "dry_fruits_spices", icon: Nut },
+      { value: "tea_coffee", icon: Coffee },
+      { value: "dairy_products", icon: Milk },
+      { value: "agro_seeds_fertilizers", icon: Sprout },
+      { value: "cattle_feed", icon: Dog },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.fashionTextiles",
+    items: [
+      { value: "apparel", icon: Shirt },
+      { value: "readymade_garments", icon: ShoppingBag },
+      { value: "saree_ethnic_wear", icon: Flower2 },
+      { value: "textiles_fabric", icon: Scissors },
+      { value: "footwear", icon: Footprints },
+      { value: "bags_luggage", icon: Briefcase },
+      { value: "watches_eyewear", icon: Watch },
+      { value: "jewellery_artificial", icon: Gem },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.electronicsIt",
+    items: [
+      { value: "electronics", icon: Boxes },
+      { value: "mobile_accessories", icon: Smartphone },
+      { value: "computer_it", icon: Monitor },
+      { value: "electrical_goods", icon: Zap },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.hardwareHomeBuilding",
+    items: [
+      { value: "hardware", icon: Warehouse },
+      { value: "sanitary_plumbing", icon: ShowerHead },
+      { value: "paints_chemicals", icon: FlaskConical },
+      { value: "building_materials", icon: HardHat },
+      { value: "tiles_sanitaryware", icon: Grid3x3 },
+      { value: "glass_hardware", icon: Layers },
+      { value: "furniture", icon: Sofa },
+      { value: "kitchenware_utensils", icon: UtensilsCrossed },
+      { value: "plastic_goods", icon: Recycle },
+      { value: "cleaning_supplies", icon: SprayCan },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.autoTransport",
+    items: [
+      { value: "auto_parts", icon: Wrench },
+      { value: "two_wheeler_parts", icon: Bike },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.healthBeauty",
+    items: [
+      { value: "pharma", icon: Pill },
+      { value: "cosmetics_beauty", icon: Sparkles },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.stationeryGiftsLeisure",
+    items: [
+      { value: "stationery_books", icon: BookOpen },
+      { value: "printing_stationery", icon: Printer },
+      { value: "gift_items", icon: Gift },
+      { value: "toys_games", icon: Gamepad2 },
+      { value: "sports_goods", icon: Trophy },
+      { value: "musical_instruments", icon: Music },
+      { value: "packaging_materials", icon: PackageOpen },
+    ],
+  },
+  {
+    labelKey: "onboarding.step1.groups.other",
+    items: [
+      { value: "fireworks", icon: Flame },
+      { value: "religious_puja_items", icon: Landmark },
+      { value: "other", icon: Sparkles },
+    ],
+  },
 ];
 
-const customerTypes: { value: CustomerType; label: string }[] = [
-  { value: "wholesale", label: "Wholesale / B2B" },
-  { value: "retail", label: "Retail" },
-  { value: "both", label: "Both" },
+const customerTypes: { value: CustomerType }[] = [{ value: "wholesale" }, { value: "retail" }, { value: "both" }];
+
+const orderVolumes: { value: OrderVolume }[] = [
+  { value: "lt_100" },
+  { value: "100_500" },
+  { value: "500_2000" },
+  { value: "gt_2000" },
 ];
 
-const orderVolumes: { value: OrderVolume; label: string }[] = [
-  { value: "lt_100", label: "< 100" },
-  { value: "100_500", label: "100–500" },
-  { value: "500_2000", label: "500–2,000" },
-  { value: "gt_2000", label: "2,000+" },
-];
-
-const goalOptions: { value: BusinessGoal; label: string; icon: typeof Boxes }[] = [
-  { value: "inventory_tracking", label: "Inventory tracking", icon: Boxes },
-  { value: "credit_payments", label: "Credit & payment collection", icon: CreditCard },
-  { value: "multi_warehouse", label: "Multi-warehouse ops", icon: Warehouse },
-  { value: "staff_management", label: "Staff & role management", icon: Users },
-  { value: "ai_insights", label: "AI-assisted insights", icon: Sparkles },
-  { value: "reporting", label: "Reports & analytics", icon: Building2 },
+const goalOptions: { value: BusinessGoal; icon: typeof Boxes }[] = [
+  { value: "inventory_tracking", icon: Boxes },
+  { value: "credit_payments", icon: CreditCard },
+  { value: "multi_warehouse", icon: Warehouse },
+  { value: "staff_management", icon: Users },
+  { value: "ai_insights", icon: Sparkles },
+  { value: "reporting", icon: Building2 },
 ];
 
 const MAX_GOALS = 3;
@@ -130,6 +174,7 @@ const MAX_GOALS = 3;
 type Step = 1 | 2 | 3 | "generating" | "done";
 
 export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>(1);
   const [category, setCategory] = useState<BusinessCategory | null>(null);
@@ -139,7 +184,6 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
   const [staffCount, setStaffCount] = useState("1");
   const [goals, setGoals] = useState<BusinessGoal[]>([]);
   const [painPoints, setPainPoints] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   const saveMutation = useMutation({ mutationFn: saveOnboarding });
   const personalizeMutation = useMutation({ mutationFn: personalizeDashboard });
@@ -160,7 +204,6 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
   const handleSubmit = async () => {
     if (!category || !customerType || !orderVolume) return;
-    setError(null);
     setStep("generating");
 
     try {
@@ -184,59 +227,67 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       setStep("done");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("onboarding.genericError"));
       setStep(3);
     }
   };
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4">
-      <div className="relative w-full max-w-md rounded-2xl bg-surface shadow-elevation-3">
+      <div className="relative flex w-full max-w-md max-h-[90vh] flex-col rounded-2xl bg-surface shadow-elevation-3">
         {step !== "generating" && step !== "done" && (
           <button
             type="button"
             onClick={onClose}
-            aria-label="Skip for now"
+            aria-label={t("onboarding.skipForNow")}
             className="absolute right-4 top-4 rounded-full p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <X size={18} />
           </button>
         )}
 
-        <div className="p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto p-6">
           {step === 1 && (
             <>
-              <h2 className="text-lg font-bold text-text">Tell us about your business</h2>
-              <p className="mt-1 text-sm text-text-muted">This helps us tailor UManager to how you work.</p>
+              <h2 className="text-lg font-bold text-text">{t("onboarding.step1.heading")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.step1.subheading")}</p>
 
               <div className="mt-5">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-medium text-text-muted">Business category</p>
-                  <span className="text-[11px] text-text-muted/70">Swipe to see more →</span>
-                </div>
-                <div className="scrollbar-hide -mx-6 grid auto-cols-18 grid-flow-col grid-rows-2 gap-2 overflow-x-auto px-6 pb-1">
-                  {categories.map((c) => (
-                    <button
-                      key={c.value}
-                      type="button"
-                      onClick={() => setCategory(c.value)}
-                      className={clsx(
-                        "flex w-18 flex-col items-center gap-1.5 rounded-xl border p-2.5 outline-none transition-colors",
-                        "focus-visible:ring-2 focus-visible:ring-primary/40",
-                        category === c.value
-                          ? "border-primary bg-primary-container text-primary"
-                          : "border-border text-text-muted hover:border-primary/30"
-                      )}
-                    >
-                      <c.icon size={18} className="shrink-0" />
-                      <span className="text-center text-[10.5px] font-medium leading-tight">{c.label}</span>
-                    </button>
+                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step1.categoryLabel")}</p>
+                <div className="flex flex-col gap-4">
+                  {categoryGroups.map((group) => (
+                    <div key={group.labelKey}>
+                      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted/70">
+                        {t(group.labelKey)}
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {group.items.map((c) => (
+                          <button
+                            key={c.value}
+                            type="button"
+                            onClick={() => setCategory(c.value)}
+                            className={clsx(
+                              "flex flex-col items-center gap-1.5 rounded-xl border p-2.5 outline-none transition-colors",
+                              "focus-visible:ring-2 focus-visible:ring-primary/40",
+                              category === c.value
+                                ? "border-primary bg-primary-container text-primary"
+                                : "border-border text-text-muted hover:border-primary/30"
+                            )}
+                          >
+                            <c.icon size={18} className="shrink-0" />
+                            <span className="text-center text-[10.5px] font-medium leading-tight">
+                              {categoryLabel(c.value)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">Who are your customers?</p>
+                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step1.customersLabel")}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {customerTypes.map((c) => (
                     <button
@@ -251,25 +302,25 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                           : "border-border text-text-muted hover:border-primary/30"
                       )}
                     >
-                      {c.label}
+                      {customerTypeLabel(c.value)}
                     </button>
                   ))}
                 </div>
               </div>
 
               <Button className="mt-6 w-full" disabled={!canContinueStep1} onClick={() => setStep(2)}>
-                Continue
+                {t("onboarding.continue")}
               </Button>
             </>
           )}
 
           {step === 2 && (
             <>
-              <h2 className="text-lg font-bold text-text">Your operations</h2>
-              <p className="mt-1 text-sm text-text-muted">Roughly how big is your operation today?</p>
+              <h2 className="text-lg font-bold text-text">{t("onboarding.step2.heading")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.step2.subheading")}</p>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">Monthly order volume</p>
+                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step2.orderVolumeLabel")}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {orderVolumes.map((v) => (
                     <button
@@ -284,7 +335,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                           : "border-border text-text-muted hover:border-primary/30"
                       )}
                     >
-                      {v.label}
+                      {orderVolumeLabel(v.value)}
                     </button>
                   ))}
                 </div>
@@ -292,14 +343,14 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
               <div className="mt-5 grid grid-cols-2 gap-4">
                 <TextField
-                  label="Warehouses"
+                  label={t("onboarding.step2.warehouses")}
                   type="number"
                   min={0}
                   value={warehouseCount}
                   onChange={(e) => setWarehouseCount(e.target.value)}
                 />
                 <TextField
-                  label="Staff members"
+                  label={t("onboarding.step2.staffMembers")}
                   type="number"
                   min={0}
                   value={staffCount}
@@ -309,10 +360,10 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
               <div className="mt-6 flex gap-3">
                 <Button variant="secondary" className="flex-1" onClick={() => setStep(1)}>
-                  Back
+                  {t("onboarding.back")}
                 </Button>
                 <Button className="flex-1" disabled={!canContinueStep2} onClick={() => setStep(3)}>
-                  Continue
+                  {t("onboarding.continue")}
                 </Button>
               </div>
             </>
@@ -320,8 +371,8 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
           {step === 3 && (
             <>
-              <h2 className="text-lg font-bold text-text">What matters most?</h2>
-              <p className="mt-1 text-sm text-text-muted">Pick up to {MAX_GOALS} priorities.</p>
+              <h2 className="text-lg font-bold text-text">{t("onboarding.step3.heading")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.step3.subheading", { max: MAX_GOALS })}</p>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
                 {goalOptions.map((g) => {
@@ -343,7 +394,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                       )}
                     >
                       <g.icon size={16} className="shrink-0" />
-                      <span className="leading-tight">{g.label}</span>
+                      <span className="leading-tight">{goalLabel(g.value)}</span>
                     </button>
                   );
                 })}
@@ -351,7 +402,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
               <div className="mt-5">
                 <label className="mb-1.5 block text-sm font-medium text-text-muted" htmlFor="painPoints">
-                  Anything specific slowing you down? (optional)
+                  {t("onboarding.step3.painPointsLabel")}
                 </label>
                 <textarea
                   id="painPoints"
@@ -359,19 +410,17 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                   onChange={(e) => setPainPoints(e.target.value)}
                   rows={3}
                   maxLength={1000}
-                  placeholder="e.g. Tracking expiry dates, chasing customer payments…"
+                  placeholder={t("onboarding.step3.painPointsPlaceholder")}
                   className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary"
                 />
               </div>
 
-              {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
-
               <div className="mt-6 flex gap-3">
                 <Button variant="secondary" className="flex-1" onClick={() => setStep(2)}>
-                  Back
+                  {t("onboarding.back")}
                 </Button>
                 <Button className="flex-1" disabled={!canSubmit} onClick={handleSubmit}>
-                  Finish setup
+                  {t("onboarding.step3.finishSetup")}
                 </Button>
               </div>
             </>
@@ -380,10 +429,8 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
           {step === "generating" && (
             <div className="flex flex-col items-center py-6 text-center">
               <Loader2 size={32} className="animate-spin text-primary" />
-              <h2 className="mt-4 text-lg font-bold text-text">Setting things up</h2>
-              <p className="mt-1 text-sm text-text-muted">
-                Saving your business profile and personalizing your dashboard…
-              </p>
+              <h2 className="mt-4 text-lg font-bold text-text">{t("onboarding.generating.heading")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.generating.subheading")}</p>
             </div>
           )}
 
@@ -392,10 +439,10 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-container text-success">
                 <Sparkles size={26} />
               </span>
-              <h2 className="mt-4 text-lg font-bold text-text">You&apos;re all set</h2>
-              <p className="mt-1 text-sm text-text-muted">Your dashboard is ready.</p>
+              <h2 className="mt-4 text-lg font-bold text-text">{t("onboarding.done.heading")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.done.subheading")}</p>
               <Button className="mt-5 w-full" onClick={onClose}>
-                Go to dashboard
+                {t("onboarding.done.goToDashboard")}
               </Button>
             </div>
           )}

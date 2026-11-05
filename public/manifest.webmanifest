@@ -1,13 +1,13 @@
 {
-  "name": "UManager — Wholesale & Inventory",
-  "short_name": "UManager",
-  "description": "AI-powered wholesale and inventory management for your business.",
+  "name": "SethSathi — Your AI Munshi",
+  "short_name": "SethSathi",
+  "description": "Simple, reliable accounts, billing and stock for your shop and wholesale business, with Munshi AI.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#4c1d95",
-  "theme_color": "#6d28d9",
+  "background_color": "#fbf9f5",
+  "theme_color": "#fbf9f5",
   "icons": [
     {
       "src": "/logo-192.png",

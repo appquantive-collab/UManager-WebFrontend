@@ -1,20 +1,44 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Package, ReceiptText, Sparkles, Store } from "lucide-react";
+import { useAuthStore } from "../lib/auth-store";
+import { useSplashStore } from "../lib/splash-store";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const MIN_VISIBLE_MS = 3000;
-const FADE_MS = 350;
+const WELCOMED_KEY = "sethsathi.welcomed";
+const BRIEF_VISIBLE_MS = 2200;
+const FADE_MS = 400;
 
+function hasBeenWelcomed(): boolean {
+  try {
+    return localStorage.getItem(WELCOMED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markWelcomed() {
+  try {
+    localStorage.setItem(WELCOMED_KEY, "1");
+  } catch {
+    // Storage can be unavailable (private mode); the welcome just shows again next time.
+  }
+}
+
+// First visit: an interactive welcome (language choice + "Get started").
+// Every later load: the same screen as a brief, non-interactive splash.
 export function SplashScreen({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
+  const isSignedIn = useAuthStore((state) => Boolean(state.user));
+  const finishSplash = useSplashStore((state) => state.finish);
+  const [mode] = useState<"welcome" | "brief">(() => (hasBeenWelcomed() ? "brief" : "welcome"));
   const [phase, setPhase] = useState<"show" | "fade" | "hidden">("show");
 
   useEffect(() => {
-    if (phase !== "show") return;
-
-    const timer = setTimeout(() => {
-      setPhase("fade");
-    }, MIN_VISIBLE_MS);
-
+    if (mode !== "brief" || phase !== "show") return;
+    const timer = setTimeout(() => setPhase("fade"), BRIEF_VISIBLE_MS);
     return () => clearTimeout(timer);
-  }, [phase]);
+  }, [mode, phase]);
 
   useEffect(() => {
     if (phase !== "fade") return;
@@ -22,103 +46,136 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [phase]);
 
+  useEffect(() => {
+    if (phase === "hidden") finishSplash();
+  }, [phase, finishSplash]);
+
+  const start = () => {
+    markWelcomed();
+    setPhase("fade");
+  };
+
+  const features = [
+    { icon: Sparkles, label: t("splash.featureAi"), tone: "bg-primary-container text-primary" },
+    { icon: ReceiptText, label: t("splash.featureBilling"), tone: "bg-warning-container text-warning" },
+    { icon: Package, label: t("splash.featureStock"), tone: "bg-secondary-container text-on-secondary-container" },
+  ];
+
+  const isWelcome = mode === "welcome";
+
   return (
     <>
       {children}
       {phase !== "hidden" && (
         <div
-          className="fixed inset-0 z-100 flex flex-col overflow-hidden bg-background transition-opacity"
-          style={{
-            opacity: phase === "fade" ? 0 : 1,
-            transitionDuration: `${FADE_MS}ms`,
-          }}
-          aria-hidden="true"
+          className="fixed inset-0 z-100 overflow-hidden bg-background transition-opacity"
+          style={{ opacity: phase === "fade" ? 0 : 1, transitionDuration: `${FADE_MS}ms` }}
+          {...(isWelcome
+            ? { role: "dialog", "aria-modal": true, "aria-label": t("brand.name") }
+            : { "aria-hidden": true })}
         >
-          {/* Dot-grid texture, matching the reference splash's engineered/technical feel */}
-          <div
-            className="pointer-events-none absolute inset-0 opacity-60"
-            style={{
-              backgroundImage: "radial-gradient(var(--color-border) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
-              maskImage: "radial-gradient(circle at center, black, transparent 70%)",
-            }}
-          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1 bg-linear-to-r from-primary-hover via-warning to-primary-hover" />
 
-          <div className="relative flex items-center justify-center pt-[max(1.5rem,env(safe-area-inset-top))]">
-            <span
-              className="font-label text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted opacity-0"
-              style={{ animation: "splash-fade-up 400ms ease-out 100ms forwards" }}
-            >
-              System 4.2 Initializing
-            </span>
-          </div>
-
-          <div className="relative flex flex-1 flex-col items-center justify-center px-6">
-            <div className="relative flex h-24 w-24 items-center justify-center">
-              <div
-                className="absolute inset-0 rounded-3xl opacity-70 blur-2xl"
-                style={{ background: "radial-gradient(closest-side, var(--color-primary-container), transparent)" }}
-              />
-              <div
-                className="absolute inset-0 rounded-3xl border-2 border-primary/25"
-                style={{ animation: "splash-ring-pulse 2200ms ease-in-out infinite" }}
-              />
-              <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-surface shadow-elevation-3">
-                <img
-                  src="/logo-192.png"
-                  alt=""
-                  className="h-11 w-11 object-contain"
-                  style={{ animation: "splash-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-                />
-              </div>
-            </div>
-
-            <span
-              className="relative mt-6 font-headline text-xl font-bold tracking-tight text-text opacity-0"
-              style={{ animation: "splash-fade-up 500ms ease-out 200ms forwards" }}
-            >
-              UManager
-            </span>
-            <span
-              className="relative mt-1 text-sm text-text-muted opacity-0"
-              style={{ animation: "splash-fade-up 500ms ease-out 300ms forwards" }}
-            >
-              Intelligent Wholesale OS
-            </span>
-
-            <span
-              className="relative mt-7 h-1.5 w-1.5 rounded-full bg-primary opacity-0"
-              style={{ animation: "splash-fade-up 400ms ease-out 450ms forwards, splash-dot-pulse 1100ms ease-in-out 850ms infinite" }}
+          {/* Photo: top of the screen on phones, left half on desktop. */}
+          <div className="absolute inset-x-0 top-0 h-[60%] lg:inset-y-0 lg:right-auto lg:h-full lg:w-1/2">
+            <img
+              src="/splash-munshi.webp"
+              alt={t("splash.photoAlt")}
+              className="h-full w-full object-cover object-[center_18%]"
+              style={{ animation: "splash-photo-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) both" }}
             />
+            <div className="absolute inset-0 bg-linear-to-b from-background/0 via-background/15 to-background lg:bg-linear-to-r lg:via-background/0" />
           </div>
 
-          <div className="relative flex flex-col items-center gap-1 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
-            <span
-              className="flex items-center gap-1.5 font-label text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted opacity-0"
-              style={{ animation: "splash-fade-up 400ms ease-out 350ms forwards" }}
-            >
-              <ShieldIcon /> Enterprise Secured
+          <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 pt-[max(0.85rem,env(safe-area-inset-top))]">
+            <span className="flex items-center gap-2 rounded-full border border-border bg-surface/85 py-1 pl-1 pr-3 shadow-elevation-1 backdrop-blur-md">
+              <img src="/logo.svg" alt="" className="h-6 w-6 rounded-full" />
+              <span className="text-xs font-bold tracking-wide text-primary">{t("brand.assistantName")}</span>
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
             </span>
-            <span
-              className="text-[11px] text-text-muted/70 opacity-0"
-              style={{ animation: "splash-fade-up 400ms ease-out 400ms forwards" }}
-            >
-              Autonomous Inventory &amp; Billing
-            </span>
+            {isWelcome && !isSignedIn ? <LanguageSwitcher /> : null}
+          </header>
+
+          <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] lg:inset-y-0 lg:left-1/2 lg:items-center lg:pb-0">
+            <div className="flex w-full max-w-md flex-col items-center text-center">
+              <h1
+                className="text-[26px] font-extrabold leading-8.5 tracking-tight text-primary-hover opacity-0 lg:text-[40px] lg:leading-12"
+                style={{ animation: "splash-fade-up 500ms ease-out 250ms forwards" }}
+              >
+                {t("brand.name")}
+              </h1>
+              <p
+                className="mt-1 text-lg font-semibold leading-6.5 text-text-subtle opacity-0 lg:text-xl"
+                style={{ animation: "splash-fade-up 500ms ease-out 350ms forwards" }}
+              >
+                {t("splash.greeting")}
+              </p>
+              <p
+                className="mt-1 text-xs leading-4.5 text-secondary opacity-0 lg:text-sm"
+                style={{ animation: "splash-fade-up 500ms ease-out 420ms forwards" }}
+              >
+                {t("splash.tagline")}
+              </p>
+
+              <div
+                className="mt-6 grid w-full grid-cols-3 gap-2.5 opacity-0"
+                style={{ animation: "splash-fade-up 500ms ease-out 520ms forwards" }}
+              >
+                {features.map((feature) => (
+                  <div
+                    key={feature.label}
+                    className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface/90 p-3 shadow-elevation-1 backdrop-blur-md"
+                  >
+                    <span className={`mb-1.5 flex h-9 w-9 items-center justify-center rounded-lg ${feature.tone}`}>
+                      <feature.icon size={18} strokeWidth={2} />
+                    </span>
+                    <span className="text-[11px] font-bold leading-tight text-text">{feature.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {isWelcome ? (
+                <button
+                  type="button"
+                  onClick={start}
+                  autoFocus
+                  className="group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-4 text-sm font-bold tracking-wide text-on-primary opacity-0 shadow-elevation-3 outline-none transition-[transform,background-color] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+                  style={{ animation: "splash-fade-up 500ms ease-out 620ms forwards" }}
+                >
+                  {t("splash.start")}
+                  <ArrowRight size={19} className="transition-transform group-hover:translate-x-1" />
+                </button>
+              ) : (
+                <span className="mt-7 flex h-14 items-center justify-center gap-1.5" role="status">
+                  <span className="sr-only">{t("splash.loading")}</span>
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="h-2 w-2 rounded-full bg-primary"
+                      style={{ animation: `splash-dot-pulse 1100ms ease-in-out ${i * 160}ms infinite` }}
+                    />
+                  ))}
+                </span>
+              )}
+
+              <span
+                className="mt-4 flex items-center gap-1.5 text-[11px] font-medium text-text-subtle opacity-0"
+                style={{ animation: "splash-fade-up 500ms ease-out 700ms forwards" }}
+              >
+                <Store size={13} className="text-primary" />
+                {t("splash.madeFor")}
+              </span>
+            </div>
           </div>
 
           <style>{`
-            @keyframes splash-pop {
-              0% { opacity: 0; transform: scale(0.7); }
+            @keyframes splash-photo-in {
+              0% { opacity: 0; transform: scale(1.06); }
               100% { opacity: 1; transform: scale(1); }
             }
             @keyframes splash-fade-up {
-              0% { opacity: 0; transform: translateY(6px); }
+              0% { opacity: 0; transform: translateY(8px); }
               100% { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes splash-ring-pulse {
-              0%, 100% { transform: scale(1); opacity: 0.6; }
-              50% { transform: scale(1.08); opacity: 0.15; }
             }
             @keyframes splash-dot-pulse {
               0%, 100% { opacity: 1; transform: scale(1); }
@@ -128,13 +185,5 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
         </div>
       )}
     </>
-  );
-}
-
-function ShieldIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-    </svg>
   );
 }

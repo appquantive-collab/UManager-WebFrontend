@@ -16,36 +16,37 @@ import {
 } from "lucide-react";
 
 export interface NavItem {
-  label: string;
+  labelKey: string;
   path: string;
   icon: LucideIcon;
 }
 
 // Mirrors the Tenant Admin Navigation structure defined in CLAUDE.md section 11.
 // All paths live under /app — the authenticated tenant admin shell — since "/"
-// is the public marketing landing page.
+// is the public marketing landing page. `labelKey` resolves against the `nav`
+// namespace in src/locales/*.json via useTranslation().
 export const tenantNav: NavItem[] = [
-  { label: "Dashboard", path: "/app", icon: LayoutDashboard },
-  { label: "Sales", path: "/app/sales", icon: ShoppingCart },
-  { label: "Purchases", path: "/app/purchases", icon: Truck },
-  { label: "Inventory", path: "/app/inventory", icon: Package },
-  { label: "Customers", path: "/app/customers", icon: Users },
-  { label: "Suppliers", path: "/app/suppliers", icon: Building2 },
-  { label: "Warehouses", path: "/app/warehouses", icon: Warehouse },
-  { label: "Reports", path: "/app/reports", icon: BarChart3 },
-  { label: "AI", path: "/app/ai", icon: Sparkles },
-  { label: "Staff", path: "/app/staff", icon: UserCog },
-  { label: "Settings", path: "/app/settings", icon: Settings },
+  { labelKey: "nav.dashboard", path: "/app", icon: LayoutDashboard },
+  { labelKey: "nav.sales", path: "/app/sales", icon: ShoppingCart },
+  { labelKey: "nav.purchases", path: "/app/purchases", icon: Truck },
+  { labelKey: "nav.inventory", path: "/app/inventory", icon: Package },
+  { labelKey: "nav.customers", path: "/app/customers", icon: Users },
+  { labelKey: "nav.suppliers", path: "/app/suppliers", icon: Building2 },
+  { labelKey: "nav.warehouses", path: "/app/warehouses", icon: Warehouse },
+  { labelKey: "nav.reports", path: "/app/reports", icon: BarChart3 },
+  { labelKey: "nav.ai", path: "/app/ai", icon: Sparkles },
+  { labelKey: "nav.staff", path: "/app/staff", icon: UserCog },
+  { labelKey: "nav.settings", path: "/app/settings", icon: Settings },
 ];
 
 export const inventorySubNav: NavItem[] = [
-  { label: "Products", path: "/app/inventory", icon: Boxes },
+  { labelKey: "nav.products", path: "/app/inventory", icon: Boxes },
 ];
 
 // Condensed set for the mobile bottom bar — the full nav lives in the drawer.
 export const mobileBottomNav: NavItem[] = [
-  { label: "Home", path: "/app", icon: LayoutDashboard },
-  { label: "Sales", path: "/app/sales", icon: Receipt },
-  { label: "Stock", path: "/app/inventory", icon: Package },
-  { label: "Staff", path: "/app/staff", icon: UserCog },
+  { labelKey: "nav.home", path: "/app", icon: LayoutDashboard },
+  { labelKey: "nav.sales", path: "/app/sales", icon: Receipt },
+  { labelKey: "nav.stock", path: "/app/inventory", icon: Package },
+  { labelKey: "nav.staff", path: "/app/staff", icon: UserCog },
 ];

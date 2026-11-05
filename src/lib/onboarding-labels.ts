@@ -1,70 +1,18 @@
+import i18n from "./i18n";
 import type { BusinessCategory, BusinessGoal, CustomerType, OrderVolume } from "./auth-api";
 
-export const categoryLabels: Record<BusinessCategory, string> = {
-  fmcg: "FMCG",
-  electronics: "Electronics",
-  mobile_accessories: "Mobile & Accessories",
-  pharma: "Pharma",
-  apparel: "Apparel",
-  footwear: "Footwear",
-  textiles_fabric: "Textiles & Fabric",
-  auto_parts: "Auto Parts",
-  two_wheeler_parts: "Two-Wheeler Parts",
-  grocery: "Grocery",
-  hardware: "Hardware",
-  sanitary_plumbing: "Sanitary & Plumbing",
-  electrical_goods: "Electrical Goods",
-  paints_chemicals: "Paints & Chemicals",
-  building_materials: "Building Materials",
-  furniture: "Furniture",
-  musical_instruments: "Musical Instruments",
-  sports_goods: "Sports Goods",
-  toys_games: "Toys & Games",
-  stationery_books: "Stationery & Books",
-  gift_items: "Gift Items",
-  cosmetics_beauty: "Cosmetics & Beauty",
-  jewellery_artificial: "Jewellery (Artificial)",
-  bags_luggage: "Bags & Luggage",
-  kitchenware_utensils: "Kitchenware & Utensils",
-  plastic_goods: "Plastic Goods",
-  packaging_materials: "Packaging Materials",
-  confectionery_bakery: "Confectionery & Bakery",
-  dry_fruits_spices: "Dry Fruits & Spices",
-  tea_coffee: "Tea & Coffee",
-  dairy_products: "Dairy Products",
-  agro_seeds_fertilizers: "Agro, Seeds & Fertilizers",
-  cattle_feed: "Cattle Feed",
-  tiles_sanitaryware: "Tiles & Sanitaryware",
-  glass_hardware: "Glass & Hardware",
-  computer_it: "Computer & IT",
-  printing_stationery: "Printing & Stationery",
-  cleaning_supplies: "Cleaning Supplies",
-  fireworks: "Fireworks",
-  readymade_garments: "Readymade Garments",
-  saree_ethnic_wear: "Saree & Ethnic Wear",
-  watches_eyewear: "Watches & Eyewear",
-  religious_puja_items: "Religious & Puja Items",
-  other: "Other",
-};
+export function categoryLabel(value: BusinessCategory): string {
+  return i18n.t(`onboardingLabels.category.${value}`);
+}
 
-export const customerTypeLabels: Record<CustomerType, string> = {
-  wholesale: "Wholesale / B2B",
-  retail: "Retail",
-  both: "Both",
-};
+export function customerTypeLabel(value: CustomerType): string {
+  return i18n.t(`onboardingLabels.customerType.${value}`);
+}
 
-export const orderVolumeLabels: Record<OrderVolume, string> = {
-  lt_100: "< 100 orders/month",
-  "100_500": "100–500 orders/month",
-  "500_2000": "500–2,000 orders/month",
-  gt_2000: "2,000+ orders/month",
-};
+export function orderVolumeLabel(value: OrderVolume): string {
+  return i18n.t(`onboardingLabels.orderVolume.${value}`);
+}
 
-export const goalLabels: Record<BusinessGoal, string> = {
-  inventory_tracking: "Inventory tracking",
-  credit_payments: "Credit & payment collection",
-  multi_warehouse: "Multi-warehouse ops",
-  staff_management: "Staff & role management",
-  ai_insights: "AI-assisted insights",
-  reporting: "Reports & analytics",
-};
+export function goalLabel(value: BusinessGoal): string {
+  return i18n.t(`onboardingLabels.goal.${value}`);
+}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Building2, Phone, Plus, ShieldCheck, UserCog } from "lucide-react";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
@@ -13,28 +14,23 @@ import { listStaff, type StaffMember } from "../../lib/staff-api";
 import { AttendanceTab } from "./AttendanceTab";
 import { PayrollTab } from "./PayrollTab";
 
-const tabs = [
-  { key: "team", label: "Team" },
-  { key: "attendance", label: "Attendance" },
-  { key: "payroll", label: "Payroll" },
-];
-
-const filters = [
-  { key: "all", label: "All" },
-  { key: "active", label: "Active" },
-  { key: "suspended", label: "Suspended" },
-];
-
-const roleLabel: Record<StaffMember["role"], string> = {
-  MANAGER: "Manager",
-  SALESMAN: "Salesman",
-  WAREHOUSE_STAFF: "Warehouse Staff",
+const roleLabelKey: Record<StaffMember["role"], string> = {
+  MANAGER: "staff.roles.manager",
+  SALESMAN: "staff.roles.salesman",
+  WAREHOUSE_STAFF: "staff.roles.warehouseStaff",
 };
 
 function TeamTab() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+
+  const filters = [
+    { key: "all", label: t("staff.staffPage.filterAll") },
+    { key: "active", label: t("staff.staffPage.filterActive") },
+    { key: "suspended", label: t("staff.staffPage.filterSuspended") },
+  ];
 
   const staffQuery = useQuery({ queryKey: ["staff"], queryFn: listStaff });
   const staff = staffQuery.data ?? [];
@@ -55,23 +51,23 @@ function TeamTab() {
       <div className="flex justify-end">
         <Button onClick={() => navigate("/app/staff/new")}>
           <Plus size={16} className="mr-1.5" strokeWidth={2.5} />
-          Add Staff
+          {t("staff.staffPage.addStaff")}
         </Button>
       </div>
 
       <div className="flex items-center gap-3 rounded-2xl bg-surface p-3 shadow-elevation-1">
-        <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search staff by name or phone…" />
+        <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("staff.staffPage.searchPlaceholder")} />
         <SegmentedControl segments={filters} active={filter} onChange={setFilter} />
       </div>
 
       {staffQuery.isLoading ? (
-        <p className="p-6 text-sm text-text-muted">Loading staff…</p>
+        <p className="p-6 text-sm text-text-muted">{t("staff.staffPage.loadingStaff")}</p>
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={UserCog}
-          title="No staff members found"
-          description="Try a different search or filter, or add your first team member."
-          action={<Button onClick={() => navigate("/app/staff/new")}>Add Staff</Button>}
+          title={t("staff.staffPage.noStaffFound")}
+          description={t("staff.staffPage.noStaffFoundDescription")}
+          action={<Button onClick={() => navigate("/app/staff/new")}>{t("staff.staffPage.addStaff")}</Button>}
         />
       ) : (
         <div className="space-y-3">
@@ -87,7 +83,9 @@ function TeamTab() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-text">{member.name}</span>
-                    <Badge tone={member.isActive ? "success" : "danger"}>{member.isActive ? "Active" : "Suspended"}</Badge>
+                    <Badge tone={member.isActive ? "success" : "danger"}>
+                      {member.isActive ? t("staff.staffPage.active") : t("staff.staffPage.suspended")}
+                    </Badge>
                   </div>
                   {member.phone ? (
                     <div className="mt-1 flex items-center gap-1.5 text-sm text-text-muted">
@@ -98,7 +96,7 @@ function TeamTab() {
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
                     <span className="flex items-center gap-1.5">
                       <ShieldCheck size={13} />
-                      {roleLabel[member.role]}
+                      {t(roleLabelKey[member.role])}
                     </span>
                     {member.departmentId ? (
                       <span className="flex items-center gap-1.5">
@@ -107,7 +105,7 @@ function TeamTab() {
                       </span>
                     ) : null}
                     {member.designationId ? <span>{member.designationId.title}</span> : null}
-                    <span>{member.payType === "salary" ? "Salaried" : "Daily wage"}</span>
+                    <span>{member.payType === "salary" ? t("staff.staffPage.salaried") : t("staff.staffPage.dailyWage")}</span>
                   </div>
                 </div>
               </div>
@@ -120,7 +118,14 @@ function TeamTab() {
 }
 
 export function StaffPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("team");
+
+  const tabs = [
+    { key: "team", label: t("staff.staffPage.tabTeam") },
+    { key: "attendance", label: t("staff.staffPage.tabAttendance") },
+    { key: "payroll", label: t("staff.staffPage.tabPayroll") },
+  ];
 
   return (
     <div className="space-y-4">

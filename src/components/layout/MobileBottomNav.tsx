@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
 import { mobileBottomNav } from "../../lib/nav";
@@ -8,6 +9,7 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ onQuickAction }: MobileBottomNavProps) {
+  const { t } = useTranslation();
   const [home, sales, stock, staff] = mobileBottomNav;
   const left = [home, sales];
   const right = [stock, staff];
@@ -25,7 +27,7 @@ export function MobileBottomNav({ onQuickAction }: MobileBottomNavProps) {
         {left.map((item) => (
           <NavLink key={item.path} to={item.path} end={item.path === "/app"} className={linkClass}>
             <item.icon size={22} strokeWidth={1.9} />
-            <span className="font-label text-[10px] font-semibold tracking-tight">{item.label}</span>
+            <span className="font-label text-[10px] font-semibold tracking-tight">{t(item.labelKey)}</span>
           </NavLink>
         ))}
 
@@ -38,13 +40,15 @@ export function MobileBottomNav({ onQuickAction }: MobileBottomNavProps) {
           >
             <Plus size={26} strokeWidth={2.5} />
           </button>
-          <span className="mt-7 font-label text-[10px] font-medium tracking-tight text-text-muted">Create</span>
+          <span className="mt-7 font-label text-[10px] font-medium tracking-tight text-text-muted">
+            {t("quickActions.create")}
+          </span>
         </div>
 
         {right.map((item) => (
           <NavLink key={item.path} to={item.path} className={linkClass}>
             <item.icon size={22} strokeWidth={1.9} />
-            <span className="font-label text-[10px] font-semibold tracking-tight">{item.label}</span>
+            <span className="font-label text-[10px] font-semibold tracking-tight">{t(item.labelKey)}</span>
           </NavLink>
         ))}
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2 } from "lucide-react";
 
 interface SuccessModalProps {
@@ -10,6 +11,7 @@ interface SuccessModalProps {
 }
 
 export function SuccessModal({ open, title, message, redirectSeconds = 3, onComplete }: SuccessModalProps) {
+  const { t } = useTranslation();
   const [secondsLeft, setSecondsLeft] = useState(redirectSeconds);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export function SuccessModal({ open, title, message, redirectSeconds = 3, onComp
         <p className="mt-1.5 text-sm text-text-muted">{message}</p>
 
         <p className="mt-5 text-xs font-medium text-text-muted">
-          Redirecting to your dashboard in {secondsLeft}s…
+          {t("ui.successModal.redirecting", { seconds: secondsLeft })}
         </p>
 
         <style>{`

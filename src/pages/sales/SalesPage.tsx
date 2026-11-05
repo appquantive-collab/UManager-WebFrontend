@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, Plus, ShoppingCart, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -14,14 +15,6 @@ import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
 import { useNewOrderModalStore } from "../../lib/new-order-store";
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 
-const tabs = [
-  { key: "orders", label: "Orders" },
-  { key: "invoices", label: "Invoices" },
-  { key: "quotations", label: "Quotations" },
-  { key: "returns", label: "Returns" },
-  { key: "payments", label: "Payments" },
-];
-
 const orderStatusTone = {
   pending: "warning",
   confirmed: "info",
@@ -29,39 +22,34 @@ const orderStatusTone = {
   cancelled: "danger",
 } as const;
 
-const orderStatusLabel: Record<Order["status"], string> = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  delivered: "Billed",
-  cancelled: "Cancelled",
-};
-
 const paymentStatusTone = {
   unpaid: "danger",
   partial: "warning",
   paid: "success",
 } as const;
 
-const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
-  unpaid: "Unpaid",
-  partial: "Partial",
-  paid: "Paid",
-};
-
-function customerName(entity: { customerId: { name: string } | string }): string {
-  return typeof entity.customerId === "string" ? "Unknown customer" : entity.customerId.name;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
-
 function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
+  const { t } = useTranslation();
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const ordersQuery = useQuery({ queryKey: ["orders"], queryFn: () => listOrders() });
 
+  const orderStatusLabel: Record<Order["status"], string> = {
+    pending: t("sales.salesPage.statusLabel.pending"),
+    confirmed: t("sales.salesPage.statusLabel.confirmed"),
+    delivered: t("sales.salesPage.statusLabel.delivered"),
+    cancelled: t("sales.salesPage.statusLabel.cancelled"),
+  };
+
+  function customerName(entity: { customerId: { name: string } | string }): string {
+    return typeof entity.customerId === "string" ? t("sales.salesPage.unknownCustomer") : entity.customerId.name;
+  }
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  }
+
   if (ordersQuery.isLoading) {
-    return <p className="p-6 text-sm text-text-muted">Loading orders…</p>;
+    return <p className="p-6 text-sm text-text-muted">{t("sales.salesPage.loadingOrders")}</p>;
   }
 
   const orders = ordersQuery.data ?? [];
@@ -70,9 +58,9 @@ function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
     return (
       <EmptyState
         icon={ShoppingCart}
-        title="No sales orders yet"
-        description="Create your first sales order to start tracking orders and invoices."
-        action={<Button onClick={openNewOrder}>New order</Button>}
+        title={t("sales.salesPage.noOrdersYetTitle")}
+        description={t("sales.salesPage.noOrdersYetDescription")}
+        action={<Button onClick={openNewOrder}>{t("sales.salesPage.newOrder")}</Button>}
       />
     );
   }
@@ -82,12 +70,12 @@ function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
       <table className="w-full min-w-max text-sm">
         <thead>
           <tr className="text-left text-xs font-medium uppercase tracking-wide text-text-muted">
-            <th className="px-4 py-3">Customer</th>
-            <th className="px-4 py-3">Items</th>
-            <th className="px-4 py-3">Source</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Amount</th>
-            <th className="px-4 py-3 text-right">Date</th>
+            <th className="px-4 py-3">{t("sales.salesPage.customer")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.items")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.source")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.status")}</th>
+            <th className="px-4 py-3 text-right">{t("sales.salesPage.amount")}</th>
+            <th className="px-4 py-3 text-right">{t("sales.salesPage.date")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-surface-variant">
@@ -99,7 +87,7 @@ function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
             >
               <td className="px-4 py-3 font-medium text-text">{customerName(order)}</td>
               <td className="px-4 py-3 text-text-muted">{order.items.length}</td>
-              <td className="px-4 py-3 text-text-muted">{order.source === "ai_parsed" ? "AI Order" : "Manual"}</td>
+              <td className="px-4 py-3 text-text-muted">{order.source === "ai_parsed" ? t("sales.salesPage.aiOrder") : t("sales.salesPage.manual")}</td>
               <td className="px-4 py-3">
                 <Badge tone={orderStatusTone[order.status]}>{orderStatusLabel[order.status]}</Badge>
               </td>
@@ -114,11 +102,26 @@ function OrdersTable({ onSelect }: { onSelect: (order: Order) => void }) {
 }
 
 function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
+  const { t } = useTranslation();
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
   const invoicesQuery = useQuery({ queryKey: ["invoices"], queryFn: listInvoices });
 
+  const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
+    unpaid: t("sales.salesPage.paymentStatusLabel.unpaid"),
+    partial: t("sales.salesPage.paymentStatusLabel.partial"),
+    paid: t("sales.salesPage.paymentStatusLabel.paid"),
+  };
+
+  function customerName(entity: { customerId: { name: string } | string }): string {
+    return typeof entity.customerId === "string" ? t("sales.salesPage.unknownCustomer") : entity.customerId.name;
+  }
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  }
+
   if (invoicesQuery.isLoading) {
-    return <p className="p-6 text-sm text-text-muted">Loading invoices…</p>;
+    return <p className="p-6 text-sm text-text-muted">{t("sales.salesPage.loadingInvoices")}</p>;
   }
 
   const invoices = invoicesQuery.data ?? [];
@@ -127,9 +130,9 @@ function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
     return (
       <EmptyState
         icon={FileText}
-        title="No invoices yet"
-        description="Bill a customer to generate your first invoice."
-        action={<Button onClick={openNewSale}>New sale</Button>}
+        title={t("sales.salesPage.noInvoicesYetTitle")}
+        description={t("sales.salesPage.noInvoicesYetDescription")}
+        action={<Button onClick={openNewSale}>{t("sales.salesPage.newSale")}</Button>}
       />
     );
   }
@@ -139,12 +142,12 @@ function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
       <table className="w-full min-w-max text-sm">
         <thead>
           <tr className="text-left text-xs font-medium uppercase tracking-wide text-text-muted">
-            <th className="px-4 py-3">Invoice</th>
-            <th className="px-4 py-3">Customer</th>
-            <th className="px-4 py-3">Type</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Amount</th>
-            <th className="px-4 py-3 text-right">Date</th>
+            <th className="px-4 py-3">{t("sales.salesPage.invoice")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.customer")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.type")}</th>
+            <th className="px-4 py-3">{t("sales.salesPage.status")}</th>
+            <th className="px-4 py-3 text-right">{t("sales.salesPage.amount")}</th>
+            <th className="px-4 py-3 text-right">{t("sales.salesPage.date")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-surface-variant">
@@ -156,7 +159,7 @@ function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
             >
               <td className="px-4 py-3 font-medium text-text">{invoice.invoiceNumber}</td>
               <td className="px-4 py-3 text-text">{customerName(invoice)}</td>
-              <td className="px-4 py-3 text-text-muted">{invoice.billType === "gst" ? "GST" : "Record"}</td>
+              <td className="px-4 py-3 text-text-muted">{invoice.billType === "gst" ? t("sales.salesPage.gst") : t("sales.salesPage.record")}</td>
               <td className="px-4 py-3">
                 <Badge tone={paymentStatusTone[invoice.paymentStatus]}>{paymentStatusLabel[invoice.paymentStatus]}</Badge>
               </td>
@@ -171,17 +174,27 @@ function InvoicesTable({ onSelect }: { onSelect: (invoice: Invoice) => void }) {
 }
 
 function ComingSoon({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
-    <EmptyState icon={FileText} title={`${label} coming soon`} description="This section is being designed." />
+    <EmptyState icon={FileText} title={t("sales.salesPage.comingSoon", { label })} description={t("sales.salesPage.beingDesigned")} />
   );
 }
 
 export function SalesPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("orders");
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const tabs = [
+    { key: "orders", label: t("sales.salesPage.tabs.orders") },
+    { key: "invoices", label: t("sales.salesPage.tabs.invoices") },
+    { key: "quotations", label: t("sales.salesPage.tabs.quotations") },
+    { key: "returns", label: t("sales.salesPage.tabs.returns") },
+    { key: "payments", label: t("sales.salesPage.tabs.payments") },
+  ];
 
   return (
     <>
@@ -193,11 +206,11 @@ export function SalesPage() {
         <div className="flex justify-end gap-2.5">
           <Button variant="secondary" onClick={openNewOrder}>
             <Sparkles size={16} className="mr-1.5" strokeWidth={2} />
-            New order
+            {t("sales.salesPage.newOrder")}
           </Button>
           <Button onClick={openNewSale}>
             <Plus size={16} className="mr-1.5" strokeWidth={2} />
-            New sale
+            {t("sales.salesPage.newSale")}
           </Button>
         </div>
 
@@ -205,9 +218,9 @@ export function SalesPage() {
 
         {tab === "orders" && <OrdersTable onSelect={setSelectedOrder} />}
         {tab === "invoices" && <InvoicesTable onSelect={setSelectedInvoice} />}
-        {tab === "quotations" && <ComingSoon label="Quotations" />}
-        {tab === "returns" && <ComingSoon label="Returns" />}
-        {tab === "payments" && <ComingSoon label="Payments" />}
+        {tab === "quotations" && <ComingSoon label={t("sales.salesPage.quotationsLabel")} />}
+        {tab === "returns" && <ComingSoon label={t("sales.salesPage.returnsLabel")} />}
+        {tab === "payments" && <ComingSoon label={t("sales.salesPage.paymentsLabel")} />}
       </div>
 
       <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />

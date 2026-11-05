@@ -19,6 +19,7 @@ export interface RegisterInput {
   email: string;
   password: string;
   phone?: string;
+  preferredLanguage?: AuthUser["preferredLanguage"];
 }
 
 export function login(input: LoginInput): Promise<AuthSession> {
@@ -28,10 +29,17 @@ export function login(input: LoginInput): Promise<AuthSession> {
   });
 }
 
-export function loginByPhone(phone: string, password: string): Promise<AuthSession> {
-  return apiFetch<AuthSession>("/auth/login-phone", {
+export function requestLoginOtp(phone: string): Promise<{ resendAfterSeconds: number; expiresInSeconds: number }> {
+  return apiFetch("/auth/otp/request", {
     method: "POST",
-    body: JSON.stringify({ phone, password }),
+    body: JSON.stringify({ phone }),
+  });
+}
+
+export function verifyLoginOtp(phone: string, code: string): Promise<AuthSession> {
+  return apiFetch<AuthSession>("/auth/otp/verify", {
+    method: "POST",
+    body: JSON.stringify({ phone, code }),
   });
 }
 
@@ -129,6 +137,7 @@ export interface Profile {
   email: string;
   phone: string | null;
   role: AuthUser["role"];
+  preferredLanguage: AuthUser["preferredLanguage"];
   tenant: {
     tenantId: string;
     businessName: string;
@@ -143,4 +152,13 @@ export interface Profile {
 
 export function getProfile(): Promise<Profile> {
   return apiFetch<Profile>("/auth/me");
+}
+
+export function updateProfile(patch: { preferredLanguage?: AuthUser["preferredLanguage"] }): Promise<{
+  preferredLanguage: AuthUser["preferredLanguage"];
+}> {
+  return apiFetch("/auth/me", {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
 }

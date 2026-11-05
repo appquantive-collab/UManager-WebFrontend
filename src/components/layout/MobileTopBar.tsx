@@ -1,4 +1,5 @@
 import { Bell, ChevronDown, Menu, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface MobileTopBarProps {
   businessName: string;
@@ -17,12 +18,14 @@ export function MobileTopBar({
   onNotificationsClick,
   userInitials,
 }: MobileTopBarProps) {
+  const { t } = useTranslation();
+
   return (
     <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-2 border-b border-border bg-surface/95 px-3 py-2.5 backdrop-blur-md lg:hidden">
       <button
         type="button"
         onClick={onMenuClick}
-        aria-label="Open navigation"
+        aria-label={t("layoutExtra.mobileTopBar.openNavigation")}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
       >
         <Menu size={18} />
@@ -42,7 +45,7 @@ export function MobileTopBar({
             </button>
             <span className="flex shrink-0 items-center gap-1 rounded-full bg-success-container px-1.5 py-0.5 font-label text-[9px] font-bold text-success">
               <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              LIVE
+              {t("layoutExtra.mobileTopBar.live")}
             </span>
           </div>
           <div className="flex items-center gap-1 truncate font-label text-[11px] text-text-muted">
@@ -55,7 +58,7 @@ export function MobileTopBar({
         <button
           type="button"
           onClick={onSearchClick}
-          aria-label="Search"
+          aria-label={t("layoutExtra.mobileTopBar.search")}
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <Search size={18} />
@@ -63,7 +66,7 @@ export function MobileTopBar({
         <button
           type="button"
           onClick={onNotificationsClick}
-          aria-label="Notifications"
+          aria-label={t("layoutExtra.mobileTopBar.notifications")}
           className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <Bell size={18} />

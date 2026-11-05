@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Calendar, CheckCircle2, Wallet } from "lucide-react";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -13,15 +14,16 @@ import {
   type PayrollRecord,
 } from "../../lib/payroll-api";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
 
 function currentMonthIso(): string {
   return new Date().toISOString().slice(0, 7);
 }
 
 export function PayrollTab() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [month, setMonth] = useState(currentMonthIso());
-  const [error, setError] = useState<string | null>(null);
 
   const staffQuery = useQuery({ queryKey: ["staff"], queryFn: listStaff });
   const payrollQuery = useQuery({ queryKey: ["payroll", month], queryFn: () => listPayroll({ month }) });
@@ -39,17 +41,19 @@ export function PayrollTab() {
   const generateMutation = useMutation({
     mutationFn: (staffId: string) => generatePayroll({ staffId, month }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payroll", month] }),
-    onError: (err) => setError(err instanceof ApiError ? err.message : "Could not generate payroll."),
+    onError: (err) => showError(err instanceof ApiError ? err.message : t("staff.payrollTab.couldNotGeneratePayroll")),
   });
 
   const generateAllMutation = useMutation({
     mutationFn: () => generatePayrollForAll(month),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payroll", month] }),
+    onError: (err) => showError(err instanceof ApiError ? err.message : t("staff.payrollTab.couldNotGeneratePayrollForAll")),
   });
 
   const payMutation = useMutation({
     mutationFn: (id: string) => recordPayrollPayment(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payroll", month] }),
+    onError: (err) => showError(err instanceof ApiError ? err.message : t("staff.payrollTab.couldNotRecordPayment")),
   });
 
   const totalNet = (payrollQuery.data ?? []).reduce((sum, r) => sum + r.netAmount, 0);
@@ -70,37 +74,37 @@ export function PayrollTab() {
           />
         </div>
         <Button isLoading={generateAllMutation.isPending} onClick={() => generateAllMutation.mutate()}>
-          Generate for all staff
+          {t("staff.payrollTab.generateForAllStaff")}
         </Button>
       </div>
 
       {generateAllMutation.data && generateAllMutation.data.skipped.length > 0 ? (
         <div className="rounded-lg border border-warning/40 bg-warning-container/20 px-4 py-3 text-sm text-warning">
-          Skipped {generateAllMutation.data.skipped.length}:{" "}
-          {generateAllMutation.data.skipped.map((s) => `${s.name} (${s.reason})`).join(", ")}
+          {t("staff.payrollTab.skipped", {
+            count: generateAllMutation.data.skipped.length,
+            details: generateAllMutation.data.skipped.map((s) => `${s.name} (${s.reason})`).join(", "),
+          })}
         </div>
       ) : null}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-text-muted">Total payroll ({month})</p>
+          <p className="text-xs text-text-muted">{t("staff.payrollTab.totalPayroll", { month })}</p>
           <p className="mt-1 text-lg font-bold text-text">{formatCurrency(totalNet)}</p>
         </div>
         <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-xs text-text-muted">Unpaid</p>
+          <p className="text-xs text-text-muted">{t("staff.payrollTab.unpaid")}</p>
           <p className={`mt-1 text-lg font-bold ${totalUnpaid > 0 ? "text-danger" : "text-text"}`}>
             {formatCurrency(totalUnpaid)}
           </p>
         </div>
       </div>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-
       {staffQuery.isLoading || payrollQuery.isLoading ? (
-        <p className="p-6 text-sm text-text-muted">Loading payroll…</p>
+        <p className="p-6 text-sm text-text-muted">{t("staff.payrollTab.loadingPayroll")}</p>
       ) : activeStaff.length === 0 ? (
         <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
-          No active staff members yet.
+          {t("staff.payrollTab.noActiveStaff")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -114,8 +118,10 @@ export function PayrollTab() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-text">{member.name}</p>
                   <p className="text-xs text-text-muted">
-                    {member.payType === "salary" ? "Salaried" : "Daily wage"}
-                    {record ? ` · ${record.presentDays} present, ${record.halfDays} half-day` : ""}
+                    {member.payType === "salary" ? t("staff.payrollTab.salaried") : t("staff.payrollTab.dailyWage")}
+                    {record
+                      ? ` · ${t("staff.payrollTab.presentHalfDay", { present: record.presentDays, halfDays: record.halfDays })}`
+                      : ""}
                   </p>
                 </div>
 
@@ -124,7 +130,7 @@ export function PayrollTab() {
                     <div className="text-right">
                       <p className="text-sm font-semibold text-text">{formatCurrency(record.netAmount)}</p>
                       <Badge tone={record.status === "paid" ? "success" : "warning"}>
-                        {record.status === "paid" ? "Paid" : "Unpaid"}
+                        {record.status === "paid" ? t("staff.payrollTab.paid") : t("staff.payrollTab.unpaid")}
                       </Badge>
                     </div>
                     {record.status === "unpaid" ? (
@@ -134,7 +140,7 @@ export function PayrollTab() {
                         onClick={() => payMutation.mutate(record._id)}
                       >
                         <Wallet size={14} className="mr-1.5" />
-                        Mark paid
+                        {t("staff.payrollTab.markPaid")}
                       </Button>
                     ) : (
                       <CheckCircle2 size={18} className="text-success" />
@@ -144,12 +150,9 @@ export function PayrollTab() {
                   <Button
                     variant="secondary"
                     isLoading={generateMutation.isPending}
-                    onClick={() => {
-                      setError(null);
-                      generateMutation.mutate(member._id);
-                    }}
+                    onClick={() => generateMutation.mutate(member._id)}
                   >
-                    Generate
+                    {t("staff.payrollTab.generate")}
                   </Button>
                 )}
               </div>

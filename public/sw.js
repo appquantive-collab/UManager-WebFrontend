@@ -1,4 +1,4 @@
-const CACHE = "umanager-shell-v5";
+const CACHE = "sethsathi-shell-v6";
 // Replaced at build time with the hashed asset list (see vite.config.ts).
 const SHELL = ["/", "/manifest.webmanifest", "/logo-192.png", "/logo-512.png"];
 

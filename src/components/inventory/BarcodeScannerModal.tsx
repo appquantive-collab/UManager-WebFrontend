@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { X } from "lucide-react";
 
@@ -11,6 +12,7 @@ export function BarcodeScannerModal({
   onClose: () => void;
   onScan: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const controlsRef = useRef<{ stop: () => void } | null>(null);
@@ -34,7 +36,7 @@ export function BarcodeScannerModal({
           }
           // NotFoundException fires continuously while no code is in frame — not a real error.
           if (err && err.name !== "NotFoundException") {
-            setError("Could not access the camera. Check permissions and try again.");
+            setError(t("inventory.barcodeScanner.cameraError"));
           }
         }
       )
@@ -42,7 +44,7 @@ export function BarcodeScannerModal({
         controlsRef.current = controls;
       })
       .catch(() => {
-        setError("Could not access the camera. Check permissions and try again.");
+        setError(t("inventory.barcodeScanner.cameraError"));
       });
 
     return () => {
@@ -57,11 +59,11 @@ export function BarcodeScannerModal({
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4">
       <div className="relative w-full max-w-sm rounded-2xl bg-surface p-4 shadow-elevation-3">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-bold text-text">Scan barcode / QR</h2>
+          <h2 className="text-base font-bold text-text">{t("inventory.barcodeScanner.title")}</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("inventory.barcodeScanner.close")}
             className="rounded-full p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <X size={18} />
@@ -75,7 +77,7 @@ export function BarcodeScannerModal({
         {error ? (
           <p className="mt-3 text-sm text-danger">{error}</p>
         ) : (
-          <p className="mt-3 text-center text-sm text-text-muted">Point the camera at a barcode or QR code.</p>
+          <p className="mt-3 text-center text-sm text-text-muted">{t("inventory.barcodeScanner.hint")}</p>
         )}
       </div>
     </div>

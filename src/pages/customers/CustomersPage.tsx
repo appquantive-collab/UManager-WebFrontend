@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Phone, Plus, Users } from "lucide-react";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
@@ -24,6 +25,7 @@ function formatDate(iso: string | null): string {
 }
 
 export function CustomersPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export function CustomersPage() {
       {/* Mobile */}
       <div className="space-y-3 lg:hidden">
         <div className="flex items-center gap-2">
-          <SearchInput placeholder="Search parties…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <SearchInput placeholder={t("customers.customersPage.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
         <button
@@ -49,17 +51,17 @@ export function CustomersPage() {
           className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-primary text-on-primary shadow-elevation-1 outline-none transition-colors active:scale-[0.98] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <Plus size={16} />
-          <span className="font-label text-[12px] font-bold uppercase tracking-wide">Add customer</span>
+          <span className="font-label text-[12px] font-bold uppercase tracking-wide">{t("customers.customersPage.addCustomer")}</span>
         </button>
 
         {customersQuery.isLoading ? (
-          <p className="py-8 text-center text-sm text-text-muted">Loading parties…</p>
+          <p className="py-8 text-center text-sm text-text-muted">{t("customers.customersPage.loadingParties")}</p>
         ) : customers.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No customers yet"
-            description="Add your first customer to start recording orders and tracking credit."
-            action={<Button onClick={() => setAddOpen(true)}>Add customer</Button>}
+            title={t("customers.customersPage.emptyTitle")}
+            description={t("customers.customersPage.emptyDescriptionMobile")}
+            action={<Button onClick={() => setAddOpen(true)}>{t("customers.customersPage.addCustomer")}</Button>}
           />
         ) : (
           <div className="space-y-3">
@@ -74,22 +76,22 @@ export function CustomersPage() {
       <div className="hidden space-y-6 lg:block">
         <div className="flex items-center justify-between gap-3">
           <div className="w-72">
-            <SearchInput placeholder="Search parties…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <SearchInput placeholder={t("customers.customersPage.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <Button onClick={() => setAddOpen(true)}>
             <Plus size={16} className="mr-1.5" strokeWidth={2} />
-            Add customer
+            {t("customers.customersPage.addCustomer")}
           </Button>
         </div>
 
         {customersQuery.isLoading ? (
-          <p className="p-6 text-sm text-text-muted">Loading parties…</p>
+          <p className="p-6 text-sm text-text-muted">{t("customers.customersPage.loadingParties")}</p>
         ) : customers.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No customers yet"
-            description="Add your first customer to start recording sales and tracking credit."
-            action={<Button onClick={() => setAddOpen(true)}>Add customer</Button>}
+            title={t("customers.customersPage.emptyTitle")}
+            description={t("customers.customersPage.emptyDescriptionDesktop")}
+            action={<Button onClick={() => setAddOpen(true)}>{t("customers.customersPage.addCustomer")}</Button>}
           />
         ) : (
           <div className="space-y-3">
@@ -115,11 +117,11 @@ export function CustomersPage() {
 
                 <div className="flex flex-wrap items-center gap-6 sm:gap-8">
                   <div className="text-left sm:text-right">
-                    <div className="text-xs text-text-muted">Total Purchases</div>
+                    <div className="text-xs text-text-muted">{t("customers.customersPage.totalPurchases")}</div>
                     <div className="mt-0.5 text-sm font-medium text-text">{formatCurrency(customer.totalPurchases)}</div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <div className="text-xs text-text-muted">Outstanding</div>
+                    <div className="text-xs text-text-muted">{t("customers.customersPage.outstanding")}</div>
                     <div className="mt-0.5">
                       {customer.outstanding > 0 ? (
                         <Badge tone={creditTone(customer.outstanding, customer.creditLimit)}>
@@ -131,11 +133,11 @@ export function CustomersPage() {
                     </div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <div className="text-xs text-text-muted">Credit Limit</div>
+                    <div className="text-xs text-text-muted">{t("customers.customersPage.creditLimit")}</div>
                     <div className="mt-0.5 text-sm font-medium text-text">{formatCurrency(customer.creditLimit)}</div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <div className="text-xs text-text-muted">Last Purchase</div>
+                    <div className="text-xs text-text-muted">{t("customers.customersPage.lastPurchase")}</div>
                     <div className="mt-0.5 text-sm text-text-muted">{formatDate(customer.lastPurchaseAt)}</div>
                   </div>
                 </div>
@@ -152,6 +154,7 @@ export function CustomersPage() {
 }
 
 function CustomerCard({ customer, onOpen }: { customer: CustomerListItem; onOpen: () => void }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -173,11 +176,11 @@ function CustomerCard({ customer, onOpen }: { customer: CustomerListItem; onOpen
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <div>
-          <div className="text-xs text-text-muted">Total Purchases</div>
+          <div className="text-xs text-text-muted">{t("customers.customersPage.totalPurchases")}</div>
           <div className="mt-0.5 text-sm font-semibold text-text">{formatCurrency(customer.totalPurchases)}</div>
         </div>
         <div>
-          <div className="text-xs text-text-muted">Outstanding</div>
+          <div className="text-xs text-text-muted">{t("customers.customersPage.outstanding")}</div>
           <div className="mt-0.5">
             {customer.outstanding > 0 ? (
               <Badge tone={creditTone(customer.outstanding, customer.creditLimit)}>
@@ -189,13 +192,13 @@ function CustomerCard({ customer, onOpen }: { customer: CustomerListItem; onOpen
           </div>
         </div>
         <div>
-          <div className="text-xs text-text-muted">Credit Limit</div>
+          <div className="text-xs text-text-muted">{t("customers.customersPage.creditLimit")}</div>
           <div className="mt-0.5 text-sm font-semibold text-text">{formatCurrency(customer.creditLimit)}</div>
         </div>
       </div>
 
       <div className="mt-3 border-t border-border pt-3">
-        <div className="text-xs text-text-muted">Last Purchase</div>
+        <div className="text-xs text-text-muted">{t("customers.customersPage.lastPurchase")}</div>
         <div className="mt-0.5 text-sm text-text-muted">{formatDate(customer.lastPurchaseAt)}</div>
       </div>
     </button>

@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { PickOrCreateField } from "../../components/shared/PickOrCreateField";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
 import {
   createDepartment,
   createDesignation,
@@ -11,14 +16,43 @@ import {
   listDesignations,
 } from "../../lib/staff-api";
 import type { CreateStaffInput, DaySchedule, PayType, StaffMember, StaffRole } from "../../lib/staff-api";
+import i18n from "../../lib/i18n";
 
-const roleOptions: { value: StaffRole; label: string }[] = [
-  { value: "MANAGER", label: "Manager" },
-  { value: "SALESMAN", label: "Salesman" },
-  { value: "WAREHOUSE_STAFF", label: "Warehouse Staff" },
+function buildStaffSchema(payType: PayType) {
+  return z
+    .object({
+      name: z.string().min(2, { error: () => i18n.t("staff.staffForm.nameTooShort") }),
+      phone: z.string().optional(),
+      monthlySalary: z.coerce.number().optional(),
+      dailyWage: z.coerce.number().optional(),
+    })
+    .superRefine((values, ctx) => {
+      if (payType === "salary" && !(values.monthlySalary && values.monthlySalary > 0)) {
+        ctx.addIssue({ code: "custom", path: ["monthlySalary"], message: i18n.t("staff.staffForm.mustBeGreaterThanZero") });
+      }
+      if (payType === "daily_wage" && !(values.dailyWage && values.dailyWage > 0)) {
+        ctx.addIssue({ code: "custom", path: ["dailyWage"], message: i18n.t("staff.staffForm.mustBeGreaterThanZero") });
+      }
+    });
+}
+type StaffFormInput = z.input<ReturnType<typeof buildStaffSchema>>;
+type StaffFormValues = z.output<ReturnType<typeof buildStaffSchema>>;
+
+const roleOptionKeys: { value: StaffRole; labelKey: string }[] = [
+  { value: "MANAGER", labelKey: "staff.roles.manager" },
+  { value: "SALESMAN", labelKey: "staff.roles.salesman" },
+  { value: "WAREHOUSE_STAFF", labelKey: "staff.roles.warehouseStaff" },
 ];
 
-const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const dayNameKeys = [
+  "staff.staffForm.days.sunday",
+  "staff.staffForm.days.monday",
+  "staff.staffForm.days.tuesday",
+  "staff.staffForm.days.wednesday",
+  "staff.staffForm.days.thursday",
+  "staff.staffForm.days.friday",
+  "staff.staffForm.days.saturday",
+];
 
 function defaultSchedule(): DaySchedule[] {
   return Array.from({ length: 7 }, (_, dayOfWeek) => ({
@@ -36,18 +70,13 @@ interface StaffFormProps {
 }
 
 export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [name, setName] = useState(initialValues?.name ?? "");
-  const [phone, setPhone] = useState(initialValues?.phone ?? "");
   const [role, setRole] = useState<StaffRole>(initialValues?.role ?? "SALESMAN");
   const [departmentId, setDepartmentId] = useState<string | null>(initialValues?.departmentId?._id ?? null);
   const [designationId, setDesignationId] = useState<string | null>(initialValues?.designationId?._id ?? null);
   const [schedule, setSchedule] = useState<DaySchedule[]>(initialValues?.weeklySchedule ?? defaultSchedule());
   const [payType, setPayType] = useState<PayType>(initialValues?.payType ?? "salary");
-  const [monthlySalary, setMonthlySalary] = useState(initialValues?.monthlySalary?.toString() ?? "");
-  const [dailyWage, setDailyWage] = useState(initialValues?.dailyWage?.toString() ?? "");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const departmentsQuery = useQuery({ queryKey: ["departments"], queryFn: listDepartments });
   const designationsQuery = useQuery({ queryKey: ["designations"], queryFn: listDesignations });
@@ -58,6 +87,9 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
       queryClient.invalidateQueries({ queryKey: ["departments"] });
       setDepartmentId(dept._id);
     },
+    onError: (err) => {
+      showError(err instanceof ApiError ? err.message : t("staff.staffForm.couldNotCreateDepartment"));
+    },
   });
   const createDesignationMutation = useMutation({
     mutationFn: createDesignation,
@@ -65,58 +97,84 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
       queryClient.invalidateQueries({ queryKey: ["designations"] });
       setDesignationId(des._id);
     },
+    onError: (err) => {
+      showError(err instanceof ApiError ? err.message : t("staff.staffForm.couldNotCreateDesignation"));
+    },
   });
 
   const updateDay = (dayOfWeek: number, patch: Partial<DaySchedule>) => {
     setSchedule((current) => current.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, ...patch } : d)));
   };
 
-  const canSubmit =
-    name.trim().length >= 2 &&
-    (payType === "salary" ? Number(monthlySalary) > 0 : Number(dailyWage) > 0);
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    formState: { errors, isSubmitting },
+  } = useForm<StaffFormInput, unknown, StaffFormValues>({
+    resolver: zodResolver(buildStaffSchema(payType)),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      name: initialValues?.name ?? "",
+      phone: initialValues?.phone ?? "",
+      monthlySalary: initialValues?.monthlySalary,
+      dailyWage: initialValues?.dailyWage,
+    },
+  });
 
-  const handleSubmit = async () => {
-    if (!canSubmit) return;
-    setError(null);
-    setIsSubmitting(true);
+  useEffect(() => {
+    trigger(["monthlySalary", "dailyWage"]);
+  }, [payType, trigger]);
+
+  const submit = async (values: StaffFormValues) => {
     try {
       await onSubmit({
-        name: name.trim(),
-        phone: phone.trim() || undefined,
+        name: values.name.trim(),
+        phone: values.phone?.trim() || undefined,
         role,
         departmentId: departmentId ?? undefined,
         designationId: designationId ?? undefined,
         weeklySchedule: schedule,
         payType,
-        monthlySalary: payType === "salary" ? Number(monthlySalary) : undefined,
-        dailyWage: payType === "daily_wage" ? Number(dailyWage) : undefined,
+        monthlySalary: payType === "salary" ? values.monthlySalary : undefined,
+        dailyWage: payType === "daily_wage" ? values.dailyWage : undefined,
       });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      showError(err instanceof ApiError ? err.message : t("staff.staffForm.genericError"));
     }
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <form className="grid grid-cols-1 gap-6 lg:grid-cols-3" onSubmit={handleSubmit(submit)} noValidate>
       <div className="space-y-6 lg:col-span-2">
-        <FormSection title="Basics">
+        <FormSection title={t("staff.staffForm.basics")}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" autoFocus />
-            <TextField label="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit mobile number" />
+            <TextField
+              label={t("staff.staffForm.name")}
+              placeholder={t("staff.staffForm.namePlaceholder")}
+              autoFocus
+              error={errors.name?.message}
+              {...register("name")}
+            />
+            <TextField
+              label={t("staff.staffForm.phoneOptional")}
+              placeholder={t("staff.staffForm.phonePlaceholder")}
+              error={errors.phone?.message}
+              {...register("phone")}
+            />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-muted">Role</label>
+            <label className="mb-1.5 block text-sm font-medium text-text-muted">{t("staff.staffForm.role")}</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as StaffRole)}
               className="w-full rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none focus:border-primary"
             >
-              {roleOptions.map((r) => (
+              {roleOptionKeys.map((r) => (
                 <option key={r.value} value={r.value}>
-                  {r.label}
+                  {t(r.labelKey)}
                 </option>
               ))}
             </select>
@@ -124,32 +182,32 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <PickOrCreateField
-              label="Department (optional)"
+              label={t("staff.staffForm.departmentOptional")}
               options={(departmentsQuery.data ?? []).map((d) => ({ id: d._id, label: d.name }))}
               value={departmentId}
               onChange={setDepartmentId}
               onCreate={(name) => createDepartmentMutation.mutate(name)}
               isCreating={createDepartmentMutation.isPending}
-              placeholder="No department"
+              placeholder={t("staff.staffForm.noDepartment")}
             />
             <PickOrCreateField
-              label="Designation (optional)"
+              label={t("staff.staffForm.designationOptional")}
               options={(designationsQuery.data ?? []).map((d) => ({ id: d._id, label: d.title }))}
               value={designationId}
               onChange={setDesignationId}
               onCreate={(title) => createDesignationMutation.mutate(title)}
               isCreating={createDesignationMutation.isPending}
-              placeholder="No designation"
+              placeholder={t("staff.staffForm.noDesignation")}
             />
           </div>
         </FormSection>
 
-        <FormSection title="Weekly schedule" subtitle="Set working hours or mark a day off for each day of the week.">
+        <FormSection title={t("staff.staffForm.weeklySchedule")} subtitle={t("staff.staffForm.weeklyScheduleSubtitle")}>
           <div className="space-y-2">
             {schedule.map((day) => (
               <div key={day.dayOfWeek} className="rounded-lg border border-border px-3 py-2.5">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-text">{dayNames[day.dayOfWeek]}</span>
+                  <span className="text-sm font-medium text-text">{t(dayNameKeys[day.dayOfWeek])}</span>
                   <label className="flex shrink-0 items-center gap-1.5 text-xs text-text-muted">
                     <input
                       type="checkbox"
@@ -157,7 +215,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
                       onChange={(e) => updateDay(day.dayOfWeek, { isDayOff: e.target.checked })}
                       className="h-4 w-4 accent-primary"
                     />
-                    Day off
+                    {t("staff.staffForm.dayOff")}
                   </label>
                 </div>
                 {!day.isDayOff && (
@@ -168,7 +226,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
                       onChange={(e) => updateDay(day.dayOfWeek, { startTime: e.target.value })}
                       className="w-full min-w-0 rounded-lg border border-transparent bg-surface-variant px-2.5 py-1.5 text-sm text-text outline-none focus:border-primary"
                     />
-                    <span className="shrink-0 text-xs text-text-muted">to</span>
+                    <span className="shrink-0 text-xs text-text-muted">{t("staff.staffForm.to")}</span>
                     <input
                       type="time"
                       value={day.endTime ?? "18:00"}
@@ -184,9 +242,9 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
       </div>
 
       <div className="space-y-6">
-        <FormSection title="Pay">
+        <FormSection title={t("staff.staffForm.pay")}>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-muted">Pay type</label>
+            <label className="mb-1.5 block text-sm font-medium text-text-muted">{t("staff.staffForm.payType")}</label>
             <div className="grid grid-cols-2 gap-2 rounded-lg bg-surface-variant p-1">
               <button
                 type="button"
@@ -195,7 +253,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
                   payType === "salary" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
                 }`}
               >
-                Monthly salary
+                {t("staff.staffForm.monthlySalary")}
               </button>
               <button
                 type="button"
@@ -204,49 +262,45 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
                   payType === "daily_wage" ? "bg-surface text-text shadow-elevation-1" : "text-text-muted"
                 }`}
               >
-                Daily wage
+                {t("staff.staffForm.dailyWage")}
               </button>
             </div>
           </div>
 
           {payType === "salary" ? (
             <TextField
-              label="Monthly salary (₹)"
+              label={t("staff.staffForm.monthlySalaryCurrency")}
               type="number"
               min={0}
-              value={monthlySalary}
-              onChange={(e) => setMonthlySalary(e.target.value)}
-              placeholder="e.g. 25000"
+              placeholder={t("staff.staffForm.monthlySalaryPlaceholder")}
+              error={errors.monthlySalary?.message}
+              {...register("monthlySalary")}
             />
           ) : (
             <TextField
-              label="Daily wage (₹)"
+              label={t("staff.staffForm.dailyWageCurrency")}
               type="number"
               min={0}
-              value={dailyWage}
-              onChange={(e) => setDailyWage(e.target.value)}
-              placeholder="e.g. 500"
+              placeholder={t("staff.staffForm.dailyWagePlaceholder")}
+              error={errors.dailyWage?.message}
+              {...register("dailyWage")}
             />
           )}
           <p className="text-xs text-text-muted">
-            {payType === "salary"
-              ? "Paid in full each month regardless of attendance."
-              : "Monthly pay is computed from marked attendance (present days × rate)."}
+            {payType === "salary" ? t("staff.staffForm.salaryHint") : t("staff.staffForm.dailyWageHint")}
           </p>
         </FormSection>
       </div>
 
-      {error ? <p className="lg:col-span-3">{<span className="text-sm text-danger">{error}</span>}</p> : null}
-
       <div className="flex justify-end gap-3 border-t border-border pt-5 lg:col-span-3">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          {t("staff.staffForm.cancel")}
         </Button>
-        <Button type="button" disabled={!canSubmit} isLoading={isSubmitting} onClick={handleSubmit}>
-          {initialValues ? "Save changes" : "Add staff"}
+        <Button type="submit" isLoading={isSubmitting}>
+          {initialValues ? t("staff.staffForm.saveChanges") : t("staff.staffForm.addStaff")}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }
 

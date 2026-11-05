@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { AlertTriangle, Ban, CheckCircle2, Phone, Plus, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { formatCurrency } from "../../lib/format";
@@ -12,6 +13,7 @@ import {
   type OrderLineItemInput,
 } from "../../lib/orders-api";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
 
 interface DraftItem extends OrderLineItemInput {
   key: string;
@@ -23,14 +25,6 @@ function nextKey() {
   return `order-item-${keySeq}`;
 }
 
-function customerName(order: Order): string {
-  return typeof order.customerId === "string" ? "Unknown customer" : order.customerId.name;
-}
-
-function customerPhone(order: Order): string | undefined {
-  return typeof order.customerId === "string" ? undefined : order.customerId.phone;
-}
-
 const statusTone = {
   pending: "warning",
   confirmed: "info",
@@ -38,18 +32,26 @@ const statusTone = {
   cancelled: "danger",
 } as const;
 
-const statusLabel: Record<Order["status"], string> = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  delivered: "Billed",
-  cancelled: "Cancelled",
-};
-
 export function OrderDetailModal({ order, onClose }: { order: Order | null; onClose: () => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
+
+  function customerName(order: Order): string {
+    return typeof order.customerId === "string" ? t("orders.orderDetailModal.unknownCustomer") : order.customerId.name;
+  }
+
+  function customerPhone(order: Order): string | undefined {
+    return typeof order.customerId === "string" ? undefined : order.customerId.phone;
+  }
+
+  const statusLabel: Record<Order["status"], string> = {
+    pending: t("orders.common.statusLabel.pending"),
+    confirmed: t("orders.common.statusLabel.confirmed"),
+    delivered: t("orders.common.statusLabel.delivered"),
+    cancelled: t("orders.common.statusLabel.cancelled"),
+  };
   const [items, setItems] = useState<DraftItem[]>([]);
   const [notes, setNotes] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (order) {
@@ -65,7 +67,6 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
         }))
       );
       setNotes(order.notes ?? "");
-      setError(null);
     }
   }, [order]);
 
@@ -75,7 +76,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       onClose();
     },
-    onError: (err) => setError(err instanceof ApiError ? err.message : "Couldn't save changes. Please try again."),
+    onError: (err) => showError(err instanceof ApiError ? err.message : t("orders.orderDetailModal.couldNotSaveChanges")),
   });
 
   const statusMutation = useMutation({
@@ -84,7 +85,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       onClose();
     },
-    onError: (err) => setError(err instanceof ApiError ? err.message : "Couldn't update status. Please try again."),
+    onError: (err) => showError(err instanceof ApiError ? err.message : t("orders.orderDetailModal.couldNotUpdateStatus")),
   });
 
   if (!order) return null;
@@ -108,7 +109,6 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
   const canSave = items.length > 0 && items.every((i) => i.productName.trim() && i.quantity > 0);
 
   const handleSave = () => {
-    setError(null);
     saveMutation.mutate({
       items: items.map((i) => ({
         productId: i.productId,
@@ -128,7 +128,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("orders.orderDetailModal.close")}
           className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <X size={18} />
@@ -148,12 +148,12 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
 
           {!editable ? (
             <p className="mt-3 rounded-lg bg-surface-variant px-3.5 py-2.5 text-sm text-text-muted">
-              This order is {order.status} and can no longer be edited.
+              {t("orders.orderDetailModal.notEditable", { status: statusLabel[order.status] })}
             </p>
           ) : null}
 
           <div className="mt-5">
-            <p className="mb-2 text-sm font-medium text-text-muted">Items ({items.length})</p>
+            <p className="mb-2 text-sm font-medium text-text-muted">{t("orders.orderDetailModal.items", { count: items.length })}</p>
             <div className="space-y-2.5">
               {items.map((item) => (
                 <div
@@ -166,16 +166,16 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                   <div className="flex items-center justify-between gap-2">
                     {item.isNewProduct ? (
                       <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
-                        <AlertTriangle size={12} /> New product
+                        <AlertTriangle size={12} /> {t("orders.orderDetailModal.newProduct")}
                       </span>
                     ) : (
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">Item</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">{t("orders.orderDetailModal.item")}</span>
                     )}
                     {editable ? (
                       <button
                         type="button"
                         onClick={() => removeItem(item.key)}
-                        aria-label="Remove item"
+                        aria-label={t("orders.common.removeItem")}
                         className="rounded-full p-1 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-danger focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
                         <Trash2 size={14} />
@@ -186,14 +186,14 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                   <input
                     value={item.productName}
                     onChange={(e) => updateItem(item.key, { productName: e.target.value })}
-                    placeholder="Product name"
+                    placeholder={t("orders.common.productNamePlaceholder")}
                     disabled={!editable}
                     className="mt-2 w-full rounded-lg border border-transparent bg-surface-variant px-3 py-2 text-sm text-text outline-none focus:border-primary disabled:opacity-60"
                   />
 
                   <div className="mt-2 grid grid-cols-3 gap-2">
                     <div>
-                      <label className="text-xs text-text-muted">Qty</label>
+                      <label className="text-xs text-text-muted">{t("orders.common.qty")}</label>
                       <input
                         type="number"
                         min={0.001}
@@ -205,7 +205,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-text-muted">Unit</label>
+                      <label className="text-xs text-text-muted">{t("orders.common.unit")}</label>
                       <input
                         value={item.unit}
                         disabled={!editable}
@@ -214,7 +214,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-text-muted">Price</label>
+                      <label className="text-xs text-text-muted">{t("orders.common.price")}</label>
                       <input
                         type="number"
                         min={0}
@@ -236,14 +236,14 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                 onClick={addBlankItem}
                 className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
               >
-                <Plus size={14} /> Add item
+                <Plus size={14} /> {t("orders.common.addItem")}
               </button>
             ) : null}
           </div>
 
           <div className="mt-5">
             <label className="mb-1.5 block text-sm font-medium text-text-muted" htmlFor="order-notes">
-              Notes
+              {t("orders.orderDetailModal.notes")}
             </label>
             <textarea
               id="order-notes"
@@ -252,21 +252,15 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               maxLength={1000}
-              placeholder="Optional notes about this order…"
+              placeholder={t("orders.orderDetailModal.notesPlaceholder")}
               className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary disabled:opacity-60"
             />
           </div>
 
           <div className="mt-5 flex items-center justify-between rounded-lg bg-surface-variant px-3.5 py-2.5">
-            <span className="text-sm font-medium text-text-muted">Total</span>
+            <span className="text-sm font-medium text-text-muted">{t("common.total")}</span>
             <span className="text-base font-bold text-text">{formatCurrency(totalAmount)}</span>
           </div>
-
-          {error ? (
-            <p className="mt-3 flex items-center gap-1.5 text-sm text-danger">
-              <AlertTriangle size={14} /> {error}
-            </p>
-          ) : null}
 
           {editable ? (
             <>
@@ -279,7 +273,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                     onClick={() => statusMutation.mutate("confirmed")}
                   >
                     <CheckCircle2 size={16} className="mr-1.5" strokeWidth={2} />
-                    Confirm
+                    {t("orders.orderDetailModal.confirm")}
                   </Button>
                 ) : null}
                 <Button
@@ -289,23 +283,23 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                   onClick={() => statusMutation.mutate("cancelled")}
                 >
                   <Ban size={16} className="mr-1.5" strokeWidth={2} />
-                  Cancel order
+                  {t("orders.orderDetailModal.cancelOrder")}
                 </Button>
               </div>
 
               <div className="mt-3 flex gap-3">
                 <Button variant="secondary" className="flex-1" onClick={onClose}>
-                  Close
+                  {t("orders.orderDetailModal.close")}
                 </Button>
                 <Button className="flex-1" disabled={!canSave} isLoading={saveMutation.isPending} onClick={handleSave}>
-                  Save changes
+                  {t("orders.orderDetailModal.saveChanges")}
                 </Button>
               </div>
             </>
           ) : (
             <div className="mt-5">
               <Button variant="secondary" className="w-full" onClick={onClose}>
-                Close
+                {t("orders.orderDetailModal.close")}
               </Button>
             </div>
           )}

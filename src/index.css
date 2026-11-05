@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
-/* Design tokens imported from the Stitch "AI Wholesale ERP Platform" project.
-   Shared verbatim with the mobile app so both surfaces render identically. */
+/* SethSathi design tokens (terracotta + warm cream), from the Stitch
+   "SethSathi Hindi business UI" design. Plus Jakarta Sans has no Devanagari
+   glyphs; the design was rendered with Windows' Nirmala UI for Hindi, so that
+   comes next, with the Noto Sans Devanagari webfont for Android/iOS/macOS. */
 @theme {
-  --font-sans: "Geist", system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-headline: "Space Grotesk", var(--font-sans);
-  --font-label: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Plus Jakarta Sans", "Nirmala UI", "Noto Sans Devanagari", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-headline: var(--font-sans);
+  --font-label: var(--font-sans);
 
   /* Radius scale */
   --radius-xs: 4px;
@@ -16,46 +18,47 @@
   --radius-2xl: 16px;
   --radius-full: 9999px;
 
-  /* Shadows — soft, slate-tinted */
+  /* Shadows — soft, warm-tinted */
   --shadow-elevation-0: none;
-  --shadow-elevation-1: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-  --shadow-elevation-2: 0 2px 8px 0 rgba(15, 23, 42, 0.06);
-  --shadow-elevation-3: 0 12px 32px 0 rgba(15, 23, 42, 0.16);
+  --shadow-elevation-1: 0 1px 2px 0 rgba(59, 31, 18, 0.05);
+  --shadow-elevation-2: 0 2px 8px 0 rgba(59, 31, 18, 0.07);
+  --shadow-elevation-3: 0 12px 32px 0 rgba(59, 31, 18, 0.16);
 
-  /* Surfaces — slate-tinted light theme */
-  --color-background: #f8fafc;
+  /* Surfaces — warm cream light theme */
+  --color-background: #fbf9f5;
   --color-surface: #ffffff;
-  --color-surface-muted: #f1f5f9;
-  --color-surface-variant: #f1f5f9;
-  --color-surface-container-high: #e2e8f0;
-  --color-border: #e2e8f0;
-  --color-outline: #94a3b8;
+  --color-surface-muted: #f5f3ef;
+  --color-surface-variant: #f2efea;
+  --color-surface-container-high: #eae8e4;
+  --color-border: #e7e1d9;
+  --color-outline: #a8968d;
 
   /* Text */
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-text: #1b1c1a;
+  --color-text-muted: #6b5d56;
+  --color-text-subtle: #59413a;
 
-  /* Primary — violet */
-  --color-primary: #6d28d9;
-  --color-primary-hover: #5b21b6;
+  /* Primary — terracotta */
+  --color-primary: #c84b18;
+  --color-primary-hover: #a53400;
   --color-on-primary: #ffffff;
-  --color-primary-container: #f5f3ff;
-  --color-on-primary-container: #5b21b6;
+  --color-primary-container: #fff1ea;
+  --color-on-primary-container: #822800;
 
-  /* Secondary — lighter violet */
-  --color-secondary: #7c3aed;
-  --color-secondary-container: #f3e8ff;
-  --color-on-secondary-container: #581c87;
+  /* Secondary — slate blue */
+  --color-secondary: #545f73;
+  --color-secondary-container: #e4ebf8;
+  --color-on-secondary-container: #3c475a;
 
   /* Semantic colors */
-  --color-success: #059669;
-  --color-success-container: #dcfce7;
-  --color-warning: #b45309;
-  --color-warning-container: #fef3c7;
-  --color-danger: #dc2626;
-  --color-danger-container: #fee2e2;
-  --color-info: #4f46e5;
-  --color-info-container: #e0e7ff;
+  --color-success: #1e7b4f;
+  --color-success-container: #ddf3e6;
+  --color-warning: #a16800;
+  --color-warning-container: #ffefd6;
+  --color-danger: #ba1a1a;
+  --color-danger-container: #ffdad6;
+  --color-info: #3d5a99;
+  --color-info-container: #e4ebf8;
 
   /* Type scale from the Stitch design system */
   --text-headline-xl: 32px;

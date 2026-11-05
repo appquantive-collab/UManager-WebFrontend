@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import { createStaffMember, listStaff, updateStaffMember, type CreateStaffInput } from "../../lib/staff-api";
 import { StaffForm } from "./StaffForm";
 
 export function StaffFormPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -39,26 +41,28 @@ export function StaffFormPage() {
         <button
           type="button"
           onClick={goBack}
-          aria-label="Back to staff"
+          aria-label={t("staff.staffFormPage.backToStaff")}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <ArrowLeft size={16} />
         </button>
         <div>
-          <h1 className="text-lg font-bold text-text">{isEdit ? "Edit staff member" : "Add staff member"}</h1>
+          <h1 className="text-lg font-bold text-text">
+            {isEdit ? t("staff.staffFormPage.editStaffTitle") : t("staff.staffFormPage.addStaffTitle")}
+          </h1>
           <p className="text-xs text-text-muted">
-            {isEdit ? "Update role, schedule, or pay details." : "Add a new team member, their schedule, and pay."}
+            {isEdit ? t("staff.staffFormPage.editStaffSubtitle") : t("staff.staffFormPage.addStaffSubtitle")}
           </p>
         </div>
       </div>
 
       {isEdit && staffQuery.isLoading ? (
         <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
-          Loading staff member…
+          {t("staff.staffFormPage.loadingStaffMember")}
         </div>
       ) : isEdit && !staffMember ? (
         <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-danger">
-          Could not find this staff member.
+          {t("staff.staffFormPage.loadFailed")}
         </div>
       ) : (
         <StaffForm

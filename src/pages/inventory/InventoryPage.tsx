@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
 import { Boxes, Hammer, Package, Plus, QrCode, SquarePen, Trash2 } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
@@ -16,11 +17,6 @@ import { StockForm } from "./StockForm";
 import { AssembleForm } from "./AssembleForm";
 import { ProductQrModal } from "../../components/inventory/ProductQrModal";
 
-const inventoryTabs = [
-  { key: "products", label: "Products" },
-  { key: "raw-materials", label: "Raw Materials" },
-];
-
 const currency = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
 const chipColors = ["#3b82f6", "#22c55e", "#f59e0b", "#a855f7", "#ef4444", "#06b6d4"];
@@ -33,8 +29,13 @@ function colorForCategory(category?: string): string {
 }
 
 export function InventoryPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const inventoryTabs = [
+    { key: "products", label: t("inventory.tabs.products") },
+    { key: "raw-materials", label: t("inventory.tabs.rawMaterials") },
+  ];
   const [tab, setTab] = useState("products");
   const [search, setSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
@@ -106,7 +107,7 @@ export function InventoryPage() {
         <Tabs tabs={inventoryTabs} active={tab} onChange={setTab} />
         <Button onClick={() => navigate(tab === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}>
           <Plus size={16} className="mr-1.5" strokeWidth={2} />
-          {tab === "raw-materials" ? "Add raw material" : "Add product"}
+          {tab === "raw-materials" ? t("inventory.inventoryPage.addRawMaterial") : t("inventory.inventoryPage.addProduct")}
         </Button>
       </div>
 
@@ -114,33 +115,41 @@ export function InventoryPage() {
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, SKU, or category"
+          placeholder={t("inventory.inventoryPage.searchPlaceholder")}
         />
       </div>
 
       {isLoading ? (
-        <div className="rounded-2xl bg-surface p-6 text-sm text-text-muted shadow-elevation-1">Loading products…</div>
+        <div className="rounded-2xl bg-surface p-6 text-sm text-text-muted shadow-elevation-1">
+          {t("inventory.inventoryPage.loadingProducts")}
+        </div>
       ) : isError ? (
         <div className="rounded-2xl bg-surface p-6 text-sm text-danger shadow-elevation-1">
-          Failed to load products. Please try again.
+          {t("inventory.inventoryPage.loadFailed")}
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={Package}
-          title={scoped.length > 0 ? "No matching results" : tab === "raw-materials" ? "No raw materials yet" : "No products yet"}
+          title={
+            scoped.length > 0
+              ? t("inventory.inventoryPage.noMatchingResults")
+              : tab === "raw-materials"
+                ? t("inventory.inventoryPage.noRawMaterialsYet")
+                : t("inventory.inventoryPage.noProductsYet")
+          }
           description={
             scoped.length > 0
-              ? "Try a different search term."
+              ? t("inventory.inventoryPage.tryDifferentSearch")
               : tab === "raw-materials"
-                ? "Add raw materials here, then reference them in a product's Bill of Materials."
-                : "Add your first product to start tracking inventory, pricing, and stock."
+                ? t("inventory.inventoryPage.noRawMaterialsDescription")
+                : t("inventory.inventoryPage.noProductsDescription")
           }
           action={
             scoped.length === 0 ? (
               <Button
                 onClick={() => navigate(tab === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
               >
-                {tab === "raw-materials" ? "Add raw material" : "Add product"}
+                {tab === "raw-materials" ? t("inventory.inventoryPage.addRawMaterial") : t("inventory.inventoryPage.addProduct")}
               </Button>
             ) : undefined
           }
@@ -150,14 +159,14 @@ export function InventoryPage() {
           <table className="w-full min-w-max text-sm">
             <thead>
               <tr className="text-left text-xs font-medium uppercase tracking-wide text-text-muted">
-                <th className="px-4 py-3">Product</th>
-                <th className="px-4 py-3">SKU</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3 text-right">Stock</th>
-                <th className="px-4 py-3 text-right">Purchase</th>
-                <th className="px-4 py-3 text-right">Wholesale</th>
-                <th className="px-4 py-3 text-right">Retail</th>
-                <th className="px-4 py-3 text-right">Reorder Level</th>
+                <th className="px-4 py-3">{t("inventory.inventoryPage.columnProduct")}</th>
+                <th className="px-4 py-3">{t("inventory.inventoryPage.columnSku")}</th>
+                <th className="px-4 py-3">{t("inventory.inventoryPage.columnCategory")}</th>
+                <th className="px-4 py-3 text-right">{t("inventory.inventoryPage.columnStock")}</th>
+                <th className="px-4 py-3 text-right">{t("inventory.inventoryPage.columnPurchase")}</th>
+                <th className="px-4 py-3 text-right">{t("inventory.inventoryPage.columnWholesale")}</th>
+                <th className="px-4 py-3 text-right">{t("inventory.inventoryPage.columnRetail")}</th>
+                <th className="px-4 py-3 text-right">{t("inventory.inventoryPage.columnReorderLevel")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -199,7 +208,7 @@ export function InventoryPage() {
                     <div className="flex justify-end gap-1">
                       <button
                         type="button"
-                        aria-label={`Add or adjust stock for ${product.name}`}
+                        aria-label={t("inventory.inventoryPage.addOrAdjustStockFor", { name: product.name })}
                         onClick={() => setStockProduct(product)}
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
@@ -208,7 +217,7 @@ export function InventoryPage() {
                       {product.bom.length > 0 ? (
                         <button
                           type="button"
-                          aria-label={`Assemble ${product.name} from raw materials`}
+                          aria-label={t("inventory.inventoryPage.assembleFor", { name: product.name })}
                           onClick={() => setAssembleProductState(product)}
                           className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
@@ -217,7 +226,7 @@ export function InventoryPage() {
                       ) : null}
                       <button
                         type="button"
-                        aria-label={`View QR code for ${product.name}`}
+                        aria-label={t("inventory.inventoryPage.viewQrFor", { name: product.name })}
                         onClick={() => setQrProduct(product)}
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
@@ -225,7 +234,7 @@ export function InventoryPage() {
                       </button>
                       <button
                         type="button"
-                        aria-label={`Edit ${product.name}`}
+                        aria-label={t("inventory.inventoryPage.editFor", { name: product.name })}
                         onClick={() => navigate(`/app/inventory/${product._id}/edit`)}
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
@@ -233,7 +242,7 @@ export function InventoryPage() {
                       </button>
                       <button
                         type="button"
-                        aria-label={`Delete ${product.name}`}
+                        aria-label={t("inventory.inventoryPage.deleteFor", { name: product.name })}
                         onClick={() => setPendingDelete(product)}
                         className="rounded-md p-1.5 text-text-muted outline-none transition-colors hover:bg-surface hover:text-danger focus-visible:ring-2 focus-visible:ring-primary/40"
                       >
@@ -249,7 +258,7 @@ export function InventoryPage() {
       )}
       </div>
 
-      <Dialog open={stockProduct !== null} onClose={() => setStockProduct(null)} title="Add / adjust stock">
+      <Dialog open={stockProduct !== null} onClose={() => setStockProduct(null)} title={t("inventory.inventoryPage.addOrAdjustStockTitle")}>
         {stockProduct ? (
           <StockForm
             key={stockProduct._id}
@@ -263,7 +272,7 @@ export function InventoryPage() {
       <Dialog
         open={assembleProductState !== null}
         onClose={() => setAssembleProductState(null)}
-        title="Assemble from raw materials"
+        title={t("inventory.inventoryPage.assembleTitle")}
       >
         {assembleProductState ? (
           <AssembleForm
@@ -275,21 +284,24 @@ export function InventoryPage() {
         ) : null}
       </Dialog>
 
-      <Dialog open={pendingDelete !== null} onClose={() => setPendingDelete(null)} title="Delete product">
+      <Dialog open={pendingDelete !== null} onClose={() => setPendingDelete(null)} title={t("inventory.inventoryPage.deleteProductTitle")}>
         <p className="text-sm text-text-muted">
-          Are you sure you want to delete <span className="font-medium text-text">{pendingDelete?.name}</span>? This
-          cannot be undone.
+          <Trans
+            i18nKey="inventory.inventoryPage.deleteConfirm"
+            values={{ name: pendingDelete?.name }}
+            components={{ bold: <span className="font-medium text-text" /> }}
+          />
         </p>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setPendingDelete(null)}>
-            Cancel
+            {t("inventory.inventoryPage.cancel")}
           </Button>
           <Button
             variant="danger"
             onClick={() => pendingDelete && deleteMutation.mutate(pendingDelete._id)}
             isLoading={deleteMutation.isPending}
           >
-            Delete
+            {t("inventory.inventoryPage.delete")}
           </Button>
         </div>
       </Dialog>

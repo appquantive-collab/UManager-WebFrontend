@@ -1,0 +1,1408 @@
+{
+  "brand": {
+    "name": "SethSathi",
+    "assistantName": "Munshi AI"
+  },
+  "splash": {
+    "greeting": "Namaste! Meet your digital AI munshi",
+    "tagline": "Simple, reliable accounts for your shop and business",
+    "featureAi": "Ask Munshi AI",
+    "featureBilling": "GST billing",
+    "featureStock": "Stock tracking",
+    "start": "Get started",
+    "madeFor": "Made for India's traders",
+    "photoAlt": "Munshi AI greeting you with a namaste",
+    "loading": "Loading SethSathi"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "close": "Close",
+    "back": "Back",
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "dismiss": "Dismiss",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading…",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "optional": "optional",
+    "yes": "Yes",
+    "no": "No",
+    "skipForNow": "Skip for now",
+    "done": "Done",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "password": "Password",
+    "note": "Note",
+    "noMatches": "No matches.",
+    "total": "Total",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "layout": {
+    "tenantAdmin": "Tenant Admin",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "closeNavigation": "Close navigation",
+    "searchPlaceholder": "Search...",
+    "account": "Account",
+    "logOut": "Log out",
+    "toggleTheme": "Toggle theme",
+    "notifications": "Notifications"
+  },
+  "quickActions": {
+    "create": "Create"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "sales": "Sales",
+    "purchases": "Purchases",
+    "inventory": "Inventory",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "warehouses": "Warehouses",
+    "reports": "Reports",
+    "ai": "Munshi AI",
+    "staff": "Staff",
+    "settings": "Settings",
+    "products": "Products",
+    "home": "Home",
+    "stock": "Stock"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "hi": "हिन्दी",
+    "hiLatn": "Hinglish",
+    "changedSuccess": "Language updated"
+  },
+  "onboardingLabels": {
+    "category": {
+      "fmcg": "FMCG",
+      "electronics": "Electronics",
+      "mobile_accessories": "Mobile & Accessories",
+      "pharma": "Pharma",
+      "apparel": "Apparel",
+      "footwear": "Footwear",
+      "textiles_fabric": "Textiles & Fabric",
+      "auto_parts": "Auto Parts",
+      "two_wheeler_parts": "Two-Wheeler Parts",
+      "grocery": "Grocery",
+      "hardware": "Hardware",
+      "sanitary_plumbing": "Sanitary & Plumbing",
+      "electrical_goods": "Electrical Goods",
+      "paints_chemicals": "Paints & Chemicals",
+      "building_materials": "Building Materials",
+      "furniture": "Furniture",
+      "musical_instruments": "Musical Instruments",
+      "sports_goods": "Sports Goods",
+      "toys_games": "Toys & Games",
+      "stationery_books": "Stationery & Books",
+      "gift_items": "Gift Items",
+      "cosmetics_beauty": "Cosmetics & Beauty",
+      "jewellery_artificial": "Jewellery (Artificial)",
+      "bags_luggage": "Bags & Luggage",
+      "kitchenware_utensils": "Kitchenware & Utensils",
+      "plastic_goods": "Plastic Goods",
+      "packaging_materials": "Packaging Materials",
+      "confectionery_bakery": "Confectionery & Bakery",
+      "dry_fruits_spices": "Dry Fruits & Spices",
+      "tea_coffee": "Tea & Coffee",
+      "dairy_products": "Dairy Products",
+      "agro_seeds_fertilizers": "Agro, Seeds & Fertilizers",
+      "cattle_feed": "Cattle Feed",
+      "tiles_sanitaryware": "Tiles & Sanitaryware",
+      "glass_hardware": "Glass & Hardware",
+      "computer_it": "Computer & IT",
+      "printing_stationery": "Printing & Stationery",
+      "cleaning_supplies": "Cleaning Supplies",
+      "fireworks": "Fireworks",
+      "readymade_garments": "Readymade Garments",
+      "saree_ethnic_wear": "Saree & Ethnic Wear",
+      "watches_eyewear": "Watches & Eyewear",
+      "religious_puja_items": "Religious & Puja Items",
+      "other": "Other"
+    },
+    "customerType": {
+      "wholesale": "Wholesale / B2B",
+      "retail": "Retail",
+      "both": "Both"
+    },
+    "orderVolume": {
+      "lt_100": "< 100 orders/month",
+      "100_500": "100–500 orders/month",
+      "500_2000": "500–2,000 orders/month",
+      "gt_2000": "2,000+ orders/month"
+    },
+    "goal": {
+      "inventory_tracking": "Inventory tracking",
+      "credit_payments": "Credit & payment collection",
+      "multi_warehouse": "Multi-warehouse ops",
+      "staff_management": "Staff & role management",
+      "ai_insights": "AI-assisted insights",
+      "reporting": "Reports & analytics"
+    }
+  },
+  "settingsPage": {
+    "tabs": {
+      "business": "Business",
+      "language": "Language",
+      "tax": "Tax",
+      "invoice": "Invoice",
+      "notifications": "Notifications",
+      "integrations": "Integrations",
+      "subscription": "Subscription"
+    },
+    "businessName": "Business name",
+    "businessType": "Business type",
+    "currency": "Currency",
+    "editingNotAvailable": "Editing business settings isn't available yet.",
+    "businessProfile": "Business profile",
+    "businessProfileDescription": "Used to personalize your dashboard and recommendations.",
+    "complete": "Complete",
+    "notSetUp": "Not set up",
+    "category": "Category",
+    "customers": "Customers",
+    "orderVolume": "Order volume",
+    "warehousesAndStaff": "Warehouses & staff",
+    "warehousesStaffCount": "{{warehouses}} warehouses · {{staff}} staff",
+    "priorities": "Priorities",
+    "notes": "Notes",
+    "aiPersonalizedActive": "AI-personalized dashboard active",
+    "updateBusinessProfile": "Update business profile",
+    "notCompletedYet": "You haven't completed your business profile yet.",
+    "completeSetup": "Complete setup",
+    "comingSoon": "{{label}} settings coming soon",
+    "beingDesigned": "This section is being designed.",
+    "languageDescription": "Choose the language SethSathi is shown in. This is saved to your account and follows you across devices."
+  },
+  "pageMeta": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Business overview for today."
+    },
+    "sales": {
+      "title": "Sales",
+      "subtitle": "Orders, invoices, and payments."
+    },
+    "purchases": {
+      "title": "Purchases",
+      "subtitle": "Purchase orders and supplier payments."
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "Manage your products and pricing."
+    },
+    "inventoryNew": {
+      "title": "Add product",
+      "subtitle": "Create a new product or raw material."
+    },
+    "inventoryEdit": {
+      "title": "Edit product",
+      "subtitle": "Update product or raw material details."
+    },
+    "customers": {
+      "title": "Customers",
+      "subtitle": "Customer accounts, credit, and ledgers."
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "subtitle": "Supplier accounts and payment ledgers."
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "subtitle": "Locations, stock value, and transfers."
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Business performance across sales, purchases, and inventory."
+    },
+    "ai": {
+      "title": "Munshi AI",
+      "subtitle": "Ask about your business or review AI-generated insights."
+    },
+    "staff": {
+      "title": "Staff",
+      "subtitle": "Hire people and give each access to only the features they need."
+    },
+    "staffNew": {
+      "title": "Add staff member",
+      "subtitle": "Add a new team member, their schedule, and pay."
+    },
+    "staffEdit": {
+      "title": "Edit staff member",
+      "subtitle": "Update role, schedule, or pay details."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Business configuration and preferences."
+    },
+    "fallback": {
+      "title": "SethSathi",
+      "subtitle": ""
+    }
+  },
+  "auth": {
+    "login": {
+      "phoneTitle": "Welcome back",
+      "phoneSubtitle": "Enter your mobile number to sign in",
+      "mobileNumber": "Mobile number",
+      "phoneInvalid": "Enter a valid 10-digit mobile number",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "forgotPassword": "Forgot password?",
+      "continue": "Continue",
+      "or": "or",
+      "comingSoon": "Coming soon",
+      "whatsapp": "WhatsApp",
+      "google": "Google",
+      "signInWithEmailInstead": "Sign in with email instead",
+      "noBusinessYet": "Don't have a business yet?",
+      "signUp": "Sign Up",
+      "emailTitle": "Sign in",
+      "emailSubtitle": "Access your business workspace",
+      "emailInvalid": "Enter a valid email",
+      "signIn": "Sign in",
+      "signInWithMobileInstead": "Sign in with mobile number instead",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "register": {
+      "title": "Get started with wholesale",
+      "subtitle": "Set up your wholesale account in just a minute",
+      "fullName": "Full name",
+      "fullNameRequired": "Your name is required",
+      "businessName": "Business name",
+      "businessNamePlaceholder": "e.g. Sharma Traders & Distributors",
+      "businessNameRequired": "Business name is required",
+      "mobileNumber": "Mobile number",
+      "phoneInvalid": "Enter a valid 10-digit mobile number",
+      "email": "Email",
+      "emailInvalid": "Enter a valid email",
+      "createPassword": "Create password",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "agreeToTermsPrefix": "I agree to the",
+      "terms": "Terms",
+      "privacyPolicy": "Privacy Policy",
+      "agreeToTermsRequired": "You must agree to the Terms & Privacy Policy",
+      "createAccount": "Create Wholesale Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "logIn": "Log In",
+      "successTitle": "Account created!",
+      "successMessage": "Your wholesale workspace is ready.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your registered mobile number or email and we'll send you an OTP to reset your password.",
+      "identifierInvalid": "Enter your mobile number or email",
+      "sentTitle": "Reset instructions requested",
+      "sentMessage": "If an account matches, you'll receive a code shortly. Reset delivery is being finalized for this workspace — contact support if it doesn't arrive.",
+      "backToLogin": "Back to Log In",
+      "identifierLabel": "Mobile number or email",
+      "identifierPlaceholder": "e.g. +91 98765 43210 or name@domain.co",
+      "sendResetCode": "Send Reset Code",
+      "backToLoginArrow": "← Back to Log In"
+    },
+    "layout": {
+      "backToHome": "Back to home",
+      "panelHeading": "Your shop's accounts, kept like a trusted munshi would",
+      "panelDescription": "Stock, bills, payments and customers in one place — in English, Hindi or Hinglish.",
+      "highlightStock": "Stock across every warehouse, always up to date",
+      "highlightBilling": "GST bills, payments and dues in one place",
+      "highlightAi": "Ask Munshi AI anything about your business"
+    },
+    "otp": {
+      "sendCode": "Send OTP",
+      "codeTitle": "Enter the code",
+      "codeSubtitle": "We sent a 6-digit code to {{phone}}",
+      "codeLabel": "6-digit code",
+      "codeInvalidFormat": "Enter the 6-digit code",
+      "verify": "Verify & sign in",
+      "changeNumber": "Change number",
+      "resendIn": "Resend code in {{seconds}}s",
+      "resend": "Resend code",
+      "codeSent": "Code sent",
+      "errors": {
+        "NO_ACCOUNT": "No account found for this mobile number",
+        "RESEND_COOLDOWN": "Please wait {{seconds}}s before requesting a new code",
+        "TOO_MANY_REQUESTS": "Too many codes requested. Please try again later.",
+        "SMS_NOT_CONFIGURED": "SMS login isn't set up yet. Please sign in with email.",
+        "SMS_FAILED": "We couldn't send the code. Please try again.",
+        "CODE_EXPIRED": "This code has expired. Please request a new one.",
+        "CODE_INVALID": "Incorrect code. Please check and try again.",
+        "TOO_MANY_ATTEMPTS": "Too many wrong attempts. Please request a new code."
+      }
+    }
+  },
+  "onboarding": {
+    "skipForNow": "Skip for now",
+    "step1": {
+      "heading": "Tell us about your business",
+      "subheading": "This helps us tailor SethSathi to how you work.",
+      "categoryLabel": "Business category",
+      "customersLabel": "Who are your customers?",
+      "groups": {
+        "foodFmcgGrocery": "Food, FMCG & Grocery",
+        "fashionTextiles": "Fashion & Textiles",
+        "electronicsIt": "Electronics & IT",
+        "hardwareHomeBuilding": "Hardware, Home & Building",
+        "autoTransport": "Auto & Transport",
+        "healthBeauty": "Health & Beauty",
+        "stationeryGiftsLeisure": "Stationery, Gifts & Leisure",
+        "other": "Other"
+      }
+    },
+    "step2": {
+      "heading": "Your operations",
+      "subheading": "Roughly how big is your operation today?",
+      "orderVolumeLabel": "Monthly order volume",
+      "warehouses": "Warehouses",
+      "staffMembers": "Staff members"
+    },
+    "step3": {
+      "heading": "What matters most?",
+      "subheading": "Pick up to {{max}} priorities.",
+      "painPointsLabel": "Anything specific slowing you down? (optional)",
+      "painPointsPlaceholder": "e.g. Tracking expiry dates, chasing customer payments…",
+      "finishSetup": "Finish setup"
+    },
+    "generating": {
+      "heading": "Setting things up",
+      "subheading": "Saving your business profile and personalizing your dashboard…"
+    },
+    "done": {
+      "heading": "You're all set",
+      "subheading": "Your dashboard is ready.",
+      "goToDashboard": "Go to dashboard"
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "genericError": "Something went wrong. Please try again."
+  },
+  "inventory": {
+    "tabs": {
+      "products": "Products",
+      "rawMaterials": "Raw Materials"
+    },
+    "inventoryPage": {
+      "addRawMaterial": "Add raw material",
+      "addProduct": "Add product",
+      "searchPlaceholder": "Search by name, SKU, or category",
+      "loadingProducts": "Loading products…",
+      "loadFailed": "Failed to load products. Please try again.",
+      "noMatchingResults": "No matching results",
+      "noRawMaterialsYet": "No raw materials yet",
+      "noProductsYet": "No products yet",
+      "tryDifferentSearch": "Try a different search term.",
+      "noRawMaterialsDescription": "Add raw materials here, then reference them in a product's Bill of Materials.",
+      "noProductsDescription": "Add your first product to start tracking inventory, pricing, and stock.",
+      "columnProduct": "Product",
+      "columnSku": "SKU",
+      "columnCategory": "Category",
+      "columnStock": "Stock",
+      "columnPurchase": "Purchase",
+      "columnWholesale": "Wholesale",
+      "columnRetail": "Retail",
+      "columnReorderLevel": "Reorder Level",
+      "addOrAdjustStockFor": "Add or adjust stock for {{name}}",
+      "assembleFor": "Assemble {{name}} from raw materials",
+      "viewQrFor": "View QR code for {{name}}",
+      "editFor": "Edit {{name}}",
+      "deleteFor": "Delete {{name}}",
+      "addOrAdjustStockTitle": "Add / adjust stock",
+      "assembleTitle": "Assemble from raw materials",
+      "deleteProductTitle": "Delete product",
+      "deleteConfirm": "Are you sure you want to delete <bold>{{name}}</bold>? This cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "productForm": {
+      "nameRequired": "Name is required",
+      "unitRequired": "Unit is required",
+      "mustBeZeroOrMore": "Must be 0 or more",
+      "couldNotCreateCategory": "Could not create category. Please try again.",
+      "couldNotCreateBrand": "Could not create brand. Please try again.",
+      "couldNotUploadImage": "Could not upload image. Please try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "basics": "Basics",
+      "removeImage": "Remove image",
+      "productImageAlt": "Product",
+      "photo": "Photo",
+      "productName": "Product name",
+      "skuOptional": "SKU (optional)",
+      "skuPlaceholder": "Auto-generated if left blank",
+      "scanBarcodeToFillSku": "Scan barcode to fill SKU",
+      "unit": "Unit",
+      "isRawMaterialLabel": "This is a raw material",
+      "isRawMaterialHint": "(used to build other products, not sold directly)",
+      "categoryOptional": "Category (optional)",
+      "noCategory": "No category",
+      "brandOptional": "Brand (optional)",
+      "noBrand": "No brand",
+      "rawMaterialsUsed": "Raw materials used",
+      "rawMaterialsUsedSubtitle": "Optional — leave empty if this product's stock is tracked directly.",
+      "addMaterial": "Add material",
+      "noRawMaterialsConfigured": "No raw materials configured.",
+      "selectRawMaterial": "Select raw material…",
+      "removeRawMaterial": "Remove raw material",
+      "unitPlaceholder": "unit",
+      "noRawMaterialsExist": "No raw materials exist yet — add one from the Raw Materials tab first.",
+      "pricing": "Pricing",
+      "purchasePrice": "Purchase price",
+      "wholesalePrice": "Wholesale price",
+      "retailPrice": "Retail price",
+      "stock": "Stock",
+      "reorderLevel": "Reorder level",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "addProduct": "Add product"
+    },
+    "productFormPage": {
+      "backToInventory": "Back to inventory",
+      "editProductTitle": "Edit product",
+      "addProductTitle": "Add product",
+      "editProductSubtitle": "Update product or raw material details.",
+      "addProductSubtitle": "Create a new product or raw material.",
+      "loadingProduct": "Loading product…",
+      "loadFailed": "Could not load this product."
+    },
+    "stockForm": {
+      "typePurchase": "Purchase",
+      "typeCustomerReturn": "Customer return",
+      "typeTransferIn": "Transfer in",
+      "typeAdjustment": "Adjustment (correction)",
+      "typeOpening": "Opening stock",
+      "typeSale": "Sale",
+      "typeDamage": "Damage / loss",
+      "typeSupplierReturn": "Supplier return",
+      "typeTransferOut": "Transfer out",
+      "selectWarehouse": "Select a warehouse",
+      "selectReason": "Select a reason",
+      "mustBeWholeNumber": "Must be a whole number",
+      "mustBeGreaterThanZero": "Must be greater than 0",
+      "genericError": "Something went wrong. Please try again.",
+      "currentStockAllWarehouses": "Current stock (all warehouses): {{total}}",
+      "addStock": "Add stock",
+      "removeOrAdjustDown": "Remove / adjust down",
+      "warehouse": "Warehouse",
+      "selectWarehousePlaceholder": "Select warehouse…",
+      "currentStockHere": "Current stock here: {{quantity}}",
+      "reason": "Reason",
+      "quantityToAdd": "Quantity to add",
+      "quantityToRemove": "Quantity to remove",
+      "noteOptional": "Note (optional)",
+      "notePlaceholder": "e.g. GRN-882 delivery or damaged in transit",
+      "cancel": "Cancel",
+      "removeStock": "Remove stock"
+    },
+    "assembleForm": {
+      "selectWarehouse": "Select a warehouse",
+      "mustBeWholeNumber": "Must be a whole number",
+      "mustBeGreaterThanZero": "Must be greater than 0",
+      "genericError": "Something went wrong. Please try again.",
+      "canCurrentlyMakeUnlimited": "Can currently make unlimited more",
+      "canCurrentlyMake": "Can currently make {{count}} more",
+      "requiredPerUnit": "({{required}} {{unit}}/unit)",
+      "inStock": "{{stock}} {{unit}} in stock",
+      "warehouse": "Warehouse",
+      "selectWarehousePlaceholder": "Select warehouse…",
+      "quantityToAssemble": "Quantity to assemble",
+      "notEnoughStock": "Not enough raw material stock for {{quantity}} units — assembling anyway will take one or more raw materials negative.",
+      "noteOptional": "Note (optional)",
+      "notePlaceholder": "e.g. Batch #12 assembly",
+      "cancel": "Cancel",
+      "assemble": "Assemble"
+    },
+    "mobileStock": {
+      "title": "Inventory & Warehouses",
+      "addRawMaterial": "Add Raw Material",
+      "addProduct": "Add Product",
+      "allWarehouses": "All Warehouses",
+      "valuation": "VALUATION",
+      "totalSkus": "TOTAL SKUS",
+      "reorder": "REORDER",
+      "items": "{{count}} Items",
+      "outOfStockCount": "{{count}} Out of stock",
+      "searchPlaceholder": "Search by name or SKU...",
+      "products": "Products",
+      "rawMaterials": "Raw Materials",
+      "statusAll": "All ({{count}})",
+      "statusLow": "Low Stock ({{count}})",
+      "statusOut": "Out of Stock ({{count}})",
+      "loadingInventory": "Loading inventory…",
+      "noRawMaterialsYet": "No raw materials yet",
+      "noProductsYet": "No products yet",
+      "noMatchingResults": "No matching results",
+      "noRawMaterialsDescription": "Add raw materials here, then reference them in a product's Bill of Materials.",
+      "noProductsDescription": "Add your first product to start tracking stock.",
+      "tryDifferentFilter": "Try a different search or filter.",
+      "addRawMaterialShort": "Add raw material",
+      "addProductShort": "Add product",
+      "addOrAdjustStockTitle": "Add / adjust stock",
+      "assembleTitle": "Assemble from raw materials",
+      "statusInStock": "In Stock",
+      "statusLowStock": "Low Stock",
+      "statusOutOfStock": "Out of Stock",
+      "onHand": "ON HAND",
+      "warehouseSplit": "WAREHOUSE SPLIT",
+      "price": "PRICE",
+      "noStockRecorded": "No stock recorded",
+      "addOrAdjustStockButton": "Add / Adjust Stock",
+      "assembleButton": "Assemble"
+    },
+    "barcodeScanner": {
+      "title": "Scan barcode / QR",
+      "close": "Close",
+      "cameraError": "Could not access the camera. Check permissions and try again.",
+      "hint": "Point the camera at a barcode or QR code."
+    },
+    "qrModal": {
+      "defaultTitle": "Product QR code",
+      "close": "Close",
+      "generating": "Generating…",
+      "altText": "QR code for SKU {{sku}}",
+      "skuLabel": "SKU: {{sku}}",
+      "download": "Download",
+      "generateFailed": "Could not generate the QR code."
+    }
+  },
+  "staff": {
+    "roles": {
+      "manager": "Manager",
+      "salesman": "Salesman",
+      "warehouseStaff": "Warehouse Staff"
+    },
+    "staffPage": {
+      "tabTeam": "Team",
+      "tabAttendance": "Attendance",
+      "tabPayroll": "Payroll",
+      "filterAll": "All",
+      "filterActive": "Active",
+      "filterSuspended": "Suspended",
+      "addStaff": "Add Staff",
+      "searchPlaceholder": "Search staff by name or phone…",
+      "loadingStaff": "Loading staff…",
+      "noStaffFound": "No staff members found",
+      "noStaffFoundDescription": "Try a different search or filter, or add your first team member.",
+      "active": "Active",
+      "suspended": "Suspended",
+      "salaried": "Salaried",
+      "dailyWage": "Daily wage"
+    },
+    "staffForm": {
+      "nameTooShort": "Name must be at least 2 characters",
+      "mustBeGreaterThanZero": "Must be greater than 0",
+      "couldNotCreateDepartment": "Could not create department. Please try again.",
+      "couldNotCreateDesignation": "Could not create designation. Please try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "dayOff": "Day off",
+      "to": "to",
+      "basics": "Basics",
+      "name": "Name",
+      "namePlaceholder": "Full name",
+      "phoneOptional": "Phone (optional)",
+      "phonePlaceholder": "10-digit mobile number",
+      "role": "Role",
+      "departmentOptional": "Department (optional)",
+      "noDepartment": "No department",
+      "designationOptional": "Designation (optional)",
+      "noDesignation": "No designation",
+      "weeklySchedule": "Weekly schedule",
+      "weeklyScheduleSubtitle": "Set working hours or mark a day off for each day of the week.",
+      "pay": "Pay",
+      "payType": "Pay type",
+      "monthlySalary": "Monthly salary",
+      "dailyWage": "Daily wage",
+      "monthlySalaryCurrency": "Monthly salary (₹)",
+      "monthlySalaryPlaceholder": "e.g. 25000",
+      "dailyWageCurrency": "Daily wage (₹)",
+      "dailyWagePlaceholder": "e.g. 500",
+      "salaryHint": "Paid in full each month regardless of attendance.",
+      "dailyWageHint": "Monthly pay is computed from marked attendance (present days × rate).",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "addStaff": "Add staff",
+      "days": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
+    },
+    "staffFormPage": {
+      "backToStaff": "Back to staff",
+      "editStaffTitle": "Edit staff member",
+      "addStaffTitle": "Add staff member",
+      "editStaffSubtitle": "Update role, schedule, or pay details.",
+      "addStaffSubtitle": "Add a new team member, their schedule, and pay.",
+      "loadingStaffMember": "Loading staff member…",
+      "loadFailed": "Could not find this staff member."
+    },
+    "attendanceTab": {
+      "statusPresent": "Present",
+      "statusHalfDay": "Half Day",
+      "statusAbsent": "Absent",
+      "statusLeave": "Leave",
+      "markAllPresent": "Mark all present",
+      "save": "Save",
+      "saveWithCount": "Save ({{count}})",
+      "loadingAttendance": "Loading attendance…",
+      "noActiveStaff": "No active staff members yet."
+    },
+    "payrollTab": {
+      "generateForAllStaff": "Generate for all staff",
+      "couldNotGeneratePayroll": "Could not generate payroll.",
+      "couldNotGeneratePayrollForAll": "Could not generate payroll for all staff.",
+      "couldNotRecordPayment": "Could not record payment.",
+      "skipped": "Skipped {{count}}: {{details}}",
+      "totalPayroll": "Total payroll ({{month}})",
+      "unpaid": "Unpaid",
+      "loadingPayroll": "Loading payroll…",
+      "noActiveStaff": "No active staff members yet.",
+      "salaried": "Salaried",
+      "dailyWage": "Daily wage",
+      "presentHalfDay": "{{present}} present, {{halfDays}} half-day",
+      "paid": "Paid",
+      "markPaid": "Mark paid",
+      "generate": "Generate"
+    }
+  },
+  "orders": {
+    "common": {
+      "qty": "Qty",
+      "unit": "Unit",
+      "price": "Price",
+      "productNamePlaceholder": "Product name",
+      "removeItem": "Remove item",
+      "addItem": "Add item",
+      "searchCustomers": "Search customers",
+      "typeAName": "Type a name…",
+      "addNewCustomer": "Add new customer",
+      "phoneOptional": "Phone (optional)",
+      "saveCustomer": "Save customer",
+      "nameRequired": "Name is required",
+      "couldNotAddCustomer": "Could not add customer. Please try again.",
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "newOrderModal": {
+      "title": "New order",
+      "subtitle": "Paste what the party told you, or fill in a form.",
+      "typeOrPaste": "Type or paste the order",
+      "typeOrPasteExample": "e.g. \"Rajesh Musical se 25 dholak, 20 bongo...\" — AI figures out the party and items.",
+      "fillManually": "Fill in manually",
+      "fillManuallyDescription": "Pick a customer and add items one by one.",
+      "aiTitle": "Type the order",
+      "aiSubtitle": "Write it the way you'd say it — Hindi, English, or mixed.",
+      "aiTextareaPlaceholder": "new order aaya hai Rajesh Musical se 25 aam ki lakdhi ki dholak natbold wali, 20 bongo full ready, 200 damru 5 inchi wale",
+      "parseOrder": "Parse order",
+      "couldNotParse": "Couldn't parse that text. Try again or fill manually.",
+      "reviewParsedOrder": "Review parsed order",
+      "newOrder": "New order",
+      "reviewSubtitle": "Confirm the customer and items before saving.",
+      "customer": "Customer",
+      "change": "Change",
+      "selectOrAddCustomer": "Select or add a customer",
+      "items": "Items ({{count}})",
+      "newProduct": "New product",
+      "matched": "Matched",
+      "saveOrder": "Save order",
+      "couldNotSaveOrder": "Couldn't save the order. Please try again.",
+      "warningTitle": "Order saved — raw materials running low",
+      "warningSubtitle": "The order was saved. These products don't have enough raw material stock to fully produce the ordered quantity yet:",
+      "orderedCanMake": "Ordered {{ordered}}, can currently make {{producible}}",
+      "gotIt": "Got it"
+    },
+    "orderDetailModal": {
+      "unknownCustomer": "Unknown customer",
+      "notEditable": "This order is {{status}} and can no longer be edited.",
+      "items": "Items ({{count}})",
+      "newProduct": "New product",
+      "item": "Item",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional notes about this order…",
+      "confirm": "Confirm",
+      "cancelOrder": "Cancel order",
+      "close": "Close",
+      "saveChanges": "Save changes",
+      "couldNotSaveChanges": "Couldn't save changes. Please try again.",
+      "couldNotUpdateStatus": "Couldn't update status. Please try again."
+    },
+    "invoiceDetailModal": {
+      "unknownCustomer": "Unknown customer",
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partially Paid",
+        "paid": "Paid"
+      },
+      "methodLabel": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bankTransfer": "Bank Transfer",
+        "cheque": "Cheque",
+        "credit": "Credit",
+        "other": "Other"
+      },
+      "billTypeGst": "GST Bill",
+      "billTypeRecord": "Record Bill",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "paymentHistory": "Payment history",
+      "recordAPayment": "Record a payment",
+      "amount": "Amount",
+      "upToAmount": "Up to {{amount}}",
+      "amountMustBePositive": "Must be greater than 0",
+      "amountExceedsRemaining": "Can't exceed {{amount}} remaining",
+      "method": "Method",
+      "noteOptional": "Note (optional)",
+      "recordPayment": "Record payment",
+      "couldNotRecordPayment": "Couldn't record payment. Please try again.",
+      "close": "Close",
+      "gstPercentSuffix": " · GST {{percent}}%"
+    }
+  },
+  "sales": {
+    "newSaleModal": {
+      "nameRequired": "Name is required",
+      "couldNotAddCustomer": "Could not add customer. Please try again.",
+      "couldNotGenerateBill": "Couldn't generate the bill. Please try again.",
+      "couldNotRecordPayment": "Couldn't record the payment. Please try again.",
+      "close": "Close",
+      "customerStepTitle": "New sale",
+      "customerStepSubtitle": "Pick the party you're billing.",
+      "searchCustomers": "Search customers",
+      "typeAName": "Type a name…",
+      "addNewCustomer": "Add new customer",
+      "phoneOptional": "Phone (optional)",
+      "saveAndContinue": "Save & continue",
+      "loadingPendingOrders": "Loading their pending orders…",
+      "everythingOrdered": "Everything they've ordered — edit, remove, or add items.",
+      "noPendingOrders": "No pending orders for this party — add items to bill.",
+      "newItem": "New item",
+      "fromOrder": "From order",
+      "removeItem": "Remove item",
+      "productNamePlaceholder": "Product name",
+      "qty": "Qty",
+      "unit": "Unit",
+      "price": "Price",
+      "addItem": "Add item",
+      "total": "Total",
+      "back": "Back",
+      "continue": "Continue",
+      "chooseBillType": "Choose bill type",
+      "totalSuffix": "{{amount}} total",
+      "gstBill": "GST Bill",
+      "gstBillDescription": "Formal tax invoice with GST added per item, using each product's tax rate.",
+      "recordBill": "Record Bill",
+      "recordBillDescription": "Simple receipt, no tax added — for cash/retail sales that don't need a tax invoice.",
+      "generateBill": "Generate bill",
+      "recordPaymentReceived": "Record the payment received.",
+      "subtotal": "Subtotal",
+      "gst": "GST",
+      "paymentMethod": "Payment method",
+      "methodLabel": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bank": "Bank",
+        "cheque": "Cheque",
+        "credit": "Credit"
+      },
+      "amountReceived": "Amount received",
+      "partialPaymentRemaining": "Partial payment — {{amount}} will remain due.",
+      "skipForNow": "Skip for now",
+      "confirmPayment": "Confirm payment",
+      "saleComplete": "Sale complete",
+      "gstBillShort": "GST bill",
+      "recordBillShort": "Record bill",
+      "fullyPaid": "Fully paid",
+      "partiallyPaid": "Partially paid",
+      "done": "Done"
+    },
+    "salesPage": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "quotations": "Quotations",
+        "returns": "Returns",
+        "payments": "Payments"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partial",
+        "paid": "Paid"
+      },
+      "unknownCustomer": "Unknown customer",
+      "loadingOrders": "Loading orders…",
+      "noOrdersYetTitle": "No sales orders yet",
+      "noOrdersYetDescription": "Create your first sales order to start tracking orders and invoices.",
+      "newOrder": "New order",
+      "newSale": "New sale",
+      "customer": "Customer",
+      "items": "Items",
+      "source": "Source",
+      "status": "Status",
+      "amount": "Amount",
+      "date": "Date",
+      "aiOrder": "AI Order",
+      "manual": "Manual",
+      "loadingInvoices": "Loading invoices…",
+      "noInvoicesYetTitle": "No invoices yet",
+      "noInvoicesYetDescription": "Bill a customer to generate your first invoice.",
+      "invoice": "Invoice",
+      "type": "Type",
+      "gst": "GST",
+      "record": "Record",
+      "comingSoon": "{{label}} coming soon",
+      "beingDesigned": "This section is being designed.",
+      "quotationsLabel": "Quotations",
+      "returnsLabel": "Returns",
+      "paymentsLabel": "Payments"
+    },
+    "mobileSalesOrders": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "quotes": "Quotes",
+        "returns": "Returns"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "paymentStatusLabel": {
+        "unpaid": "Unpaid",
+        "partial": "Partial",
+        "paid": "Paid"
+      },
+      "unknownCustomer": "Unknown customer",
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago",
+      "orderSummary": "Order Summary",
+      "grossValue": "Gross Value",
+      "orders": "Orders",
+      "avgTicket": "Avg Ticket",
+      "searchByCustomer": "Search by customer…",
+      "newOrderTypeOrPaste": "New Order (Type or Paste)",
+      "filterAllOrders": "All Orders",
+      "filterPending": "Pending",
+      "filterBilled": "Billed",
+      "filterCancelled": "Cancelled",
+      "loadingOrders": "Loading orders…",
+      "noOrdersFoundTitle": "No orders found",
+      "noOrdersFoundDescription": "Try a different filter or create a new order.",
+      "itemsCountOne": "{{count}} item",
+      "itemsCountOther": "{{count}} items",
+      "newSale": "New Sale",
+      "searchByCustomerOrInvoice": "Search by customer or invoice #…",
+      "loadingInvoices": "Loading invoices…",
+      "noInvoicesFoundTitle": "No invoices found",
+      "noInvoicesFoundDescription": "Bill a customer from Sales to generate one.",
+      "gst": "GST",
+      "record": "Record",
+      "comingSoon": "{{label}} coming soon",
+      "beingDesigned": "This section is being designed."
+    }
+  },
+  "purchases": {
+    "purchasesPage": {
+      "tabs": {
+        "orders": "Purchase Orders",
+        "purchases": "Purchases",
+        "returns": "Purchase Returns",
+        "payments": "Supplier Payments"
+      },
+      "newPurchaseOrder": "New purchase order",
+      "noPurchaseOrdersYetTitle": "No purchase orders yet",
+      "noPurchaseOrdersYetDescription": "Create a purchase order to start tracking incoming stock.",
+      "po": "PO",
+      "supplier": "Supplier",
+      "items": "Items",
+      "status": "Status",
+      "amount": "Amount",
+      "date": "Date",
+      "comingSoon": "{{label}} coming soon",
+      "beingDesigned": "This section is being designed.",
+      "purchasesLabel": "Purchases",
+      "purchaseReturnsLabel": "Purchase Returns",
+      "supplierPaymentsLabel": "Supplier Payments"
+    }
+  },
+  "dashboard": {
+    "mobileDashboard": {
+      "quickActions": {
+        "newOrder": "New Order",
+        "newSale": "New Sale",
+        "voiceOrder": "Voice Order",
+        "scanStock": "Scan Stock"
+      },
+      "statusLabel": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago",
+      "businessBriefLabel": "Business Brief",
+      "autonomousBusinessBrief": "Autonomous Business Brief",
+      "loadingBrief": "Loading your business brief…",
+      "fallbackBriefSales": "Today's sales are {{amount}}.",
+      "fallbackBriefLowStockOne": "{{count}} product is below reorder level.",
+      "fallbackBriefLowStockOther": "{{count}} products are below reorder level.",
+      "fallbackBriefNoLowStock": "No products are below reorder level.",
+      "fallbackBriefOverdue": "{{name}} has {{amount}} overdue.",
+      "fallbackBriefNoOverdue": "No overdue payments.",
+      "immediateOperations": "Immediate Operations",
+      "pendingCount": "{{count}} Pending",
+      "allClear": "All clear — no low stock or overdue payments.",
+      "lowStockBadge": "{{count}} Low Stock",
+      "lowStockItemsFallback": "Low stock items",
+      "belowReorderLevel": "Below reorder level",
+      "overdueBadge": "{{amount}} Overdue",
+      "partyPendingOne": "{{count}} Party Pending",
+      "partyPendingOther": "{{count}} Parties Pending",
+      "topOverdue": "Top: {{name}} ({{amount}})",
+      "ledgerMetrics": "Ledger & Logistics Metrics",
+      "updatedRealTime": "Updated real-time",
+      "todaysTotalBilling": "Today's Total Billing",
+      "vsYesterday": "vs {{amount}} yesterday",
+      "monthSales": "Month Sales",
+      "inventoryValShort": "Inventory Val.",
+      "totalSkus": "{{count}} Total SKUs",
+      "receivables": "Receivables",
+      "overdueCount": "{{count}} overdue",
+      "payables": "Payables",
+      "notTracked": "Not tracked",
+      "noPurchasesModuleYet": "No purchases module yet",
+      "liveOrderFlow": "Live Order Flow",
+      "noOrdersYet": "No orders yet.",
+      "itemsCountOne": "{{count}} item",
+      "itemsCountOther": "{{count}} items",
+      "allDataSynced": "All data synced"
+    },
+    "dashboardPage": {
+      "welcomeBack": "Welcome back, {{businessName}}",
+      "todaysSales": "Today's Sales",
+      "vsYesterday": "{{sign}}{{percent}}% vs yesterday",
+      "todaysPurchases": "Today's Purchases",
+      "notTrackedYet": "Not tracked yet",
+      "inventoryValue": "Inventory Value",
+      "receivables": "Receivables",
+      "customersOverdueOne": "{{count}} customer overdue",
+      "customersOverdueOther": "{{count}} customers overdue",
+      "salesTrend": "Sales Trend",
+      "last7Days": "Last 7 days",
+      "salesTooltipLabel": "Sales",
+      "topProducts": "Top Products",
+      "noSalesYet": "No sales yet — billed products will show up here.",
+      "recentActivity": "Recent Activity",
+      "noActivityYet": "No activity yet.",
+      "minutesAgo": "{{count}} min{{plural}} ago",
+      "hoursAgo": "{{count}} hour{{plural}} ago",
+      "daysAgo": "{{count}} day{{plural}} ago",
+      "aiBusinessSummary": "AI Business Summary",
+      "loadingSummary": "Loading your business summary…",
+      "fallbackSummarySales": "Today's sales are {{amount}}.",
+      "fallbackSummaryLowStockOne": "{{count}} product is below reorder level.",
+      "fallbackSummaryLowStockOther": "{{count}} products are below reorder level.",
+      "fallbackSummaryNoLowStock": "No products are below reorder level.",
+      "fallbackSummaryOverdue": "{{name}} has {{amount}} overdue.",
+      "fallbackSummaryNoOverdue": "No overdue payments."
+    }
+  },
+  "ai": {
+    "aiPage": {
+      "heading": "Munshi AI — your business assistant"
+    },
+    "aiChatPanel": {
+      "promptSuggestions": {
+        "todaysSales": "Aaj kitni sale hui?",
+        "pendingPayment": "Kiska payment pending hai?",
+        "lowStock": "Kitne products low stock mein hain?"
+      },
+      "markAttendance": "Mark {{staffName}} {{status}} on {{date}}",
+      "staffFallback": "staff",
+      "newOrderFor": "New order for {{customerName}}: {{itemsText}}",
+      "customerFallback": "customer",
+      "couldNotConfirmAction": "Could not confirm this action.",
+      "couldNotDismissAction": "Could not dismiss this action.",
+      "dismiss": "Dismiss",
+      "confirm": "Confirm",
+      "confirmed": "Confirmed",
+      "dismissed": "Dismissed",
+      "loadingConversation": "Loading conversation…",
+      "askAboutBusiness": "Ask me about your business",
+      "askAboutBusinessDescription": "Sales, dues, stock levels — or ask me to mark attendance or create an order.",
+      "thinking": "Thinking…",
+      "inputPlaceholder": "Ask about your business, e.g. Aaj kitni sale hui?",
+      "send": "Send",
+      "disclaimer": "AI-drafted actions always require your review and confirmation before affecting your business data.",
+      "couldNotReachAssistant": "Couldn't reach the AI assistant. Please try again."
+    }
+  },
+  "reports": {
+    "reportsPage": {
+      "tabs": {
+        "sales": "Sales",
+        "purchases": "Purchases",
+        "inventory": "Inventory",
+        "financial": "Financial"
+      },
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "inventoryValue": "Inventory Value",
+      "grossProfitMonth": "Gross Profit (Month)",
+      "reportComingSoon": "{{label}} report coming soon",
+      "beingDesigned": "This report is being designed.",
+      "purchasesLabel": "Purchases",
+      "inventoryLabel": "Inventory"
+    }
+  },
+  "layoutExtra": {
+    "mobileTopBar": {
+      "openNavigation": "Open navigation",
+      "search": "Search",
+      "notifications": "Notifications",
+      "live": "LIVE"
+    },
+    "quickActionSheet": {
+      "title": "Quick Actions",
+      "close": "Close",
+      "closeQuickActions": "Close quick actions",
+      "newOrder": "New Order",
+      "newSale": "New Sale",
+      "addPurchase": "Add Purchase",
+      "addStock": "Add Stock",
+      "addCustomer": "Add Customer",
+      "receivePayment": "Receive Payment",
+      "scanProduct": "Scan Product",
+      "voiceEntry": "Voice Entry"
+    }
+  },
+  "ui": {
+    "successModal": {
+      "redirecting": "Redirecting to your dashboard in {{seconds}}s…"
+    },
+    "dialog": {
+      "closeDialog": "Close dialog",
+      "close": "Close"
+    }
+  },
+  "landing": {
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "solutions": "Solutions",
+      "pricing": "Pricing",
+      "resources": "Resources",
+      "signIn": "Sign in",
+      "requestDemo": "Request Demo",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "hero": {
+      "badge": "Built for wholesalers, retailers and growing businesses.",
+      "headingSmart": "Smart",
+      "headingInventory": "Inventory",
+      "headingSubline": "Management, Simplified",
+      "description": "Manage stock, purchases, sales, customers, suppliers, payments, and business operations from one intelligent platform.",
+      "getStarted": "Get Started",
+      "requestDemo": "Request Demo"
+    },
+    "features": {
+      "eyebrow": "Features",
+      "heading": "Everything your business needs, in one place",
+      "description": "Replace paper registers, spreadsheets, and WhatsApp order-taking with a single connected system.",
+      "items": {
+        "inventory": {
+          "title": "Real-time inventory",
+          "description": "Track stock across every warehouse with a full movement ledger — never lose an audit trail again."
+        },
+        "salesPurchases": {
+          "title": "Sales & purchases",
+          "description": "Quotations, orders, invoices, and supplier POs in one flow, from draft to payment."
+        },
+        "customersSuppliers": {
+          "title": "Customers & suppliers",
+          "description": "Credit limits, ledgers, and payment history for every party you do business with."
+        },
+        "aiAssistant": {
+          "title": "AI business assistant",
+          "description": "Ask in plain language — \"Aaj kitni sale hui?\" — and get answers grounded in your real data."
+        },
+        "voiceOcr": {
+          "title": "Voice & OCR entry",
+          "description": "Speak a sale or scan a paper invoice; review the draft before anything touches your books."
+        },
+        "multiWarehouse": {
+          "title": "Multi-warehouse",
+          "description": "Independent stock per location, with transfers and approvals built in."
+        },
+        "reports": {
+          "title": "Reports that matter",
+          "description": "Sales, inventory valuation, receivables, and profit — always current, never stale spreadsheets."
+        },
+        "tenantAudit": {
+          "title": "Tenant isolation & audit logs",
+          "description": "Every action is scoped, permissioned, and logged — built for teams, not just individuals."
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "heading": "Plans that grow with your business",
+      "mostPopular": "Most popular",
+      "getStarted": "Get Started",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "price": "Free",
+          "description": "For a single business getting off spreadsheets.",
+          "features": [
+            "1 business",
+            "2 users",
+            "1 warehouse",
+            "Sales & customers",
+            "Basic reports"
+          ]
+        },
+        "business": {
+          "name": "Business",
+          "price": "Contact us",
+          "description": "For growing wholesalers with multiple staff.",
+          "features": [
+            "Multiple users & warehouses",
+            "Purchases & suppliers",
+            "AI assistant & automations",
+            "Advanced reports"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Contact us",
+          "description": "For established distributors at scale.",
+          "features": [
+            "Unlimited users",
+            "Advanced permissions",
+            "API & integrations",
+            "Priority support"
+          ]
+        }
+      }
+    },
+    "footer": {
+      "ctaHeading": "Ready to run your business from one place?",
+      "ctaDescription": "Set up your workspace in minutes — no credit card required to get started.",
+      "getStarted": "Get Started",
+      "copyright": "© {{year}} SethSathi. All rights reserved.",
+      "features": "Features",
+      "pricing": "Pricing",
+      "signIn": "Sign in"
+    },
+    "mockup": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "inventory": "Inventory",
+        "sales": "Sales",
+        "purchases": "Purchases",
+        "customers": "Customers",
+        "suppliers": "Suppliers",
+        "warehouses": "Warehouses",
+        "aiAssistant": "AI Assistant",
+        "automations": "Automations",
+        "staff": "Staff",
+        "settings": "Settings"
+      },
+      "searchPlaceholder": "Search products, customers, invoices...",
+      "businessOverview": "Business Overview",
+      "executiveSummary": "Executive summary of today's operations",
+      "statLabels": {
+        "todaysSales": "Today's Sales",
+        "inventoryValue": "Inventory Value",
+        "receivables": "Receivables",
+        "orders": "Orders"
+      },
+      "revenueTrend": "Revenue Trend",
+      "last7Days": "Last 7 days",
+      "topProducts": "Top Products"
+    }
+  },
+  "customers": {
+    "customersPage": {
+      "searchPlaceholder": "Search parties…",
+      "addCustomer": "Add customer",
+      "loadingParties": "Loading parties…",
+      "emptyTitle": "No customers yet",
+      "emptyDescriptionMobile": "Add your first customer to start recording orders and tracking credit.",
+      "emptyDescriptionDesktop": "Add your first customer to start recording sales and tracking credit.",
+      "totalPurchases": "Total Purchases",
+      "outstanding": "Outstanding",
+      "creditLimit": "Credit Limit",
+      "lastPurchase": "Last Purchase"
+    },
+    "addCustomerModal": {
+      "title": "Add customer",
+      "nameRequired": "Name is required",
+      "creditLimitMin": "Must be 0 or more",
+      "namePlaceholder": "e.g. Sharma Traders",
+      "phoneLabel": "Phone (optional)",
+      "creditLimitLabel": "Credit limit (optional)",
+      "submit": "Add customer",
+      "addError": "Could not add customer. Please try again."
+    },
+    "partyPortfolioModal": {
+      "tabs": {
+        "orders": "Orders",
+        "invoices": "Invoices",
+        "payments": "Payments"
+      },
+      "loading": "Loading party portfolio…",
+      "loadError": "Could not load this customer.",
+      "inactive": "Inactive",
+      "pendingOrders": "Pending Orders",
+      "noOrders": "No orders from this customer yet.",
+      "noInvoices": "No invoices generated for this customer yet.",
+      "noPayments": "No payments recorded for this customer yet.",
+      "itemCountOne": "{{count}} item",
+      "itemCountMany": "{{count}} items",
+      "aiOrder": "AI Order",
+      "manualOrder": "Manual",
+      "gstBill": "GST Bill",
+      "recordBill": "Record Bill"
+    }
+  },
+  "suppliers": {
+    "suppliersPage": {
+      "addSupplier": "Add supplier",
+      "loading": "Loading suppliers…",
+      "emptyTitle": "No suppliers yet",
+      "emptyDescription": "Add your first supplier to start recording purchases.",
+      "gstinLabel": "GSTIN: {{gstin}}",
+      "totalPurchased": "Total Purchased",
+      "outstanding": "Outstanding",
+      "notTrackedYet": "Not tracked yet"
+    },
+    "addSupplierModal": {
+      "title": "Add supplier",
+      "nameRequired": "Name is required",
+      "namePlaceholder": "e.g. Coca-Cola Distributors",
+      "phoneLabel": "Phone (optional)",
+      "gstinLabel": "GSTIN (optional)",
+      "gstinPlaceholder": "e.g. 09ABCDE1234F1Z5",
+      "submit": "Add supplier",
+      "addError": "Could not add supplier. Please try again."
+    }
+  },
+  "warehouses": {
+    "warehousesPage": {
+      "addWarehouse": "Add warehouse",
+      "loading": "Loading warehouses…",
+      "emptyTitle": "No warehouses yet",
+      "emptyDescription": "Add a warehouse to start tracking stock by location.",
+      "noLocationSet": "No location set",
+      "stockValue": "Stock Value",
+      "skusStocked": "SKUs Stocked"
+    },
+    "addWarehouseModal": {
+      "title": "Add warehouse",
+      "nameRequired": "Name is required",
+      "namePlaceholder": "e.g. Noida Warehouse",
+      "locationLabel": "Location (optional)",
+      "locationPlaceholder": "e.g. Sector 63, Noida",
+      "submit": "Add warehouse",
+      "addError": "Could not add warehouse. Please try again."
+    }
+  },
+  "welcomeChat": {
+    "online": "Online",
+    "close": "Close chat",
+    "typing": "Munshi AI is typing",
+    "send": "Send",
+    "chooseAbove": "Choose an option above",
+    "greeting": "Namaste! I'm Munshi AI, your digital munshi at SethSathi. Do you already have an account, or shall we create a new one together?",
+    "choiceRegister": "Create a new account",
+    "choiceLogin": "I have an account — log in",
+    "goingToLogin": "Sure! Taking you to the login page…",
+    "askLanguage": "Wonderful, let's set up your account together. First, which language would you like me to use?",
+    "languageSet": "Done! I'll talk to you in English from now on.",
+    "askName": "What's your full name?",
+    "askBusiness": "Nice to meet you, {{name}}! What's the name of your business?",
+    "askPhone": "What's your 10-digit mobile number? You'll sign in with it using a one-time code (OTP).",
+    "askEmail": "And your email address? You can also sign in with it.",
+    "askPassword": "Last step: create a password of at least 8 characters, for signing in with email.",
+    "placeholders": {
+      "name": "e.g. Ramesh Kumar",
+      "business": "e.g. Sharma Traders",
+      "phone": "98230 45812",
+      "email": "name@example.com",
+      "password": "At least 8 characters"
+    },
+    "errors": {
+      "nameTooShort": "Please enter your full name (at least 2 characters).",
+      "businessTooShort": "Please enter your business name (at least 2 characters).",
+      "phoneInvalid": "That doesn't look like a valid 10-digit mobile number. Please type it again.",
+      "emailInvalid": "That doesn't look like a valid email address. Please check and type it again.",
+      "passwordTooShort": "The password needs at least 8 characters. Please try a longer one.",
+      "emailTaken": "An account with this email already exists. Please type a different email, or log in instead.",
+      "phoneTaken": "An account with this mobile number already exists. Please type a different number, or log in instead.",
+      "generic": "Sorry, I couldn't create your account right now. {{message}}"
+    },
+    "previewIntro": "Here's a preview of your account. Please check that everything is right:",
+    "previewUpdated": "Updated! Here's your new account preview:",
+    "previewTitle": "Account preview",
+    "fields": {
+      "name": "Full name",
+      "business": "Business name",
+      "phone": "Mobile number",
+      "email": "Email",
+      "password": "Password",
+      "language": "Language"
+    },
+    "termsNote": "By creating an account, you agree to the Terms & Privacy Policy.",
+    "confirm": "Looks good, create my account",
+    "edit": "Change something",
+    "whichEdit": "Sure — what would you like to change?",
+    "editPrompt": {
+      "name": "Please type your full name:",
+      "business": "Please type your business name:",
+      "phone": "Please type your 10-digit mobile number:",
+      "email": "Please type your email address:",
+      "password": "Please type a new password (at least 8 characters):",
+      "language": "Which language would you like?"
+    },
+    "creating": "Creating your account… this takes just a moment.",
+    "success": "Congratulations, {{name}}! {{business}} is now set up on SethSathi.",
+    "successHelp": "From today, Munshi AI will help you with every task — making bills, managing stock, tracking customer dues and payments, staff attendance, and answering any question about your business. Just ask me anytime!",
+    "goHome": "Go to my dashboard",
+    "loginInstead": "Log in instead"
+  }
+}

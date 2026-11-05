@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Bell, ChevronLeft, ChevronRight, LogOut, Moon, X } from "lucide-react";
@@ -40,6 +41,7 @@ function initialsFor(name: string): string {
 }
 
 export function TenantAdminLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
@@ -94,7 +96,7 @@ export function TenantAdminLayout() {
       {drawerOpen && (
         <button
           type="button"
-          aria-label="Close navigation"
+          aria-label={t("layout.closeNavigation")}
           onClick={() => setDrawerOpen(false)}
           className="fixed inset-0 z-30 bg-text/30 lg:hidden"
         />
@@ -110,22 +112,22 @@ export function TenantAdminLayout() {
       >
         <div className="flex shrink-0 items-start justify-between gap-2 px-5 pb-4 pt-5">
           {collapsed ? (
-            <img src="/logo-64.png" alt="UManager" className="hidden h-9 w-9 object-contain lg:block" />
+            <img src="/logo.svg" alt={t("brand.name")} className="hidden h-9 w-9 lg:block" />
           ) : (
             <div className="flex min-w-0 items-center gap-2.5">
-              <img src="/logo-64.png" alt="" className="h-9 w-9 shrink-0 object-contain" />
+              <img src="/logo.svg" alt="" className="h-9 w-9 shrink-0" />
               <div className="min-w-0">
                 <div className="truncate text-xl font-extrabold leading-tight tracking-tight text-text">
-                  UManager
+                  {t("brand.name")}
                 </div>
-                <div className="mt-1 text-sm leading-tight text-text-muted">Tenant Admin</div>
+                <div className="mt-1 text-sm leading-tight text-text-muted">{t("layout.tenantAdmin")}</div>
               </div>
             </div>
           )}
           <button
             type="button"
             onClick={() => setCollapsed((value) => !value)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? t("layout.expandSidebar") : t("layout.collapseSidebar")}
             className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-surface-variant bg-surface text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40 lg:flex"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -133,7 +135,7 @@ export function TenantAdminLayout() {
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            aria-label="Close navigation"
+            aria-label={t("layout.closeNavigation")}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-surface-variant bg-surface text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40 lg:hidden"
           >
             <X size={16} />
@@ -142,7 +144,7 @@ export function TenantAdminLayout() {
 
         {!collapsed && (
           <div className="px-5 pb-5">
-            <SearchInput placeholder="Search..." />
+            <SearchInput placeholder={t("layout.searchPlaceholder")} />
           </div>
         )}
 
@@ -152,7 +154,7 @@ export function TenantAdminLayout() {
               key={item.path}
               to={item.path}
               end={item.path === "/app"}
-              title={collapsed ? item.label : undefined}
+              title={collapsed ? t(item.labelKey) : undefined}
               className={({ isActive }) =>
                 clsx(
                   "flex items-center gap-3.5 rounded-xl px-5 py-2.5 text-[15px] outline-none transition-colors",
@@ -165,7 +167,7 @@ export function TenantAdminLayout() {
               }
             >
               <item.icon size={20} strokeWidth={1.6} />
-              <span className={clsx(collapsed && "lg:hidden")}>{item.label}</span>
+              <span className={clsx(collapsed && "lg:hidden")}>{t(item.labelKey)}</span>
             </NavLink>
           ))}
         </nav>
@@ -182,7 +184,7 @@ export function TenantAdminLayout() {
             <Avatar name={user?.name ?? "?"} size={40} variant="neutral" />
             <div className={clsx("min-w-0 flex-1", collapsed && "lg:hidden")}>
               <div className="truncate text-[15px] font-semibold leading-tight text-text">
-                {user?.name ?? "Account"}
+                {user?.name ?? t("layout.account")}
               </div>
               <div className="mt-0.5 truncate text-sm leading-tight text-text-muted">{user?.email ?? ""}</div>
             </div>
@@ -196,7 +198,7 @@ export function TenantAdminLayout() {
                 className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:bg-surface-muted"
               >
                 <LogOut size={16} strokeWidth={1.75} />
-                Log out
+                {t("layout.logOut")}
               </button>
             </div>
           ) : null}
@@ -213,14 +215,14 @@ export function TenantAdminLayout() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              aria-label="Toggle theme"
+              aria-label={t("layout.toggleTheme")}
               className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-variant text-text-muted outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <Moon size={18} />
             </button>
             <button
               type="button"
-              aria-label="Notifications"
+              aria-label={t("layout.notifications")}
               className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-surface-variant text-text-muted outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <Bell size={18} />

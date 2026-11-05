@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 interface DialogProps {
@@ -9,6 +10,8 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onClose, title, children }: DialogProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -24,7 +27,7 @@ export function Dialog({ open, onClose, title, children }: DialogProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <button
         type="button"
-        aria-label="Close dialog"
+        aria-label={t("ui.dialog.closeDialog")}
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
@@ -34,7 +37,7 @@ export function Dialog({ open, onClose, title, children }: DialogProps) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("ui.dialog.close")}
             className="rounded-full p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <X size={18} />

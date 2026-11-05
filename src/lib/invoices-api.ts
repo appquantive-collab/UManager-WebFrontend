@@ -46,6 +46,7 @@ export function getCustomerPendingItems(customerId: string): Promise<{ items: Pe
 }
 
 export interface BillLineItemInput {
+  orderId?: string;
   productId?: string;
   productName: string;
   quantity: number;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Phone, Receipt, FileText, Wallet, X } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
@@ -28,13 +29,13 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-const tabs = [
-  { key: "orders", label: "Orders" },
-  { key: "invoices", label: "Invoices" },
-  { key: "payments", label: "Payments" },
-];
-
 export function PartyPortfolioModal({ customerId, onClose }: { customerId: string | null; onClose: () => void }) {
+  const { t } = useTranslation();
+  const tabs = [
+    { key: "orders", label: t("customers.partyPortfolioModal.tabs.orders") },
+    { key: "invoices", label: t("customers.partyPortfolioModal.tabs.invoices") },
+    { key: "payments", label: t("customers.partyPortfolioModal.tabs.payments") },
+  ];
   const [tab, setTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -54,12 +55,12 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
   return (
     <div className="fixed inset-0 z-100 flex items-end justify-center bg-black/40 lg:items-center lg:p-4">
-      <button type="button" aria-label="Close" className="absolute inset-0 cursor-default" onClick={onClose} />
+      <button type="button" aria-label={t("common.close")} className="absolute inset-0 cursor-default" onClick={onClose} />
       <div className="relative z-10 flex h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-surface shadow-elevation-3 lg:h-auto lg:max-h-[85vh] lg:max-w-2xl lg:rounded-2xl">
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           className="absolute right-4 top-4 z-10 rounded-full bg-surface/80 p-1.5 text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <X size={18} />
@@ -67,11 +68,11 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
         {query.isLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-sm text-text-muted">Loading party portfolio…</p>
+            <p className="text-sm text-text-muted">{t("customers.partyPortfolioModal.loading")}</p>
           </div>
         ) : !data ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-sm text-text-muted">Could not load this customer.</p>
+            <p className="text-sm text-text-muted">{t("customers.partyPortfolioModal.loadError")}</p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
@@ -88,7 +89,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                   ) : null}
                   {!data.customer.isActive ? (
                     <span className="mt-1 inline-block">
-                      <Badge tone="neutral">Inactive</Badge>
+                      <Badge tone="neutral">{t("customers.partyPortfolioModal.inactive")}</Badge>
                     </span>
                   ) : null}
                 </div>
@@ -96,21 +97,21 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-xl border border-border bg-surface p-3">
-                  <p className="text-xs text-text-muted">Total Purchases</p>
+                  <p className="text-xs text-text-muted">{t("customers.customersPage.totalPurchases")}</p>
                   <p className="mt-1 text-base font-bold text-text">{formatCurrency(data.stats.totalPurchases)}</p>
                 </div>
                 <div className="rounded-xl border border-border bg-surface p-3">
-                  <p className="text-xs text-text-muted">Outstanding</p>
+                  <p className="text-xs text-text-muted">{t("customers.customersPage.outstanding")}</p>
                   <p className={`mt-1 text-base font-bold ${data.stats.outstanding > 0 ? "text-danger" : "text-text"}`}>
                     {formatCurrency(data.stats.outstanding)}
                   </p>
                 </div>
                 <div className="rounded-xl border border-border bg-surface p-3">
-                  <p className="text-xs text-text-muted">Credit Limit</p>
+                  <p className="text-xs text-text-muted">{t("customers.customersPage.creditLimit")}</p>
                   <p className="mt-1 text-base font-bold text-text">{formatCurrency(data.customer.creditLimit)}</p>
                 </div>
                 <div className="rounded-xl border border-border bg-surface p-3">
-                  <p className="text-xs text-text-muted">Pending Orders</p>
+                  <p className="text-xs text-text-muted">{t("customers.partyPortfolioModal.pendingOrders")}</p>
                   <p className="mt-1 text-base font-bold text-text">{data.stats.pendingOrders}</p>
                 </div>
               </div>
@@ -122,7 +123,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
               <div className="mt-4 space-y-2.5">
                 {tab === "orders" &&
                   (data.orders.length === 0 ? (
-                    <EmptyRow icon={Receipt} label="No orders from this customer yet." />
+                    <EmptyRow icon={Receipt} label={t("customers.partyPortfolioModal.noOrders")} />
                   ) : (
                     data.orders.map((o) => (
                       <button
@@ -133,7 +134,10 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                       >
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-text">
-                            {o.itemCount} item{o.itemCount === 1 ? "" : "s"} · {o.source === "ai_parsed" ? "AI Order" : "Manual"}
+                            {o.itemCount === 1
+                              ? t("customers.partyPortfolioModal.itemCountOne", { count: o.itemCount })
+                              : t("customers.partyPortfolioModal.itemCountMany", { count: o.itemCount })}{" "}
+                            · {o.source === "ai_parsed" ? t("customers.partyPortfolioModal.aiOrder") : t("customers.partyPortfolioModal.manualOrder")}
                           </p>
                           <p className="mt-0.5 text-xs text-text-muted">{formatDate(o.createdAt)}</p>
                         </div>
@@ -149,7 +153,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
                 {tab === "invoices" &&
                   (data.invoices.length === 0 ? (
-                    <EmptyRow icon={FileText} label="No invoices generated for this customer yet." />
+                    <EmptyRow icon={FileText} label={t("customers.partyPortfolioModal.noInvoices")} />
                   ) : (
                     data.invoices.map((inv) => (
                       <button
@@ -161,7 +165,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-text">{inv.invoiceNumber}</p>
                           <p className="mt-0.5 text-xs text-text-muted">
-                            {inv.billType === "gst" ? "GST Bill" : "Record Bill"} · {formatDate(inv.createdAt)}
+                            {inv.billType === "gst" ? t("customers.partyPortfolioModal.gstBill") : t("customers.partyPortfolioModal.recordBill")} · {formatDate(inv.createdAt)}
                           </p>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
@@ -176,7 +180,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
                 {tab === "payments" &&
                   (data.payments.length === 0 ? (
-                    <EmptyRow icon={Wallet} label="No payments recorded for this customer yet." />
+                    <EmptyRow icon={Wallet} label={t("customers.partyPortfolioModal.noPayments")} />
                   ) : (
                     data.payments.map((p, i) => (
                       <div

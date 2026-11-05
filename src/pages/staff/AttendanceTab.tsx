@@ -1,23 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { Calendar, Check } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { listStaff, type StaffMember } from "../../lib/staff-api";
 import { bulkMarkAttendance, listAttendance, type AttendanceStatus } from "../../lib/attendance-api";
 
-const statusOptions: { value: AttendanceStatus; label: string; activeClass: string }[] = [
-  { value: "present", label: "Present", activeClass: "bg-success text-white" },
-  { value: "half_day", label: "Half Day", activeClass: "bg-warning text-white" },
-  { value: "absent", label: "Absent", activeClass: "bg-danger text-white" },
-  { value: "leave", label: "Leave", activeClass: "bg-info text-white" },
+const statusOptionKeys: { value: AttendanceStatus; labelKey: string; activeClass: string }[] = [
+  { value: "present", labelKey: "staff.attendanceTab.statusPresent", activeClass: "bg-success text-white" },
+  { value: "half_day", labelKey: "staff.attendanceTab.statusHalfDay", activeClass: "bg-warning text-white" },
+  { value: "absent", labelKey: "staff.attendanceTab.statusAbsent", activeClass: "bg-danger text-white" },
+  { value: "leave", labelKey: "staff.attendanceTab.statusLeave", activeClass: "bg-info text-white" },
 ];
+
+const roleLabelKey: Record<StaffMember["role"], string> = {
+  MANAGER: "staff.roles.manager",
+  SALESMAN: "staff.roles.salesman",
+  WAREHOUSE_STAFF: "staff.roles.warehouseStaff",
+};
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
 export function AttendanceTab() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [date, setDate] = useState(todayIso());
   const [draft, setDraft] = useState<Record<string, AttendanceStatus>>({});
@@ -91,20 +99,22 @@ export function AttendanceTab() {
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={markAllPresent}>
-            Mark all present
+            {t("staff.attendanceTab.markAllPresent")}
           </Button>
           <Button disabled={!canSave} isLoading={bulkMutation.isPending} onClick={handleSaveAll}>
             <Check size={15} className="mr-1.5" />
-            Save {pendingEntries.length > 0 ? `(${pendingEntries.length})` : ""}
+            {pendingEntries.length > 0
+              ? t("staff.attendanceTab.saveWithCount", { count: pendingEntries.length })
+              : t("staff.attendanceTab.save")}
           </Button>
         </div>
       </div>
 
       {staffQuery.isLoading || attendanceQuery.isLoading ? (
-        <p className="p-6 text-sm text-text-muted">Loading attendance…</p>
+        <p className="p-6 text-sm text-text-muted">{t("staff.attendanceTab.loadingAttendance")}</p>
       ) : activeStaff.length === 0 ? (
         <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
-          No active staff members yet.
+          {t("staff.attendanceTab.noActiveStaff")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -117,10 +127,10 @@ export function AttendanceTab() {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-text">{member.name}</p>
-                  <p className="text-xs text-text-muted">{member.role.replace("_", " ")}</p>
+                  <p className="text-xs text-text-muted">{t(roleLabelKey[member.role])}</p>
                 </div>
                 <div className="grid grid-cols-4 gap-1.5">
-                  {statusOptions.map((opt) => (
+                  {statusOptionKeys.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
@@ -130,7 +140,7 @@ export function AttendanceTab() {
                         status === opt.value ? opt.activeClass : "border border-border bg-surface-variant text-text-muted hover:text-text"
                       )}
                     >
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </button>
                   ))}
                 </div>

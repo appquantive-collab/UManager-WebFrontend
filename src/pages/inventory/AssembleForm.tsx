@@ -1,19 +1,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { ApiError } from "../../lib/api";
+import { showError } from "../../lib/toast";
 import type { Product } from "../../lib/products-api";
 import { listWarehouses } from "../../lib/stock-api";
 import { getProducibleQuantity } from "../../lib/assembly-api";
+import i18n from "../../lib/i18n";
 
 const assembleFormSchema = z.object({
-  warehouseId: z.string().min(1, "Select a warehouse"),
-  quantity: z.coerce.number().int("Must be a whole number").positive("Must be greater than 0"),
+  warehouseId: z.string().min(1, { error: () => i18n.t("inventory.assembleForm.selectWarehouse") }),
+  quantity: z.coerce
+    .number()
+    .int({ error: () => i18n.t("inventory.assembleForm.mustBeWholeNumber") })
+    .positive({ error: () => i18n.t("inventory.assembleForm.mustBeGreaterThanZero") }),
   note: z.string().optional(),
 });
 
@@ -27,8 +32,7 @@ interface AssembleFormProps {
 }
 
 export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps) {
-  const [formError, setFormError] = useState<string | null>(null);
-
+  const { t } = useTranslation();
   const { data: warehouses } = useQuery({ queryKey: ["warehouses"], queryFn: listWarehouses });
   const { data: producible } = useQuery({
     queryKey: ["producible", product._id],
@@ -42,6 +46,8 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
     formState: { errors, isSubmitting },
   } = useForm<AssembleFormInput, unknown, AssembleFormValues>({
     resolver: zodResolver(assembleFormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: { quantity: 1 },
   });
 
@@ -49,11 +55,10 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
   const exceedsProducible = producible ? watchedQuantity > producible.producibleQuantity : false;
 
   const submit = async (values: AssembleFormValues) => {
-    setFormError(null);
     try {
       await onSubmit(values);
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      showError(err instanceof ApiError ? err.message : t("inventory.assembleForm.genericError"));
     }
   };
 
@@ -61,22 +66,25 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)} noValidate>
       <div className="rounded-lg border border-border bg-surface-variant/50 px-3.5 py-2.5">
         <div className="text-sm font-medium text-text">{product.name}</div>
-        <div className="text-xs text-text-muted">SKU: {product.sku}</div>
+        <div className="text-xs text-text-muted">{t("inventory.qrModal.skuLabel", { sku: product.sku })}</div>
       </div>
 
       {producible ? (
         <div className="rounded-lg border border-border p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-            Can currently make {producible.producibleQuantity === Infinity ? "unlimited" : producible.producibleQuantity} more
+            {producible.producibleQuantity === Infinity
+              ? t("inventory.assembleForm.canCurrentlyMakeUnlimited")
+              : t("inventory.assembleForm.canCurrentlyMake", { count: producible.producibleQuantity })}
           </p>
           <div className="space-y-1.5">
             {producible.rawMaterials.map((rm) => (
               <div key={rm.rawMaterialId} className="flex items-center justify-between text-xs">
                 <span className="text-text-muted">
-                  {rm.rawMaterialName} ({rm.requiredPerUnit} {rm.unit}/unit)
+                  {rm.rawMaterialName}{" "}
+                  {t("inventory.assembleForm.requiredPerUnit", { required: rm.requiredPerUnit, unit: rm.unit })}
                 </span>
                 <span className="text-text">
-                  {rm.currentStock} {rm.unit} in stock
+                  {t("inventory.assembleForm.inStock", { stock: rm.currentStock, unit: rm.unit })}
                 </span>
               </div>
             ))}
@@ -86,14 +94,14 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="assemble-warehouseId" className="text-sm font-medium text-text-muted">
-          Warehouse
+          {t("inventory.assembleForm.warehouse")}
         </label>
         <select
           id="assemble-warehouseId"
           className="rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none focus:border-primary"
           {...register("warehouseId")}
         >
-          <option value="">Select warehouse…</option>
+          <option value="">{t("inventory.assembleForm.selectWarehousePlaceholder")}</option>
           {warehouses?.map((w) => (
             <option key={w._id} value={w._id}>
               {w.name}
@@ -104,7 +112,7 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
       </div>
 
       <TextField
-        label="Quantity to assemble"
+        label={t("inventory.assembleForm.quantityToAssemble")}
         type="number"
         min={1}
         step="1"
@@ -115,21 +123,22 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
       {exceedsProducible ? (
         <p className="flex items-start gap-1.5 rounded-lg bg-warning-container/40 px-3 py-2 text-xs text-warning">
           <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-          Not enough raw material stock for {watchedQuantity} units — assembling anyway will take one or more raw
-          materials negative.
+          {t("inventory.assembleForm.notEnoughStock", { quantity: watchedQuantity })}
         </p>
       ) : null}
 
-      <TextField label="Note (optional)" placeholder="e.g. Batch #12 assembly" {...register("note")} />
-
-      {formError ? <p className="text-sm text-danger">{formError}</p> : null}
+      <TextField
+        label={t("inventory.assembleForm.noteOptional")}
+        placeholder={t("inventory.assembleForm.notePlaceholder")}
+        {...register("note")}
+      />
 
       <div className="mt-2 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          {t("inventory.assembleForm.cancel")}
         </Button>
         <Button type="submit" isLoading={isSubmitting}>
-          Assemble
+          {t("inventory.assembleForm.assemble")}
         </Button>
       </div>
     </form>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FileText, Plus, Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -7,26 +8,21 @@ import { Tabs } from "../../components/ui/Tabs";
 import { formatCurrency } from "../../lib/format";
 import { mockPurchaseOrders } from "../../lib/mock-data";
 
-const tabs = [
-  { key: "orders", label: "Purchase Orders" },
-  { key: "purchases", label: "Purchases" },
-  { key: "returns", label: "Purchase Returns" },
-  { key: "payments", label: "Supplier Payments" },
-];
-
 const statusTone = {
   "Pending Receipt": "warning",
   Received: "success",
 } as const;
 
 function PurchaseOrdersTable() {
+  const { t } = useTranslation();
+
   if (mockPurchaseOrders.length === 0) {
     return (
       <EmptyState
         icon={Truck}
-        title="No purchase orders yet"
-        description="Create a purchase order to start tracking incoming stock."
-        action={<Button>New purchase order</Button>}
+        title={t("purchases.purchasesPage.noPurchaseOrdersYetTitle")}
+        description={t("purchases.purchasesPage.noPurchaseOrdersYetDescription")}
+        action={<Button>{t("purchases.purchasesPage.newPurchaseOrder")}</Button>}
       />
     );
   }
@@ -36,12 +32,12 @@ function PurchaseOrdersTable() {
       <table className="w-full min-w-max text-sm">
         <thead>
           <tr className="text-left text-xs font-medium uppercase tracking-wide text-text-muted">
-            <th className="px-4 py-3">PO</th>
-            <th className="px-4 py-3">Supplier</th>
-            <th className="px-4 py-3">Items</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Amount</th>
-            <th className="px-4 py-3 text-right">Date</th>
+            <th className="px-4 py-3">{t("purchases.purchasesPage.po")}</th>
+            <th className="px-4 py-3">{t("purchases.purchasesPage.supplier")}</th>
+            <th className="px-4 py-3">{t("purchases.purchasesPage.items")}</th>
+            <th className="px-4 py-3">{t("purchases.purchasesPage.status")}</th>
+            <th className="px-4 py-3 text-right">{t("purchases.purchasesPage.amount")}</th>
+            <th className="px-4 py-3 text-right">{t("purchases.purchasesPage.date")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-surface-variant">
@@ -64,29 +60,38 @@ function PurchaseOrdersTable() {
 }
 
 function ComingSoon({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
-    <EmptyState icon={FileText} title={`${label} coming soon`} description="This section is being designed." />
+    <EmptyState icon={FileText} title={t("purchases.purchasesPage.comingSoon", { label })} description={t("purchases.purchasesPage.beingDesigned")} />
   );
 }
 
 export function PurchasesPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("orders");
+
+  const tabs = [
+    { key: "orders", label: t("purchases.purchasesPage.tabs.orders") },
+    { key: "purchases", label: t("purchases.purchasesPage.tabs.purchases") },
+    { key: "returns", label: t("purchases.purchasesPage.tabs.returns") },
+    { key: "payments", label: t("purchases.purchasesPage.tabs.payments") },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
         <Button>
           <Plus size={16} className="mr-1.5" strokeWidth={2} />
-          New purchase order
+          {t("purchases.purchasesPage.newPurchaseOrder")}
         </Button>
       </div>
 
       <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
       {tab === "orders" && <PurchaseOrdersTable />}
-      {tab === "purchases" && <ComingSoon label="Purchases" />}
-      {tab === "returns" && <ComingSoon label="Purchase Returns" />}
-      {tab === "payments" && <ComingSoon label="Supplier Payments" />}
+      {tab === "purchases" && <ComingSoon label={t("purchases.purchasesPage.purchasesLabel")} />}
+      {tab === "returns" && <ComingSoon label={t("purchases.purchasesPage.purchaseReturnsLabel")} />}
+      {tab === "payments" && <ComingSoon label={t("purchases.purchasesPage.supplierPaymentsLabel")} />}
     </div>
   );
 }

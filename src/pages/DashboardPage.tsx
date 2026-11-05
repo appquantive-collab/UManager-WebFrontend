@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowDownRight, ArrowUpRight, Package, Sparkles } from "lucide-react";
@@ -12,24 +13,14 @@ import { useAuthStore } from "../lib/auth-store";
 
 const productColors = ["#3b82f6", "#22c55e", "#f59e0b", "#a855f7", "#ef4444"];
 
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} min${mins === 1 ? "" : "s"} ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
-}
-
 function SalesTrendChart({ label, data }: { label: string; data: { day: string; sales: number }[] }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-2xl bg-surface p-5 shadow-elevation-1">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-text">{label}</h2>
-          <p className="mt-1 text-xs text-text-muted">Last 7 days</p>
+          <p className="mt-1 text-xs text-text-muted">{t("dashboard.dashboardPage.last7Days")}</p>
         </div>
       </div>
 
@@ -53,7 +44,7 @@ function SalesTrendChart({ label, data }: { label: string; data: { day: string; 
                 color: "#0f172a",
                 boxShadow: "0 12px 32px 0 rgba(15, 23, 42, 0.16)",
               }}
-              formatter={(value) => [formatCurrency(Number(value)), "Sales"]}
+              formatter={(value) => [formatCurrency(Number(value)), t("dashboard.dashboardPage.salesTooltipLabel")]}
               labelStyle={{ color: "#64748b" }}
             />
             <Area type="monotone" dataKey="sales" stroke="#6d28d9" strokeWidth={2.5} fill="url(#salesFill)" />
@@ -65,13 +56,14 @@ function SalesTrendChart({ label, data }: { label: string; data: { day: string; 
 }
 
 function TopProducts({ label, products }: { label: string; products: DashboardSummary["topProducts"] }) {
+  const { t } = useTranslation();
   const maxRevenue = Math.max(1, ...products.map((p) => p.revenue));
 
   return (
     <div className="rounded-2xl bg-surface p-5 shadow-elevation-1">
       <h2 className="text-sm font-semibold text-text">{label}</h2>
       {products.length === 0 ? (
-        <p className="mt-4 text-sm text-text-muted">No sales yet — billed products will show up here.</p>
+        <p className="mt-4 text-sm text-text-muted">{t("dashboard.dashboardPage.noSalesYet")}</p>
       ) : (
         <div className="mt-4 space-y-4">
           {products.map((product, i) => (
@@ -103,13 +95,26 @@ function TopProducts({ label, products }: { label: string; products: DashboardSu
 }
 
 function RecentActivity({ label, activity }: { label: string; activity: DashboardSummary["recentActivity"] }) {
+  const { t } = useTranslation();
+
+  const timeAgo = (iso: string): string => {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return t("dashboard.dashboardPage.minutesAgo", { count: 0, plural: "" });
+    if (mins < 60) return t("dashboard.dashboardPage.minutesAgo", { count: mins, plural: mins === 1 ? "" : "s" });
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return t("dashboard.dashboardPage.hoursAgo", { count: hours, plural: hours === 1 ? "" : "s" });
+    const days = Math.floor(hours / 24);
+    return t("dashboard.dashboardPage.daysAgo", { count: days, plural: days === 1 ? "" : "s" });
+  };
+
   return (
     <div className="rounded-2xl bg-surface shadow-elevation-1">
       <div className="px-5 py-4">
         <h2 className="text-sm font-semibold text-text">{label}</h2>
       </div>
       {activity.length === 0 ? (
-        <p className="px-5 pb-5 text-sm text-text-muted">No activity yet.</p>
+        <p className="px-5 pb-5 text-sm text-text-muted">{t("dashboard.dashboardPage.noActivityYet")}</p>
       ) : (
         <div className="divide-y divide-surface-variant">
           {activity.map((item) => (
@@ -178,59 +183,84 @@ function DesktopDashboard({
   aiLayout?: AiDashboardLayout | null;
   summary?: DashboardSummary;
 }) {
+  const { t } = useTranslation();
   const labelFor = (key: string, fallback: string) =>
     aiLayout?.sections.find((s) => s.key === key)?.label || fallback;
 
   const salesHint =
     summary?.salesChangePercent != null
-      ? `${summary.salesChangePercent >= 0 ? "+" : ""}${summary.salesChangePercent.toFixed(1)}% vs yesterday`
+      ? t("dashboard.dashboardPage.vsYesterday", {
+          sign: summary.salesChangePercent >= 0 ? "+" : "",
+          percent: summary.salesChangePercent.toFixed(1),
+        })
       : undefined;
 
   const receivablesHint =
     summary && summary.overdueCustomerCount > 0
-      ? `${summary.overdueCustomerCount} customer${summary.overdueCustomerCount === 1 ? "" : "s"} overdue`
+      ? t(
+          summary.overdueCustomerCount === 1
+            ? "dashboard.dashboardPage.customersOverdueOne"
+            : "dashboard.dashboardPage.customersOverdueOther",
+          { count: summary.overdueCustomerCount }
+        )
       : undefined;
+
+  const fallbackSummary = summary
+    ? `${t("dashboard.dashboardPage.fallbackSummarySales", { amount: formatCurrency(summary.todaySales) })} ${
+        summary.lowStockCount > 0
+          ? t(
+              summary.lowStockCount === 1
+                ? "dashboard.dashboardPage.fallbackSummaryLowStockOne"
+                : "dashboard.dashboardPage.fallbackSummaryLowStockOther",
+              { count: summary.lowStockCount }
+            )
+          : t("dashboard.dashboardPage.fallbackSummaryNoLowStock")
+      } ${
+        summary.topOverdueCustomerName
+          ? t("dashboard.dashboardPage.fallbackSummaryOverdue", {
+              name: summary.topOverdueCustomerName,
+              amount: formatCurrency(summary.topOverdueAmount),
+            })
+          : t("dashboard.dashboardPage.fallbackSummaryNoOverdue")
+      }`
+    : t("dashboard.dashboardPage.loadingSummary");
 
   return (
     <div className="hidden space-y-6 lg:block">
-      {businessName ? <p className="text-sm text-text-muted">Welcome back, {businessName}</p> : null}
+      {businessName ? (
+        <p className="text-sm text-text-muted">{t("dashboard.dashboardPage.welcomeBack", { businessName })}</p>
+      ) : null}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Today's Sales" value={formatCurrency(summary?.todaySales ?? 0)} hint={salesHint} />
-        <StatCard label="Today's Purchases" value={formatCurrency(summary?.todayPurchases ?? 0)} hint="Not tracked yet" />
-        <StatCard label="Inventory Value" value={formatCurrency(summary?.inventoryValue ?? 0)} />
-        <StatCard label="Receivables" value={formatCurrency(summary?.receivables ?? 0)} hint={receivablesHint} />
+        <StatCard label={t("dashboard.dashboardPage.todaysSales")} value={formatCurrency(summary?.todaySales ?? 0)} hint={salesHint} />
+        <StatCard
+          label={t("dashboard.dashboardPage.todaysPurchases")}
+          value={formatCurrency(summary?.todayPurchases ?? 0)}
+          hint={t("dashboard.dashboardPage.notTrackedYet")}
+        />
+        <StatCard label={t("dashboard.dashboardPage.inventoryValue")} value={formatCurrency(summary?.inventoryValue ?? 0)} />
+        <StatCard label={t("dashboard.dashboardPage.receivables")} value={formatCurrency(summary?.receivables ?? 0)} hint={receivablesHint} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <SalesTrendChart label={labelFor("sales_trend", "Sales Trend")} data={summary?.salesTrend ?? []} />
+          <SalesTrendChart label={labelFor("sales_trend", t("dashboard.dashboardPage.salesTrend"))} data={summary?.salesTrend ?? []} />
         </div>
-        <TopProducts label={labelFor("top_products", "Top Products")} products={summary?.topProducts ?? []} />
+        <TopProducts label={labelFor("top_products", t("dashboard.dashboardPage.topProducts"))} products={summary?.topProducts ?? []} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <RecentActivity label={labelFor("recent_activity", "Recent Activity")} activity={summary?.recentActivity ?? []} />
+          <RecentActivity
+            label={labelFor("recent_activity", t("dashboard.dashboardPage.recentActivity"))}
+            activity={summary?.recentActivity ?? []}
+          />
         </div>
         <div className="rounded-2xl bg-surface p-5 shadow-elevation-1">
           <div className="flex items-center gap-2">
             <Sparkles size={16} className="text-primary" />
-            <h2 className="text-sm font-semibold text-text">AI Business Summary</h2>
+            <h2 className="text-sm font-semibold text-text">{t("dashboard.dashboardPage.aiBusinessSummary")}</h2>
           </div>
-          <p className="mt-3 text-sm text-text-muted">
-            {aiLayout?.welcomeMessage ??
-              (summary
-                ? `Today's sales are ${formatCurrency(summary.todaySales)}. ${
-                    summary.lowStockCount > 0
-                      ? `${summary.lowStockCount} product${summary.lowStockCount === 1 ? " is" : "s are"} below reorder level.`
-                      : "No products are below reorder level."
-                  } ${
-                    summary.topOverdueCustomerName
-                      ? `${summary.topOverdueCustomerName} has ${formatCurrency(summary.topOverdueAmount)} overdue.`
-                      : "No overdue payments."
-                  }`
-                : "Loading your business summary…")}
-          </p>
+          <p className="mt-3 text-sm text-text-muted">{aiLayout?.welcomeMessage ?? fallbackSummary}</p>
         </div>
       </div>
     </div>
