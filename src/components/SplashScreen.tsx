@@ -1,37 +1,34 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Package, ReceiptText, Sparkles, Store } from "lucide-react";
+import { ArrowRight, LogIn, Package, ReceiptText, Sparkles, Store } from "lucide-react";
 import { useAuthStore } from "../lib/auth-store";
 import { useSplashStore } from "../lib/splash-store";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { router } from "../routes/router";
 
-const WELCOMED_KEY = "sethsathi.welcomed";
 const BRIEF_VISIBLE_MS = 2200;
 const FADE_MS = 400;
 
-function hasBeenWelcomed(): boolean {
-  try {
-    return localStorage.getItem(WELCOMED_KEY) === "1";
-  } catch {
-    return false;
-  }
+// Signed-out visitors on any pre-login page get an interactive welcome that
+// stays until they choose: "Get started" opens the Munshi AI chat, "Login" is
+// for existing users. Signed-in users and app pages get a brief splash.
+const PRE_LOGIN_PATHS = ["/", "/welcome", "/login", "/register", "/forgot-password"];
+const CHAT_PATHS = ["/", "/welcome"];
+
+function currentPath(): string {
+  return window.location.pathname.replace(/\/+$/, "") || "/";
 }
 
-function markWelcomed() {
-  try {
-    localStorage.setItem(WELCOMED_KEY, "1");
-  } catch {
-    // Storage can be unavailable (private mode); the welcome just shows again next time.
-  }
+function shouldWelcome(): boolean {
+  return !useAuthStore.getState().accessToken && PRE_LOGIN_PATHS.includes(currentPath());
 }
 
-// First visit: an interactive welcome (language choice + "Get started").
-// Every later load: the same screen as a brief, non-interactive splash.
 export function SplashScreen({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const isSignedIn = useAuthStore((state) => Boolean(state.user));
   const finishSplash = useSplashStore((state) => state.finish);
-  const [mode] = useState<"welcome" | "brief">(() => (hasBeenWelcomed() ? "brief" : "welcome"));
+  const requestChat = useSplashStore((state) => state.requestChat);
+  const [mode] = useState<"welcome" | "brief">(() => (shouldWelcome() ? "welcome" : "brief"));
   const [phase, setPhase] = useState<"show" | "fade" | "hidden">("show");
 
   useEffect(() => {
@@ -51,7 +48,14 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   }, [phase, finishSplash]);
 
   const start = () => {
-    markWelcomed();
+    requestChat();
+    // "/" shows the chat over the landing page on desktop and redirects to /welcome on phones.
+    if (!CHAT_PATHS.includes(currentPath())) void router.navigate("/");
+    setPhase("fade");
+  };
+
+  const goToLogin = () => {
+    if (currentPath() !== "/login") void router.navigate("/login");
     setPhase("fade");
   };
 
@@ -144,6 +148,17 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
                 >
                   {t("splash.start")}
                   <ArrowRight size={19} className="transition-transform group-hover:translate-x-1" />
+                </button>
+              ) : null}
+              {isWelcome ? (
+                <button
+                  type="button"
+                  onClick={goToLogin}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface/90 px-6 py-3.5 text-sm font-bold tracking-wide text-text opacity-0 shadow-elevation-1 outline-none backdrop-blur-md transition-[transform,border-color,color] hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+                  style={{ animation: "splash-fade-up 500ms ease-out 680ms forwards" }}
+                >
+                  <LogIn size={17} />
+                  {t("splash.login")}
                 </button>
               ) : (
                 <span className="mt-7 flex h-14 items-center justify-center gap-1.5" role="status">

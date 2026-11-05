@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { LandingNav } from "./LandingNav";
 import { LandingHero } from "./LandingHero";
 import { DashboardMockup } from "./DashboardMockup";
@@ -11,24 +11,15 @@ import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../lib/auth-store";
 import { useSplashStore } from "../../lib/splash-store";
 
-const CHAT_DISMISSED_KEY = "sethsathi.welcome-chat-dismissed";
-
-function chatDismissedThisSession(): boolean {
-  try {
-    return sessionStorage.getItem(CHAT_DISMISSED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function LandingPage() {
+  const navigate = useNavigate();
   const isDesktop = useMediaQuery("(min-width: 64rem)");
   const accessToken = useAuthStore((state) => state.accessToken);
   const splashDone = useSplashStore((state) => state.done);
   // Read once: signing up inside the chat creates a session, and the chat has
   // to stay open for its congratulations instead of vanishing mid-message.
   const [signedInOnArrival] = useState(() => Boolean(useAuthStore.getState().accessToken));
-  const [chatOpen, setChatOpen] = useState(() => !chatDismissedThisSession());
+  const chatRequested = useSplashStore((state) => state.chatRequested);
 
   // Mobile/tablet has no marketing site — it boots straight into the app,
   // same as a real installed app never shows a landing page after launch.
@@ -36,14 +27,8 @@ export function LandingPage() {
     return <Navigate to={accessToken ? "/app" : "/welcome"} replace />;
   }
 
-  const closeChat = () => {
-    try {
-      sessionStorage.setItem(CHAT_DISMISSED_KEY, "1");
-    } catch {
-      // Without storage the chat simply reopens on the next visit to this page.
-    }
-    setChatOpen(false);
-  };
+  // Closing the Munshi AI chat means "not now" — existing users go to log in.
+  const closeChat = () => navigate("/login");
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +39,7 @@ export function LandingPage() {
       <LandingPricing />
       <LandingFooter />
 
-      {chatOpen && splashDone && !signedInOnArrival ? (
+      {chatRequested && splashDone && !signedInOnArrival ? (
         <div className="fixed inset-0 z-90 flex items-center justify-center bg-text/40 p-6 backdrop-blur-[2px]">
           <div
             role="dialog"

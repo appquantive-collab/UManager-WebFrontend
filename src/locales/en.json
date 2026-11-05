@@ -10,6 +10,7 @@
     "featureBilling": "GST billing",
     "featureStock": "Stock tracking",
     "start": "Get started",
+    "login": "Login – existing user",
     "madeFor": "Made for India's traders",
     "photoAlt": "Munshi AI greeting you with a namaste",
     "loading": "Loading SethSathi"
@@ -1350,7 +1351,7 @@
     "close": "Close chat",
     "typing": "Munshi AI is typing",
     "send": "Send",
-    "chooseAbove": "Choose an option above",
+    "chooseAbove": "Pick an option or ask me anything…",
     "greeting": "Namaste! I'm Munshi AI, your digital munshi at SethSathi. Do you already have an account, or shall we create a new one together?",
     "choiceRegister": "Create a new account",
     "choiceLogin": "I have an account — log in",
@@ -1406,6 +1407,21 @@
     "success": "Congratulations, {{name}}! {{business}} is now set up on SethSathi.",
     "successHelp": "From today, Munshi AI will help you with every task — making bills, managing stock, tracking customer dues and payments, staff attendance, and answering any question about your business. Just ask me anytime!",
     "goHome": "Go to my dashboard",
-    "loginInstead": "Log in instead"
+    "loginInstead": "Log in instead",
+    "voice": {
+      "speakerOn": "Turn on Munshi's voice",
+      "speakerOff": "Turn off Munshi's voice",
+      "replay": "Listen again",
+      "stop": "Stop",
+      "micStart": "Speak your answer",
+      "micStop": "Stop recording",
+      "listening": "Listening… speak now",
+      "micDenied": "Microphone is blocked. Allow it in your browser settings to speak your answer.",
+      "micFailed": "Couldn't hear that. Please try again or type your answer.",
+      "micChoose": "Say your choice",
+      "passwordNoMic": "For your safety, please type your password",
+      "noMatch": "Sorry, I didn't catch that. Please say it again or tap an option."
+    },
+    "askFailed": "Sorry, I can't answer that right now. Let's carry on — pick an option or type below."
   }
 }

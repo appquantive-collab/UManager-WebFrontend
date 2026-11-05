@@ -10,6 +10,7 @@
     "featureBilling": "GST bill",
     "featureStock": "Stock ka hisaab",
     "start": "Shuru karein",
+    "login": "Login – purane user",
     "madeFor": "Bharat ke vyapariyon ke liye bana",
     "photoAlt": "Namaste karte hue Munshi AI",
     "loading": "SethSathi load ho raha hai"
@@ -1350,7 +1351,7 @@
     "close": "Chat band karein",
     "typing": "Munshi AI likh raha hai",
     "send": "Bhejein",
-    "chooseAbove": "Upar se ek option chunein",
+    "chooseAbove": "Option chunein ya kuch bhi poochein…",
     "greeting": "Namaste! Main Munshi AI hoon, SethSathi par aapka digital munshi. Kya aapka pehle se account hai, ya hum milkar naya account banayein?",
     "choiceRegister": "Naya account banayein",
     "choiceLogin": "Mera account hai — login karein",
@@ -1406,6 +1407,21 @@
     "success": "Badhai ho, {{name}}! {{business}} ab SethSathi par taiyaar hai.",
     "successHelp": "Aaj se Munshi AI har kaam mein aapki madad karega — bill banana, stock sambhalna, customers ka udhaar aur payment, staff ki attendance, aur aapke business ke har sawaal ka jawaab. Bas mujhse poochiye!",
     "goHome": "Mere dashboard par chalein",
-    "loginInstead": "Login karein"
+    "loginInstead": "Login karein",
+    "voice": {
+      "speakerOn": "Munshi ki awaaz chalu karein",
+      "speakerOff": "Munshi ki awaaz band karein",
+      "replay": "Phir se sunein",
+      "stop": "Rokein",
+      "micStart": "Bolkar jawab dein",
+      "micStop": "Recording rokein",
+      "listening": "Sun raha hoon… boliye",
+      "micDenied": "Microphone block hai. Bolkar jawab dene ke liye browser settings mein allow karein.",
+      "micFailed": "Theek se sunai nahi diya. Phir se boliye ya type karein.",
+      "micChoose": "Bolkar option chunein",
+      "passwordNoMic": "Suraksha ke liye password type karein",
+      "noMatch": "Maaf kijiye, samajh nahi aaya. Phir se boliye ya kisi option par tap karein."
+    },
+    "askFailed": "Maaf kijiye, abhi jawab nahi de pa raha. Chaliye aage badhte hain — option chunein ya neeche likhein."
   }
 }
