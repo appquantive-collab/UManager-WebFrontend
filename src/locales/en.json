@@ -327,6 +327,9 @@
       "resendIn": "Resend code in {{seconds}}s",
       "resend": "Resend code",
       "codeSent": "Code sent",
+      "popupTitle": "Your login code",
+      "popupBody": "SMS isn't set up yet, so here is your code:",
+      "popupUse": "Use this code & sign in",
       "errors": {
         "NO_ACCOUNT": "No account found for this mobile number",
         "RESEND_COOLDOWN": "Please wait {{seconds}}s before requesting a new code",

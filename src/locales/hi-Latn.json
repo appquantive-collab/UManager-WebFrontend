@@ -327,6 +327,9 @@
       "resendIn": "{{seconds}}s mein code dobara bhejein",
       "resend": "Code dobara bhejein",
       "codeSent": "Code bhej diya gaya",
+      "popupTitle": "Aapka login code",
+      "popupBody": "SMS abhi set up nahi hai, isliye aapka code yeh hai:",
+      "popupUse": "Yeh code use karein aur sign in karein",
       "errors": {
         "NO_ACCOUNT": "Is mobile number se koi account nahi mila",
         "RESEND_COOLDOWN": "Naya code maangne se pehle {{seconds}}s rukein",

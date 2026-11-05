@@ -8,6 +8,7 @@ import { AuthLayout } from "../../layouts/AuthLayout";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { PhoneField } from "../../components/ui/PhoneField";
+import { Dialog } from "../../components/ui/Dialog";
 import { login, requestLoginOtp, verifyLoginOtp } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../lib/auth-store";
@@ -53,6 +54,8 @@ export function LoginPage() {
   const [resendAt, setResendAt] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [isResending, setIsResending] = useState(false);
+  // Temporary: the OTP shown in a popup while SMS delivery isn't set up on the backend.
+  const [shownCode, setShownCode] = useState<string | null>(null);
   const verifyingRef = useRef(false);
 
   const phoneForm = useForm<PhoneFormValues>({
@@ -97,6 +100,7 @@ export function LoginPage() {
       codeForm.reset({ code: "" });
       setOtpPhone(values.phone);
       startCooldown(result.resendAfterSeconds);
+      if (result.code) setShownCode(result.code);
     } catch (err) {
       // A code already went out moments ago — let them enter it instead of blocking them.
       if (err instanceof ApiError && err.code === "RESEND_COOLDOWN") {
@@ -131,7 +135,8 @@ export function LoginPage() {
       const result = await requestLoginOtp(otpPhone);
       codeForm.reset({ code: "" });
       startCooldown(result.resendAfterSeconds);
-      showSuccess(t("auth.otp.codeSent"));
+      if (result.code) setShownCode(result.code);
+      else showSuccess(t("auth.otp.codeSent"));
     } catch (err) {
       if (err instanceof ApiError && err.code === "RESEND_COOLDOWN") startCooldown(err.retryAfterSeconds ?? 30);
       showError(otpErrorMessage(err));
@@ -181,7 +186,10 @@ export function LoginPage() {
           <div className="flex items-center justify-between text-sm">
             <button
               type="button"
-              onClick={() => setOtpPhone(null)}
+              onClick={() => {
+                setOtpPhone(null);
+                setShownCode(null);
+              }}
               className="font-medium text-text-muted outline-none hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               {t("auth.otp.changeNumber")}
@@ -200,6 +208,25 @@ export function LoginPage() {
             )}
           </div>
         </form>
+
+        <Dialog open={shownCode !== null} onClose={() => setShownCode(null)} title={t("auth.otp.popupTitle")}>
+          <p className="text-sm text-text-muted">{t("auth.otp.popupBody")}</p>
+          <p className="my-5 text-center text-4xl font-bold tracking-[0.3em] text-text" aria-live="polite">
+            {shownCode}
+          </p>
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => {
+              if (!shownCode) return;
+              codeForm.setValue("code", shownCode, { shouldValidate: true });
+              setShownCode(null);
+              void codeForm.handleSubmit(onCodeSubmit)();
+            }}
+          >
+            {t("auth.otp.popupUse")}
+          </Button>
+        </Dialog>
       </AuthLayout>
     );
   }

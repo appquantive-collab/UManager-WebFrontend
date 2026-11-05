@@ -29,7 +29,10 @@ export function login(input: LoginInput): Promise<AuthSession> {
   });
 }
 
-export function requestLoginOtp(phone: string): Promise<{ resendAfterSeconds: number; expiresInSeconds: number }> {
+// `code` is only present while the backend has no SMS provider and shows the OTP in-app instead.
+export function requestLoginOtp(
+  phone: string
+): Promise<{ resendAfterSeconds: number; expiresInSeconds: number; code?: string }> {
   return apiFetch("/auth/otp/request", {
     method: "POST",
     body: JSON.stringify({ phone }),
