@@ -46,7 +46,7 @@ export function LandingPricing() {
               <ul className="mt-6 space-y-3">
                 {features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-sm text-text-muted">
-                    <Check size={16} className="mt-0.5 shrink-0 text-success" />
+                    <Check size={16} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
                     {feature}
                   </li>
                 ))}

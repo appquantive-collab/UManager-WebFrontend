@@ -165,11 +165,11 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                 >
                   <div className="flex items-center justify-between gap-2">
                     {item.isNewProduct ? (
-                      <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
+                      <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-warning">
                         <AlertTriangle size={12} /> {t("orders.orderDetailModal.newProduct")}
                       </span>
                     ) : (
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">{t("orders.orderDetailModal.item")}</span>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t("orders.orderDetailModal.item")}</span>
                     )}
                     {editable ? (
                       <button
@@ -193,7 +193,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
 
                   <div className="mt-2 grid grid-cols-3 gap-2">
                     <div>
-                      <label className="text-xs text-text-muted">{t("orders.common.qty")}</label>
+                      <label className="text-xs text-text">{t("orders.common.qty")}</label>
                       <input
                         type="number"
                         min={0.001}
@@ -205,7 +205,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-text-muted">{t("orders.common.unit")}</label>
+                      <label className="text-xs text-text">{t("orders.common.unit")}</label>
                       <input
                         value={item.unit}
                         disabled={!editable}
@@ -214,7 +214,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-text-muted">{t("orders.common.price")}</label>
+                      <label className="text-xs text-text">{t("orders.common.price")}</label>
                       <input
                         type="number"
                         min={0}
@@ -242,7 +242,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
           </div>
 
           <div className="mt-5">
-            <label className="mb-1.5 block text-sm font-medium text-text-muted" htmlFor="order-notes">
+            <label className="mb-1.5 block text-sm font-semibold text-text" htmlFor="order-notes">
               {t("orders.orderDetailModal.notes")}
             </label>
             <textarea
@@ -253,7 +253,7 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
               rows={2}
               maxLength={1000}
               placeholder={t("orders.orderDetailModal.notesPlaceholder")}
-              className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary disabled:opacity-60"
+              className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary disabled:opacity-60"
             />
           </div>
 

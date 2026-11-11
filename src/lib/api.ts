@@ -6,12 +6,15 @@ export class ApiError extends Error {
   status: number;
   code?: string;
   retryAfterSeconds?: number;
+  /** Extra facts from the server (e.g. which items are short on stock). */
+  details?: unknown;
 
-  constructor(message: string, status: number, code?: string, retryAfterSeconds?: number) {
+  constructor(message: string, status: number, code?: string, retryAfterSeconds?: number, details?: unknown) {
     super(message);
     this.status = status;
     this.code = code;
     this.retryAfterSeconds = retryAfterSeconds;
+    this.details = details;
   }
 }
 
@@ -31,7 +34,8 @@ async function parseErrorBody(res: Response): Promise<never> {
     message,
     res.status,
     typeof body.code === "string" ? body.code : undefined,
-    typeof body.retryAfterSeconds === "number" ? body.retryAfterSeconds : undefined
+    typeof body.retryAfterSeconds === "number" ? body.retryAfterSeconds : undefined,
+    body.details
   );
 }
 
@@ -77,19 +81,22 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   });
 
   if (res.status === 401 && !AUTH_ENTRY_POINTS.includes(path)) {
+    let newToken: string;
     try {
-      const newToken = await refreshAccessToken();
-      const retryRes = await fetch(`${API_BASE_URL}${path}`, {
-        ...options,
-        headers: buildHeaders(newToken, options.headers),
-      });
-      if (!retryRes.ok) return parseErrorBody(retryRes);
-      if (retryRes.status === 204) return undefined as T;
-      return retryRes.json() as Promise<T>;
+      newToken = await refreshAccessToken();
     } catch {
       useAuthStore.getState().clearSession();
       throw new ApiError("Session expired. Please sign in again.", 401);
     }
+    // Outside the try: an ordinary error on the retried call (e.g. "not enough
+    // stock") must reach the caller, not log the user out.
+    const retryRes = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: buildHeaders(newToken, options.headers),
+    });
+    if (!retryRes.ok) return parseErrorBody(retryRes);
+    if (retryRes.status === 204) return undefined as T;
+    return retryRes.json() as Promise<T>;
   }
 
   if (!res.ok) return parseErrorBody(res);

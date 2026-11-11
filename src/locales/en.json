@@ -55,7 +55,20 @@
     "account": "Account",
     "logOut": "Log out",
     "toggleTheme": "Toggle theme",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "userMenu": {
+      "open": "Open account menu",
+      "profile": "Profile",
+      "settings": "Settings",
+      "language": "Change language"
+    },
+    "mainNavigation": "Main navigation",
+    "navBadge": {
+      "ordersToBill_one": "{{count}} order waiting to be billed",
+      "ordersToBill_other": "{{count}} orders waiting to be billed",
+      "lowStock_one": "{{count}} item running low",
+      "lowStock_other": "{{count}} items running low"
+    }
   },
   "quickActions": {
     "create": "Create"
@@ -74,7 +87,8 @@
     "settings": "Settings",
     "products": "Products",
     "home": "Home",
-    "stock": "Stock"
+    "stock": "Stock",
+    "cashbook": "Cash book"
   },
   "language": {
     "label": "Language",
@@ -154,11 +168,14 @@
     "tabs": {
       "business": "Business",
       "language": "Language",
-      "tax": "Tax",
-      "invoice": "Invoice",
+      "tax": "GST",
+      "invoice": "Bills",
       "notifications": "Notifications",
       "integrations": "Integrations",
-      "subscription": "Subscription"
+      "subscription": "Subscription",
+      "display": "Display",
+      "team": "Team",
+      "activity": "Activity"
     },
     "businessName": "Business name",
     "businessType": "Business type",
@@ -194,7 +211,7 @@
     },
     "purchases": {
       "title": "Purchases",
-      "subtitle": "Purchase orders and supplier payments."
+      "subtitle": "Supplier bills, stock in and what you owe."
     },
     "inventory": {
       "title": "Inventory",
@@ -247,6 +264,14 @@
     "fallback": {
       "title": "SethSathi",
       "subtitle": ""
+    },
+    "search": {
+      "title": "Search",
+      "subtitle": "Find anything, or ask Munshi AI about your business"
+    },
+    "cashbook": {
+      "title": "Cash book",
+      "subtitle": "Today's money in and out, and your galla count"
     }
   },
   "auth": {
@@ -370,7 +395,7 @@
     },
     "step3": {
       "heading": "What matters most?",
-      "subheading": "Pick up to {{max}} priorities.",
+      "subheading": "Pick everything that matters to you.",
       "painPointsLabel": "Anything specific slowing you down? (optional)",
       "painPointsPlaceholder": "e.g. Tracking expiry dates, chasing customer payments…",
       "finishSetup": "Finish setup"
@@ -545,8 +570,8 @@
       "noRawMaterialsDescription": "Add raw materials here, then reference them in a product's Bill of Materials.",
       "noProductsDescription": "Add your first product to start tracking stock.",
       "tryDifferentFilter": "Try a different search or filter.",
-      "addRawMaterialShort": "Add raw material",
-      "addProductShort": "Add product",
+      "addRawMaterialShort": "Add material",
+      "addProductShort": "Add item",
       "addOrAdjustStockTitle": "Add / adjust stock",
       "assembleTitle": "Assemble from raw materials",
       "statusInStock": "In Stock",
@@ -573,6 +598,74 @@
       "skuLabel": "SKU: {{sku}}",
       "download": "Download",
       "generateFailed": "Could not generate the QR code."
+    },
+    "hub": {
+      "intro": "All your products with live stock, prices and margins. Low and out-of-stock items are highlighted.",
+      "recordPurchase": "Record purchase",
+      "summary": {
+        "count": "Products",
+        "countDetail": "Tap to see all",
+        "value": "Stock value",
+        "valueDetail": "At cost price",
+        "low": "Running low",
+        "lowDetail": "At or below reorder level",
+        "out": "Out of stock",
+        "outDetail": "Can't be sold right now"
+      },
+      "stockLabel": "Stock",
+      "filter": {
+        "all": "All",
+        "low": "Running low",
+        "out": "Out of stock",
+        "ok": "In stock"
+      },
+      "col": {
+        "cost": "Cost",
+        "margin": "Margin",
+        "value": "Stock value",
+        "actions": "Actions"
+      },
+      "state": {
+        "out": "Out of stock",
+        "low": "Low · reorder at {{level}}",
+        "ok": "In stock"
+      },
+      "stockInOut": "Stock in/out",
+      "footer": {
+        "count_one": "{{count}} product",
+        "count_other": "{{count}} products",
+        "value": "Stock value"
+      },
+      "emptyBody": "Add the products you sell with cost, wholesale and retail prices. Then record purchases to fill stock.",
+      "noMatchBody": "Try a different name or SKU, or switch the stock filter to “All”."
+    },
+    "guide": {
+      "title": "How inventory works",
+      "subtitle": "4 steps — tap to show or hide",
+      "add": {
+        "title": "Add products",
+        "body": "Name, unit, prices (cost, wholesale, retail) and a reorder level."
+      },
+      "stockIn": {
+        "title": "Bring stock in",
+        "body": "Record a purchase from a supplier — stock is added automatically. For opening stock or corrections, use “Stock in/out”."
+      },
+      "watch": {
+        "title": "Watch low stock",
+        "body": "Items at or below their reorder level turn yellow; out of stock turns red. Reorder before you run out."
+      },
+      "make": {
+        "title": "Making products?",
+        "body": "Add raw materials and a recipe (bill of materials). Then use the hammer button to assemble finished goods."
+      },
+      "terms": {
+        "cost": "Cost price",
+        "costMeaning": "What you pay for one unit. Margin is worked out from this.",
+        "reorder": "Reorder level",
+        "reorderMeaning": "When stock falls to this number, it's time to buy more.",
+        "sku": "SKU",
+        "skuMeaning": "A short code for each product, used for search and QR labels."
+      }
     }
   },
   "staff": {
@@ -930,6 +1023,142 @@
       "record": "Record",
       "comingSoon": "{{label}} coming soon",
       "beingDesigned": "This section is being designed."
+    },
+    "guide": {
+      "title": "How selling works in SethSathi",
+      "subtitle": "4 simple steps — tap to show or hide",
+      "step": "Step {{number}}",
+      "newOrder": "New order",
+      "newSale": "New sale",
+      "steps": {
+        "order": {
+          "title": "Note the customer's order",
+          "body": "When a customer asks for goods, create an order. Paste their WhatsApp message and Munshi AI fills in the items for you."
+        },
+        "bill": {
+          "title": "Make the bill",
+          "body": "When goods are handed over, make the bill. Choose the customer and their pending order items are added automatically. Pick GST bill or simple record."
+        },
+        "payment": {
+          "title": "Record the payment",
+          "body": "Open any bill and tap “Record payment” — cash, UPI, bank or cheque. Part payments are fine; the rest stays as due."
+        },
+        "remind": {
+          "title": "Remind about dues",
+          "body": "In the Bills tab, the green WhatsApp button sends a polite payment reminder with the amount already written."
+        }
+      },
+      "terms": {
+        "order": {
+          "term": "Order",
+          "meaning": "What a customer asked for. Not billed yet."
+        },
+        "bill": {
+          "term": "Bill",
+          "meaning": "The final sale with amount (and GST if chosen)."
+        },
+        "payment": {
+          "term": "Payment",
+          "meaning": "Money you received against a bill."
+        }
+      }
+    },
+    "hub": {
+      "intro": "Take orders, make bills and collect payments — all in one place. New here? Open the guide below.",
+      "newOrderHint": "Customer asked for goods — note it down (Munshi AI can read their WhatsApp message)",
+      "newSaleHint": "Make a bill now — at the counter or for a customer's pending orders",
+      "summary": {
+        "today": "Billed today",
+        "bills_one": "{{count}} bill",
+        "bills_other": "{{count}} bills",
+        "month": "Billed this month",
+        "monthDetail": "Tap to see this month's bills",
+        "toCollect": "To collect",
+        "unpaidBills_one": "{{count}} bill not fully paid",
+        "unpaidBills_other": "{{count}} bills not fully paid",
+        "toBill": "Orders to bill",
+        "worth": "Worth {{amount}}"
+      },
+      "tabsLabel": "Sales sections",
+      "tabs": {
+        "orders": "Orders",
+        "bills": "Bills",
+        "payments": "Payments"
+      },
+      "tabHelp": {
+        "orders": "Orders are what customers asked for. Tap “Make bill” when the goods are handed over.",
+        "bills": "Bills are completed sales. Red amounts are still due — record a payment or send a reminder.",
+        "payments": "Every payment you received, newest first. Tap a row to open its bill."
+      },
+      "searchOrders": "Search customer name or phone",
+      "searchBills": "Search customer, phone or bill number",
+      "dateLabel": "Date",
+      "statusLabel": "Status",
+      "methodLabel": "Payment method",
+      "range": {
+        "all": "All time",
+        "today": "Today",
+        "week": "Last 7 days",
+        "month": "This month"
+      },
+      "orderFilter": {
+        "all": "All",
+        "open": "To bill",
+        "billed": "Billed",
+        "cancelled": "Cancelled"
+      },
+      "billFilter": {
+        "all": "All",
+        "due": "Due",
+        "paid": "Paid"
+      },
+      "allMethods": "All",
+      "method": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bank_transfer": "Bank transfer",
+        "cheque": "Cheque",
+        "credit": "Credit",
+        "other": "Other",
+        "credit_note": "Return (credit note)"
+      },
+      "col": {
+        "items": "Items",
+        "next": "Next step",
+        "bill": "Bill",
+        "due": "Due",
+        "method": "Method",
+        "received": "Received"
+      },
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "byMunshi": "via Munshi AI",
+      "makeBill": "Make bill",
+      "recordPayment": "Record payment",
+      "view": "View",
+      "remindOnWhatsapp": "Send WhatsApp payment reminder to {{name}}",
+      "reminder": "Namaste {{name}} ji, a gentle reminder from {{business}}: {{amount}} is pending on bill {{number}}. Thank you!",
+      "footer": {
+        "orders_one": "{{count}} order",
+        "orders_other": "{{count}} orders",
+        "bills_one": "{{count}} bill",
+        "bills_other": "{{count}} bills",
+        "payments_one": "{{count}} payment",
+        "payments_other": "{{count}} payments",
+        "total": "Total",
+        "due": "Due",
+        "received": "Received"
+      },
+      "empty": {
+        "ordersTitle": "No orders yet",
+        "ordersBody": "When a customer asks for goods, tap “New order”. You can even paste their WhatsApp message — Munshi AI will pick out the items.",
+        "billsTitle": "No bills yet",
+        "billsBody": "Tap “New sale” to make your first bill. Choose a customer, add items, and you're done in under a minute.",
+        "paymentsTitle": "No payments recorded yet",
+        "paymentsBody": "Payments appear here when you record them on a bill (cash, UPI, bank or cheque).",
+        "noMatchTitle": "Nothing matches",
+        "noMatchBody": "Try a different search, or set the date to “All time”."
+      }
     }
   },
   "purchases": {
@@ -954,6 +1183,147 @@
       "purchasesLabel": "Purchases",
       "purchaseReturnsLabel": "Purchase Returns",
       "supplierPaymentsLabel": "Supplier Payments"
+    },
+    "status": {
+      "unpaid": "Not paid",
+      "partial": "Part paid",
+      "paid": "Paid"
+    },
+    "form": {
+      "title": "New purchase",
+      "subtitle": "Record goods bought from a supplier. Stock goes up automatically.",
+      "close": "Close",
+      "sectionSupplier": "Supplier & bill",
+      "supplier": "Supplier",
+      "chooseSupplier": "Choose supplier",
+      "addSupplier": "Add a new supplier",
+      "supplierRequired": "Please choose a supplier",
+      "noSuppliers": "No suppliers yet",
+      "noSuppliersHint": "Add the shop or company you buy from first — it takes 10 seconds.",
+      "billNumber": "Supplier's bill number",
+      "billNumberHint": "Optional — the number printed on their bill, to match later",
+      "date": "Purchase date",
+      "warehouse": "Goods go into",
+      "warehouseHint": "Which godown/shop the stock is kept in",
+      "sectionItems": "What you bought",
+      "itemsHint": "Cost and GST fill in from the product — change if the price was different",
+      "product": "Item",
+      "chooseProduct": "Choose item",
+      "rawMaterial": "raw material",
+      "quantity": "Qty",
+      "costEach": "Cost each (₹)",
+      "removeItem": "Remove item",
+      "addItem": "Add another item",
+      "itemsRequired": "Add at least one item with a quantity",
+      "noProducts": "No products yet. Add products in Inventory first, then record purchases here.",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "sectionPayment": "Payment to supplier",
+      "payLater": "Pay later",
+      "paidFull": "Paid in full",
+      "paidAmount": "Amount paid now (₹)",
+      "paidAmountHint": "Leave 0 if you'll pay later — it is added to what you owe this supplier",
+      "method": "Paid by",
+      "willOwe": "you'll owe {{amount}}",
+      "cancel": "Cancel",
+      "save": "Save purchase",
+      "saved": "Purchase {{number}} saved",
+      "savedHint": "Stock has been added to inventory.",
+      "couldNotSave": "Couldn't save the purchase. Please try again."
+    },
+    "detail": {
+      "supplierBill": "Bill #{{number}}",
+      "into": "into {{warehouse}}",
+      "paid": "Paid",
+      "stillToPay": "Still to pay",
+      "history": "Payments made",
+      "paySupplier": "Pay supplier",
+      "amount": "Amount (₹)",
+      "amountHint": "Part payments are fine",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. cheque no. 004512",
+      "savePayment": "Save payment",
+      "paymentSaved": "Payment saved",
+      "couldNotPay": "Couldn't save the payment. Please try again.",
+      "fullyPaid": "This purchase is fully paid."
+    },
+    "page": {
+      "intro": "Record what you buy from suppliers. Stock goes up automatically and you can see exactly how much you owe each supplier.",
+      "newPurchase": "New purchase",
+      "summary": {
+        "month": "Bought this month",
+        "monthDetail": "Tap to see this month",
+        "toPay": "To pay suppliers",
+        "toPayDetail_one": "Owed to {{count}} supplier",
+        "toPayDetail_other": "Owed to {{count}} suppliers",
+        "today": "Bought today",
+        "todayDetail": "Tap to see today's purchases",
+        "suppliers": "Suppliers",
+        "suppliersDetail": "People you buy from"
+      },
+      "tabsLabel": "Purchase sections",
+      "tabs": {
+        "purchases": "Purchases",
+        "payments": "Payments made"
+      },
+      "tabHelp": {
+        "purchases": "Every purchase bill. Red amounts are still unpaid — tap “Pay” to record a payment.",
+        "payments": "Money you paid to suppliers, newest first."
+      },
+      "search": "Search supplier, item or bill number",
+      "filter": {
+        "all": "All",
+        "due": "To pay",
+        "paid": "Paid"
+      },
+      "col": {
+        "purchase": "Purchase",
+        "supplier": "Supplier",
+        "items": "Items",
+        "toPay": "To pay",
+        "paid": "Paid"
+      },
+      "pay": "Pay",
+      "footer": {
+        "count_one": "{{count}} purchase",
+        "count_other": "{{count}} purchases",
+        "toPay": "To pay",
+        "paidOut": "Paid out"
+      },
+      "empty": {
+        "title": "No purchases recorded yet",
+        "body": "When stock arrives from a supplier, tap “New purchase”, pick the supplier and items. Stock and supplier balance update by themselves.",
+        "paymentsTitle": "No payments to suppliers yet",
+        "paymentsBody": "Payments appear here when you pay a supplier — at purchase time or later."
+      }
+    },
+    "guide": {
+      "title": "How buying works",
+      "subtitle": "4 steps — tap to show or hide",
+      "supplier": {
+        "title": "Add your supplier",
+        "body": "Add the company or shop you buy from, with phone and GSTIN (if any)."
+      },
+      "record": {
+        "title": "Record the purchase bill",
+        "body": "Choose the supplier and items with quantity and cost — just like their bill."
+      },
+      "stock": {
+        "title": "Stock goes up by itself",
+        "body": "Saved items are added to your inventory in the chosen godown. No separate entry needed."
+      },
+      "pay": {
+        "title": "Pay the supplier",
+        "body": "Pay now or later, in parts if you like. What's left shows under “To pay”."
+      },
+      "terms": {
+        "purchase": "Purchase",
+        "purchaseMeaning": "Goods you bought from a supplier, with their cost.",
+        "toPay": "To pay",
+        "toPayMeaning": "Money you still owe suppliers (payable).",
+        "cost": "Cost price",
+        "costMeaning": "What you paid per item. Updates to your latest purchase price."
+      }
     }
   },
   "dashboard": {
@@ -1039,6 +1409,64 @@
       "fallbackSummaryNoLowStock": "No products are below reorder level.",
       "fallbackSummaryOverdue": "{{name}} has {{amount}} overdue.",
       "fallbackSummaryNoOverdue": "No overdue payments."
+    },
+    "desk": {
+      "greeting": "Namaste, {{name}}",
+      "greetingNoName": "Namaste",
+      "newSale": "New sale",
+      "newOrder": "New order",
+      "addProduct": "Add product",
+      "addCustomer": "Add customer",
+      "todaysSales": "Today's sales",
+      "thisMonth": "This month",
+      "toCollect": "To collect",
+      "lowStock": "Low stock items",
+      "bills_one": "{{count}} bill",
+      "bills_other": "{{count}} bills",
+      "vsYesterday": "{{sign}}{{percent}}% vs yesterday",
+      "noComparison": "No sales yesterday",
+      "inventoryWorth": "Stock worth {{amount}}",
+      "fromCustomers_one": "From {{count}} customer",
+      "fromCustomers_other": "From {{count}} customers",
+      "nothingDue": "No pending payments",
+      "ofProducts_one": "Out of {{count}} product",
+      "ofProducts_other": "Out of {{count}} products",
+      "salesTrend": "Sales this week",
+      "last7Days": "Last 7 days",
+      "weekTotal": "Week total",
+      "sales": "Sales",
+      "noSalesThisWeek": "No sales recorded this week yet",
+      "recentOrders": "Recent orders",
+      "viewAll": "View all",
+      "noOrdersYet": "No orders yet. Tap “New order” to create one.",
+      "customer": "Customer",
+      "items": "Items",
+      "status": "Status",
+      "amount": "Amount",
+      "topProducts": "Best sellers",
+      "noProductSales": "Your best-selling products will appear here.",
+      "unitsSold_one": "{{count}} sold",
+      "unitsSold_other": "{{count}} sold",
+      "munshiNote": "Munshi's note",
+      "askMunshi": "Ask Munshi AI"
+    },
+    "attention": {
+      "title": "Needs your attention",
+      "allClear": "All clear!",
+      "allClearHint": "No pending payments, low stock or waiting orders.",
+      "collect": "Collect payment",
+      "bills_one": "{{count}} unpaid bill",
+      "bills_other": "{{count}} unpaid bills",
+      "call": "Call {{name}}",
+      "whatsapp": "Send WhatsApp reminder to {{name}}",
+      "reminderMessage": "Namaste {{name}} ji, this is a gentle reminder from {{business}} that a payment of {{amount}} is pending. Thank you!",
+      "reorder": "Reorder soon",
+      "outOfStock": "Out of stock",
+      "leftOf": "{{quantity}} left · reorder at {{reorder}}",
+      "openInventory": "Open inventory",
+      "pendingOrders_one": "{{count}} order waiting to be billed",
+      "pendingOrders_other": "{{count}} orders waiting to be billed",
+      "view": "View"
     }
   },
   "ai": {
@@ -1069,6 +1497,30 @@
       "send": "Send",
       "disclaimer": "AI-drafted actions always require your review and confirmation before affecting your business data.",
       "couldNotReachAssistant": "Couldn't reach the AI assistant. Please try again."
+    },
+    "chat": {
+      "online": "Online · knows your business",
+      "typing": "typing…",
+      "welcomeTitle": "Namaste! Ask me anything about your business",
+      "welcomeBody": "Sales, stock, dues, profit, GST, staff — or how to do something in SethSathi. Type or tap the mic to speak.",
+      "suggestions": [
+        "How much did I sell today?",
+        "Which items should I reorder?",
+        "Who owes me the most money?",
+        "Compare this month's sales with last month",
+        "What is my profit this month?",
+        "How much GST do I have to pay this month?"
+      ],
+      "placeholder": "Message Munshi AI…",
+      "record": "Record a voice message",
+      "stopRecording": "Done — turn voice into text",
+      "cancelRecording": "Cancel recording",
+      "recordingHint": "Recording… tap ✓ when done",
+      "tooShort": "That was too short — hold on a little longer while you speak.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyFailed": "Couldn't copy",
+      "disclaimer": "Munshi AI answers from your SethSathi data. It only proposes changes — you confirm them."
     }
   },
   "reports": {
@@ -1088,6 +1540,123 @@
       "beingDesigned": "This report is being designed.",
       "purchasesLabel": "Purchases",
       "inventoryLabel": "Inventory"
+    },
+    "hub": {
+      "intro": "Simple business reports from your real bills, purchases and stock. Pick a report and a period; download any table for Excel or your CA.",
+      "reportsLabel": "Reports",
+      "tabs": {
+        "sales": "Sales",
+        "purchases": "Purchases",
+        "profit": "Profit",
+        "stock": "Stock",
+        "dues": "Dues",
+        "gst": "GST"
+      },
+      "help": {
+        "sales": "How much you sold, how much came in, and your best products and customers.",
+        "purchases": "What you bought and from whom.",
+        "profit": "Estimated gross profit: sales (before GST) minus the cost of goods sold.",
+        "stock": "What your stock is worth, what's running low, and what isn't selling.",
+        "dues": "Who owes you money, and who you owe — as of today.",
+        "gst": "GST on your GST bills vs GST paid on purchases. Use it to prepare GSTR-3B with your CA."
+      },
+      "periodLabel": "Period",
+      "period": {
+        "today": "Today",
+        "week": "Last 7 days",
+        "month": "This month",
+        "lastMonth": "Last month",
+        "fy": "This financial year"
+      },
+      "download": "Download CSV",
+      "print": "Print this report",
+      "col": {
+        "product": "Product",
+        "customer": "Customer",
+        "supplier": "Supplier",
+        "qty": "Quantity",
+        "amount": "Amount",
+        "bills": "Bills",
+        "purchases": "Purchases",
+        "phone": "Phone"
+      },
+      "sales": {
+        "total": "Total sales",
+        "bills": "Bills made",
+        "average": "Average bill {{amount}}",
+        "collected": "Money received",
+        "collectedDetail": "Payments recorded in this period",
+        "profit": "Gross profit (est.)",
+        "byDay": "Sales by day",
+        "topProducts": "Best-selling products",
+        "topCustomers": "Top customers"
+      },
+      "buy": {
+        "total": "Total purchases",
+        "count": "Purchase bills",
+        "countDetail": "Recorded in this period",
+        "paid": "Paid to suppliers",
+        "unpaid": "{{amount}} still unpaid",
+        "topSuppliers": "Top suppliers",
+        "topItems": "Items bought"
+      },
+      "profit": {
+        "revenue": "Sales (before GST)",
+        "revenueDetail": "What customers paid for goods",
+        "cost": "Cost of goods",
+        "costDetail": "At current cost price",
+        "profit": "Gross profit",
+        "margin": "Margin",
+        "marginHint": "Profit as % of sales",
+        "marginDetail": "{{margin}}% margin",
+        "byProduct": "Profit by product",
+        "note": "This is an estimate: it uses each product's current cost price and doesn't include expenses like rent or salaries."
+      },
+      "stock": {
+        "atCost": "Value at cost",
+        "atCostDetail": "What you paid for current stock",
+        "atWholesale": "Value at wholesale",
+        "atWholesaleDetail": "If sold at wholesale price",
+        "low": "Low or out",
+        "lowDetail": "At or below reorder level",
+        "dead": "Not selling",
+        "deadDetail": "In stock but no sale in {{period}}",
+        "list": "Stock list",
+        "movement": "In this period",
+        "selling": "Selling",
+        "notSelling": "Not selling",
+        "soldInPeriod": "Sold in period"
+      },
+      "dues": {
+        "toCollect": "To collect",
+        "toPay": "To pay",
+        "fromCustomers_one": "From {{count}} customer",
+        "fromCustomers_other": "From {{count}} customers",
+        "toSuppliers_one": "To {{count}} supplier",
+        "toSuppliers_other": "To {{count}} suppliers",
+        "customersOwe": "Customers who owe you",
+        "youOwe": "Suppliers you owe",
+        "noneToCollect": "Nobody owes you money right now.",
+        "noneToPay": "You don't owe any supplier right now."
+      },
+      "gst": {
+        "output": "GST on sales",
+        "outputDetail": "Collected on GST bills",
+        "input": "GST on purchases",
+        "inputDetail": "Paid to suppliers (input credit)",
+        "netPay": "Estimated GST to pay",
+        "netCredit": "Extra input credit",
+        "byRate": "GST by rate",
+        "salesTaxable": "Sales (taxable)",
+        "buyTaxable": "Purchases (taxable)",
+        "note": "Only bills made as “GST bill” are counted on the sales side. This is a helper — please confirm figures with your CA before filing."
+      },
+      "empty": {
+        "title": "Nothing in this period",
+        "sales": "No bills in this period. Try a longer period like “This month”.",
+        "purchases": "No purchases recorded in this period.",
+        "gst": "No GST bills or purchases with GST in this period."
+      }
     }
   },
   "layoutExtra": {
@@ -1108,7 +1677,8 @@
       "addCustomer": "Add Customer",
       "receivePayment": "Receive Payment",
       "scanProduct": "Scan Product",
-      "voiceEntry": "Voice Entry"
+      "voiceEntry": "Voice Entry",
+      "addExpense": "Add Expense"
     }
   },
   "ui": {
@@ -1152,7 +1722,7 @@
         },
         "salesPurchases": {
           "title": "Sales & purchases",
-          "description": "Quotations, orders, invoices, and supplier POs in one flow, from draft to payment."
+          "description": "Orders, GST or simple bills, returns and supplier purchases — print, PDF or WhatsApp, with UPI QR on every bill."
         },
         "customersSuppliers": {
           "title": "Customers & suppliers",
@@ -1163,8 +1733,8 @@
           "description": "Ask in plain language — \"Aaj kitni sale hui?\" — and get answers grounded in your real data."
         },
         "voiceOcr": {
-          "title": "Voice & OCR entry",
-          "description": "Speak a sale or scan a paper invoice; review the draft before anything touches your books."
+          "title": "Voice & Munshi AI",
+          "description": "Speak in Hindi, Hinglish or English; Munshi AI drafts the order and you confirm before anything is saved."
         },
         "multiWarehouse": {
           "title": "Multi-warehouse",
@@ -1175,8 +1745,8 @@
           "description": "Sales, inventory valuation, receivables, and profit — always current, never stale spreadsheets."
         },
         "tenantAudit": {
-          "title": "Tenant isolation & audit logs",
-          "description": "Every action is scoped, permissioned, and logged — built for teams, not just individuals."
+          "title": "Staff logins & activity log",
+          "description": "Give each person their own login and role. Every bill, cancel, price change and cash count is logged."
         }
       }
     },
@@ -1281,7 +1851,12 @@
       "phoneLabel": "Phone (optional)",
       "creditLimitLabel": "Credit limit (optional)",
       "submit": "Add customer",
-      "addError": "Could not add customer. Please try again."
+      "addError": "Could not add customer. Please try again.",
+      "saved": "Customer updated.",
+      "editTitle": "Edit customer",
+      "creditLimitHint": "Max udhaar allowed. You'll get a warning before a bill crosses it. 0 = no limit.",
+      "gstSection": "GST details (for GST bills)",
+      "stateHint": "Different state from yours → IGST on their GST bills."
     },
     "partyPortfolioModal": {
       "tabs": {
@@ -1302,6 +1877,74 @@
       "manualOrder": "Manual",
       "gstBill": "GST Bill",
       "recordBill": "Record Bill"
+    },
+    "hub": {
+      "intro": "Everyone you sell to — who owes you money, who is over their credit limit, and who hasn't bought in a while.",
+      "summary": {
+        "count": "Customers",
+        "countDetail": "Tap to see everyone",
+        "toCollect": "To collect",
+        "toCollectDetail_one": "From {{count}} customer",
+        "toCollectDetail_other": "From {{count}} customers",
+        "overLimit": "Over credit limit",
+        "overLimitDetail": "Owe more than allowed",
+        "inactive": "Not buying lately",
+        "inactiveDetail": "No purchase in {{days}} days"
+      },
+      "filter": {
+        "all": "All",
+        "due": "Owe money",
+        "overLimit": "Over limit",
+        "inactive": "Not buying"
+      },
+      "sortBy": "Sort by",
+      "sort": {
+        "due": "Most money due",
+        "top": "Biggest buyers",
+        "recent": "Recently bought",
+        "name": "Name (A–Z)"
+      },
+      "noPhone": "No phone number",
+      "overLimitBadge": "Over limit",
+      "due": "Owes you",
+      "daysAgo_one": "{{count}} day ago",
+      "daysAgo_other": "{{count}} days ago",
+      "creditUsed": "Credit used",
+      "remind": "Remind",
+      "openLedger": "Open khata",
+      "empty": {
+        "title": "No customers yet",
+        "body": "Add the people and shops you sell to. With a phone number you can send bill reminders on WhatsApp.",
+        "noMatchBody": "Try a different name, or switch the filter to “All”."
+      }
+    },
+    "guide": {
+      "title": "How customer accounts work",
+      "subtitle": "4 steps — tap to show or hide",
+      "add": {
+        "title": "Add the customer",
+        "body": "Name and phone number. Set a credit limit if you sell to them on udhaar."
+      },
+      "sell": {
+        "title": "Sell and bill",
+        "body": "Every bill is saved in their khata (ledger) automatically."
+      },
+      "collect": {
+        "title": "Collect & remind",
+        "body": "Record payments on bills. Send a polite WhatsApp reminder with one tap."
+      },
+      "limit": {
+        "title": "Watch the credit limit",
+        "body": "The coloured bar shows how much udhaar is used. Red means over the limit."
+      },
+      "terms": {
+        "due": "Due (baaki)",
+        "dueMeaning": "Money the customer still has to pay you.",
+        "limit": "Credit limit",
+        "limitMeaning": "The most udhaar you allow this customer.",
+        "ledger": "Khata",
+        "ledgerMeaning": "Their full history of bills and payments."
+      }
     }
   },
   "suppliers": {
@@ -1324,6 +1967,53 @@
       "gstinPlaceholder": "e.g. 09ABCDE1234F1Z5",
       "submit": "Add supplier",
       "addError": "Could not add supplier. Please try again."
+    },
+    "hub": {
+      "intro": "Everyone you buy stock from — how much you've bought and how much you still owe.",
+      "summary": {
+        "count": "Suppliers",
+        "countDetail": "Companies and shops you buy from",
+        "toPay": "You owe",
+        "toPayDetail_one": "To {{count}} supplier",
+        "toPayDetail_other": "To {{count}} suppliers",
+        "bought": "Total bought",
+        "boughtDetail": "From all suppliers"
+      },
+      "search": "Search name, phone or GSTIN",
+      "filter": {
+        "all": "All",
+        "toPay": "I owe money",
+        "noPurchases": "No purchases yet"
+      },
+      "noContact": "No phone or GSTIN added",
+      "bought": "Bought",
+      "toPay": "You owe",
+      "lastPurchase": "Last purchase",
+      "never": "Never",
+      "whatsapp": "Message {{name}} on WhatsApp",
+      "whatsappHello": "Namaste {{name}} ji,",
+      "recordPurchase": "Record purchase",
+      "empty": {
+        "title": "No suppliers yet",
+        "body": "Add the companies or shops you buy stock from. Then record purchases to track stock and what you owe.",
+        "noMatchBody": "Try a different name, or switch the filter to “All”."
+      }
+    },
+    "guide": {
+      "title": "How suppliers work",
+      "subtitle": "3 steps — tap to show or hide",
+      "add": {
+        "title": "Add a supplier",
+        "body": "Name, phone and GSTIN. The phone lets you call or WhatsApp them in one tap."
+      },
+      "buy": {
+        "title": "Record purchases",
+        "body": "Each purchase adds stock and adds to what you owe that supplier."
+      },
+      "pay": {
+        "title": "Pay and track",
+        "body": "Pay from the purchase bill. The “You owe” amount here always shows what's pending."
+      }
     }
   },
   "warehouses": {
@@ -1344,6 +2034,39 @@
       "locationPlaceholder": "e.g. Sector 63, Noida",
       "submit": "Add warehouse",
       "addError": "Could not add warehouse. Please try again."
+    },
+    "hub": {
+      "intro": "Your godowns and shops where stock is kept. Each one shows its own stock value.",
+      "openInventory": "Open inventory",
+      "summary": {
+        "count": "Warehouses",
+        "countDetail": "Godowns and shops",
+        "value": "Total stock value",
+        "valueDetail": "Across all warehouses",
+        "stocked": "Product entries",
+        "stockedDetail": "Products stocked across warehouses"
+      },
+      "main": "Main",
+      "products": "Products",
+      "shareOfStock": "Share of total stock",
+      "emptyWarehouse": "No stock here yet. Choose this warehouse when you record a purchase or add stock.",
+      "emptyBody": "Add your godown or shop. If you have just one place, the Main warehouse is enough."
+    },
+    "guide": {
+      "title": "How warehouses work",
+      "subtitle": "3 steps — tap to show or hide",
+      "add": {
+        "title": "Add each godown or shop",
+        "body": "Most businesses need just the Main warehouse. Add more only if you keep stock in different places."
+      },
+      "fill": {
+        "title": "Stock goes into a warehouse",
+        "body": "When you record a purchase or add stock, choose where it goes."
+      },
+      "move": {
+        "title": "Move stock between them",
+        "body": "In Inventory, use “Stock in/out” to take stock out of one warehouse and add it to another."
+      }
     }
   },
   "welcomeChat": {
@@ -1352,7 +2075,7 @@
     "typing": "Munshi AI is typing",
     "send": "Send",
     "chooseAbove": "Pick an option or ask me anything…",
-    "greeting": "Namaste! I'm Munshi AI, your digital munshi at SethSathi. Do you already have an account, or shall we create a new one together?",
+    "greeting": "Namaste! I'm Munshi AI, your digital munshi at SethSathi. First, which language would you like to talk in?",
     "choiceRegister": "Create a new account",
     "choiceLogin": "I have an account — log in",
     "goingToLogin": "Sure! Taking you to the login page…",
@@ -1413,15 +2136,638 @@
       "speakerOff": "Turn off Munshi's voice",
       "replay": "Listen again",
       "stop": "Stop",
-      "micStart": "Speak your answer",
-      "micStop": "Stop recording",
-      "listening": "Listening… speak now",
+      "micStart": "Hold to speak your answer",
       "micDenied": "Microphone is blocked. Allow it in your browser settings to speak your answer.",
       "micFailed": "Couldn't hear that. Please try again or type your answer.",
-      "micChoose": "Say your choice",
+      "micChoose": "Hold to say your choice or question",
       "passwordNoMic": "For your safety, please type your password",
-      "noMatch": "Sorry, I didn't catch that. Please say it again or tap an option."
+      "noMatch": "Sorry, I didn't catch that. Please say it again or tap an option.",
+      "holdHint": "Hold the mic button while you speak, then release to send.",
+      "understanding": "Understanding your voice…",
+      "releaseToSend": "Release to send · slide away to cancel",
+      "releaseToCancel": "Release to cancel"
     },
-    "askFailed": "Sorry, I can't answer that right now. Let's carry on — pick an option or type below."
+    "askFailed": "Sorry, I can't answer that right now. Let's carry on — pick an option or type below.",
+    "choiceManual": "Fill in manually — AI will help",
+    "withGoogle": "Continue with Google",
+    "withApple": "Continue with Apple",
+    "haveAccount": "Already have an account? Log in",
+    "socialFailed": "Sorry, that sign-in didn't work. Please try again, or fill in your details manually.",
+    "socialCancelled": "No problem! Pick any option below whenever you're ready.",
+    "socialWelcomeBack": "Welcome back, {{name}}! Opening your dashboard…",
+    "socialNeedsDetails": "Hi {{name}}, great to have you! Just two quick details to set up your business.",
+    "socialExpired": "That sign-in has timed out. Please choose how you'd like to continue again.",
+    "socialNotReady": "Sign-in with Google and Apple is being set up and will be ready soon. For now, tap “Fill in manually” and I'll help you step by step.",
+    "howToStart": "Great! Now, how would you like to get started?",
+    "manualIntro": "Wonderful, let's set up your account together. It takes about a minute."
+  },
+  "display": {
+    "presetsTitle": "Quick styles",
+    "presetsHint": "Pick one to change everything at once. You can fine-tune below.",
+    "preset": {
+      "modern": {
+        "title": "Modern",
+        "body": "Sleek small text, compact layout — more fits on screen"
+      },
+      "standard": {
+        "title": "Standard",
+        "body": "Balanced size and spacing (default)"
+      },
+      "easy": {
+        "title": "Easy reading",
+        "body": "Large text and roomy buttons — easier on the eyes"
+      }
+    },
+    "textSizeTitle": "Text size",
+    "textSizeHint": "Changes text, buttons, icons and cards together.",
+    "size": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "xlarge": "Extra large"
+    },
+    "layoutTitle": "Layout",
+    "layoutHint": "How much space there is between things.",
+    "density": {
+      "compact": {
+        "title": "Compact",
+        "body": "Tighter spacing, more rows and cards on screen"
+      },
+      "comfortable": {
+        "title": "Comfortable",
+        "body": "More breathing room, bigger tap targets"
+      }
+    },
+    "previewTitle": "Preview",
+    "previewList": "Customers to collect from",
+    "deviceNote": "Saved on this device. Each phone or computer can have its own style.",
+    "reset": "Back to standard"
+  },
+  "search": {
+    "headerPlaceholder": "Search customers, bills, products…",
+    "modeLabel": "Search type",
+    "mode": {
+      "normal": "Search",
+      "ai": "Ask AI"
+    },
+    "placeholder": "Name, phone, bill no., product, SKU…",
+    "clear": "Clear",
+    "recent": "Recent searches",
+    "clearRecent": "Clear",
+    "helpTitle": "Search across everything at once:",
+    "tryAi": "Or ask a question with AI",
+    "filterLabel": "Result type",
+    "all": "All",
+    "kinds": {
+      "customers": "Customers",
+      "suppliers": "Suppliers",
+      "products": "Products",
+      "bills": "Bills",
+      "orders": "Orders",
+      "purchases": "Purchases",
+      "staff": "Staff"
+    },
+    "showAll": "Show all {{count}}",
+    "loading": "Loading your data…",
+    "noResults": "Nothing found for “{{query}}”",
+    "askAiInstead": "Ask Munshi AI instead",
+    "owes": "Owes {{amount}}",
+    "youOwe": "You owe {{amount}}",
+    "due": "{{amount}} due",
+    "order": "Order",
+    "ai": {
+      "placeholder": "Ask anything about your business…",
+      "ask": "Ask",
+      "intro": "Ask in your own words — Hindi, Hinglish or English.",
+      "introHint": "Munshi AI answers from your real sales, stock, customers and dues.",
+      "suggestions": [
+        "How much did I sell today?",
+        "Who owes me the most money?",
+        "Which items are running low?",
+        "What were my best-selling products this month?",
+        "How much do I owe suppliers?"
+      ],
+      "thinking": "Munshi AI is thinking",
+      "noAnswer": "Munshi AI couldn't find an answer for that. Try asking it another way.",
+      "failed": "Couldn't get an answer right now. Please try again.",
+      "continue": "Continue in Munshi AI chat",
+      "note": "AI answers can be wrong — check important numbers in Reports."
+    }
+  },
+  "notifications": {
+    "title": "Alerts",
+    "labelWithCount_one": "Alerts, {{count}} new",
+    "labelWithCount_other": "Alerts, {{count}} new",
+    "ordersToBill_one": "{{count}} order waiting to be billed",
+    "ordersToBill_other": "{{count}} orders waiting to be billed",
+    "ordersToBillHint": "Make the bill when goods are handed over",
+    "lowStock_one": "{{count}} item running low",
+    "lowStock_other": "{{count}} items running low",
+    "toCollect": "{{amount}} to collect from customers",
+    "toCollectTop": "Most from {{name}} · {{amount}}",
+    "toPay": "{{amount}} to pay suppliers",
+    "toPayHint": "See unpaid purchase bills",
+    "allCaughtUp": "You're all caught up",
+    "allCaughtUpHint": "No pending orders, low stock or dues right now."
+  },
+  "bill": {
+    "walkIn": "Walk-in customer",
+    "taxInvoice": "Tax Invoice",
+    "bill": "Bill",
+    "igst": "IGST",
+    "cgst": "CGST",
+    "sgst": "SGST",
+    "taxableValue": "Taxable value",
+    "subtotal": "Subtotal",
+    "discountIncluded": "Discount given",
+    "roundOff": "Round off",
+    "total": "Total",
+    "paid": "Paid",
+    "balance": "Balance due",
+    "scanToPay": "Scan to pay",
+    "bankDetails": "Bank details",
+    "account": "A/c",
+    "phone": "Ph",
+    "to": "To",
+    "thankYou": "Thank you! Visit again.",
+    "cancelled": "Cancelled",
+    "state": "State",
+    "number": "Bill no.",
+    "date": "Date",
+    "billTo": "Bill to",
+    "placeOfSupply": "Place of supply",
+    "item": "Item",
+    "qty": "Qty",
+    "rate": "Rate",
+    "disc": "Disc",
+    "taxable": "Taxable",
+    "amount": "Amount",
+    "inWords": "Amount in words",
+    "terms": "Terms",
+    "forSeller": "For {{name}}",
+    "payByUpi": "Pay by UPI",
+    "printPdf": "Print / PDF",
+    "smallReceipt": "Small receipt",
+    "whatsapp": "WhatsApp",
+    "cancelDone": "Bill cancelled. Stock is back and the orders are open again.",
+    "cancelFailed": "Couldn't cancel the bill. Please try again.",
+    "cancelledOn": "Cancelled on {{date}}",
+    "cancelledNote": "This bill doesn't count in sales or dues any more.",
+    "discShort": "{{percent}}% off",
+    "fullAmount": "Full {{amount}}",
+    "cancelBill": "Cancel this bill",
+    "cantCancelPaidTitle": "This bill has a payment on it",
+    "cantCancelPaidBody": "Bills with money received can't be cancelled. To take goods back, record a return instead.",
+    "ok": "OK",
+    "cancelConfirmTitle": "Cancel this bill?",
+    "cancelConfirmBody": "Items go back into stock, its orders open again, and it stops counting in sales and dues. The bill number stays on record as cancelled.",
+    "cancelReasonPlaceholder": "Reason (optional) — e.g. wrong item",
+    "keepBill": "Keep bill",
+    "yesCancel": "Yes, cancel",
+    "creditNote": "Return (credit note)"
+  },
+  "sale": {
+    "walkInName": "Counter sale",
+    "customerHint": "Counter sale, or pick who you're billing.",
+    "walkInHint": "No customer name needed",
+    "customerOwes": "Already owes {{amount}}",
+    "itemsHint": "Add items from your stock",
+    "walkInTitle": "Counter sale (walk-in)",
+    "walkInBody": "No name needed — for cash or UPI at the counter.",
+    "orPickCustomer": "Or bill a customer",
+    "searchCustomer": "Search name or phone",
+    "owes": "Owes {{amount}}",
+    "findProduct": "Search item, SKU or barcode…",
+    "inStock": "{{qty}} {{unit}} in stock",
+    "outOfStock": "Out of stock",
+    "addTyped": "Add \"{{name}}\" as a new item",
+    "noItemsYet": "Search above and tap an item to add it to the bill.",
+    "newItemNote": "New item — set a price",
+    "onlyInStock": "Only {{qty}} {{unit}} in stock",
+    "discount": "Disc %",
+    "billKind": "Bill type",
+    "simpleBill": "Simple bill",
+    "noGstinYet": "Tip: add your GSTIN in Settings → Business so it prints on GST bills.",
+    "shortTitle": "Not enough stock",
+    "shortLine": "{{name}}: billing {{requested}}, only {{available}} {{unit}} in stock",
+    "shortBody": "If the goods are really there (not yet entered), you can bill anyway — stock will show minus until you add it.",
+    "fixQuantity": "Fix quantity",
+    "billAnyway": "Bill anyway",
+    "creditTitle": "Over credit limit",
+    "creditBody": "Limit {{limit}}. They already owe {{owes}}; after this bill they'll owe {{after}}.",
+    "changeBill": "Change bill",
+    "billTotal": "Bill total",
+    "includesGst": "Includes GST {{amount}}",
+    "howPaid": "How did they pay?",
+    "fullPaid": "Full amount",
+    "returnChange": "Give back change: {{amount}}",
+    "onCredit": "On credit (udhaar)",
+    "discountLine": "Discount − {{amount}}",
+    "gstLine": "GST + {{amount}}",
+    "roundOffLine": "Round off {{amount}}",
+    "makeBill": "Make bill",
+    "payLater": "Pay later (udhaar)",
+    "nextSale": "Next sale",
+    "paidBy": "Paid by",
+    "makeBillPaid": "Make bill · {{amount}} received",
+    "imeiLabel": "IMEI / serial numbers",
+    "imeiPlaceholder": "Type or scan, then Enter",
+    "removeImei": "Remove {{serial}}",
+    "imeiNotInStock": "Red ones are not in your stock. Check the number.",
+    "imeiInStock": "In stock — tap to add:"
+  },
+  "errors": {
+    "insufficientStock": "Not enough stock for this.",
+    "creditLimit": "This takes the customer over their credit limit.",
+    "hasPayments": "This bill has a payment on it, so it can't be cancelled.",
+    "alreadyCancelled": "This bill is already cancelled.",
+    "billCancelled": "This bill is cancelled.",
+    "emailTaken": "An account with this email already exists.",
+    "forbidden": "You don't have permission to do this. Ask the owner.",
+    "productNotFound": "Item not found. Please refresh.",
+    "customerNotFound": "Customer not found. Please refresh.",
+    "supplierNotFound": "Supplier not found. Please refresh.",
+    "staffNotFound": "Staff member not found.",
+    "orderNotFound": "Order not found.",
+    "billNotFound": "Bill not found.",
+    "warehouseNotFound": "Warehouse not found.",
+    "purchaseNotFound": "Purchase not found.",
+    "invalidCredentials": "Wrong email or password.",
+    "productsMissing": "Some items were not found. Please refresh and try again.",
+    "orderAlreadyBilled": "One of these orders is already billed.",
+    "orderCancelled": "A cancelled order can't be billed.",
+    "billAlreadyPaid": "This bill is already fully paid.",
+    "paymentTooMuch": "That's more than the amount due.",
+    "purchaseAlreadyPaid": "This purchase is already fully paid.",
+    "noRecipe": "This item has no recipe (raw materials) set.",
+    "phoneTaken": "An account with this mobile number already exists.",
+    "noAccountForPhone": "No account found for this mobile number.",
+    "wrongCode": "Wrong code. Please check and try again.",
+    "codeExpired": "This code has expired. Ask for a new one.",
+    "tooMany": "Too many tries. Please wait a little and try again.",
+    "sessionExpired": "Your login expired. Please sign in again.",
+    "generic": "Something went wrong. Please try again.",
+    "offline": "No internet connection. Check your network and try again."
+  },
+  "businessSettings": {
+    "saved": "Saved. New bills will show these details.",
+    "ownerOnly": "Only the owner or a manager can change this.",
+    "detailsTitle": "Shop details",
+    "detailsBody": "Printed at the top of every bill.",
+    "shopPhone": "Shop phone",
+    "address": "Address",
+    "addressHint": "Shop no., market, city, PIN — as you want it on bills.",
+    "state": "State",
+    "stateHint": "Used to decide CGST + SGST or IGST on GST bills.",
+    "pickState": "Pick your state",
+    "gstTitle": "GST registration",
+    "gstBody": "Add your GSTIN to print it on GST bills. Leave empty if you're not registered — you can still make simple bills.",
+    "gstinHint": "15 characters, e.g. 27ABCDE1234F1Z5. Your state is picked from the first two digits.",
+    "gstinInvalid": "This doesn't look like a GSTIN. Check it on your GST certificate.",
+    "gstinState": "State from GSTIN: {{state}}",
+    "howGstTitle": "How SethSathi applies GST",
+    "howGst1": "Each item's GST rate comes from the item (Inventory → edit item). HSN code is printed too.",
+    "howGst2": "Customer in your state → CGST + SGST (half each). Customer in another state (by their GSTIN or state) → IGST.",
+    "howGst3": "Discounts are taken off before GST. The total is rounded to the nearest rupee and the round-off is shown.",
+    "howGst4": "Simple bills add no GST — use them for cash sales that don't need a tax invoice.",
+    "billTitle": "Getting paid",
+    "billBody": "Add your UPI ID and a QR code prints on every bill with money due. Customers scan and pay the exact amount.",
+    "upiId": "UPI ID",
+    "upiHint": "Find it in GPay / PhonePe / Paytm → profile, e.g. shopname@okicici.",
+    "upiInvalid": "A UPI ID looks like name@bank.",
+    "bankName": "Bank name",
+    "bankAccount": "Account number",
+    "ifscInvalid": "IFSC is 11 characters, like SBIN0001234.",
+    "terms": "Terms at the bottom of the bill",
+    "termsHint": "Short and clear. Shows on every printed bill.",
+    "termsPlaceholder": "Goods once sold will not be taken back. Subject to local jurisdiction.",
+    "preview": "Bill preview",
+    "sampleCustomer": "Gupta General Store",
+    "sampleItem1": "Basmati Rice",
+    "sampleItem2": "Soap 100g"
+  },
+  "returns": {
+    "button": "Return items",
+    "title": "Goods returned",
+    "subtitle": "On bill {{number}}. Stock goes back automatically.",
+    "done": "Return {{number}} saved. Stock is back.",
+    "billedLine": "Billed {{billed}} {{unit}} · {{price}} each",
+    "alreadyBack": "{{qty}} already returned",
+    "less": "One less",
+    "more": "One more",
+    "qtyFor": "Quantity of {{name}} returned",
+    "allBack": "All returned",
+    "reasonPlaceholder": "Reason (optional) — e.g. damaged, wrong size",
+    "value": "Return value",
+    "offDue": "Taken off what they owe",
+    "giveBack": "Give back to customer",
+    "refundBy": "Give back by",
+    "pickImeis": "Pick the IMEI numbers that came back.",
+    "save": "Save return"
+  },
+  "trackEntry": {
+    "batchNeeded": "Enter the batch number for this item.",
+    "imeiCount": "Enter {{needed}} IMEI/serial numbers ({{given}} entered).",
+    "batchNo": "Batch no.",
+    "expiry": "Expiry date",
+    "imeis": "IMEI / serial numbers (one per piece)",
+    "imeiPlaceholder": "Scan or type, separated by space or new line"
+  },
+  "cashbook": {
+    "intro": "Every rupee of the day in one place — sales, money received, what you paid out, and the cash that should be in the galla.",
+    "addExpense": "Add expense",
+    "addExpenseSub": "Rent, electricity, tea, transport — money spent running the shop.",
+    "expenseSaved": "Expense saved.",
+    "saveExpense": "Save expense",
+    "what": "What for?",
+    "amount": "Amount (₹)",
+    "date": "Date",
+    "paidFrom": "Paid from",
+    "noteOptional": "Note (optional)",
+    "expenseNotePlaceholder": "e.g. auto to market",
+    "closedToast": "Day closed. Tomorrow starts from this cash.",
+    "guide": {
+      "title": "How the cash book works",
+      "subtitle": "Two minutes at closing time, every day.",
+      "s1": {
+        "title": "Sales and payments come in on their own",
+        "body": "Every bill and payment you record shows here by cash, UPI or bank."
+      },
+      "s2": {
+        "title": "Note what you spend",
+        "body": "Add rent, bijli, chai-paani, transport. Supplier payments and refunds are already counted."
+      },
+      "s3": {
+        "title": "Count the galla and close",
+        "body": "Enter the cash you counted. SethSathi shows if it's short or extra, and the next day starts from it."
+      }
+    },
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "today": "Today",
+    "pickDate": "Pick a date",
+    "summaryLabel": "Day summary",
+    "sales": "Sales",
+    "billsCount_one": "{{count}} bill",
+    "billsCount_other": "{{count}} bills",
+    "received": "Money received",
+    "receivedDetail": "Cash + UPI + bank",
+    "paidOut": "Paid out",
+    "paidOutDetail": "Suppliers, expenses, refunds",
+    "cashInDrawer": "Cash in galla",
+    "cashInDrawerDetail": "What the drawer should hold",
+    "moneyIn": "Money in",
+    "moneyInBody": "Payments received today, by how they came.",
+    "moneyOut": "Money out",
+    "moneyOutBody": "Everything paid today.",
+    "nothing": "Nothing yet.",
+    "returnsNote": "{{count}} return(s) worth {{amount}} today.",
+    "out": {
+      "suppliers": "Supplier payment",
+      "expenses": "Expense",
+      "refunds": "Refund",
+      "salaries": "Salary"
+    },
+    "method": {
+      "cash": "Cash",
+      "upi": "UPI",
+      "bank_transfer": "Bank",
+      "cheque": "Cheque",
+      "card": "Card",
+      "credit": "Credit",
+      "other": "Other"
+    },
+    "closeTitle": "Close the day",
+    "closeBody": "Count the cash in the galla and enter it here.",
+    "closedBadge": "Closed",
+    "opening": "Opening cash",
+    "openingFrom": "From the count on {{date}}",
+    "openingHint": "Cash in the galla when the day started.",
+    "expected": "Should be in galla",
+    "expectedHint": "Opening + {{in}} cash in − {{out}} cash out",
+    "counted": "Cash you counted",
+    "countedHint": "Notes and coins actually in the drawer.",
+    "matches": "Matches exactly. Well done!",
+    "extra": "{{amount}} extra in the galla.",
+    "short": "{{amount}} short. Check unrecorded expenses or bills.",
+    "note": "Note",
+    "notePlaceholder": "Optional — e.g. ₹500 taken home",
+    "closeDay": "Close day",
+    "updateClose": "Update count",
+    "expensesTitle": "Expenses",
+    "expensesBody": "Shop running costs for this day.",
+    "add": "Add",
+    "noExpenses": "No expenses on this day",
+    "noExpensesBody": "Add rent, electricity, tea or transport so your profit and cash are right.",
+    "deleteConfirm": "Delete this expense?",
+    "deleteExpense": "Delete expense"
+  },
+  "expenses": {
+    "category": {
+      "rent": "Rent",
+      "salary": "Salary / wages",
+      "electricity": "Electricity",
+      "transport": "Transport",
+      "tea_food": "Tea & food",
+      "repairs": "Repairs",
+      "phone_internet": "Phone & internet",
+      "packing": "Packing",
+      "shop_supplies": "Shop supplies",
+      "bank_charges": "Bank charges",
+      "other": "Other"
+    }
+  },
+  "expiring": {
+    "title": "Expiring soon",
+    "subtitle": "{{count}} batch(es) expire within 60 days — stock worth {{value}}. Sell or return these first.",
+    "batch": "Batch {{batch}}",
+    "expired": "Expired",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left"
+  },
+  "importItems": {
+    "button": "Import from Excel",
+    "title": "Import items",
+    "subtitle": "Bring your whole item list in from Excel or a CSV file.",
+    "pick": "Choose Excel or CSV file",
+    "formats": ".xlsx or .csv — first row should have column names",
+    "rowsFound": "{{count}} items found",
+    "readFailed": "Couldn't read this file. Save it as .xlsx or .csv and try again.",
+    "template": "Download a sample sheet",
+    "help": "Columns we understand: Item name, Unit, Retail price (or MRP), Wholesale price, Purchase price, GST %, HSN, Category, Brand, Opening stock, Reorder level, SKU, Barcode.",
+    "noName": "We couldn't find an item-name column. Name it \"Item name\".",
+    "columns": "Columns in your file",
+    "ignored": "Not used",
+    "existing": "If an item is already in SethSathi",
+    "mode": {
+      "update": "Update its prices and details",
+      "skip": "Leave it as it is"
+    },
+    "import": "Import",
+    "importN": "Import {{count}} items",
+    "created": "New items",
+    "updated": "Already there",
+    "problems": "Rows with problems",
+    "fixThese": "Fix these rows and import again",
+    "row": "Row {{row}}",
+    "done": "Done",
+    "field": {
+      "name": "Item name",
+      "sku": "SKU / code",
+      "barcode": "Barcode",
+      "category": "Category",
+      "brand": "Brand",
+      "unit": "Unit",
+      "hsn": "HSN",
+      "gstPercent": "GST %",
+      "purchasePrice": "Purchase price",
+      "wholesalePrice": "Wholesale price",
+      "retailPrice": "Retail price",
+      "reorderLevel": "Reorder level",
+      "openingStock": "Opening stock"
+    }
+  },
+  "variants": {
+    "button": "Sizes & colours",
+    "title": "Add sizes & colours",
+    "subtitle": "One design in many sizes and colours — each becomes its own item with its own stock.",
+    "design": "Design / item name",
+    "designHint": "Each item is named like \"Cotton Shirt - M / Red\".",
+    "designPlaceholder": "e.g. Cotton Shirt",
+    "sizes": "Sizes",
+    "typeAndEnter": "Type and press Enter",
+    "preset": {
+      "clothes": "Clothes",
+      "kids": "Kids",
+      "shoes": "Shoes"
+    },
+    "colors": "Colours",
+    "colorsPlaceholder": "e.g. Red, Blue",
+    "price": "Selling price",
+    "cost": "Cost price",
+    "preview": "Will create {{count}} items, like \"{{example}}\".",
+    "create": "Create {{count}} items",
+    "created": "{{count}} items added."
+  },
+  "serialLookup": {
+    "inStock": "In your stock.",
+    "sold": "Sold on {{number}} to {{customer}} · {{date}}",
+    "out": "Not in stock.",
+    "openBill": "Open bill"
+  },
+  "productExtras": {
+    "moreTitle": "More options",
+    "moreSubtitle": "Box/carton unit, batch & expiry, IMEI, size and colour",
+    "packTitle": "Bigger pack",
+    "packHint": "If you also buy or sell this by the box/carton. Stock is always counted in the main unit.",
+    "packPlaceholder": "box",
+    "packName": "Pack name",
+    "packFactor": "How many in one pack",
+    "baseUnits": "of the main unit",
+    "trackTitle": "Track",
+    "batch": "Batch & expiry",
+    "batchHint": "Medicines, food, cosmetics. Oldest expiry is sold first; you'll see what's expiring.",
+    "serial": "IMEI / serial number",
+    "serialHint": "Mobiles, electronics. Every piece is recorded when bought and sold.",
+    "size": "Size",
+    "color": "Colour",
+    "colorPlaceholder": "Red, Blue…",
+    "taxTitle": "Tax (GST)",
+    "taxHint": "Used on GST bills.",
+    "gstRate": "GST rate",
+    "hsn": "HSN code",
+    "hsnHint": "4–8 digits, printed on GST bills."
+  },
+  "team": {
+    "title": "Team logins",
+    "body": "Give your staff their own login. Each role sees only what it needs.",
+    "add": "Add person",
+    "addSub": "They sign in with their mobile (OTP) or with an email and password.",
+    "create": "Create login",
+    "saved": "Saved.",
+    "you": "you",
+    "off": "Login off",
+    "roleFor": "Role of {{name}}",
+    "resetPassword": "Set a new password for {{name}}",
+    "newPassword": "New password",
+    "turnOff": "Turn off",
+    "turnOn": "Turn on",
+    "whoTitle": "Who can do what",
+    "added": "{{name}} can now sign in.",
+    "addedPhoneHint": "They sign in with mobile {{phone}} and the OTP.",
+    "addedEmailHint": "They sign in with the email and password you set.",
+    "roleLabel": "Role",
+    "phone": "Mobile number",
+    "phoneHint": "10 digits. They log in with an OTP on this number.",
+    "or": "or",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 6 characters. Share it with them.",
+    "role": {
+      "OWNER": "Owner",
+      "SUPER_ADMIN": "Admin",
+      "MANAGER": "Manager",
+      "SALESMAN": "Salesman / counter",
+      "WAREHOUSE_STAFF": "Godown / stock staff"
+    },
+    "can": {
+      "MANAGER": "Everything except changing the owner. Can cancel bills, see reports and the cash book.",
+      "SALESMAN": "Make bills, take payments, add customers, take orders and returns. Can't see purchases, reports, cash book or change prices.",
+      "WAREHOUSE_STAFF": "Add and adjust stock, record purchases (goods in), manage items and godowns. Can't see sales or money."
+    }
+  },
+  "activity": {
+    "title": "Activity",
+    "body": "Who did what, and when. Bills, cancellations, price changes, stock changes and cash counts are all here.",
+    "filter": "Show",
+    "empty": "Nothing here yet.",
+    "more": "Show older",
+    "group": {
+      "all": "All",
+      "bill": "Bills",
+      "purchase": "Purchases",
+      "stock": "Stock",
+      "product": "Items",
+      "return": "Returns",
+      "expense": "Expenses",
+      "cash": "Cash",
+      "team": "Team",
+      "settings": "Settings"
+    },
+    "action": {
+      "bill_create": "New bill",
+      "bill_payment": "Payment",
+      "bill_cancel": "Bill cancelled",
+      "purchase_create": "Purchase",
+      "purchase_payment": "Supplier paid",
+      "return_create": "Return",
+      "expense_create": "Expense",
+      "expense_delete": "Expense deleted",
+      "cash_close": "Cash counted",
+      "product_price": "Price changed",
+      "product_delete": "Item deleted",
+      "product_archive": "Item archived",
+      "product_import": "Items imported",
+      "product_variants": "Variants added",
+      "team_add": "Login added",
+      "team_update": "Login changed",
+      "settings_business": "Settings changed",
+      "stock_adjustment": "Stock adjusted",
+      "stock_damage": "Damaged stock",
+      "stock_opening": "Opening stock",
+      "stock_purchase": "Stock in",
+      "stock_transfer_in": "Transfer in",
+      "stock_transfer_out": "Transfer out",
+      "stock_customer_return": "Customer return",
+      "stock_supplier_return": "Returned to supplier",
+      "stock_sale": "Stock out"
+    }
+  },
+  "reportsExtra": {
+    "netTitle": "Net profit after expenses",
+    "grossProfit": "Gross profit (sales − cost of goods)",
+    "noExpenses": "No expenses recorded in this period. Add them in the Cash book.",
+    "netProfit": "Net profit",
+    "returnsNote": "Returned goods are taken off sales and cost."
   }
 }

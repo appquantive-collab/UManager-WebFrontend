@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ScanLine, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, ScanLine, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { PickOrCreateField } from "../../components/shared/PickOrCreateField";
@@ -58,6 +58,19 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
     (initialValues?.bom ?? []).map((line) => ({ ...line, key: nextBomRowKey() }))
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Tax and the trade-specific options live outside the zod form: they are simple
+  // pickers/toggles with no free-text validation beyond what's done on submit.
+  const [gstPercent, setGstPercent] = useState<number>(initialValues?.gstPercent ?? 0);
+  const [hsn, setHsn] = useState(initialValues?.hsn ?? "");
+  const [altUnitName, setAltUnitName] = useState(initialValues?.altUnit?.name ?? "");
+  const [altUnitFactor, setAltUnitFactor] = useState(initialValues?.altUnit ? String(initialValues.altUnit.factor) : "");
+  const [trackBatch, setTrackBatch] = useState(initialValues?.trackBatch ?? false);
+  const [trackSerial, setTrackSerial] = useState(initialValues?.trackSerial ?? false);
+  const [size, setSize] = useState(initialValues?.size ?? "");
+  const [color, setColor] = useState(initialValues?.color ?? "");
+  const [moreOpen, setMoreOpen] = useState(
+    Boolean(initialValues?.altUnit || initialValues?.trackBatch || initialValues?.trackSerial || initialValues?.size || initialValues?.color)
+  );
 
   const rawMaterialsQuery = useQuery({
     queryKey: ["products", "rawMaterial", true],
@@ -140,6 +153,9 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
 
   const validBomLines = bomLines.filter((line) => line.rawMaterialId && line.quantity > 0);
 
+  const altFactor = Number(altUnitFactor);
+  const altUnitValid = altUnitName.trim() !== "" && altFactor > 0;
+
   const submit = async (values: ProductFormValues) => {
     try {
       await onSubmit({
@@ -147,6 +163,13 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
         category: category ?? undefined,
         brand: brand ?? undefined,
         imageUrl,
+        gstPercent,
+        hsn: hsn.trim() || undefined,
+        altUnit: altUnitValid ? { name: altUnitName.trim(), factor: altFactor } : initialValues?.altUnit ? null : undefined,
+        trackBatch,
+        trackSerial,
+        size: size.trim() || undefined,
+        color: color.trim() || undefined,
         isRawMaterial,
         bom: isRawMaterial
           ? []
@@ -187,7 +210,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
                   ) : (
                     <ImagePlus size={16} />
                   )}
-                  <span className="text-[9px]">{t("inventory.productForm.photo")}</span>
+                  <span className="text-[0.5625rem]">{t("inventory.productForm.photo")}</span>
                 </button>
               )}
               <div className="min-w-0 flex-1 space-y-1.5">
@@ -209,7 +232,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-text-muted" htmlFor="sku-field">
+                <label className="mb-1.5 block text-sm font-semibold text-text" htmlFor="sku-field">
                   {t("inventory.productForm.skuOptional")}
                 </label>
                 <div className="flex gap-2">
@@ -254,6 +277,91 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               />
             </div>
           </FormSection>
+
+          <section className="rounded-2xl border border-border bg-surface">
+            <button
+              type="button"
+              onClick={() => setMoreOpen((v) => !v)}
+              aria-expanded={moreOpen}
+              className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <span>
+                <span className="block text-sm font-semibold text-text">{t("productExtras.moreTitle")}</span>
+                <span className="mt-0.5 block text-xs text-text-muted">{t("productExtras.moreSubtitle")}</span>
+              </span>
+              <ChevronDown size={18} className={`shrink-0 text-icon transition-transform ${moreOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+            </button>
+            {moreOpen ? (
+              <div className="space-y-5 border-t border-border px-5 pb-5 pt-4">
+                <div>
+                  <p className="text-sm font-semibold text-text">{t("productExtras.packTitle")}</p>
+                  <p className="text-xs text-text-muted">{t("productExtras.packHint")}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text">
+                    <span>1</span>
+                    <input
+                      value={altUnitName}
+                      onChange={(e) => setAltUnitName(e.target.value)}
+                      placeholder={t("productExtras.packPlaceholder")}
+                      aria-label={t("productExtras.packName")}
+                      className="h-10 w-28 rounded-lg border border-border bg-surface px-2.5 text-sm outline-none focus:border-primary"
+                    />
+                    <span>=</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      step="any"
+                      value={altUnitFactor}
+                      onChange={(e) => setAltUnitFactor(e.target.value)}
+                      placeholder="12"
+                      aria-label={t("productExtras.packFactor")}
+                      className="h-10 w-20 rounded-lg border border-border bg-surface px-2.5 text-sm tabular-nums outline-none focus:border-primary"
+                    />
+                    <span className="text-text-muted">{t("productExtras.baseUnits")}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-text">{t("productExtras.trackTitle")}</p>
+                  <label className="flex items-start gap-2.5 rounded-lg border border-border px-3.5 py-2.5">
+                    <input type="checkbox" checked={trackBatch} onChange={(e) => setTrackBatch(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
+                    <span>
+                      <span className="block text-sm font-medium text-text">{t("productExtras.batch")}</span>
+                      <span className="block text-xs text-text-muted">{t("productExtras.batchHint")}</span>
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2.5 rounded-lg border border-border px-3.5 py-2.5">
+                    <input type="checkbox" checked={trackSerial} onChange={(e) => setTrackSerial(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
+                    <span>
+                      <span className="block text-sm font-medium text-text">{t("productExtras.serial")}</span>
+                      <span className="block text-xs text-text-muted">{t("productExtras.serialHint")}</span>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-sm font-semibold text-text">
+                    {t("productExtras.size")}
+                    <input
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      placeholder="M, 42, 1 kg…"
+                      className="mt-1.5 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm font-normal outline-none focus:border-primary"
+                    />
+                  </label>
+                  <label className="text-sm font-semibold text-text">
+                    {t("productExtras.color")}
+                    <input
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      placeholder={t("productExtras.colorPlaceholder")}
+                      className="mt-1.5 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm font-normal outline-none focus:border-primary"
+                    />
+                  </label>
+                </div>
+              </div>
+            ) : null}
+          </section>
 
           {!isRawMaterial && (
             <FormSection
@@ -347,6 +455,38 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               error={errors.retailPrice?.message}
               {...register("retailPrice")}
             />
+          </FormSection>
+
+          <FormSection title={t("productExtras.taxTitle")} subtitle={t("productExtras.taxHint")}>
+            <div>
+              <p className="mb-1.5 text-sm font-semibold text-text">{t("productExtras.gstRate")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {[0, 3, 5, 12, 18, 28].map((rate) => (
+                  <button
+                    key={rate}
+                    type="button"
+                    aria-pressed={gstPercent === rate}
+                    onClick={() => setGstPercent(rate)}
+                    className={`min-h-10 min-w-12 rounded-lg border px-2.5 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+                      gstPercent === rate ? "border-text bg-text text-surface" : "border-border text-text hover:bg-surface-muted"
+                    }`}
+                  >
+                    {rate}%
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className="block text-sm font-semibold text-text">
+              {t("productExtras.hsn")}
+              <input
+                value={hsn}
+                onChange={(e) => setHsn(e.target.value.replace(/[^0-9]/g, "").slice(0, 8))}
+                inputMode="numeric"
+                placeholder="1006"
+                className="mt-1.5 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm font-normal outline-none focus:border-primary"
+              />
+              <span className="mt-1 block text-xs font-normal text-text-muted">{t("productExtras.hsnHint")}</span>
+            </label>
           </FormSection>
 
           <FormSection title={t("inventory.productForm.stock")}>

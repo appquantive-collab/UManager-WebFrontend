@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "voice:generate": "node scripts/generate-voice.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -18,11 +19,13 @@
     "i18next": "^26.5.12",
     "i18next-browser-languagedetector": "^8.2.4",
     "lucide-react": "^1.46.0",
+    "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.88.0",
     "react-i18next": "^17.1.9",
     "react-router-dom": "^7.18.4",
+    "read-excel-file": "^9.3.12",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
     "zod": "^4.6.5",
@@ -31,9 +34,11 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.3",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "msedge-tts": "^2.1.1",
     "oxlint": "^1.81.0",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",

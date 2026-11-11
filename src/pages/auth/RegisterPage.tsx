@@ -97,7 +97,7 @@ export function RegisterPage() {
           {...registerField("password")}
         />
 
-        <label className="flex items-start gap-2 text-sm text-text-muted">
+        <label className="flex items-start gap-2 text-sm text-text">
           <input
             type="checkbox"
             className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-primary/40"

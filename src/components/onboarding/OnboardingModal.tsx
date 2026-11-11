@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import {
@@ -49,6 +49,7 @@ import {
   Wrench,
   X,
   Zap,
+  Check,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
@@ -169,7 +170,6 @@ const goalOptions: { value: BusinessGoal; icon: typeof Boxes }[] = [
   { value: "reporting", icon: Building2 },
 ];
 
-const MAX_GOALS = 3;
 
 type Step = 1 | 2 | 3 | "generating" | "done";
 
@@ -185,6 +185,25 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
   const [goals, setGoals] = useState<BusinessGoal[]>([]);
   const [painPoints, setPainPoints] = useState("");
 
+  // After each pick, glide to the next question so it's never hidden below the fold.
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const customersRef = useRef<HTMLDivElement>(null);
+  const step1ContinueRef = useRef<HTMLButtonElement>(null);
+  const step2CountsRef = useRef<HTMLDivElement>(null);
+
+  const revealNext = (target: HTMLElement | null, block: ScrollLogicalPosition = "start") => {
+    if (!target) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Wait a frame so the selection highlight renders first.
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block }));
+  };
+
+  // A new step starts at its top instead of wherever the last one was scrolled to.
+  useEffect(() => {
+    scrollAreaRef.current?.scrollTo({ top: 0 });
+  }, [step]);
+
   const saveMutation = useMutation({ mutationFn: saveOnboarding });
   const personalizeMutation = useMutation({ mutationFn: personalizeDashboard });
 
@@ -193,7 +212,6 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
   const toggleGoal = (goal: BusinessGoal) => {
     setGoals((current) => {
       if (current.includes(goal)) return current.filter((g) => g !== goal);
-      if (current.length >= MAX_GOALS) return current;
       return [...current, goal];
     });
   };
@@ -246,18 +264,18 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
           </button>
         )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
+        <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto p-6">
           {step === 1 && (
             <>
               <h2 className="text-lg font-bold text-text">{t("onboarding.step1.heading")}</h2>
               <p className="mt-1 text-sm text-text-muted">{t("onboarding.step1.subheading")}</p>
 
-              <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step1.categoryLabel")}</p>
+              <div ref={categoriesRef} className="mt-5 scroll-mt-2">
+                <p className="mb-2 text-sm font-semibold text-text">{t("onboarding.step1.categoryLabel")}</p>
                 <div className="flex flex-col gap-4">
                   {categoryGroups.map((group) => (
                     <div key={group.labelKey}>
-                      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted/70">
+                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">
                         {t(group.labelKey)}
                       </p>
                       <div className="grid grid-cols-4 gap-2">
@@ -265,7 +283,10 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                           <button
                             key={c.value}
                             type="button"
-                            onClick={() => setCategory(c.value)}
+                            onClick={() => {
+                              setCategory(c.value);
+                              revealNext(customerType ? step1ContinueRef.current : customersRef.current);
+                            }}
                             className={clsx(
                               "flex flex-col items-center gap-1.5 rounded-xl border p-2.5 outline-none transition-colors",
                               "focus-visible:ring-2 focus-visible:ring-primary/40",
@@ -275,7 +296,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                             )}
                           >
                             <c.icon size={18} className="shrink-0" />
-                            <span className="text-center text-[10.5px] font-medium leading-tight">
+                            <span className="text-center text-xs font-medium leading-tight">
                               {categoryLabel(c.value)}
                             </span>
                           </button>
@@ -286,14 +307,19 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                 </div>
               </div>
 
-              <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step1.customersLabel")}</p>
+              <div ref={customersRef} className="mt-5 scroll-mt-2">
+                <p className="mb-2 text-sm font-semibold text-text">{t("onboarding.step1.customersLabel")}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {customerTypes.map((c) => (
                     <button
                       key={c.value}
                       type="button"
-                      onClick={() => setCustomerType(c.value)}
+                      onClick={() => {
+                        setCustomerType(c.value);
+                        // Both answered: show Continue. Category still missing: go back up to it.
+                        if (category) revealNext(step1ContinueRef.current, "end");
+                        else revealNext(categoriesRef.current);
+                      }}
                       className={clsx(
                         "rounded-xl border px-3 py-2.5 text-sm font-medium outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-primary/40",
@@ -308,7 +334,12 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                 </div>
               </div>
 
-              <Button className="mt-6 w-full" disabled={!canContinueStep1} onClick={() => setStep(2)}>
+              <Button
+                ref={step1ContinueRef}
+                className="mt-6 w-full scroll-mb-4"
+                disabled={!canContinueStep1}
+                onClick={() => setStep(2)}
+              >
                 {t("onboarding.continue")}
               </Button>
             </>
@@ -320,19 +351,22 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
               <p className="mt-1 text-sm text-text-muted">{t("onboarding.step2.subheading")}</p>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-medium text-text-muted">{t("onboarding.step2.orderVolumeLabel")}</p>
-                <div className="grid grid-cols-4 gap-2">
+                <p className="mb-2 text-sm font-semibold text-text">{t("onboarding.step2.orderVolumeLabel")}</p>
+                <div className="grid grid-cols-2 gap-2">
                   {orderVolumes.map((v) => (
                     <button
                       key={v.value}
                       type="button"
-                      onClick={() => setOrderVolume(v.value)}
+                      onClick={() => {
+                        setOrderVolume(v.value);
+                        revealNext(step2CountsRef.current, "center");
+                      }}
                       className={clsx(
-                        "rounded-xl border px-2 py-2.5 text-center text-xs font-semibold outline-none transition-colors",
+                        "min-h-12 rounded-xl border px-3 py-2.5 text-center text-sm font-semibold leading-snug outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-primary/40",
                         orderVolume === v.value
-                          ? "border-primary bg-primary-container text-primary"
-                          : "border-border text-text-muted hover:border-primary/30"
+                          ? "border-primary bg-primary-container text-text"
+                          : "border-border text-text hover:bg-surface-muted"
                       )}
                     >
                       {orderVolumeLabel(v.value)}
@@ -341,7 +375,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-4">
+              <div ref={step2CountsRef} className="mt-5 grid grid-cols-2 gap-4">
                 <TextField
                   label={t("onboarding.step2.warehouses")}
                   type="number"
@@ -372,28 +406,28 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
           {step === 3 && (
             <>
               <h2 className="text-lg font-bold text-text">{t("onboarding.step3.heading")}</h2>
-              <p className="mt-1 text-sm text-text-muted">{t("onboarding.step3.subheading", { max: MAX_GOALS })}</p>
+              <p className="mt-1 text-sm text-text-muted">{t("onboarding.step3.subheading")}</p>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
                 {goalOptions.map((g) => {
                   const selected = goals.includes(g.value);
-                  const disabled = !selected && goals.length >= MAX_GOALS;
                   return (
                     <button
                       key={g.value}
                       type="button"
-                      disabled={disabled}
+                      aria-pressed={selected}
                       onClick={() => toggleGoal(g.value)}
                       className={clsx(
-                        "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium outline-none transition-colors",
+                        "flex min-h-12 items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-primary/40",
-                        selected
-                          ? "border-primary bg-primary-container text-primary"
-                          : "border-border text-text-muted hover:border-primary/30",
-                        disabled && "cursor-not-allowed opacity-50"
+                        selected ? "border-primary bg-primary-container text-text" : "border-border text-text hover:bg-surface-muted"
                       )}
                     >
-                      <g.icon size={16} className="shrink-0" />
+                      {selected ? (
+                        <Check size={16} className="shrink-0 text-primary" aria-hidden="true" />
+                      ) : (
+                        <g.icon size={16} className="shrink-0 text-icon" aria-hidden="true" />
+                      )}
                       <span className="leading-tight">{goalLabel(g.value)}</span>
                     </button>
                   );
@@ -401,7 +435,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
               </div>
 
               <div className="mt-5">
-                <label className="mb-1.5 block text-sm font-medium text-text-muted" htmlFor="painPoints">
+                <label className="mb-1.5 block text-sm font-semibold text-text" htmlFor="painPoints">
                   {t("onboarding.step3.painPointsLabel")}
                 </label>
                 <textarea
@@ -411,7 +445,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
                   rows={3}
                   maxLength={1000}
                   placeholder={t("onboarding.step3.painPointsPlaceholder")}
-                  className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary"
+                  className="w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary"
                 />
               </div>
 
@@ -428,7 +462,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
           {step === "generating" && (
             <div className="flex flex-col items-center py-6 text-center">
-              <Loader2 size={32} className="animate-spin text-primary" />
+              <Loader2 size={32} className="animate-spin text-icon" />
               <h2 className="mt-4 text-lg font-bold text-text">{t("onboarding.generating.heading")}</h2>
               <p className="mt-1 text-sm text-text-muted">{t("onboarding.generating.subheading")}</p>
             </div>
@@ -436,7 +470,7 @@ export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () 
 
           {step === "done" && (
             <div className="flex flex-col items-center py-6 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-container text-success">
+              <span className="flex h-14 w-14 items-center justify-center text-icon">
                 <Sparkles size={26} />
               </span>
               <h2 className="mt-4 text-lg font-bold text-text">{t("onboarding.done.heading")}</h2>

@@ -150,6 +150,15 @@ export interface Profile {
     currency: string;
     onboarding: BusinessOnboarding;
     aiDashboardLayout: AiDashboardLayout | null;
+    phone?: string;
+    gstin?: string;
+    address?: string;
+    stateCode?: string;
+    upiId?: string;
+    bankName?: string;
+    bankAccount?: string;
+    bankIfsc?: string;
+    invoiceTerms?: string;
   } | null;
 }
 
@@ -164,4 +173,27 @@ export function updateProfile(patch: { preferredLanguage?: AuthUser["preferredLa
     method: "PATCH",
     body: JSON.stringify(patch),
   });
+}
+
+// ---------- Continue with Google / Apple ----------
+
+export type SocialSignInResult =
+  | ({ status: "signed_in" } & AuthSession)
+  | { status: "needs_details"; signupToken: string; profile: { name: string; email: string } };
+
+export function googleSignIn(credential: string): Promise<SocialSignInResult> {
+  return apiFetch<SocialSignInResult>("/auth/google", { method: "POST", body: JSON.stringify({ credential }) });
+}
+
+export function appleSignIn(idToken: string, name?: string): Promise<SocialSignInResult> {
+  return apiFetch<SocialSignInResult>("/auth/apple", { method: "POST", body: JSON.stringify({ idToken, name }) });
+}
+
+export function completeSocialSignup(input: {
+  signupToken: string;
+  businessName: string;
+  phone: string;
+  preferredLanguage?: AuthUser["preferredLanguage"];
+}): Promise<AuthSession> {
+  return apiFetch<AuthSession>("/auth/social/complete", { method: "POST", body: JSON.stringify(input) });
 }

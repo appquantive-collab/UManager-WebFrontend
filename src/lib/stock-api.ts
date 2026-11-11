@@ -69,3 +69,35 @@ export function createStockMovement(input: CreateMovementInput): Promise<StockMo
     body: JSON.stringify(input),
   });
 }
+
+export interface ExpiringBatch {
+  productId: string;
+  productName: string;
+  unit: string;
+  batchNo: string;
+  expiryDate: string;
+  quantity: number;
+  value: number;
+  expired: boolean;
+}
+
+export function getExpiring(days = 60): Promise<ExpiringBatch[]> {
+  return apiFetch(`/stock/expiring?days=${days}`);
+}
+
+export interface SerialLookup {
+  serial: string;
+  productId: string;
+  productName: string;
+  inStock: boolean;
+  history: { type: string; at: string; note?: string }[];
+  soldOn: { invoiceId: string; invoiceNumber: string; at: string; customer?: string } | null;
+}
+
+export function lookupSerial(serial: string): Promise<SerialLookup> {
+  return apiFetch(`/stock/serial/${encodeURIComponent(serial.trim())}`);
+}
+
+export function listSerialsInStock(productId: string): Promise<string[]> {
+  return apiFetch(`/stock/serials/${productId}`);
+}

@@ -1,12 +1,11 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Sparkles, Settings as SettingsIcon, Check } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
-import { EmptyState } from "../../components/ui/EmptyState";
 import { Tabs } from "../../components/ui/Tabs";
-import { TextField } from "../../components/ui/TextField";
 import { Badge } from "../../components/ui/Badge";
 import { getProfile, updateProfile } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
@@ -16,45 +15,10 @@ import type { PreferredLanguage } from "../../lib/auth-store";
 import { supportedLanguages } from "../../lib/i18n";
 import { categoryLabel, customerTypeLabel, goalLabel, orderVolumeLabel } from "../../lib/onboarding-labels";
 import { OnboardingModal } from "../../components/onboarding/OnboardingModal";
-
-function BusinessSettings() {
-  const { t } = useTranslation();
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
-  });
-
-  return (
-    <div className="max-w-xl space-y-4 rounded-2xl bg-surface p-6 shadow-elevation-1">
-      <div className="grid grid-cols-2 gap-4">
-        <TextField
-          label={t("settingsPage.businessName")}
-          value={isLoading ? t("common.loading") : (profile?.tenant?.businessName ?? "")}
-          disabled
-        />
-        <TextField
-          label={t("settingsPage.businessType")}
-          value={isLoading ? t("common.loading") : (profile?.tenant?.businessType ?? "")}
-          disabled
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <TextField label={t("common.phone")} value={isLoading ? t("common.loading") : (profile?.phone ?? "—")} disabled />
-        <TextField
-          label={t("settingsPage.currency")}
-          value={isLoading ? t("common.loading") : (profile?.tenant?.currency ?? "INR")}
-          disabled
-        />
-      </div>
-      <div className="flex items-center justify-end gap-3">
-        <p className="text-xs text-text-muted">{t("settingsPage.editingNotAvailable")}</p>
-        <Button disabled title="Coming soon">
-          {t("common.saveChanges")}
-        </Button>
-      </div>
-    </div>
-  );
-}
+import { DisplaySettings } from "../../components/settings/DisplaySettings";
+import { BillSettings, BusinessDetailsSettings, GstSettings } from "../../components/settings/BusinessDetailsSettings";
+import { TeamSettings } from "../../components/settings/TeamSettings";
+import { ActivityLog } from "../../components/settings/ActivityLog";
 
 function BusinessProfileCard() {
   const { t } = useTranslation();
@@ -76,7 +40,7 @@ function BusinessProfileCard() {
   }
 
   return (
-    <div className="max-w-xl space-y-4 rounded-2xl bg-surface p-6 shadow-elevation-1">
+    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-text">{t("settingsPage.businessProfile")}</h3>
@@ -141,7 +105,7 @@ function BusinessProfileCard() {
 
           {aiLayout && (
             <div className="flex items-start gap-2 rounded-xl border border-primary-container bg-primary-container/40 p-3">
-              <Sparkles size={16} className="mt-0.5 shrink-0 text-primary" />
+              <Sparkles size={16} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
               <div>
                 <p className="text-xs font-semibold text-primary">{t("settingsPage.aiPersonalizedActive")}</p>
                 <p className="mt-0.5 text-xs text-text-muted">{aiLayout.welcomeMessage}</p>
@@ -184,7 +148,7 @@ function LanguageSettings() {
   });
 
   return (
-    <div className="max-w-xl space-y-4 rounded-2xl bg-surface p-6 shadow-elevation-1">
+    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
       <div>
         <h3 className="text-sm font-semibold text-text">{t("language.label")}</h3>
         <p className="mt-1 text-xs text-text-muted">{t("settingsPage.languageDescription")}</p>
@@ -213,30 +177,25 @@ function LanguageSettings() {
   );
 }
 
-function PlaceholderSettings({ label }: { label: string }) {
-  const { t } = useTranslation();
-  return (
-    <EmptyState
-      icon={SettingsIcon}
-      title={t("settingsPage.comingSoon", { label })}
-      description={t("settingsPage.beingDesigned")}
-    />
-  );
-}
-
 export function SettingsPage() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState("business");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const role = useAuthStore((state) => state.user?.role);
+  const isManager = role === "OWNER" || role === "MANAGER" || role === "SUPER_ADMIN";
+  const TAB_KEYS = isManager ? ["business", "tax", "invoice", "team", "activity", "language", "display"] : ["language", "display"];
+  const requested = searchParams.get("tab") ?? TAB_KEYS[0];
+  const tab = TAB_KEYS.includes(requested) ? requested : TAB_KEYS[0];
+  const setTab = (key: string) => setSearchParams({ tab: key }, { replace: true });
 
   const tabs = [
     { key: "business", label: t("settingsPage.tabs.business") },
-    { key: "language", label: t("settingsPage.tabs.language") },
     { key: "tax", label: t("settingsPage.tabs.tax") },
     { key: "invoice", label: t("settingsPage.tabs.invoice") },
-    { key: "notifications", label: t("settingsPage.tabs.notifications") },
-    { key: "integrations", label: t("settingsPage.tabs.integrations") },
-    { key: "subscription", label: t("settingsPage.tabs.subscription") },
-  ];
+    { key: "team", label: t("settingsPage.tabs.team") },
+    { key: "activity", label: t("settingsPage.tabs.activity") },
+    { key: "language", label: t("settingsPage.tabs.language") },
+    { key: "display", label: t("settingsPage.tabs.display") },
+  ].filter((item) => TAB_KEYS.includes(item.key));
 
   return (
     <div className="space-y-6">
@@ -244,16 +203,16 @@ export function SettingsPage() {
 
       {tab === "business" && (
         <div className="space-y-6">
-          <BusinessSettings />
+          <BusinessDetailsSettings />
           <BusinessProfileCard />
         </div>
       )}
       {tab === "language" && <LanguageSettings />}
-      {tab === "tax" && <PlaceholderSettings label={t("settingsPage.tabs.tax")} />}
-      {tab === "invoice" && <PlaceholderSettings label={t("settingsPage.tabs.invoice")} />}
-      {tab === "notifications" && <PlaceholderSettings label={t("settingsPage.tabs.notifications")} />}
-      {tab === "integrations" && <PlaceholderSettings label={t("settingsPage.tabs.integrations")} />}
-      {tab === "subscription" && <PlaceholderSettings label={t("settingsPage.tabs.subscription")} />}
+      {tab === "display" && <DisplaySettings />}
+      {tab === "tax" && <GstSettings />}
+      {tab === "invoice" && <BillSettings />}
+      {tab === "team" && <TeamSettings />}
+      {tab === "activity" && <ActivityLog />}
     </div>
   );
 }

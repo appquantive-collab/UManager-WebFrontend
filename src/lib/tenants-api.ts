@@ -30,3 +30,24 @@ export function personalizeDashboard(): Promise<{ aiDashboardLayout: AiDashboard
     method: "POST",
   });
 }
+
+/** Business details printed on bills. Empty string clears a field. */
+export interface BusinessProfile {
+  businessName: string;
+  phone?: string;
+  gstin?: string;
+  address?: string;
+  stateCode?: string;
+  upiId?: string;
+  bankName?: string;
+  bankAccount?: string;
+  bankIfsc?: string;
+  invoiceTerms?: string;
+}
+
+export function updateBusinessProfile(input: Partial<BusinessProfile>): Promise<BusinessProfile> {
+  return apiFetch("/tenants/profile", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}

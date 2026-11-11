@@ -15,7 +15,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     return (
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={inputId} className="text-sm font-medium text-text-muted">
+        <label htmlFor={inputId} className="text-sm font-semibold text-text">
           {label}
         </label>
         <div className="relative">
@@ -26,7 +26,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             aria-invalid={error ? true : undefined}
             className={clsx(
               "w-full rounded-lg border bg-surface-variant px-3.5 py-2.5 text-sm text-text",
-              "outline-none transition-colors placeholder:text-text-muted/70",
+              "outline-none transition-colors placeholder:text-text-muted",
               error ? "border-danger" : "border-transparent focus:border-primary",
               "disabled:cursor-not-allowed disabled:opacity-50",
               isPassword && "pr-10",

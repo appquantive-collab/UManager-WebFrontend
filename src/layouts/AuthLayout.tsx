@@ -97,10 +97,10 @@ function DesktopAuthLayout({ title, subtitle, children }: { title: string; subti
           <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-wide text-on-primary backdrop-blur-sm">
             {t("brand.name")} · {t("brand.assistantName")}
           </span>
-          <h2 className="mt-4 text-[32px] font-bold leading-[1.15] tracking-tight text-on-primary">
+          <h2 className="mt-4 text-[2rem] font-bold leading-[1.15] tracking-tight text-on-primary">
             {t("auth.layout.panelHeading")}
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-on-primary/85">{t("auth.layout.panelDescription")}</p>
+          <p className="mt-3 text-[0.9375rem] leading-relaxed text-on-primary/85">{t("auth.layout.panelDescription")}</p>
 
           <div className="mt-7 flex flex-col gap-3.5">
             {highlights.map((item) => (

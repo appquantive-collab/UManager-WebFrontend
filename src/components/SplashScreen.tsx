@@ -6,6 +6,9 @@ import { useSplashStore } from "../lib/splash-store";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { router } from "../routes/router";
 
+// A soft halo in the page colour keeps headings readable where they overlap the photo on phones.
+const TEXT_HALO = "[text-shadow:0_0_14px_var(--color-background),0_0_4px_var(--color-background)] lg:[text-shadow:none]";
+
 const BRIEF_VISIBLE_MS = 2200;
 const FADE_MS = 400;
 
@@ -60,9 +63,9 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   };
 
   const features = [
-    { icon: Sparkles, label: t("splash.featureAi"), tone: "bg-primary-container text-primary" },
-    { icon: ReceiptText, label: t("splash.featureBilling"), tone: "bg-warning-container text-warning" },
-    { icon: Package, label: t("splash.featureStock"), tone: "bg-secondary-container text-on-secondary-container" },
+    { icon: Sparkles, label: t("splash.featureAi") },
+    { icon: ReceiptText, label: t("splash.featureBilling") },
+    { icon: Package, label: t("splash.featureStock") },
   ];
 
   const isWelcome = mode === "welcome";
@@ -88,7 +91,10 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
               className="h-full w-full object-cover object-[center_18%]"
               style={{ animation: "splash-photo-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) both" }}
             />
-            <div className="absolute inset-0 bg-linear-to-b from-background/0 via-background/15 to-background lg:bg-linear-to-r lg:via-background/0" />
+            {/* Phones: the text sits over the lower photo, so fade to the background early (longer
+                Hindi text reaches higher). Desktop: text is beside the photo, a side fade is enough. */}
+            <div className="absolute inset-0 bg-linear-to-b from-background/0 from-25% via-background/75 via-60% to-background to-85% lg:hidden" />
+            <div className="absolute inset-0 hidden bg-linear-to-r from-background/0 via-background/0 to-background lg:block" />
           </div>
 
           <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 pt-[max(0.85rem,env(safe-area-inset-top))]">
@@ -103,19 +109,19 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
           <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] lg:inset-y-0 lg:left-1/2 lg:items-center lg:pb-0">
             <div className="flex w-full max-w-md flex-col items-center text-center">
               <h1
-                className="text-[26px] font-extrabold leading-8.5 tracking-tight text-primary-hover opacity-0 lg:text-[40px] lg:leading-12"
+                className={`${TEXT_HALO} text-[1.625rem] font-extrabold leading-8.5 tracking-tight text-primary-hover opacity-0 lg:text-[2.5rem] lg:leading-12`}
                 style={{ animation: "splash-fade-up 500ms ease-out 250ms forwards" }}
               >
                 {t("brand.name")}
               </h1>
               <p
-                className="mt-1 text-lg font-semibold leading-6.5 text-text-subtle opacity-0 lg:text-xl"
+                className={`${TEXT_HALO} mt-1 text-lg font-semibold leading-6.5 text-text-subtle opacity-0 lg:text-xl`}
                 style={{ animation: "splash-fade-up 500ms ease-out 350ms forwards" }}
               >
                 {t("splash.greeting")}
               </p>
               <p
-                className="mt-1 text-xs leading-4.5 text-secondary opacity-0 lg:text-sm"
+                className={`${TEXT_HALO} mt-1 text-xs font-medium leading-4.5 text-secondary opacity-0 lg:text-sm lg:font-normal`}
                 style={{ animation: "splash-fade-up 500ms ease-out 420ms forwards" }}
               >
                 {t("splash.tagline")}
@@ -130,10 +136,8 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
                     key={feature.label}
                     className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface/90 p-3 shadow-elevation-1 backdrop-blur-md"
                   >
-                    <span className={`mb-1.5 flex h-9 w-9 items-center justify-center rounded-lg ${feature.tone}`}>
-                      <feature.icon size={18} strokeWidth={2} />
-                    </span>
-                    <span className="text-[11px] font-bold leading-tight text-text">{feature.label}</span>
+                    <feature.icon size={20} strokeWidth={1.75} className="mb-1.5 text-icon" aria-hidden="true" />
+                    <span className="text-xs font-bold leading-tight text-text">{feature.label}</span>
                   </div>
                 ))}
               </div>
@@ -174,10 +178,10 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
               )}
 
               <span
-                className="mt-4 flex items-center gap-1.5 text-[11px] font-medium text-text-subtle opacity-0"
+                className="mt-4 flex items-center gap-1.5 text-xs font-medium text-text-subtle opacity-0"
                 style={{ animation: "splash-fade-up 500ms ease-out 700ms forwards" }}
               >
-                <Store size={13} className="text-primary" />
+                <Store size={13} className="text-icon" aria-hidden="true" />
                 {t("splash.madeFor")}
               </span>
             </div>

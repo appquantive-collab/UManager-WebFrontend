@@ -5,18 +5,32 @@ import { z } from "zod";
 import clsx from "clsx";
 import { ArrowUp, Mic, PartyPopper, Square, Volume2, VolumeX, X } from "lucide-react";
 import i18n, { currentLanguage, supportedLanguages, type SupportedLanguageCode } from "../../lib/i18n";
-import { register as registerTenant } from "../../lib/auth-api";
+import {
+  appleSignIn,
+  completeSocialSignup,
+  googleSignIn,
+  register as registerTenant,
+  type SocialSignInResult,
+} from "../../lib/auth-api";
+import {
+  AppleSignInCancelled,
+  appleSignInEnabled,
+  googleSignInEnabled,
+  preloadAppleSignIn,
+  signInWithApple,
+} from "../../lib/social-auth";
+import { GoogleSignInButton } from "../auth/GoogleSignInButton";
 import { askMunshi } from "../../lib/munshi-api";
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../lib/auth-store";
 import { useSplashStore } from "../../lib/splash-store";
-import { showError } from "../../lib/toast";
+import { showError, showInfo } from "../../lib/toast";
 import {
   prefetchVoice,
-  recognitionLang,
-  speechRecognitionSupported,
+  transcribeVoice,
+  voiceRecordingSupported,
   voiceOutputSupported,
-  useSpeechRecognition,
+  useVoiceRecorder,
   useVoiceStore,
 } from "../../lib/speech";
 
@@ -50,7 +64,10 @@ type NewMessage =
 
 const CHOICE_STEPS = ["choose", "language", "preview", "editPick", "done"] as const;
 
-const FIELD_ORDER: Field[] = ["name", "business", "phone", "email", "password"];
+// Manual sign-up asks everything; Google/Apple already give name and email.
+const MANUAL_FIELDS: Field[] = ["name", "business", "phone", "email", "password"];
+const SOCIAL_FIELDS: Field[] = ["business", "phone"];
+const ALL_FIELDS: Field[] = MANUAL_FIELDS;
 
 const fieldSchemas: Record<Field, z.ZodType<string>> = {
   name: z.string().min(2),
@@ -90,7 +107,7 @@ const fieldInput: Record<
 const REDIRECT_AFTER_SUCCESS_MS = 6000;
 
 function isField(step: Step): step is Field {
-  return (FIELD_ORDER as string[]).includes(step);
+  return (ALL_FIELDS as string[]).includes(step);
 }
 
 function normalizePhone(value: string): string {
@@ -145,6 +162,7 @@ interface Chip {
 }
 
 const CHOICE_KEYWORDS = {
+  manual: ["manual", "manually", "myself", "type", "fill", "form", "khud", "bharunga", "bharna", "likhunga", "मैनुअल", "खुद", "भरूंगा", "भरना", "लिखूंगा"],
   register: ["new", "create", "register", "sign up", "signup", "naya", "nayi", "banao", "banana", "नया", "नई", "बनाओ", "बनाना", "रजिस्टर"],
   login: ["login", "log in", "sign in", "signin", "already", "have an account", "purana", "purane", "पुराना", "पुराने", "लॉगिन", "लॉग इन"],
   confirm: ["yes", "ok", "okay", "confirm", "create", "correct", "right", "looks good", "haan", "han", "sahi", "theek", "thik", "banao", "हाँ", "हां", "सही", "ठीक", "बनाओ"],
@@ -221,6 +239,9 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
   const [input, setInput] = useState("");
   const [editing, setEditing] = useState(false);
   const [offerLogin, setOfferLogin] = useState(false);
+  const [mode, setMode] = useState<"manual" | "social">("manual");
+  // Google/Apple: proof of the verified identity, exchanged for an account once business details are in.
+  const signupTokenRef = useRef<string | null>(null);
   const voiceEnabled = useVoiceStore((state) => state.enabled);
   const speakingId = useVoiceStore((state) => state.speakingId);
   const setVoiceEnabled = useVoiceStore((state) => state.setEnabled);
@@ -243,7 +264,6 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
   // What the mic is filling: a typed field, or a spoken pick among the option chips.
   const micTargetRef = useRef<Field | "choice" | null>(null);
   const chipsRef = useRef<Chip[]>([]);
-  const answerRef = useRef<((question: string) => Promise<void>) | null>(null);
 
   useEffect(() => {
     aliveRef.current = true;
@@ -276,31 +296,21 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     [push]
   );
 
-  const mic = useSpeechRecognition(
-    (text, isFinal) => {
-      const target = micTargetRef.current;
-      if (!target) return;
-      if (target !== "choice") {
-        setInput(cleanSpoken(target, text));
-        return;
-      }
-      setInput(text);
-      if (!isFinal) return;
-      micTargetRef.current = null;
-      setInput("");
-      const chip = matchChip(text, chipsRef.current);
-      if (chip && !looksLikeQuestion(text)) chip.onClick();
-      else void answerRef.current?.(text);
-    },
-    (error) => showError(t(error === "denied" ? "welcomeChat.voice.micDenied" : "welcomeChat.voice.micFailed"))
+  const mic = useVoiceRecorder((error) =>
+    showError(t(error === "denied" ? "welcomeChat.voice.micDenied" : "welcomeChat.voice.micFailed"))
   );
+  const [transcribing, setTranscribing] = useState(false);
+  // While holding the mic, sliding off it arms "release to cancel".
+  const [cancelArmed, setCancelArmed] = useState(false);
+  const pressStartRef = useRef(0);
 
   useEffect(() => {
     if (!splashDone || startedRef.current) return;
     startedRef.current = true;
     void (async () => {
+      // Language first: everything after (sign-in options, questions, voice) follows it.
       await say("welcomeChat.greeting");
-      setStep("choose");
+      setStep("language");
       setBusy(false);
     })();
   }, [splashDone, say]);
@@ -334,12 +344,13 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     if (aliveRef.current) navigate("/login");
   };
 
-  const chooseRegister = async () => {
-    push({ role: "user", text: t("welcomeChat.choiceRegister") });
+  const chooseManual = async () => {
+    setMode("manual");
+    signupTokenRef.current = null;
+    push({ role: "user", text: t("welcomeChat.choiceManual") });
     setBusy(true);
-    await say("welcomeChat.askLanguage");
-    setStep("language");
-    setBusy(false);
+    await say("welcomeChat.manualIntro");
+    await askField("name");
   };
 
   const chooseLanguage = async (code: SupportedLanguageCode, label: string) => {
@@ -347,14 +358,78 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     setBusy(true);
     await i18n.changeLanguage(code);
     draftRef.current = { ...draftRef.current, language: code };
-    await say("welcomeChat.languageSet");
     if (editing) {
+      await say("welcomeChat.languageSet");
       setEditing(false);
       await showPreview("welcomeChat.previewUpdated");
-    } else {
-      await askField("name");
+      return;
     }
+    // Start of the chat: now offer the ways to sign in, in the chosen language.
+    await say("welcomeChat.howToStart");
+    setStep("choose");
+    setBusy(false);
   };
+
+  // Google/Apple: existing users go straight in; new users only add business name and mobile.
+  const continueWithProvider = async (provider: "google" | "apple", signIn: () => Promise<SocialSignInResult>) => {
+    push({ role: "user", text: t(provider === "google" ? "welcomeChat.withGoogle" : "welcomeChat.withApple") });
+    setBusy(true);
+    setTyping(true);
+    let result: SocialSignInResult;
+    try {
+      result = await signIn();
+    } catch (err) {
+      if (!aliveRef.current) return;
+      setTyping(false);
+      await say(err instanceof AppleSignInCancelled ? "welcomeChat.socialCancelled" : "welcomeChat.socialFailed");
+      setStep("choose");
+      setBusy(false);
+      return;
+    }
+    if (!aliveRef.current) return;
+    setTyping(false);
+
+    if (result.status === "signed_in") {
+      setSession(result);
+      await say("welcomeChat.socialWelcomeBack", { name: result.user.name });
+      await wait(1500);
+      if (aliveRef.current) navigate("/app", { replace: true });
+      return;
+    }
+
+    setMode("social");
+    signupTokenRef.current = result.signupToken;
+    draftRef.current = {
+      ...draftRef.current,
+      name: result.profile.name,
+      email: result.profile.email,
+      password: "",
+      language: currentLanguage(),
+    };
+    await say("welcomeChat.socialNeedsDetails", { name: result.profile.name });
+    await askField("business");
+  };
+
+  // Google/Apple IDs not configured yet: the buttons still show; Munshi points to the manual route.
+  const providerNotReady = async (provider: "google" | "apple") => {
+    push({ role: "user", text: t(provider === "google" ? "welcomeChat.withGoogle" : "welcomeChat.withApple") });
+    setBusy(true);
+    await say("welcomeChat.socialNotReady");
+    setBusy(false);
+  };
+
+  const continueWithGoogle = (credential: string) => continueWithProvider("google", () => googleSignIn(credential));
+
+  // Apple's popup must open inside the tap, so signInWithApple() is called before any await.
+  const continueWithApple = () =>
+    continueWithProvider("apple", async () => {
+      const { idToken, name } = await signInWithApple();
+      return appleSignIn(idToken, name);
+    });
+
+  useEffect(() => {
+    preloadAppleSignIn();
+  }, []);
 
   // A visitor's own question: a short, SethSathi-only answer, then the chat
   // carries on from the same step (the options/placeholder stay on screen).
@@ -376,18 +451,12 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     setBusy(false);
   };
 
-  useEffect(() => {
-    answerRef.current = answerQuestion;
-  });
-
-  const submitField = async () => {
+  const submitField = async (spoken?: string) => {
     if (busy) return;
     if (!isField(step)) {
-      // Option steps: typed text either names an option or is a question.
-      const text = input.trim();
+      // Option steps: typed or spoken text either names an option or is a question.
+      const text = (spoken ?? input).trim();
       if (!text) return;
-      micTargetRef.current = null;
-      mic.stop();
       const chip = matchChip(text, chipsRef.current);
       if (chip && !looksLikeQuestion(text)) {
         setInput("");
@@ -398,18 +467,14 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
       return;
     }
     const field = step;
-    const raw = input;
+    const raw = spoken ?? input;
     if (field !== "password" && looksLikeQuestion(raw)) {
-      micTargetRef.current = null;
-      mic.stop();
       await answerQuestion(raw.trim());
       return;
     }
     const value = field === "phone" ? normalizePhone(raw) : field === "password" ? raw : raw.trim();
     if (!value) return;
 
-    micTargetRef.current = null;
-    mic.stop();
     push({
       role: "user",
       text: field === "password" ? "•".repeat(Math.min(value.length, 12)) : field === "phone" ? formatPhone(value) : value,
@@ -431,7 +496,8 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
       await showPreview("welcomeChat.previewUpdated");
       return;
     }
-    const next = FIELD_ORDER[FIELD_ORDER.indexOf(field) + 1];
+    const order = mode === "social" ? SOCIAL_FIELDS : MANUAL_FIELDS;
+    const next = order[order.indexOf(field) + 1];
     if (next) await askField(next);
     else await showPreview("welcomeChat.previewIntro");
   };
@@ -462,15 +528,23 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     setTyping(true);
 
     try {
-      const session = await registerTenant({
-        businessName: draft.business,
-        businessType: "Wholesale",
-        ownerName: draft.name,
-        email: draft.email,
-        password: draft.password,
-        phone: draft.phone,
-        preferredLanguage: draft.language,
-      });
+      const session =
+        mode === "social" && signupTokenRef.current
+          ? await completeSocialSignup({
+              signupToken: signupTokenRef.current,
+              businessName: draft.business,
+              phone: draft.phone,
+              preferredLanguage: draft.language,
+            })
+          : await registerTenant({
+              businessName: draft.business,
+              businessType: "Wholesale",
+              ownerName: draft.name,
+              email: draft.email,
+              password: draft.password,
+              phone: draft.phone,
+              preferredLanguage: draft.language,
+            });
       if (!aliveRef.current) return;
       setTyping(false);
       setSession(session);
@@ -492,6 +566,21 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
             ? "phone"
             : null;
 
+      // A Google/Apple sign-up that timed out (30 min) starts over.
+      if (code === "SIGNUP_EXPIRED") {
+        await say("welcomeChat.socialExpired");
+        setStep("choose");
+        setBusy(false);
+        return;
+      }
+      // The email comes from Google/Apple and can't be changed here: offer to log in instead.
+      if (taken === "email" && mode === "social") {
+        await say("welcomeChat.errors.emailTaken");
+        setOfferLogin(true);
+        setStep("preview");
+        setBusy(false);
+        return;
+      }
       if (taken) {
         await say(taken === "email" ? "welcomeChat.errors.emailTaken" : "welcomeChat.errors.phoneTaken");
         setEditing(true);
@@ -534,10 +623,10 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     : step === "choose"
       ? [
           {
-            label: t("welcomeChat.choiceRegister"),
+            label: t("welcomeChat.choiceManual"),
             primary: true,
-            keywords: CHOICE_KEYWORDS.register,
-            onClick: chooseRegister,
+            keywords: [...CHOICE_KEYWORDS.manual, ...CHOICE_KEYWORDS.register],
+            onClick: chooseManual,
           },
           {
             label: t("welcomeChat.choiceLogin"),
@@ -558,7 +647,10 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
               { label: t("welcomeChat.edit"), keywords: CHOICE_KEYWORDS.edit, onClick: startEdit },
             ]
           : step === "editPick"
-            ? (["name", "business", "phone", "email", "password", "language"] as const).map((target) => ({
+            ? (mode === "social"
+                ? (["business", "phone", "language"] as const)
+                : (["name", "business", "phone", "email", "password", "language"] as const)
+              ).map((target) => ({
                 label: t(`welcomeChat.fields.${target}`),
                 keywords: EDIT_KEYWORDS[target],
                 onClick: () => pickEdit(target),
@@ -596,32 +688,69 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
       : choiceStep
         ? "choice"
         : null;
-  const stopMic = mic.stop;
-  const micLabelKey = mic.listening
-    ? "welcomeChat.voice.micStop"
-    : fieldStep === "password"
+  const micLabelKey =
+    fieldStep === "password"
       ? "welcomeChat.voice.passwordNoMic"
       : micTarget === "choice"
         ? "welcomeChat.voice.micChoose"
         : "welcomeChat.voice.micStart";
+  const stopRecording = mic.stop;
 
+  // The step moved on (or Munshi got busy) mid-recording: drop the clip.
   useEffect(() => {
     if (micTarget) return;
     micTargetRef.current = null;
-    stopMic();
-  }, [micTarget, stopMic]);
+    void stopRecording(true);
+  }, [micTarget, stopRecording]);
 
-  const toggleMic = () => {
-    if (mic.listening) {
-      if (micTargetRef.current === "choice") setInput("");
-      micTargetRef.current = null;
-      mic.stop();
+  const startHold = () => {
+    if (!micTarget || transcribing || mic.recording) return;
+    micTargetRef.current = micTarget;
+    pressStartRef.current = Date.now();
+    setCancelArmed(false);
+    stopSpeaking(); // otherwise the mic records Munshi talking
+    void mic.start();
+  };
+
+  const finishHold = async (cancel: boolean) => {
+    const target = micTargetRef.current;
+    micTargetRef.current = null;
+    setCancelArmed(false);
+    if (!target) return;
+    const result = await mic.stop(cancel);
+    if (cancel) return;
+    if (!result || result.durationMs < 500) {
+      if (Date.now() - pressStartRef.current < 500) showInfo(t("welcomeChat.voice.holdHint"));
       return;
     }
-    if (!micTarget) return;
-    micTargetRef.current = micTarget;
-    stopSpeaking(); // otherwise the mic hears Munshi talking
-    mic.start(micTarget === "phone" || micTarget === "email" ? "en-IN" : recognitionLang(currentLanguage()));
+
+    setTranscribing(true);
+    let text = "";
+    try {
+      const kind = target === "phone" || target === "email" ? target : "text";
+      text = await transcribeVoice(result.blob, currentLanguage(), kind);
+    } catch {
+      showError(t("welcomeChat.voice.micFailed"));
+      return;
+    } finally {
+      setTranscribing(false);
+    }
+    if (!text) {
+      showError(t("welcomeChat.voice.micFailed"));
+      return;
+    }
+    if (target === "choice") {
+      await submitField(text); // picking an option or asking: send right away
+      return;
+    }
+    if (looksLikeQuestion(text)) {
+      await answerQuestion(text);
+      return;
+    }
+    // Details (name, business, mobile, email) are saved only after the visitor checks
+    // them: the words go into the box to fix if misheard, then they tap send.
+    setInput(cleanSpoken(target, text));
+    requestAnimationFrame(() => inputRef.current?.focus());
   };
 
   return (
@@ -633,7 +762,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
           className="h-10 w-10 shrink-0 rounded-full border border-border object-cover object-[center_12%]"
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-bold leading-tight text-text">{t("brand.assistantName")}</p>
+          <p className="truncate text-[0.9375rem] font-bold leading-tight text-text">{t("brand.assistantName")}</p>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-success">
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
             {t("welcomeChat.online")}
@@ -695,7 +824,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
                   )}
                 >
                   {message.tone === "success" ? (
-                    <PartyPopper size={16} className="mb-1 text-success" aria-hidden="true" />
+                    <PartyPopper size={16} className="mb-1 text-icon" aria-hidden="true" />
                   ) : null}
                   {"text" in message ? message.text : t(message.key, message.params)}
                 </p>
@@ -739,7 +868,58 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
         ) : null}
       </div>
 
-      {chips.length > 0 ? (
+      {step === "choose" && !busy ? (
+        <div className="flex shrink-0 flex-col gap-2 px-4 pb-3">
+          {googleSignInEnabled ? (
+            <GoogleSignInButton
+              onCredential={(credential) => void continueWithGoogle(credential)}
+              locale={currentLanguage() === "en" ? "en" : "hi"}
+              width={320}
+            />
+          ) : (
+            // Not configured yet: same look, Munshi explains instead of signing in.
+            <button
+              type="button"
+              onClick={() => void providerNotReady("google")}
+              className="mx-auto flex h-10 w-[320px] max-w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-[#1f1f1f] outline-none transition-colors hover:bg-[#f8f9fa] focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <svg viewBox="0 0 48 48" aria-hidden="true" className="h-4.5 w-4.5">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+              </svg>
+              {t("welcomeChat.withGoogle")}
+            </button>
+          )}
+          {
+            <button
+              type="button"
+              onClick={() => void (appleSignInEnabled ? continueWithApple() : providerNotReady("apple"))}
+              className="mx-auto flex h-10 w-[320px] max-w-full items-center justify-center gap-2 rounded-full bg-black text-sm font-semibold text-white outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <svg viewBox="0 0 814 1000" aria-hidden="true" className="h-4 w-4 fill-current">
+                <path d="M788 341c-6 4-108 62-108 190 0 148 130 200 134 202-1 3-21 72-69 142-43 62-88 124-156 124s-86-40-164-40c-77 0-104 41-167 41s-106-58-156-128C44 790 0 671 0 557 0 374 119 277 236 277c62 0 114 41 153 41 37 0 95-43 166-43 27 0 124 2 188 66zM566 162c29-35 50-83 50-132 0-7-1-14-2-19-48 2-104 32-138 71-27 30-52 78-52 128 0 7 1 15 2 17 3 1 8 1 13 1 43 0 97-29 127-66z" />
+              </svg>
+              {t("welcomeChat.withApple")}
+            </button>
+          }
+          <button
+            type="button"
+            onClick={() => void chooseManual()}
+            className="mx-auto flex h-10 w-[320px] max-w-full items-center justify-center rounded-full border border-primary bg-primary text-sm font-semibold text-on-primary outline-none transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            {t("welcomeChat.choiceManual")}
+          </button>
+          <button
+            type="button"
+            onClick={() => void goToLogin(t("welcomeChat.choiceLogin"))}
+            className="mx-auto mt-1 text-xs font-medium text-text-muted underline-offset-2 outline-none hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            {t("welcomeChat.haveAccount")}
+          </button>
+        </div>
+      ) : chips.length > 0 ? (
         <div className="flex shrink-0 flex-wrap gap-2 px-4 pb-3">
           {chips.map((chip) => (
             <button
@@ -766,47 +946,81 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
         }}
         className="flex shrink-0 items-center gap-2 border-t border-border bg-surface px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3"
       >
+        {mic.recording ? (
+          <RecordingBar startedAt={mic.startedAt} cancelArmed={cancelArmed} />
+        ) : null}
         <input
           ref={inputRef}
           key={fieldStep ?? "idle"}
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          disabled={busy || (!fieldStep && !choiceStep)}
+          disabled={busy || transcribing || mic.recording || (!fieldStep && !choiceStep)}
           type={inputConfig?.type ?? "text"}
           autoComplete={inputConfig?.autoComplete ?? "off"}
           inputMode={inputConfig?.inputMode}
           maxLength={inputConfig?.maxLength}
           placeholder={
-            mic.listening
-              ? t("welcomeChat.voice.listening")
+            transcribing
+              ? t("welcomeChat.voice.understanding")
               : fieldStep
                 ? t(`welcomeChat.placeholders.${fieldStep}`)
                 : t("welcomeChat.chooseAbove")
           }
           aria-label={fieldStep ? t(`welcomeChat.fields.${fieldStep}`) : t("welcomeChat.chooseAbove")}
-          className="min-w-0 flex-1 rounded-full border border-transparent bg-surface-variant px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/80 focus:border-primary disabled:opacity-60"
+          hidden={mic.recording}
+          className="min-w-0 flex-1 rounded-full border border-transparent bg-surface-variant px-4 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary disabled:opacity-60"
         />
-        {speechRecognitionSupported ? (
+        {voiceRecordingSupported ? (
           <button
             type="button"
-            onClick={toggleMic}
-            disabled={!micTarget && !mic.listening}
-            aria-pressed={mic.listening}
+            disabled={(!micTarget || transcribing) && !mic.recording}
+            aria-pressed={mic.recording}
             aria-label={t(micLabelKey)}
             title={t(micLabelKey)}
+            onPointerDown={(event) => {
+              if (event.button !== 0) return;
+              event.preventDefault();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              startHold();
+            }}
+            onPointerMove={(event) => {
+              if (!micTargetRef.current) return;
+              const box = event.currentTarget.getBoundingClientRect();
+              const slack = 32;
+              setCancelArmed(
+                event.clientX < box.left - slack ||
+                  event.clientX > box.right + slack ||
+                  event.clientY < box.top - slack * 2 ||
+                  event.clientY > box.bottom + slack
+              );
+            }}
+            onPointerUp={() => void finishHold(cancelArmed)}
+            onPointerCancel={() => void finishHold(true)}
+            onKeyDown={(event) => {
+              if ((event.key === " " || event.key === "Enter") && !event.repeat) {
+                event.preventDefault();
+                startHold();
+              }
+              if (event.key === "Escape") void finishHold(true);
+            }}
+            onKeyUp={(event) => {
+              if (event.key === " " || event.key === "Enter") void finishHold(false);
+            }}
+            onContextMenu={(event) => event.preventDefault()}
+            style={{ touchAction: "none", WebkitTouchCallout: "none" }}
             className={clsx(
-              "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40",
-              mic.listening ? "bg-danger text-white" : "bg-surface-variant text-text-muted hover:text-primary"
+              "relative flex h-10 w-10 shrink-0 select-none items-center justify-center rounded-full outline-none transition-[transform,background-color,color] focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40",
+              mic.recording
+                ? cancelArmed
+                  ? "scale-110 bg-text-muted text-white"
+                  : "scale-125 bg-danger text-white shadow-elevation-3"
+                : "bg-surface-variant text-text-muted hover:text-primary"
             )}
           >
-            {mic.listening ? (
-              <>
-                <span className="absolute inset-0 animate-ping rounded-full bg-danger/40" aria-hidden="true" />
-                <Square size={13} fill="currentColor" className="relative" />
-              </>
-            ) : (
-              <Mic size={18} />
-            )}
+            {mic.recording && !cancelArmed ? (
+              <span className="absolute inset-0 animate-ping rounded-full bg-danger/40" aria-hidden="true" />
+            ) : null}
+            <Mic size={18} className="relative" />
           </button>
         ) : null}
         <button
@@ -829,6 +1043,36 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
   );
 }
 
+// Shown in place of the text box while the mic is held, WhatsApp-style.
+function RecordingBar({ startedAt, cancelArmed }: { startedAt: number; cancelArmed: boolean }) {
+  const { t } = useTranslation();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
+  }, []);
+
+  const seconds = Math.max(0, Math.floor((now - startedAt) / 1000));
+  const clock = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+
+  return (
+    <div
+      role="status"
+      className={clsx(
+        "flex min-w-0 flex-1 items-center gap-2.5 rounded-full px-4 py-2.5 text-sm",
+        cancelArmed ? "bg-surface-variant text-text-muted" : "bg-danger/10 text-text"
+      )}
+    >
+      <span className={clsx("h-2.5 w-2.5 shrink-0 rounded-full", cancelArmed ? "bg-text-muted" : "animate-pulse bg-danger")} />
+      <span className="shrink-0 font-semibold tabular-nums">{clock}</span>
+      <span className="min-w-0 truncate text-xs text-text-muted">
+        {t(cancelArmed ? "welcomeChat.voice.releaseToCancel" : "welcomeChat.voice.releaseToSend")}
+      </span>
+    </div>
+  );
+}
+
 function AccountPreview({ draft }: { draft: Draft }) {
   const { t } = useTranslation();
   const languageLabel = supportedLanguages.find((lang) => lang.code === draft.language)?.label ?? draft.language;
@@ -840,7 +1084,7 @@ function AccountPreview({ draft }: { draft: Draft }) {
     { label: t("welcomeChat.fields.email"), value: draft.email },
     { label: t("welcomeChat.fields.password"), value: "••••••••" },
     { label: t("welcomeChat.fields.language"), value: languageLabel },
-  ];
+  ].filter((row) => row.label !== t("welcomeChat.fields.password") || draft.password);
 
   return (
     <div className="w-full max-w-[85%] overflow-hidden rounded-2xl rounded-bl-md border border-primary/25 bg-surface shadow-elevation-2">
@@ -856,7 +1100,7 @@ function AccountPreview({ draft }: { draft: Draft }) {
           </div>
         ))}
       </dl>
-      <p className="border-t border-border bg-surface-muted px-4 py-2 text-[11px] leading-snug text-text-muted">
+      <p className="border-t border-border bg-surface-muted px-4 py-2 text-xs leading-snug text-text-muted">
         {t("welcomeChat.termsNote")}
       </p>
     </div>

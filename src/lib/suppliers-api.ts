@@ -9,6 +9,11 @@ export interface Supplier {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  // Purchase totals (from purchase bills); optional for older backends.
+  totalPurchased?: number;
+  outstanding?: number;
+  purchaseCount?: number;
+  lastPurchaseAt?: string | null;
 }
 
 export interface CreateSupplierInput {

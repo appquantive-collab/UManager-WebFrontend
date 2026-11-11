@@ -35,7 +35,7 @@ export function ForgotPasswordPage() {
     <AuthLayout title={t("auth.forgotPassword.title")} subtitle={t("auth.forgotPassword.subtitle")}>
       {sent ? (
         <div className="flex flex-col items-center gap-4 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-container text-success">
+          <span className="flex h-14 w-14 items-center justify-center text-icon">
             <KeyRound size={24} />
           </span>
           <div>

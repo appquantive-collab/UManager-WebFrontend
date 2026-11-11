@@ -24,36 +24,39 @@
   --shadow-elevation-2: 0 2px 8px 0 rgba(59, 31, 18, 0.07);
   --shadow-elevation-3: 0 12px 32px 0 rgba(59, 31, 18, 0.16);
 
-  /* Surfaces — warm cream light theme */
+  /* Surfaces — warm cream light theme. Text colours are tuned for clear
+     reading (all body text >= 7:1 on cream/white, accents >= 4.5:1). */
   --color-background: #fbf9f5;
   --color-surface: #ffffff;
   --color-surface-muted: #f5f3ef;
   --color-surface-variant: #f2efea;
   --color-surface-container-high: #eae8e4;
-  --color-border: #e7e1d9;
+  --color-border: #d9d0c5;
   --color-outline: #a8968d;
 
   /* Text */
   --color-text: #1b1c1a;
-  --color-text-muted: #6b5d56;
+  --color-text-muted: #524640;
   --color-text-subtle: #59413a;
+  /* Plain light-grey icons — no tinted chips behind them. */
+  --color-icon: #868686;
 
   /* Primary — terracotta */
-  --color-primary: #c84b18;
+  --color-primary: #bb4413;
   --color-primary-hover: #a53400;
   --color-on-primary: #ffffff;
   --color-primary-container: #fff1ea;
   --color-on-primary-container: #822800;
 
   /* Secondary — slate blue */
-  --color-secondary: #545f73;
+  --color-secondary: #434d61;
   --color-secondary-container: #e4ebf8;
   --color-on-secondary-container: #3c475a;
 
   /* Semantic colors */
-  --color-success: #1e7b4f;
+  --color-success: #17663f;
   --color-success-container: #ddf3e6;
-  --color-warning: #a16800;
+  --color-warning: #8a5800;
   --color-warning-container: #ffefd6;
   --color-danger: #ba1a1a;
   --color-danger-container: #ffdad6;
@@ -115,5 +118,75 @@ body {
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* Display settings (Settings → Display; see src/lib/display-settings.ts).
+   Text size sets the root font size, so every rem-based size follows: text,
+   spacing, buttons and cards. Density tightens the shared spacing scale.
+   Icons are sized in px, so they get their own scale through zoom (which,
+   unlike transform, also shrinks the space they take up). */
+:root {
+  --icon-scale: 1;
+}
+:root[data-text-size="small"] {
+  font-size: 14px;
+  --icon-scale: 0.88;
+}
+:root[data-text-size="large"] {
+  font-size: 18px;
+  --icon-scale: 1.1;
+}
+:root[data-text-size="xlarge"] {
+  font-size: 20px;
+  --icon-scale: 1.2;
+}
+:root[data-density="compact"] {
+  --spacing: 0.205rem;
+}
+svg.lucide {
+  zoom: var(--icon-scale);
+}
+
+/* Bottom dock: the chosen tab's icon pops; the Create sheet rises out of the dock.
+   Used only through motion-safe: so "reduce motion" turns both off. */
+@keyframes nav-pop {
+  0% { transform: scale(0.82); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes sheet-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Closed "how it works" guides that were never opened: a soft shine sweeps
+   across while the lightbulb glows amber, in step. Only via motion-safe:. */
+@keyframes guide-shine {
+  0%, 15% { transform: translateX(-130%) skewX(-12deg); }
+  55%, 100% { transform: translateX(380%) skewX(-12deg); }
+}
+@keyframes guide-bulb {
+  0%, 15%, 70%, 100% { color: var(--color-icon); transform: scale(1); }
+  35% { color: var(--color-warning); transform: scale(1.15); }
+}
+
+/* Bill printing: only the bill goes to paper (see BillActions/useBillPrinter). */
+.bill-print-root {
+  display: none;
+}
+@media print {
+  body.printing-bill {
+    background: #fff !important;
+  }
+  body.printing-bill > *:not(.bill-print-root) {
+    display: none !important;
+  }
+  body.printing-bill .bill-print-root {
+    display: block;
+  }
+  body.printing-bill .bill-print-root * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

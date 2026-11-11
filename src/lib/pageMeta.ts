@@ -16,9 +16,11 @@ const routeKeys: Record<string, string> = {
   "/app/warehouses": "warehouses",
   "/app/reports": "reports",
   "/app/ai": "ai",
+  "/app/search": "search",
   "/app/staff": "staff",
   "/app/staff/new": "staffNew",
   "/app/settings": "settings",
+  "/app/cashbook": "cashbook",
 };
 
 function metaFor(key: string): PageMeta {

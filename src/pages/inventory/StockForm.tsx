@@ -134,7 +134,7 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="warehouseId" className="text-sm font-medium text-text-muted">
+        <label htmlFor="warehouseId" className="text-sm font-semibold text-text">
           {t("inventory.stockForm.warehouse")}
         </label>
         <select
@@ -161,7 +161,7 @@ export function StockForm({ product, onSubmit, onCancel }: StockFormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="movementType" className="text-sm font-medium text-text-muted">
+        <label htmlFor="movementType" className="text-sm font-semibold text-text">
           {t("inventory.stockForm.reason")}
         </label>
         <select

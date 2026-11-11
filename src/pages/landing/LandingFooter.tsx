@@ -16,7 +16,7 @@ export function LandingFooter() {
         </p>
         <Link
           to="/register"
-          className="mt-7 inline-flex h-[52px] items-center gap-2 rounded-full bg-surface px-7 text-[15px] font-semibold text-primary shadow-elevation-2 transition-all hover:-translate-y-0.5 hover:shadow-elevation-3"
+          className="mt-7 inline-flex h-[52px] items-center gap-2 rounded-full bg-surface px-7 text-[0.9375rem] font-semibold text-primary shadow-elevation-2 transition-all hover:-translate-y-0.5 hover:shadow-elevation-3"
         >
           {t("landing.footer.getStarted")}
           <ArrowRight size={18} />

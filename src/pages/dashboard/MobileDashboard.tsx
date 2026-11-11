@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CalendarDays,
@@ -22,12 +22,13 @@ import type { DashboardSummary } from "../../lib/dashboard-api";
 import { useNewOrderModalStore } from "../../lib/new-order-store";
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { formatCurrency } from "../../lib/format";
+import { NeedsAttention } from "../../components/dashboard/NeedsAttention";
 
 const quickActions = [
-  { key: "new_order", i18nKey: "dashboard.mobileDashboard.quickActions.newOrder", icon: Sparkles, className: "bg-primary-container text-primary" },
-  { key: "new_sale", i18nKey: "dashboard.mobileDashboard.quickActions.newSale", icon: ShoppingCart, className: "bg-success-container text-success" },
-  { key: "voice_order", i18nKey: "dashboard.mobileDashboard.quickActions.voiceOrder", icon: Mic, className: "bg-info-container text-info" },
-  { key: "scan_stock", i18nKey: "dashboard.mobileDashboard.quickActions.scanStock", icon: ScanLine, className: "bg-surface-muted text-text" },
+  { key: "new_order", i18nKey: "dashboard.mobileDashboard.quickActions.newOrder", icon: Sparkles },
+  { key: "new_sale", i18nKey: "dashboard.mobileDashboard.quickActions.newSale", icon: ShoppingCart },
+  { key: "voice_order", i18nKey: "dashboard.mobileDashboard.quickActions.voiceOrder", icon: Mic },
+  { key: "scan_stock", i18nKey: "dashboard.mobileDashboard.quickActions.scanStock", icon: ScanLine },
 ];
 
 const SECTION_ORDER = ["ai_brief", "quick_actions", "immediate_operations", "ledger_metrics", "order_flow"] as const;
@@ -48,9 +49,10 @@ const statusClassName: Record<string, string> = {
 interface MobileDashboardProps {
   aiLayout?: AiDashboardLayout | null;
   summary?: DashboardSummary;
+  businessName?: string;
 }
 
-export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
+export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashboardProps) {
   const { t } = useTranslation();
   const [briefOpen, setBriefOpen] = useState(false);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
@@ -119,10 +121,8 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
     ai_brief: () => (
       <section
         key="ai_brief"
-        className="relative overflow-hidden rounded-2xl border border-secondary-container bg-surface shadow-elevation-1"
+        className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-elevation-1"
       >
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-secondary-container/60 blur-2xl" />
-
         <button
           type="button"
           onClick={() => setBriefOpen((open) => !open)}
@@ -130,14 +130,12 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           className="relative z-10 flex w-full items-start justify-between gap-3 p-4 pb-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-container text-primary">
-              <Sparkles size={18} />
-            </span>
+            <Sparkles size={20} strokeWidth={1.75} className="shrink-0 text-icon" aria-hidden="true" />
             <div>
-              <span className="block font-label text-[10px] font-bold uppercase tracking-widest text-primary">
+              <span className="block font-label text-xs font-bold uppercase tracking-widest text-primary">
                 {t("dashboard.mobileDashboard.businessBriefLabel")}
               </span>
-              <h3 className="font-headline text-[15px] font-semibold leading-tight text-text">
+              <h3 className="font-headline text-[0.9375rem] font-semibold leading-tight text-text">
                 {labelFor("ai_brief", t("dashboard.mobileDashboard.autonomousBusinessBrief"))}
               </h3>
             </div>
@@ -153,7 +151,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
         >
           <div className="overflow-hidden">
             <div className="px-4 pb-4">
-              <p className="text-[13px] leading-relaxed text-text-muted">{aiLayout?.welcomeMessage ?? fallbackBrief}</p>
+              <p className="text-[0.8125rem] leading-relaxed text-text-muted">{aiLayout?.welcomeMessage ?? fallbackBrief}</p>
             </div>
           </div>
         </div>
@@ -169,12 +167,8 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
             onClick={quickActionHandlers[action.key]}
             className="group flex flex-col items-center justify-center rounded-xl border border-border bg-surface p-3 outline-none transition-all hover:border-primary/30 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <span
-              className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 ${action.className}`}
-            >
-              <action.icon size={22} />
-            </span>
-            <span className="mt-2 text-center font-label text-[11px] font-semibold text-text">
+            <action.icon size={22} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
+            <span className="mt-2 text-center font-label text-xs font-semibold text-text">
               {aiLayout?.quickActionLabels[action.key] || t(action.i18nKey)}
             </span>
           </button>
@@ -189,7 +183,6 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
         hasLowStock
           ? {
               icon: Package,
-              iconClass: "bg-danger-container text-danger",
               badge: t("dashboard.mobileDashboard.lowStockBadge", { count: summary!.lowStockCount }),
               badgeClass: "bg-danger-container text-danger",
               title: summary!.lowStockItems.slice(0, 2).join(" • ") || t("dashboard.mobileDashboard.lowStockItemsFallback"),
@@ -199,7 +192,6 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
         hasOverdue
           ? {
               icon: Wallet,
-              iconClass: "bg-primary-container text-primary",
               badge: t("dashboard.mobileDashboard.overdueBadge", { amount: formatCurrency(summary!.receivables) }),
               badgeClass: "bg-primary-container text-primary",
               title: t(
@@ -223,12 +215,12 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <span className={clsx("h-2 w-2 rounded-full", cards.length > 0 ? "bg-danger" : "bg-success")} />
-              <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
+              <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
                 {labelFor("immediate_operations", t("dashboard.mobileDashboard.immediateOperations"))}
               </h3>
             </div>
             {cards.length > 0 && (
-              <span className="rounded-full bg-danger-container px-2 py-0.5 font-label text-[11px] font-bold text-danger">
+              <span className="rounded-full bg-danger-container px-2 py-0.5 font-label text-xs font-bold text-danger">
                 {t("dashboard.mobileDashboard.pendingCount", { count: cards.length })}
               </span>
             )}
@@ -246,16 +238,14 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   className="flex min-w-55 shrink-0 flex-col justify-between rounded-xl border border-border bg-surface p-3.5"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${item.iconClass}`}>
-                      <item.icon size={18} />
-                    </span>
-                    <span className={`rounded-full px-2 py-0.5 font-label text-[10px] font-bold ${item.badgeClass}`}>
+                    <item.icon size={20} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
+                    <span className={`rounded-full px-2 py-0.5 font-label text-xs font-bold ${item.badgeClass}`}>
                       {item.badge}
                     </span>
                   </div>
                   <div className="mt-2.5">
-                    <p className="truncate text-[13px] font-semibold text-text">{item.title}</p>
-                    {item.detail ? <p className="mt-0.5 font-label text-[11px] text-text-muted">{item.detail}</p> : null}
+                    <p className="truncate text-[0.8125rem] font-semibold text-text">{item.title}</p>
+                    {item.detail ? <p className="mt-0.5 font-label text-xs text-text-muted">{item.detail}</p> : null}
                   </div>
                 </div>
               ))}
@@ -270,10 +260,10 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
       return (
         <section key="ledger_metrics" className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
+            <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
               {labelFor("ledger_metrics", t("dashboard.mobileDashboard.ledgerMetrics"))}
             </h3>
-            <span className="font-label text-[10px] font-medium text-text-muted">
+            <span className="font-label text-xs font-medium text-text-muted">
               {t("dashboard.mobileDashboard.updatedRealTime")}
             </span>
           </div>
@@ -281,7 +271,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           <div className="rounded-2xl border border-border bg-surface p-4 shadow-elevation-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <span className="block font-label text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                <span className="block font-label text-xs font-semibold uppercase tracking-wider text-text-muted">
                   {t("dashboard.mobileDashboard.todaysTotalBilling")}
                 </span>
                 <div className="mt-1 flex items-baseline gap-2">
@@ -291,7 +281,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   {changePercent != null && (
                     <span
                       className={clsx(
-                        "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-label text-[11px] font-bold",
+                        "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-label text-xs font-bold",
                         changePercent >= 0 ? "bg-success-container text-success" : "bg-danger-container text-danger"
                       )}
                     >
@@ -301,7 +291,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                     </span>
                   )}
                 </div>
-                <span className="mt-1 block font-label text-[11px] text-text-muted">
+                <span className="mt-1 block font-label text-xs text-text-muted">
                   {t("dashboard.mobileDashboard.vsYesterday", { amount: formatCurrency(summary?.yesterdaySales ?? 0) })}
                 </span>
               </div>
@@ -311,10 +301,10 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
                   {t("dashboard.mobileDashboard.monthSales")}
                 </span>
-                <CalendarDays size={17} className="text-primary" />
+                <CalendarDays size={17} className="text-icon" aria-hidden="true" />
               </div>
               <div className="mt-2.5">
                 <span className="block font-headline text-lg font-bold text-text">
@@ -325,16 +315,16 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
                   {t("dashboard.mobileDashboard.inventoryValShort")}
                 </span>
-                <Warehouse size={17} className="text-success" />
+                <Warehouse size={17} className="text-icon" aria-hidden="true" />
               </div>
               <div className="mt-2.5">
                 <span className="block font-headline text-lg font-bold text-text">
                   {formatCurrency(summary?.inventoryValue ?? 0)}
                 </span>
-                <div className="mt-1.5 flex items-center gap-1 font-label text-[11px] text-text-muted">
+                <div className="mt-1.5 flex items-center gap-1 font-label text-xs text-text-muted">
                   <Hash size={13} />
                   <span>{t("dashboard.mobileDashboard.totalSkus", { count: summary?.totalSkus ?? 0 })}</span>
                 </div>
@@ -343,10 +333,10 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
                   {t("dashboard.mobileDashboard.receivables")}
                 </span>
-                <Wallet size={17} className="text-info" />
+                <Wallet size={17} className="text-icon" aria-hidden="true" />
               </div>
               <div className="mt-2.5">
                 <span className="block font-headline text-lg font-bold text-text">
@@ -355,26 +345,26 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                 {summary && summary.overdueCustomerCount > 0 ? (
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-                    <span className="font-label text-[10px] font-bold text-danger">
+                    <span className="font-label text-xs font-bold text-danger">
                       {t("dashboard.mobileDashboard.overdueCount", { count: summary.overdueCustomerCount })}
                     </span>
                   </div>
                 ) : (
-                  <span className="mt-1.5 block font-label text-[10px] text-text-muted">{t("dashboard.mobileDashboard.allClear")}</span>
+                  <span className="mt-1.5 block font-label text-xs text-text-muted">{t("dashboard.mobileDashboard.allClear")}</span>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
               <div className="flex items-center justify-between">
-                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
                   {t("dashboard.mobileDashboard.payables")}
                 </span>
-                <span className="text-[10px] text-text-muted">—</span>
+                <span className="text-xs text-text-muted">—</span>
               </div>
               <div className="mt-2.5">
                 <span className="block font-headline text-lg font-bold text-text-muted">{t("dashboard.mobileDashboard.notTracked")}</span>
-                <span className="mt-0.5 block font-label text-[10px] text-text-muted">{t("dashboard.mobileDashboard.noPurchasesModuleYet")}</span>
+                <span className="mt-0.5 block font-label text-xs text-text-muted">{t("dashboard.mobileDashboard.noPurchasesModuleYet")}</span>
               </div>
             </div>
           </div>
@@ -386,8 +376,8 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
       <section key="order_flow" className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Receipt size={18} className="text-primary" />
-            <h3 className="font-headline text-[14px] font-bold uppercase tracking-wide text-text">
+            <Receipt size={18} className="text-icon" aria-hidden="true" />
+            <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
               {labelFor("order_flow", t("dashboard.mobileDashboard.liveOrderFlow"))}
             </h3>
           </div>
@@ -407,14 +397,14 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   className="flex items-center justify-between rounded-xl border border-border bg-surface p-3 transition-colors hover:bg-surface-muted"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-container font-headline text-xs font-bold text-primary">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border font-headline text-xs font-bold text-text-muted">
                       {initialsFor(order.customerName)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="truncate text-[13px] font-semibold text-text">{order.customerName}</span>
+                        <span className="truncate text-[0.8125rem] font-semibold text-text">{order.customerName}</span>
                       </div>
-                      <p className="truncate font-label text-[11px] text-text-muted">
+                      <p className="truncate font-label text-xs text-text-muted">
                         {t(
                           order.itemCount === 1
                             ? "dashboard.mobileDashboard.itemsCountOne"
@@ -427,7 +417,7 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
                   </div>
                   <div className="flex shrink-0 flex-col items-end pl-2">
                     <span className="font-label text-xs font-bold text-text">{formatCurrency(order.amount)}</span>
-                    <span className={`mt-1 rounded-full px-2 py-0.5 font-label text-[10px] font-bold ${status.className}`}>
+                    <span className={`mt-1 rounded-full px-2 py-0.5 font-label text-xs font-bold ${status.className}`}>
                       {status.label}
                     </span>
                   </div>
@@ -442,13 +432,19 @@ export function MobileDashboard({ aiLayout, summary }: MobileDashboardProps) {
 
   return (
     <div className="space-y-4">
-      {orderedSections.map((key) => sectionRenderers[key]())}
+      {orderedSections.map((key) => (
+        <Fragment key={key}>
+          {sectionRenderers[key]()}
+          {/* Today’s to-do list (dues with call/WhatsApp, low stock, waiting orders) right under the shortcuts. */}
+          {key === "quick_actions" ? <NeedsAttention summary={summary} businessName={businessName} /> : null}
+        </Fragment>
+      ))}
 
       <footer className="flex items-center justify-between rounded-xl border border-border bg-surface p-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck size={18} className="text-success" />
+          <ShieldCheck size={18} className="text-icon" aria-hidden="true" />
           <div className="flex flex-col">
-            <span className="font-label text-[11px] font-bold text-text">{t("dashboard.mobileDashboard.allDataSynced")}</span>
+            <span className="font-label text-xs font-bold text-text">{t("dashboard.mobileDashboard.allDataSynced")}</span>
           </div>
         </div>
       </footer>

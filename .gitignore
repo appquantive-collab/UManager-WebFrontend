@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment (keys stay on this machine; set them in Vercel)
+.env
+.env.local

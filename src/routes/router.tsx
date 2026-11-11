@@ -13,11 +13,13 @@ import { AiPage } from "../pages/ai/AiPage";
 import { StaffPage } from "../pages/staff/StaffPage";
 import { StaffFormPage } from "../pages/staff/StaffFormPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
+import { CashbookPage } from "../pages/cashbook/CashbookPage";
 import { LoginPage } from "../pages/auth/LoginPage";
 import { RegisterPage } from "../pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { LandingPage } from "../pages/landing/LandingPage";
 import { WelcomePage } from "../pages/welcome/WelcomePage";
+import { SearchPage } from "../pages/search/SearchPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
@@ -44,10 +46,12 @@ export const router = createBrowserRouter([
           { path: "warehouses", element: <WarehousesPage /> },
           { path: "reports", element: <ReportsPage /> },
           { path: "ai", element: <AiPage /> },
+          { path: "search", element: <SearchPage /> },
           { path: "staff", element: <StaffPage /> },
           { path: "staff/new", element: <StaffFormPage /> },
           { path: "staff/:id/edit", element: <StaffFormPage /> },
           { path: "settings", element: <SettingsPage /> },
+          { path: "cashbook", element: <CashbookPage /> },
         ],
       },
     ],

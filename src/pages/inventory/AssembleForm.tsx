@@ -93,7 +93,7 @@ export function AssembleForm({ product, onSubmit, onCancel }: AssembleFormProps)
       ) : null}
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="assemble-warehouseId" className="text-sm font-medium text-text-muted">
+        <label htmlFor="assemble-warehouseId" className="text-sm font-semibold text-text">
           {t("inventory.assembleForm.warehouse")}
         </label>
         <select

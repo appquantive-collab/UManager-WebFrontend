@@ -7,6 +7,10 @@ export interface Customer {
   phone?: string;
   creditLimit: number;
   isActive: boolean;
+  gstin?: string;
+  address?: string;
+  stateCode?: string;
+  isWalkIn?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,6 +21,10 @@ export interface CustomerListItem {
   phone?: string;
   creditLimit: number;
   isActive: boolean;
+  gstin?: string;
+  address?: string;
+  stateCode?: string;
+  isWalkIn?: boolean;
   totalPurchases: number;
   outstanding: number;
   lastPurchaseAt: string | null;
@@ -27,6 +35,9 @@ export interface CreateCustomerInput {
   name: string;
   phone?: string;
   creditLimit?: number;
+  gstin?: string;
+  address?: string;
+  stateCode?: string;
 }
 
 export interface CustomerPortfolio {
@@ -36,6 +47,10 @@ export interface CustomerPortfolio {
     phone?: string;
     creditLimit: number;
     isActive: boolean;
+  gstin?: string;
+  address?: string;
+  stateCode?: string;
+  isWalkIn?: boolean;
     createdAt: string;
   };
   stats: {
@@ -86,6 +101,13 @@ export function getCustomerPortfolio(id: string): Promise<CustomerPortfolio> {
 export function createCustomer(input: CreateCustomerInput): Promise<Customer> {
   return apiFetch("/customers", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateCustomer(id: string, input: Partial<CreateCustomerInput>): Promise<Customer> {
+  return apiFetch(`/customers/${id}`, {
+    method: "PATCH",
     body: JSON.stringify(input),
   });
 }

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { Bell, ChevronLeft, ChevronRight, LogOut, Moon, X } from "lucide-react";
-import { tenantNav } from "../lib/nav";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { canSee, tenantNav } from "../lib/nav";
 import { useAuthStore } from "../lib/auth-store";
 import { getPageMeta } from "../lib/pageMeta";
 import { getProfile } from "../lib/auth-api";
@@ -13,9 +13,13 @@ import { SearchInput } from "../components/ui/SearchInput";
 import { MobileBottomNav } from "../components/layout/MobileBottomNav";
 import { MobileTopBar } from "../components/layout/MobileTopBar";
 import { QuickActionSheet } from "../components/layout/QuickActionSheet";
+import { UserMenu } from "../components/layout/UserMenu";
+import { NotificationsMenu } from "../components/layout/NotificationsMenu";
 import { OnboardingModal } from "../components/onboarding/OnboardingModal";
 import { NewOrderModal } from "../components/orders/NewOrderModal";
 import { NewSaleModal } from "../components/orders/NewSaleModal";
+import { NewPurchaseModal } from "../components/purchases/NewPurchaseModal";
+import { AddCustomerModal } from "../components/customers/AddCustomerModal";
 import { useNewOrderModalStore } from "../lib/new-order-store";
 import { useNewSaleModalStore } from "../lib/new-sale-store";
 
@@ -48,9 +52,10 @@ export function TenantAdminLayout() {
   const clearSession = useAuthStore((state) => state.clearSession);
   const updateUser = useAuthStore((state) => state.updateUser);
   const [collapsed, setCollapsed] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const newOrderOpen = useNewOrderModalStore((state) => state.open);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const closeNewOrder = useNewOrderModalStore((state) => state.closeModal);
@@ -68,11 +73,12 @@ export function TenantAdminLayout() {
 
   useEffect(() => {
     if (!profile) return;
-    updateUser({ name: profile.name, email: profile.email, tenantId: profile.tenant?.tenantId ?? null });
+    updateUser({ name: profile.name, email: profile.email, tenantId: profile.tenant?.tenantId ?? null, role: profile.role });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
-  const showOnboarding = Boolean(profile) && !profile?.tenant?.onboarding.completed && !onboardingDismissed;
+  // Only the owner sets the business up; staff logins never see the setup wizard.
+  const showOnboarding = Boolean(profile) && profile?.role === "OWNER" && !profile?.tenant?.onboarding.completed && !onboardingDismissed;
 
   const dismissOnboarding = () => {
     sessionStorage.setItem(ONBOARDING_SKIPPED_KEY, "1");
@@ -82,7 +88,22 @@ export function TenantAdminLayout() {
   // Navigating on a phone should dismiss the drawer, not leave it covering the page.
   useEffect(() => {
     setDrawerOpen(false);
+    setQuickActionsOpen(false);
   }, [location.pathname]);
+
+  // Ctrl+K / Cmd+K anywhere, or "/" when not typing, opens Search.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const typing = target?.closest("input, textarea, select, [contenteditable='true']");
+      if (((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") || (event.key === "/" && !typing)) {
+        event.preventDefault();
+        navigate("/app/search");
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
 
   const handleLogout = () => {
     clearSession();
@@ -149,7 +170,7 @@ export function TenantAdminLayout() {
         )}
 
         <nav className="scrollbar-hide flex-1 space-y-1 overflow-y-auto border-t border-surface-variant px-5 py-4">
-          {tenantNav.map((item) => (
+          {tenantNav.filter((item) => canSee(item, user?.role)).map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -157,7 +178,7 @@ export function TenantAdminLayout() {
               title={collapsed ? t(item.labelKey) : undefined}
               className={({ isActive }) =>
                 clsx(
-                  "flex items-center gap-3.5 rounded-xl px-5 py-2.5 text-[15px] outline-none transition-colors",
+                  "flex items-center gap-3.5 rounded-xl px-5 py-2.5 text-[0.9375rem] outline-none transition-colors",
                   "focus-visible:ring-2 focus-visible:ring-primary/40",
                   collapsed && "lg:justify-center lg:px-0",
                   isActive
@@ -172,36 +193,32 @@ export function TenantAdminLayout() {
           ))}
         </nav>
 
-        <div className="relative shrink-0 border-t border-surface-variant px-4 py-3">
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            className={clsx(
-              "flex w-full items-center gap-3 rounded-xl p-2 text-left outline-none transition-colors hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40",
-              collapsed && "lg:justify-center"
-            )}
-          >
-            <Avatar name={user?.name ?? "?"} size={40} variant="neutral" />
-            <div className={clsx("min-w-0 flex-1", collapsed && "lg:hidden")}>
-              <div className="truncate text-[15px] font-semibold leading-tight text-text">
-                {user?.name ?? t("layout.account")}
-              </div>
-              <div className="mt-0.5 truncate text-sm leading-tight text-text-muted">{user?.email ?? ""}</div>
-            </div>
-          </button>
-
-          {menuOpen ? (
-            <div className="absolute bottom-full left-3 z-10 mb-2 w-48 overflow-hidden rounded-xl bg-surface py-1 shadow-elevation-3">
+        <div className="shrink-0 border-t border-surface-variant px-4 py-3">
+          <UserMenu
+            onLogout={handleLogout}
+            menuClassName="bottom-full left-0 mb-2"
+            trigger={({ open, toggle }) => (
               <button
                 type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-text-muted outline-none transition-colors hover:bg-surface-muted hover:text-text focus-visible:bg-surface-muted"
+                onClick={toggle}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                className={clsx(
+                  "flex w-full items-center gap-3 rounded-xl p-2 text-left outline-none transition-colors hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40",
+                  open && "bg-surface-muted",
+                  collapsed && "lg:justify-center"
+                )}
               >
-                <LogOut size={16} strokeWidth={1.75} />
-                {t("layout.logOut")}
+                <Avatar name={user?.name ?? "?"} size={40} variant="neutral" />
+                <div className={clsx("min-w-0 flex-1", collapsed && "lg:hidden")}>
+                  <div className="truncate text-[0.9375rem] font-semibold leading-tight text-text">
+                    {user?.name ?? t("layout.account")}
+                  </div>
+                  <div className="mt-0.5 truncate text-sm leading-tight text-text-muted">{user?.email ?? ""}</div>
+                </div>
               </button>
-            </div>
-          ) : null}
+            )}
+          />
         </div>
       </aside>
 
@@ -215,42 +232,45 @@ export function TenantAdminLayout() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              aria-label={t("layout.toggleTheme")}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-variant text-text-muted outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
+              onClick={() => navigate("/app/search")}
+              className="flex h-10 w-72 items-center gap-2.5 rounded-xl border border-border bg-surface px-3 text-left text-sm text-text-muted outline-none transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <Moon size={18} />
+              <Search size={17} strokeWidth={1.75} className="shrink-0 text-icon" aria-hidden="true" />
+              <span className="flex-1 truncate">{t("search.headerPlaceholder")}</span>
+              <kbd className="rounded-md border border-border px-1.5 py-0.5 font-sans text-xs text-text-muted">Ctrl K</kbd>
             </button>
-            <button
-              type="button"
-              aria-label={t("layout.notifications")}
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-surface-variant text-text-muted outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <Bell size={18} />
-              <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-danger" />
-            </button>
+            <NotificationsMenu variant="desktop" />
           </div>
         </header>
 
         {/* Mobile header: hamburger + tenant switcher, no duplicate page title. */}
         <MobileTopBar
           onMenuClick={() => setDrawerOpen(true)}
+          onSearchClick={() => navigate("/app/search")}
           businessName={profile?.tenant?.businessName ?? "—"}
           location={title}
           userInitials={initialsFor(user?.name ?? "?")}
+          onLogout={handleLogout}
         />
 
         {/* Bottom padding clears the fixed mobile nav bar — skipped on full-page forms, which have no bottom nav to clear. */}
-        <main className={clsx("flex-1 overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-24")}>
+        <main className={clsx("flex-1 overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-[calc(6.5rem+max(0.75rem,env(safe-area-inset-bottom)))]")}>
           <Outlet />
         </main>
       </div>
 
       {!isFullPageForm(location.pathname) && (
         <>
-          <MobileBottomNav onQuickAction={() => setQuickActionsOpen(true)} />
+          {/* Hidden while the side menu is open, so it never covers the account area at its bottom. */}
+          {!drawerOpen ? (
+            <MobileBottomNav onQuickAction={() => setQuickActionsOpen((open) => !open)} quickActionsOpen={quickActionsOpen} />
+          ) : null}
           <QuickActionSheet
             open={quickActionsOpen}
             onClose={() => setQuickActionsOpen(false)}
+            onNewPurchase={() => setPurchaseOpen(true)}
+            onAddCustomer={() => setAddCustomerOpen(true)}
+            onNavigate={(path) => navigate(path)}
             onNewOrder={openNewOrder}
             onNewSale={openNewSale}
           />
@@ -259,6 +279,8 @@ export function TenantAdminLayout() {
       <OnboardingModal open={showOnboarding} onClose={dismissOnboarding} />
       <NewOrderModal open={newOrderOpen} onClose={closeNewOrder} />
       <NewSaleModal open={newSaleOpen} onClose={closeNewSale} />
+      <NewPurchaseModal open={purchaseOpen} onClose={() => setPurchaseOpen(false)} />
+      <AddCustomerModal open={addCustomerOpen} onClose={() => setAddCustomerOpen(false)} />
     </div>
   );
 }

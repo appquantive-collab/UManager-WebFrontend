@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { FileText, Receipt, Sparkles, Undo2 } from "lucide-react";
+import { FileText, Receipt, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SearchInput } from "../../components/ui/SearchInput";
+import { SalesGuide } from "../../components/sales/SalesGuide";
 import { Badge } from "../../components/ui/Badge";
 import { formatCurrency } from "../../lib/format";
 import { listOrders, type Order } from "../../lib/orders-api";
-import { listInvoices, type Invoice } from "../../lib/invoices-api";
+import { isCancelled, listInvoices, type Invoice } from "../../lib/invoices-api";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
 import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
+import { initialParam } from "../../lib/url-params";
 
 type FilterKey = "all" | "pending" | "delivered" | "cancelled";
 
@@ -27,13 +29,11 @@ export function MobileSalesOrders({
   onNewSale?: () => void;
 }) {
   const { t } = useTranslation();
-  const [tab, setTab] = useState("orders");
+  const [tab, setTab] = useState(() => (initialParam("tab") === "bills" ? "invoices" : "orders"));
 
   const salesTabs = [
     { key: "orders", label: t("sales.mobileSalesOrders.tabs.orders"), icon: Receipt },
     { key: "invoices", label: t("sales.mobileSalesOrders.tabs.invoices"), icon: FileText },
-    { key: "quotes", label: t("sales.mobileSalesOrders.tabs.quotes"), icon: FileText },
-    { key: "returns", label: t("sales.mobileSalesOrders.tabs.returns"), icon: Undo2 },
   ];
 
   function customerName(entity: { customerId: { name: string } | string }): string {
@@ -64,7 +64,7 @@ export function MobileSalesOrders({
     paid: t("sales.mobileSalesOrders.paymentStatusLabel.paid"),
   };
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => initialParam("q"));
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
@@ -108,19 +108,21 @@ export function MobileSalesOrders({
 
   return (
     <div className="space-y-3">
+      <SalesGuide onNewOrder={() => onNewOrder?.()} onNewSale={() => onNewSale?.()} />
+
       <div className="rounded-xl border border-border bg-surface-muted p-1">
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-2 gap-1">
           {salesTabs.map((tabItem) => (
             <button
               key={tabItem.key}
               type="button"
               onClick={() => setTab(tabItem.key)}
               className={clsx(
-                "flex items-center justify-center gap-1 rounded-lg py-2 font-label text-[11px] font-semibold tracking-wide outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40",
+                "flex items-center justify-center gap-1.5 rounded-lg py-2.5 font-label text-sm font-bold tracking-wide outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40",
                 tab === tabItem.key ? "bg-primary text-on-primary shadow-elevation-1" : "text-text-muted hover:text-text"
               )}
             >
-              <tabItem.icon size={14} />
+              <tabItem.icon size={16} aria-hidden="true" />
               {tabItem.label}
             </button>
           ))}
@@ -132,24 +134,24 @@ export function MobileSalesOrders({
           <div className="rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
             <div className="mb-2 flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              <span className="font-label text-[10px] font-semibold uppercase tracking-wider text-primary">
+              <span className="font-label text-xs font-semibold uppercase tracking-wider text-primary">
                 {t("sales.mobileSalesOrders.orderSummary")}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.grossValue")}</span>
-                <span className="mt-0.5 block font-label text-[11px] font-bold text-primary">
+                <span className="block font-label text-xs text-text-muted">{t("sales.mobileSalesOrders.grossValue")}</span>
+                <span className="mt-0.5 block font-label text-xs font-bold text-primary">
                   {formatCurrency(grossValue)}
                 </span>
               </div>
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.orders")}</span>
-                <span className="mt-0.5 block font-label text-[13px] font-bold text-text">{orders.length}</span>
+                <span className="block font-label text-xs text-text-muted">{t("sales.mobileSalesOrders.orders")}</span>
+                <span className="mt-0.5 block font-label text-[0.8125rem] font-bold text-text">{orders.length}</span>
               </div>
               <div className="rounded-lg border border-border bg-surface-muted p-2">
-                <span className="block font-label text-[10px] text-text-muted">{t("sales.mobileSalesOrders.avgTicket")}</span>
-                <span className="mt-0.5 block truncate font-label text-[13px] font-bold text-text">
+                <span className="block font-label text-xs text-text-muted">{t("sales.mobileSalesOrders.avgTicket")}</span>
+                <span className="mt-0.5 block truncate font-label text-[0.8125rem] font-bold text-text">
                   {formatCurrency(avgTicket)}
                 </span>
               </div>
@@ -170,7 +172,7 @@ export function MobileSalesOrders({
             className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary-container/40 text-primary outline-none transition-colors hover:border-primary active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <Sparkles size={16} />
-            <span className="font-label text-[12px] font-bold uppercase tracking-wide">{t("sales.mobileSalesOrders.newOrderTypeOrPaste")}</span>
+            <span className="font-label text-[0.75rem] font-bold uppercase tracking-wide">{t("sales.mobileSalesOrders.newOrderTypeOrPaste")}</span>
           </button>
 
           <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto pb-1">
@@ -180,7 +182,7 @@ export function MobileSalesOrders({
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className={clsx(
-                  "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 font-label text-[11px] font-semibold outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40",
+                  "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 font-label text-xs font-semibold outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40",
                   filter === f.key
                     ? "bg-primary text-on-primary shadow-elevation-1"
                     : "border border-border bg-surface text-text-muted hover:text-text"
@@ -189,7 +191,7 @@ export function MobileSalesOrders({
                 <span>{f.label}</span>
                 <span
                   className={clsx(
-                    "rounded-full px-1.5 py-px text-[10px]",
+                    "rounded-full px-1.5 py-px text-xs",
                     filter === f.key ? "bg-on-primary/20" : "text-text-muted"
                   )}
                 >
@@ -221,12 +223,12 @@ export function MobileSalesOrders({
                     <div className="p-3.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex min-w-0 items-start gap-2.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-muted text-text-muted">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center text-icon">
                             <Receipt size={18} />
                           </div>
                           <div className="min-w-0">
-                            <span className="truncate text-[15px] font-semibold text-text">{customerName(order)}</span>
-                            <p className="mt-0.5 font-label text-[11px] text-text-muted">
+                            <span className="truncate text-[0.9375rem] font-semibold text-text">{customerName(order)}</span>
+                            <p className="mt-0.5 font-label text-xs text-text-muted">
                               {order.items.length === 1
                                 ? t("sales.mobileSalesOrders.itemsCountOne", { count: order.items.length })
                                 : t("sales.mobileSalesOrders.itemsCountOther", { count: order.items.length })}{" "}
@@ -235,10 +237,10 @@ export function MobileSalesOrders({
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
-                          <span className="block font-headline text-[15px] font-bold text-text">
+                          <span className="block font-headline text-[0.9375rem] font-bold text-text">
                             {formatCurrency(order.totalAmount)}
                           </span>
-                          <span className={clsx("mt-1 inline-block rounded-full px-2 py-0.5 font-label text-[10px] font-bold", status.className)}>
+                          <span className={clsx("mt-1 inline-block rounded-full px-2 py-0.5 font-label text-xs font-bold", status.className)}>
                             {status.label}
                           </span>
                         </div>
@@ -253,7 +255,7 @@ export function MobileSalesOrders({
           <button
             type="button"
             onClick={onNewSale}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-headline text-[15px] font-bold text-on-primary shadow-elevation-1 outline-none transition-all active:scale-[0.98] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-headline text-[0.9375rem] font-bold text-on-primary shadow-elevation-1 outline-none transition-all active:scale-[0.98] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <Receipt size={18} />
             {t("sales.mobileSalesOrders.newSale")}
@@ -288,17 +290,21 @@ export function MobileSalesOrders({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <span className="truncate text-[15px] font-semibold text-text">{invoice.invoiceNumber}</span>
-                      <p className="mt-0.5 font-label text-[11px] text-text-muted">
+                      <span className="truncate text-[0.9375rem] font-semibold text-text">{invoice.invoiceNumber}</span>
+                      <p className="mt-0.5 font-label text-xs text-text-muted">
                         {customerName(invoice)} · {invoice.billType === "gst" ? t("sales.mobileSalesOrders.gst") : t("sales.mobileSalesOrders.record")} · {timeAgo(invoice.createdAt)}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <span className="block font-headline text-[15px] font-bold text-text">
+                      <span className="block font-headline text-[0.9375rem] font-bold text-text">
                         {formatCurrency(invoice.totalAmount)}
                       </span>
                       <span className="mt-1 inline-block">
-                        <Badge tone={paymentStatusTone[invoice.paymentStatus]}>{paymentStatusLabel[invoice.paymentStatus]}</Badge>
+                        {isCancelled(invoice) ? (
+                          <Badge tone="neutral">{t("bill.cancelled")}</Badge>
+                        ) : (
+                          <Badge tone={paymentStatusTone[invoice.paymentStatus]}>{paymentStatusLabel[invoice.paymentStatus]}</Badge>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -307,16 +313,6 @@ export function MobileSalesOrders({
             </div>
           )}
         </>
-      )}
-
-      {(tab === "quotes" || tab === "returns") && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-16 text-center">
-          <FileText size={24} className="text-text-muted" strokeWidth={1.5} />
-          <h3 className="mt-3 text-sm font-semibold text-text">
-            {t("sales.mobileSalesOrders.comingSoon", { label: salesTabs.find((tabItem) => tabItem.key === tab)?.label })}
-          </h3>
-          <p className="mt-1 text-sm text-text-muted">{t("sales.mobileSalesOrders.beingDesigned")}</p>
-        </div>
       )}
 
       <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />

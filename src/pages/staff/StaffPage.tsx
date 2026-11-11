@@ -13,6 +13,7 @@ import { Tabs } from "../../components/ui/Tabs";
 import { listStaff, type StaffMember } from "../../lib/staff-api";
 import { AttendanceTab } from "./AttendanceTab";
 import { PayrollTab } from "./PayrollTab";
+import { initialParam } from "../../lib/url-params";
 
 const roleLabelKey: Record<StaffMember["role"], string> = {
   MANAGER: "staff.roles.manager",
@@ -23,7 +24,7 @@ const roleLabelKey: Record<StaffMember["role"], string> = {
 function TeamTab() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => initialParam("q"));
   const [filter, setFilter] = useState("all");
 
   const filters = [
@@ -33,7 +34,7 @@ function TeamTab() {
   ];
 
   const staffQuery = useQuery({ queryKey: ["staff"], queryFn: listStaff });
-  const staff = staffQuery.data ?? [];
+  const staff = useMemo(() => staffQuery.data ?? [], [staffQuery.data]);
 
   const filtered = useMemo(() => {
     return staff.filter((member) => {
@@ -55,9 +56,9 @@ function TeamTab() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl bg-surface p-3 shadow-elevation-1">
+      <div className="flex flex-col gap-3 rounded-2xl bg-surface p-3 shadow-elevation-1 sm:flex-row sm:items-center">
         <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("staff.staffPage.searchPlaceholder")} />
-        <SegmentedControl segments={filters} active={filter} onChange={setFilter} />
+        <SegmentedControl segments={filters} active={filter} onChange={setFilter} className="w-full sm:w-auto" />
       </div>
 
       {staffQuery.isLoading ? (

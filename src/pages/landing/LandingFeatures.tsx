@@ -42,10 +42,10 @@ export function LandingFeatures() {
             key={feature.key}
             className="rounded-3xl border border-border bg-surface p-6 shadow-elevation-1 transition-all hover:-translate-y-1 hover:shadow-elevation-2"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-container text-primary">
+            <span className="flex h-11 w-11 items-center justify-center text-icon">
               <feature.icon size={20} strokeWidth={1.9} />
             </span>
-            <h3 className="mt-4 text-[15px] font-semibold text-text">{t(`landing.features.items.${feature.key}.title`)}</h3>
+            <h3 className="mt-4 text-[0.9375rem] font-semibold text-text">{t(`landing.features.items.${feature.key}.title`)}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{t(`landing.features.items.${feature.key}.description`)}</p>
           </div>
         ))}

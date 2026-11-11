@@ -238,7 +238,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                 onClick={startManual}
                 className="mt-3 flex w-full items-start gap-3 rounded-xl border border-border p-4 text-left outline-none transition-colors hover:border-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-variant text-text">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center text-icon">
                   <Plus size={18} />
                 </span>
                 <span>
@@ -261,7 +261,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                 onChange={(e) => setOrderText(e.target.value)}
                 rows={6}
                 placeholder={t("orders.newOrderModal.aiTextareaPlaceholder")}
-                className="mt-4 w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted/70 focus:border-primary"
+                className="mt-4 w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary"
               />
 
               <div className="mt-5 flex gap-3">
@@ -395,11 +395,11 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                     >
                       <div className="flex items-center justify-between gap-2">
                         {item.isNewProduct ? (
-                          <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
+                          <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-warning">
                             <AlertTriangle size={12} /> {t("orders.newOrderModal.newProduct")}
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-success">
+                          <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-success">
                             <Check size={12} /> {t("orders.newOrderModal.matched")}
                           </span>
                         )}
@@ -422,7 +422,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
 
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         <div>
-                          <label className="text-xs text-text-muted">{t("orders.common.qty")}</label>
+                          <label className="text-xs text-text">{t("orders.common.qty")}</label>
                           <input
                             type="number"
                             min={0.001}
@@ -433,7 +433,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-text-muted">{t("orders.common.unit")}</label>
+                          <label className="text-xs text-text">{t("orders.common.unit")}</label>
                           <input
                             value={item.unit}
                             onChange={(e) => updateItem(item.key, { unit: e.target.value })}
@@ -509,7 +509,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
           {mode === "warning" && (
             <>
               <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-container text-warning">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center text-icon">
                   <AlertTriangle size={18} />
                 </span>
                 <h2 className="text-lg font-bold text-text">{t("orders.newOrderModal.warningTitle")}</h2>

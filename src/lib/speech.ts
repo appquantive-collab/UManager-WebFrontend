@@ -2,116 +2,135 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import type { SupportedLanguageCode } from "./i18n";
 import { API_BASE_URL } from "./api";
+import { PRERECORDED_VOICE_KEYS } from "./voice-manifest";
 
-// Free, on-device speech using the browser's Web Speech API: the mic turns
-// speech into text, and replies are read aloud by a system voice. Nothing is
-// sent to our servers. Availability and voices depend on the browser/OS.
+// Munshi AI's ears and voice. Hold-to-talk clips go to our backend for Whisper
+// transcription; replies are spoken in an Indian male voice (pre-recorded files
+// for fixed lines, the backend's live voice otherwise, the browser's own voice
+// as a last resort).
 
-// ---------- Speech → text (microphone) ----------
+// ---------- Hold-to-talk voice messages (speech → text) ----------
+// The mic records while held; on release the clip is transcribed by Whisper on
+// our backend, which copes far better with Indian English, Hindi and Hinglish
+// than the browser's built-in recognition (that one stops at the first pause).
 
-interface RecognitionAlternative {
-  transcript: string;
-}
-interface RecognitionResult {
-  readonly isFinal: boolean;
-  readonly length: number;
-  [index: number]: RecognitionAlternative;
-}
-interface RecognitionEvent extends Event {
-  readonly results: { readonly length: number; [index: number]: RecognitionResult };
-}
-interface RecognitionErrorEvent extends Event {
-  readonly error: string;
-}
-interface Recognition extends EventTarget {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  maxAlternatives: number;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  onresult: ((event: RecognitionEvent) => void) | null;
-  onerror: ((event: RecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-}
-type RecognitionConstructor = new () => Recognition;
-
-function recognitionConstructor(): RecognitionConstructor | null {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as {
-    SpeechRecognition?: RecognitionConstructor;
-    webkitSpeechRecognition?: RecognitionConstructor;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
-
-export const speechRecognitionSupported = recognitionConstructor() !== null;
+export const voiceRecordingSupported =
+  typeof window !== "undefined" && typeof MediaRecorder !== "undefined" && Boolean(navigator.mediaDevices?.getUserMedia);
 
 export type MicError = "denied" | "failed";
 
-/** Indian-English recognition copes best with Hinglish; Hindi gets Devanagari text. */
-export function recognitionLang(language: SupportedLanguageCode): string {
-  return language === "hi" ? "hi-IN" : "en-IN";
+const RECORDING_TYPES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+
+interface RecordingSession {
+  stream?: MediaStream;
+  recorder?: MediaRecorder;
+  chunks: Blob[];
+  startedAt: number;
+  cancelled: boolean;
+  finish?: (blob: Blob | null) => void;
 }
 
-export function useSpeechRecognition(onText: (text: string, isFinal: boolean) => void, onError: (error: MicError) => void) {
-  const [listening, setListening] = useState(false);
-  const recognitionRef = useRef<Recognition | null>(null);
-  const handlersRef = useRef({ onText, onError });
+function releaseMic(session: RecordingSession) {
+  session.stream?.getTracks().forEach((track) => track.stop());
+}
+
+export function useVoiceRecorder(onError: (error: MicError) => void) {
+  const [recording, setRecording] = useState(false);
+  const [startedAt, setStartedAt] = useState(0);
+  const sessionRef = useRef<RecordingSession | null>(null);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
-    handlersRef.current = { onText, onError };
+    onErrorRef.current = onError;
   });
 
-  const stop = useCallback(() => {
-    recognitionRef.current?.stop();
-  }, []);
-
-  const start = useCallback((lang: string) => {
-    const Ctor = recognitionConstructor();
-    if (!Ctor || recognitionRef.current) return;
-
-    const recognition = new Ctor();
-    recognition.lang = lang;
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-      let text = "";
-      let isFinal = true;
-      for (let i = 0; i < event.results.length; i += 1) {
-        text += event.results[i][0].transcript;
-        if (!event.results[i].isFinal) isFinal = false;
-      }
-      handlersRef.current.onText(text, isFinal);
-    };
-    recognition.onerror = (event) => {
-      // Silence and our own stop() aren't errors worth telling the user about.
-      if (event.error === "no-speech" || event.error === "aborted") return;
-      handlersRef.current.onError(
-        event.error === "not-allowed" || event.error === "service-not-allowed" ? "denied" : "failed"
-      );
-    };
-    recognition.onend = () => {
-      recognitionRef.current = null;
-      setListening(false);
-    };
-
-    recognitionRef.current = recognition;
+  const start = useCallback(async () => {
+    if (sessionRef.current) return;
+    const session: RecordingSession = { chunks: [], startedAt: Date.now(), cancelled: false };
+    sessionRef.current = session;
     try {
-      recognition.start();
-      setListening(true);
-    } catch {
-      recognitionRef.current = null;
-      handlersRef.current.onError("failed");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      session.stream = stream;
+      // Released (or the permission prompt took the press) before the mic was ready.
+      if (sessionRef.current !== session) {
+        releaseMic(session);
+        session.finish?.(null);
+        return;
+      }
+      const mimeType = RECORDING_TYPES.find((type) => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      session.recorder = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) session.chunks.push(event.data);
+      };
+      recorder.onstop = () => {
+        releaseMic(session);
+        const type = recorder.mimeType || mimeType || "audio/webm";
+        session.finish?.(session.cancelled || session.chunks.length === 0 ? null : new Blob(session.chunks, { type }));
+      };
+      recorder.start();
+      session.startedAt = Date.now();
+      setStartedAt(session.startedAt);
+      setRecording(true);
+    } catch (err) {
+      if (sessionRef.current === session) sessionRef.current = null;
+      releaseMic(session);
+      setRecording(false);
+      const name = err instanceof DOMException ? err.name : "";
+      onErrorRef.current(name === "NotAllowedError" || name === "SecurityError" ? "denied" : "failed");
     }
   }, []);
 
-  useEffect(() => () => recognitionRef.current?.abort(), []);
+  /** Stops recording; resolves with the clip and its length, or null if there's nothing usable. */
+  const stop = useCallback((cancel = false): Promise<{ blob: Blob; durationMs: number } | null> => {
+    const session = sessionRef.current;
+    if (!session) return Promise.resolve(null);
+    sessionRef.current = null;
+    setRecording(false);
+    session.cancelled = cancel;
+    const durationMs = Date.now() - session.startedAt;
 
-  return { listening, start, stop };
+    return new Promise((resolve) => {
+      session.finish = (blob) => resolve(blob ? { blob, durationMs } : null);
+      if (session.recorder && session.recorder.state !== "inactive") session.recorder.stop();
+      else if (session.stream) {
+        releaseMic(session);
+        resolve(null);
+      }
+      // Otherwise the mic is still starting; start() resolves this with null once it's ready.
+    });
+  }, []);
+
+  useEffect(
+    () => () => {
+      const session = sessionRef.current;
+      if (!session) return;
+      sessionRef.current = null;
+      session.cancelled = true;
+      if (session.recorder && session.recorder.state !== "inactive") session.recorder.stop();
+      else releaseMic(session);
+    },
+    []
+  );
+
+  return { recording, startedAt, start, stop };
+}
+
+export type TranscribeKind = "text" | "phone" | "email";
+
+export async function transcribeVoice(blob: Blob, language: SupportedLanguageCode, kind: TranscribeKind): Promise<string> {
+  const form = new FormData();
+  const extension = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
+  form.append("audio", blob, `voice.${extension}`);
+  form.append("lang", language);
+  form.append("kind", kind);
+  const res = await fetch(`${API_BASE_URL}/munshi/transcribe`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
+  const { text } = (await res.json()) as { text: string };
+  // Whisper sometimes "hears" these stock phrases in silence or noise.
+  return /^(thank you\.?|thanks for watching!?|you\.?|\.+)$/i.test(text.trim()) ? "" : text.trim();
 }
 
 // ---------- Text → speech (Munshi's voice) ----------
@@ -219,18 +238,51 @@ export function prefetchVoice(text: string, language: SupportedLanguageCode) {
   if (spoken && getAudioContext()) void fetchVoice(spoken, language);
 }
 
+// Must match VOICES in backend tts.service.ts and scripts/generate-voice.mjs.
+const VOICE_IDS: Record<SupportedLanguageCode, string> = {
+  en: "en-IN-PrabhatNeural|+22%",
+  "hi-Latn": "en-IN-PrabhatNeural|+22%",
+  hi: "hi-IN-MadhurNeural|+16%",
+};
+
+// Same key the generator script uses to name pre-recorded files.
+async function prerecordedKey(text: string, language: SupportedLanguageCode): Promise<string | null> {
+  if (!globalThis.crypto?.subtle) return null;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${VOICE_IDS[language]}|${text}`));
+  const key = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 16);
+  return PRERECORDED_VOICE_KEYS.has(key) ? key : null;
+}
+
+async function fetchAudioBytes(text: string, language: SupportedLanguageCode): Promise<ArrayBuffer | null> {
+  // Fixed lines ship with the website and play instantly; only lines with names
+  // or AI answers need the backend's live voice.
+  const prerecorded = await prerecordedKey(text, language).catch(() => null);
+  if (prerecorded) {
+    try {
+      const res = await fetch(`/voice/${prerecorded}.mp3`);
+      if (res.ok) return await res.arrayBuffer();
+    } catch {
+      // Fall through to the live voice.
+    }
+  }
+  const res = await fetch(`${API_BASE_URL}/tts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, lang: language }),
+  });
+  return res.ok ? res.arrayBuffer() : null;
+}
+
 async function downloadVoice(key: string, text: string, language: SupportedLanguageCode): Promise<AudioBuffer | null> {
   const ctx = getAudioContext();
   if (!ctx) return null;
 
   try {
-    const res = await fetch(`${API_BASE_URL}/tts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, lang: language }),
-    });
-    if (!res.ok) return null;
-    const buffer = await ctx.decodeAudioData(await res.arrayBuffer());
+    const bytes = await fetchAudioBytes(text, language);
+    if (!bytes) return null;
+    const buffer = await ctx.decodeAudioData(bytes);
     audioCache.set(key, buffer);
     if (audioCache.size > AUDIO_CACHE_MAX) {
       const oldest = audioCache.keys().next().value;

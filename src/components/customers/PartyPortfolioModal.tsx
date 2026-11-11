@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Phone, Receipt, FileText, Wallet, X } from "lucide-react";
+import { MapPin, Pencil, Phone, Receipt, FileText, Wallet, X } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
 import { Tabs } from "../ui/Tabs";
@@ -11,6 +11,8 @@ import { getOrder, type Order } from "../../lib/orders-api";
 import { getInvoice, type Invoice } from "../../lib/invoices-api";
 import { OrderDetailModal } from "../orders/OrderDetailModal";
 import { InvoiceDetailModal } from "../orders/InvoiceDetailModal";
+import { AddCustomerModal } from "./AddCustomerModal";
+import { stateName } from "../../lib/gst-states";
 
 const orderStatusTone: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
   pending: "warning",
@@ -39,6 +41,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
   const [tab, setTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const query = useQuery({
     queryKey: ["customer-portfolio", customerId],
@@ -79,8 +82,28 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
             <div className="border-b border-border bg-surface-muted/40 p-6">
               <div className="flex items-center gap-4">
                 <Avatar name={data.customer.name} size={56} />
-                <div className="min-w-0">
-                  <h2 className="truncate text-lg font-bold text-text">{data.customer.name}</h2>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 pr-8">
+                    <h2 className="truncate text-lg font-bold text-text">{data.customer.name}</h2>
+                    {!data.customer.isWalkIn ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditing(true)}
+                        aria-label={t("customers.addCustomerModal.editTitle")}
+                        title={t("customers.addCustomerModal.editTitle")}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-icon outline-none hover:bg-surface-muted hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40"
+                      >
+                        <Pencil size={15} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
+                  {data.customer.gstin ? <p className="mt-0.5 text-sm text-text-muted">GSTIN {data.customer.gstin}</p> : null}
+                  {data.customer.address || data.customer.stateCode ? (
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-text-muted">
+                      <MapPin size={13} className="shrink-0 text-icon" aria-hidden="true" />
+                      <span className="truncate">{[data.customer.address, stateName(data.customer.stateCode)].filter(Boolean).join(", ")}</span>
+                    </p>
+                  ) : null}
                   {data.customer.phone ? (
                     <p className="mt-0.5 flex items-center gap-1.5 text-sm text-text-muted">
                       <Phone size={13} />
@@ -208,6 +231,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
 
       <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       <InvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+      <AddCustomerModal open={editing} onClose={() => setEditing(false)} customer={data?.customer ?? null} />
     </div>
   );
 }

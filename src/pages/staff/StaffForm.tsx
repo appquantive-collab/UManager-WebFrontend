@@ -166,7 +166,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-muted">{t("staff.staffForm.role")}</label>
+            <label className="mb-1.5 block text-sm font-semibold text-text">{t("staff.staffForm.role")}</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as StaffRole)}
@@ -208,7 +208,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
               <div key={day.dayOfWeek} className="rounded-lg border border-border px-3 py-2.5">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-medium text-text">{t(dayNameKeys[day.dayOfWeek])}</span>
-                  <label className="flex shrink-0 items-center gap-1.5 text-xs text-text-muted">
+                  <label className="flex shrink-0 items-center gap-1.5 text-xs text-text">
                     <input
                       type="checkbox"
                       checked={day.isDayOff}
@@ -244,7 +244,7 @@ export function StaffForm({ initialValues, onSubmit, onCancel }: StaffFormProps)
       <div className="space-y-6">
         <FormSection title={t("staff.staffForm.pay")}>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-muted">{t("staff.staffForm.payType")}</label>
+            <label className="mb-1.5 block text-sm font-semibold text-text">{t("staff.staffForm.payType")}</label>
             <div className="grid grid-cols-2 gap-2 rounded-lg bg-surface-variant p-1">
               <button
                 type="button"

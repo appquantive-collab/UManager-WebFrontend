@@ -7,12 +7,15 @@ import { AlertTriangle, Ban, CheckCircle2, Hammer, Package, PackagePlus, Plus, W
 import { SearchInput } from "../../components/ui/SearchInput";
 import { Dialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
+import { InventoryExtraActions } from "../../components/inventory/InventoryExtraActions";
+import { ExpiringPanel } from "../../components/inventory/ExpiringPanel";
 import { listProducts, type Product } from "../../lib/products-api";
 import { createStockMovement, getStockLevels, listWarehouses, type CreateMovementInput } from "../../lib/stock-api";
 import { assembleProduct } from "../../lib/assembly-api";
 import { StockForm } from "./StockForm";
 import { AssembleForm } from "./AssembleForm";
 import { formatCurrency } from "../../lib/format";
+import { initialParam } from "../../lib/url-params";
 
 type StatusFilter = "all" | "low" | "out";
 type TypeFilter = "products" | "raw-materials";
@@ -36,7 +39,7 @@ export function MobileInventoryStock() {
   const [warehouseFilter, setWarehouseFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("products");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => initialParam("q"));
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [assembleProductState, setAssembleProductState] = useState<Product | null>(null);
 
@@ -119,21 +122,23 @@ export function MobileInventoryStock() {
 
   return (
     <div className="space-y-3">
+      <div className="flex gap-2">
+        <InventoryExtraActions compact />
+      </div>
+      <ExpiringPanel />
       <div className="rounded-2xl border border-border bg-surface p-3.5 shadow-elevation-1">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Warehouse size={20} className="text-primary" />
-            <span className="font-headline text-[15px] font-semibold text-text">{t("inventory.mobileStock.title")}</span>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Warehouse size={20} className="shrink-0 text-icon" aria-hidden="true" />
+            <span className="truncate font-headline text-[0.9375rem] font-semibold text-text">{t("inventory.mobileStock.title")}</span>
           </div>
           <button
             type="button"
             onClick={() => navigate(typeFilter === "raw-materials" ? "/app/inventory/new?type=raw-material" : "/app/inventory/new")}
-            className="flex items-center gap-1 rounded-full bg-primary-container px-2.5 py-1 text-primary outline-none transition-colors hover:bg-primary-container/80 focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-primary px-3 text-xs font-semibold text-on-primary outline-none transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <Plus size={14} />
-            <span className="font-label text-[10px] font-semibold tracking-wide">
-              {typeFilter === "raw-materials" ? t("inventory.mobileStock.addRawMaterial") : t("inventory.mobileStock.addProduct")}
-            </span>
+            <Plus size={15} strokeWidth={2.25} aria-hidden="true" />
+            {typeFilter === "raw-materials" ? t("inventory.mobileStock.addRawMaterialShort") : t("inventory.mobileStock.addProductShort")}
           </button>
         </div>
 
@@ -154,7 +159,7 @@ export function MobileInventoryStock() {
               {wh.count != null && (
                 <span
                   className={clsx(
-                    "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                    "rounded-full px-1.5 py-0.5 text-xs font-semibold",
                     warehouseFilter === wh.key ? "bg-on-primary/25" : "bg-surface-muted text-text-muted"
                   )}
                 >
@@ -169,7 +174,7 @@ export function MobileInventoryStock() {
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
           <div className="flex items-center justify-between">
-            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.valuation")}</span>
+            <span className="font-label text-xs font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.valuation")}</span>
           </div>
           <div className="mt-1.5">
             <div className="font-headline text-base font-bold tracking-tight text-text">
@@ -179,7 +184,7 @@ export function MobileInventoryStock() {
         </div>
         <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3 shadow-elevation-1">
           <div className="flex items-center justify-between">
-            <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.totalSkus")}</span>
+            <span className="font-label text-xs font-semibold tracking-wider text-text-muted">{t("inventory.mobileStock.totalSkus")}</span>
           </div>
           <div className="mt-1.5">
             <div className="font-headline text-base font-bold tracking-tight text-text">{totals.totalSkus}</div>
@@ -188,21 +193,19 @@ export function MobileInventoryStock() {
         <div
           className={clsx(
             "flex flex-col justify-between rounded-xl border p-3 shadow-elevation-1",
-            totals.lowCount + totals.outCount > 0
-              ? "border-danger-container bg-danger-container/30"
-              : "border-border bg-surface"
+            totals.lowCount + totals.outCount > 0 ? "border-danger/40 bg-surface" : "border-border bg-surface"
           )}
         >
           <div className="flex items-center justify-between">
             <span
               className={clsx(
-                "font-label text-[10px] font-semibold tracking-wider",
+                "font-label text-xs font-semibold tracking-wider",
                 totals.lowCount + totals.outCount > 0 ? "text-danger" : "text-text-muted"
               )}
             >
               {t("inventory.mobileStock.reorder")}
             </span>
-            {totals.lowCount + totals.outCount > 0 && <AlertTriangle size={16} className="text-danger" />}
+            {totals.lowCount + totals.outCount > 0 && <AlertTriangle size={15} className="shrink-0 text-danger" aria-hidden="true" />}
           </div>
           <div className="mt-1.5">
             <div
@@ -214,7 +217,7 @@ export function MobileInventoryStock() {
               {t("inventory.mobileStock.items", { count: totals.lowCount + totals.outCount })}
             </div>
             {totals.outCount > 0 && (
-              <div className="font-label text-[11px] font-medium text-danger">
+              <div className="font-label text-xs font-medium text-danger">
                 {t("inventory.mobileStock.outOfStockCount", { count: totals.outCount })}
               </div>
             )}
@@ -375,15 +378,15 @@ function SkuCard({
     <div className="flex flex-col space-y-3 rounded-2xl border border-border bg-surface p-4 shadow-elevation-1">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-muted">
-            <Package size={22} className="text-text-muted" />
+          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border">
+            <Package size={22} strokeWidth={1.5} className="text-icon" aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="truncate text-sm font-semibold text-text">{product.name}</span>
             </div>
             <div className="mt-0.5 flex items-center gap-1.5">
-              <span className="font-label text-xs font-bold text-primary">{t("inventory.qrModal.skuLabel", { sku: product.sku })}</span>
+              <span className="font-label text-xs font-medium text-text-muted">{t("inventory.qrModal.skuLabel", { sku: product.sku })}</span>
               {product.category ? (
                 <>
                   <span className="text-border">•</span>
@@ -395,7 +398,7 @@ function SkuCard({
         </div>
         <span
           className={clsx(
-            "flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 font-label text-[11px] font-semibold",
+            "flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 font-label text-xs font-semibold",
             badge.className
           )}
         >
@@ -434,11 +437,11 @@ function SkuCard({
 function StatCell({ label, value, small }: { label: string; value: string; small?: boolean }) {
   return (
     <div className="flex flex-col">
-      <span className="font-label text-[10px] font-semibold tracking-wider text-text-muted">{label}</span>
+      <span className="font-label text-xs font-semibold tracking-wider text-text-muted">{label}</span>
       <span
         className={clsx(
           "mt-0.5 truncate font-semibold text-text",
-          small ? "font-label text-[10px]" : "font-label text-sm"
+          small ? "font-label text-xs" : "font-label text-sm"
         )}
       >
         {value}

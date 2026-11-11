@@ -26,6 +26,12 @@ export interface Product {
   isActive: boolean;
   isRawMaterial: boolean;
   bom: BomLine[];
+  altUnit?: { name: string; factor: number } | null;
+  trackBatch?: boolean;
+  trackSerial?: boolean;
+  variantGroup?: string;
+  size?: string;
+  color?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +53,12 @@ export interface ProductInput {
   reorderLevel: number;
   isRawMaterial?: boolean;
   bom?: BomLine[];
+  altUnit?: { name: string; factor: number } | null;
+  trackBatch?: boolean;
+  trackSerial?: boolean;
+  variantGroup?: string;
+  size?: string;
+  color?: string;
 }
 
 export function listProducts(options?: { rawMaterial?: boolean }): Promise<Product[]> {
@@ -84,4 +96,32 @@ export function uploadProductImage(file: File): Promise<{ url: string }> {
 
 export function getProductQr(id: string): Promise<{ sku: string; qrDataUrl: string }> {
   return apiFetch(`/products/${id}/qr`);
+}
+
+export interface ImportResult {
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: { row: number; message: string }[];
+  errorCount: number;
+}
+
+export function importProducts(rows: Record<string, unknown>[], mode: "update" | "skip" = "update"): Promise<ImportResult> {
+  return apiFetch("/products/import", { method: "POST", body: JSON.stringify({ rows, mode }) });
+}
+
+export function createVariants(input: {
+  baseName: string;
+  sizes: string[];
+  colors: string[];
+  unit?: string;
+  category?: string;
+  hsn?: string;
+  gstPercent?: number;
+  purchasePrice: number;
+  wholesalePrice: number;
+  retailPrice: number;
+  reorderLevel?: number;
+}): Promise<Product[]> {
+  return apiFetch("/products/variants", { method: "POST", body: JSON.stringify(input) });
 }

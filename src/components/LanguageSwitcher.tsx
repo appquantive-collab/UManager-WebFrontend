@@ -38,7 +38,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((value) => !value)}
         className="flex items-center gap-1.5 rounded-full border border-border bg-surface/90 px-3 py-1.5 text-xs font-bold text-text shadow-elevation-1 outline-none backdrop-blur-md transition-colors hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary/40"
       >
-        <Languages size={14} className="text-primary" />
+        <Languages size={14} className="text-icon" aria-hidden="true" />
         {current.label}
         <ChevronDown size={14} className={clsx("text-text-muted transition-transform", open && "rotate-180")} />
       </button>

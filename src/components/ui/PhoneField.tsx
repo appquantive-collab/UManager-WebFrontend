@@ -12,7 +12,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
 
     return (
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={inputId} className="text-sm font-medium text-text-muted">
+        <label htmlFor={inputId} className="text-sm font-semibold text-text">
           {label}
         </label>
         <div
@@ -34,7 +34,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
             autoComplete="tel-national"
             className={clsx(
               "min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-sm text-text outline-none",
-              "placeholder:text-text-muted/70 disabled:cursor-not-allowed disabled:opacity-50",
+              "placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50",
               className
             )}
             {...props}
