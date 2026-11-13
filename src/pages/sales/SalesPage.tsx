@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAppSetup } from "../../lib/use-app-setup";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/SearchInput";
@@ -21,7 +22,7 @@ import { formatCurrency } from "../../lib/format";
 import { indianMobile, whatsappLink } from "../../lib/phone";
 import { getProfile } from "../../lib/auth-api";
 import { listOrders, type Order } from "../../lib/orders-api";
-import { isCancelled, listInvoices, type Invoice, type PaymentMethod } from "../../lib/invoices-api";
+import { isArchived, isCancelled, listInvoices, type Invoice, type PaymentMethod } from "../../lib/invoices-api";
 import { MobileSalesOrders } from "./MobileSalesOrders";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
 import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
@@ -32,7 +33,7 @@ import { initialParam } from "../../lib/url-params";
 type Tab = "orders" | "bills" | "payments";
 type DateRange = "all" | "today" | "week" | "month";
 type OrderFilter = "all" | "open" | "billed" | "cancelled";
-type BillFilter = "all" | "due" | "paid";
+type BillFilter = "all" | "due" | "paid" | "archived";
 type MethodFilter = "all" | PaymentMethod;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -61,6 +62,7 @@ const due = (invoice: Invoice) => (isCancelled(invoice) ? 0 : Math.max(0, invoic
 
 export function SalesPage() {
   const { t, i18n } = useTranslation();
+  const { vocab } = useAppSetup();
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -139,7 +141,8 @@ export function SalesPage() {
     (i) =>
       new Date(i.createdAt).getTime() >= since &&
       matchesCustomer(i, i.invoiceNumber) &&
-      (billFilter === "all" || (billFilter === "due" && due(i) > 0) || (billFilter === "paid" && due(i) === 0 && !isCancelled(i)))
+      (billFilter === "archived" ? isArchived(i) : !isArchived(i)) &&
+      (billFilter === "all" || billFilter === "archived" || (billFilter === "due" && due(i) > 0) || (billFilter === "paid" && due(i) === 0 && !isCancelled(i)))
   );
   const visiblePayments = payments.filter(
     (p) =>
@@ -190,7 +193,7 @@ export function SalesPage() {
               <Sparkles size={16} className="mr-1.5" strokeWidth={2} aria-hidden="true" />
               {t("sales.salesPage.newOrder")}
             </Button>
-            <Button onClick={openNewSale} title={t("sales.hub.newSaleHint")}>
+            <Button onClick={openNewSale} title={t("sales.hub.newSaleHint", { context: vocab })}>
               <Plus size={16} className="mr-1.5" strokeWidth={2} aria-hidden="true" />
               {t("sales.salesPage.newSale")}
             </Button>
@@ -298,6 +301,7 @@ export function SalesPage() {
                   { key: "all", label: t("sales.hub.billFilter.all") },
                   { key: "due", label: t("sales.hub.billFilter.due"), count: summary.dueCount },
                   { key: "paid", label: t("sales.hub.billFilter.paid") },
+                  ...(invoices.some(isArchived) ? [{ key: "archived" as const, label: t("bill.archivedFilter"), count: invoices.filter(isArchived).length }] : []),
                 ]}
               />
             ) : (

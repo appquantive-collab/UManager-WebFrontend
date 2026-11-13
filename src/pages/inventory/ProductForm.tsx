@@ -14,6 +14,8 @@ import { showError } from "../../lib/toast";
 import { listCategories, createCategory, listBrands, createBrand } from "../../lib/catalog-api";
 import { listProducts, uploadProductImage, type BomLine, type Product, type ProductInput } from "../../lib/products-api";
 import i18n from "../../lib/i18n";
+import { useAppSetup } from "../../lib/use-app-setup";
+import { ProBadge, useProGate } from "../../components/ui/ProBadge";
 
 const productSchema = z.object({
   name: z.string().min(1, { error: () => i18n.t("inventory.productForm.nameRequired") }),
@@ -48,6 +50,10 @@ interface DraftBomLine extends BomLine {
 
 export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onCancel }: ProductFormProps) {
   const { t } = useTranslation();
+  // Batch/expiry and IMEI tracking are Pro. Items already tracked stay tracked after a downgrade.
+  const proGate = useProGate();
+  const batchLocked = proGate.locked && !initialValues?.trackBatch;
+  const serialLocked = proGate.locked && !initialValues?.trackSerial;
   const queryClient = useQueryClient();
   const [category, setCategory] = useState<string | null>(initialValues?.category ?? null);
   const [brand, setBrand] = useState<string | null>(initialValues?.brand ?? null);
@@ -64,12 +70,15 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
   const [hsn, setHsn] = useState(initialValues?.hsn ?? "");
   const [altUnitName, setAltUnitName] = useState(initialValues?.altUnit?.name ?? "");
   const [altUnitFactor, setAltUnitFactor] = useState(initialValues?.altUnit ? String(initialValues.altUnit.factor) : "");
-  const [trackBatch, setTrackBatch] = useState(initialValues?.trackBatch ?? false);
-  const [trackSerial, setTrackSerial] = useState(initialValues?.trackSerial ?? false);
+  const { features: setupFeatures, template: setupTemplate } = useAppSetup();
+  // A new item in a medical store starts batch-tracked, in a mobile shop IMEI-tracked.
+  const [trackBatch, setTrackBatch] = useState(initialValues ? Boolean(initialValues.trackBatch) : Boolean(setupTemplate) && setupFeatures.batch && !proGate.locked);
+  const [trackSerial, setTrackSerial] = useState(initialValues ? Boolean(initialValues.trackSerial) : Boolean(setupTemplate) && setupFeatures.serial && !proGate.locked);
   const [size, setSize] = useState(initialValues?.size ?? "");
   const [color, setColor] = useState(initialValues?.color ?? "");
   const [moreOpen, setMoreOpen] = useState(
-    Boolean(initialValues?.altUnit || initialValues?.trackBatch || initialValues?.trackSerial || initialValues?.size || initialValues?.color)
+    Boolean(initialValues?.altUnit || initialValues?.trackBatch || initialValues?.trackSerial || initialValues?.size || initialValues?.color) ||
+      (!initialValues && (trackBatch || trackSerial))
   );
 
   const rawMaterialsQuery = useQuery({
@@ -108,7 +117,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
           retailPrice: initialValues.retailPrice,
           reorderLevel: initialValues.reorderLevel,
         }
-      : { unit: "pcs", purchasePrice: 0, wholesalePrice: 0, retailPrice: 0, reorderLevel: 0 },
+      : { unit: "pcs", purchasePrice: "", wholesalePrice: "", retailPrice: "", reorderLevel: "" },
   });
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: listCategories });
@@ -324,16 +333,16 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-text">{t("productExtras.trackTitle")}</p>
                   <label className="flex items-start gap-2.5 rounded-lg border border-border px-3.5 py-2.5">
-                    <input type="checkbox" checked={trackBatch} onChange={(e) => setTrackBatch(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
+                    <input type="checkbox" checked={trackBatch} onChange={(e) => (e.target.checked && batchLocked ? proGate.explain() : setTrackBatch(e.target.checked))} className="mt-0.5 h-4 w-4 accent-primary" />
                     <span>
-                      <span className="block text-sm font-medium text-text">{t("productExtras.batch")}</span>
+                      <span className="flex items-center gap-2 text-sm font-medium text-text">{t("productExtras.batch")}{batchLocked ? <ProBadge /> : null}</span>
                       <span className="block text-xs text-text-muted">{t("productExtras.batchHint")}</span>
                     </span>
                   </label>
                   <label className="flex items-start gap-2.5 rounded-lg border border-border px-3.5 py-2.5">
-                    <input type="checkbox" checked={trackSerial} onChange={(e) => setTrackSerial(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
+                    <input type="checkbox" checked={trackSerial} onChange={(e) => (e.target.checked && serialLocked ? proGate.explain() : setTrackSerial(e.target.checked))} className="mt-0.5 h-4 w-4 accent-primary" />
                     <span>
-                      <span className="block text-sm font-medium text-text">{t("productExtras.serial")}</span>
+                      <span className="flex items-center gap-2 text-sm font-medium text-text">{t("productExtras.serial")}{serialLocked ? <ProBadge /> : null}</span>
                       <span className="block text-xs text-text-muted">{t("productExtras.serialHint")}</span>
                     </span>
                   </label>
@@ -439,6 +448,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               type="number"
               step="0.01"
               error={errors.purchasePrice?.message}
+              placeholder="0"
               {...register("purchasePrice")}
             />
             <TextField
@@ -446,6 +456,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               type="number"
               step="0.01"
               error={errors.wholesalePrice?.message}
+              placeholder="0"
               {...register("wholesalePrice")}
             />
             <TextField
@@ -453,15 +464,17 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               type="number"
               step="0.01"
               error={errors.retailPrice?.message}
+              placeholder="0"
               {...register("retailPrice")}
             />
-          </FormSection>
-
-          <FormSection title={t("productExtras.taxTitle")} subtitle={t("productExtras.taxHint")}>
+            {/* GST sits with the prices so it is never missed; the bill uses it by default. */}
+            <div className="border-t border-border pt-3">
+              <p className="text-xs text-text-muted">{t("productExtras.taxHint")}</p>
+            </div>
             <div>
               <p className="mb-1.5 text-sm font-semibold text-text">{t("productExtras.gstRate")}</p>
               <div className="flex flex-wrap gap-1.5">
-                {[0, 3, 5, 12, 18, 28].map((rate) => (
+                {[0, 3, 5, 12, 18, 28, 40].map((rate) => (
                   <button
                     key={rate}
                     type="button"
@@ -495,6 +508,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
               type="number"
               step="1"
               error={errors.reorderLevel?.message}
+              placeholder="0"
               {...register("reorderLevel")}
             />
           </FormSection>

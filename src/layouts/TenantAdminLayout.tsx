@@ -1,18 +1,20 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { canSee, tenantNav } from "../lib/nav";
+import { useAppSetup } from "../lib/use-app-setup";
+import { PLAN_PATH, usePlan } from "../lib/use-plan";
 import { useAuthStore } from "../lib/auth-store";
 import { getPageMeta } from "../lib/pageMeta";
 import { getProfile } from "../lib/auth-api";
 import { Avatar } from "../components/ui/Avatar";
-import { SearchInput } from "../components/ui/SearchInput";
 import { MobileBottomNav } from "../components/layout/MobileBottomNav";
 import { MobileTopBar } from "../components/layout/MobileTopBar";
 import { QuickActionSheet } from "../components/layout/QuickActionSheet";
+import { PlanBanner } from "../components/layout/PlanBanner";
 import { UserMenu } from "../components/layout/UserMenu";
 import { NotificationsMenu } from "../components/layout/NotificationsMenu";
 import { OnboardingModal } from "../components/onboarding/OnboardingModal";
@@ -20,6 +22,7 @@ import { NewOrderModal } from "../components/orders/NewOrderModal";
 import { NewSaleModal } from "../components/orders/NewSaleModal";
 import { NewPurchaseModal } from "../components/purchases/NewPurchaseModal";
 import { AddCustomerModal } from "../components/customers/AddCustomerModal";
+import { AddExpenseModal } from "../components/cashbook/AddExpenseModal";
 import { useNewOrderModalStore } from "../lib/new-order-store";
 import { useNewSaleModalStore } from "../lib/new-sale-store";
 
@@ -49,6 +52,8 @@ export function TenantAdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
+  const { features: appFeatures, vocab } = useAppSetup();
+  const plan = usePlan();
   const clearSession = useAuthStore((state) => state.clearSession);
   const updateUser = useAuthStore((state) => state.updateUser);
   const [collapsed, setCollapsed] = useState(false);
@@ -56,6 +61,8 @@ export function TenantAdminLayout() {
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const [purchaseOpen, setPurchaseOpen] = useState(false);
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const queryClient = useQueryClient();
   const newOrderOpen = useNewOrderModalStore((state) => state.open);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const closeNewOrder = useNewOrderModalStore((state) => state.closeModal);
@@ -110,7 +117,17 @@ export function TenantAdminLayout() {
     navigate("/login", { replace: true });
   };
 
-  const { title, subtitle } = getPageMeta(location.pathname);
+  const { title, subtitle } = getPageMeta(location.pathname, vocab);
+  const visibleNav = tenantNav.filter((item) => canSee(item, user?.role, appFeatures));
+  const navGroups = (["main", "sell", "stock", "money", "manage"] as const)
+    .map((group) => ({ group, items: visibleNav.filter((item) => (item.group ?? "main") === group) }))
+    .filter((g) => g.items.length > 0);
+  const planLine =
+    plan.status === "trial"
+      ? t("layout.planTrial", { count: plan.daysLeft })
+      : plan.status === "expired"
+        ? t("layout.planEnded")
+        : t(`plan.name.${plan.plan ?? "basic"}`) + " · " + t("layout.planDays", { count: plan.daysLeft });
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -131,17 +148,22 @@ export function TenantAdminLayout() {
           collapsed ? "lg:w-20" : "lg:w-67"
         )}
       >
-        <div className="flex shrink-0 items-start justify-between gap-2 px-5 pb-4 pt-5">
+        <div className="flex shrink-0 items-center justify-between gap-2 px-4 pb-3 pt-4">
           {collapsed ? (
             <img src="/logo.svg" alt={t("brand.name")} className="hidden h-9 w-9 lg:block" />
           ) : (
             <div className="flex min-w-0 items-center gap-2.5">
               <img src="/logo.svg" alt="" className="h-9 w-9 shrink-0" />
               <div className="min-w-0">
-                <div className="truncate text-xl font-extrabold leading-tight tracking-tight text-text">
-                  {t("brand.name")}
+                <div className="truncate text-base font-extrabold leading-tight tracking-tight text-text">
+                  {profile?.tenant?.businessName ?? t("brand.name")}
                 </div>
-                <div className="mt-1 text-sm leading-tight text-text-muted">{t("layout.tenantAdmin")}</div>
+                <NavLink
+                  to={PLAN_PATH}
+                  className="mt-0.5 block truncate text-xs font-semibold leading-tight text-text-muted outline-none hover:text-primary focus-visible:underline"
+                >
+                  {planLine}
+                </NavLink>
               </div>
             </div>
           )}
@@ -163,37 +185,41 @@ export function TenantAdminLayout() {
           </button>
         </div>
 
-        {!collapsed && (
-          <div className="px-5 pb-5">
-            <SearchInput placeholder={t("layout.searchPlaceholder")} />
-          </div>
-        )}
 
-        <nav className="scrollbar-hide flex-1 space-y-1 overflow-y-auto border-t border-surface-variant px-5 py-4">
-          {tenantNav.filter((item) => canSee(item, user?.role)).map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/app"}
-              title={collapsed ? t(item.labelKey) : undefined}
-              className={({ isActive }) =>
-                clsx(
-                  "flex items-center gap-3.5 rounded-xl px-5 py-2.5 text-[0.9375rem] outline-none transition-colors",
-                  "focus-visible:ring-2 focus-visible:ring-primary/40",
-                  collapsed && "lg:justify-center lg:px-0",
-                  isActive
-                    ? "bg-primary font-semibold text-on-primary"
-                    : "font-medium text-text-muted hover:bg-surface-muted hover:text-text"
-                )
-              }
-            >
-              <item.icon size={20} strokeWidth={1.6} />
-              <span className={clsx(collapsed && "lg:hidden")}>{t(item.labelKey)}</span>
-            </NavLink>
+        <nav aria-label={t("layout.mainNavigation")} className="scrollbar-hide flex-1 overflow-y-auto border-t border-surface-variant px-3 py-2">
+          {navGroups.map(({ group, items }, groupIndex) => (
+            <div key={group} className={clsx(groupIndex > 0 && "mt-2 border-t border-surface-variant pt-2", collapsed && "lg:mt-1 lg:pt-1")}>
+              {group !== "main" ? (
+                <p className={clsx("px-3 pb-1 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-text-muted", collapsed && "lg:hidden")}>
+                  {t(`nav.group.${group}`)}
+                </p>
+              ) : null}
+              <div className="space-y-0.5">
+                {items.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.path === "/app"}
+                    title={collapsed ? t(item.labelKey) : undefined}
+                    className={({ isActive }) =>
+                      clsx(
+                        "flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm outline-none transition-colors",
+                        "focus-visible:ring-2 focus-visible:ring-primary/40",
+                        collapsed && "lg:justify-center lg:px-0",
+                        isActive ? "bg-primary font-semibold text-on-primary" : "font-medium text-text-muted hover:bg-surface-muted hover:text-text"
+                      )
+                    }
+                  >
+                    <item.icon size={18} strokeWidth={1.75} className="shrink-0" />
+                    <span className={clsx("truncate", collapsed && "lg:hidden")}>{t(item.labelKey)}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
-        <div className="shrink-0 border-t border-surface-variant px-4 py-3">
+        <div className="shrink-0 border-t border-surface-variant px-3 py-2">
           <UserMenu
             onLogout={handleLogout}
             menuClassName="bottom-full left-0 mb-2"
@@ -209,12 +235,12 @@ export function TenantAdminLayout() {
                   collapsed && "lg:justify-center"
                 )}
               >
-                <Avatar name={user?.name ?? "?"} size={40} variant="neutral" />
+                <Avatar name={user?.name ?? "?"} size={34} variant="neutral" />
                 <div className={clsx("min-w-0 flex-1", collapsed && "lg:hidden")}>
-                  <div className="truncate text-[0.9375rem] font-semibold leading-tight text-text">
-                    {user?.name ?? t("layout.account")}
+                  <div className="truncate text-sm font-semibold leading-tight text-text">{user?.name ?? t("layout.account")}</div>
+                  <div className="mt-0.5 truncate text-xs leading-tight text-text-muted">
+                    {user?.role ? t(`team.role.${user.role}`, { defaultValue: user.email ?? "" }) : (user?.email ?? "")}
                   </div>
-                  <div className="mt-0.5 truncate text-sm leading-tight text-text-muted">{user?.email ?? ""}</div>
                 </div>
               </button>
             )}
@@ -254,7 +280,8 @@ export function TenantAdminLayout() {
         />
 
         {/* Bottom padding clears the fixed mobile nav bar — skipped on full-page forms, which have no bottom nav to clear. */}
-        <main className={clsx("flex-1 overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-[calc(6.5rem+max(0.75rem,env(safe-area-inset-bottom)))]")}>
+        <main className={clsx("min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-[calc(6.5rem+max(0.75rem,env(safe-area-inset-bottom)))]")}>
+          <PlanBanner />
           <Outlet />
         </main>
       </div>
@@ -270,6 +297,7 @@ export function TenantAdminLayout() {
             onClose={() => setQuickActionsOpen(false)}
             onNewPurchase={() => setPurchaseOpen(true)}
             onAddCustomer={() => setAddCustomerOpen(true)}
+            onAddExpense={() => setExpenseOpen(true)}
             onNavigate={(path) => navigate(path)}
             onNewOrder={openNewOrder}
             onNewSale={openNewSale}
@@ -281,6 +309,15 @@ export function TenantAdminLayout() {
       <NewSaleModal open={newSaleOpen} onClose={closeNewSale} />
       <NewPurchaseModal open={purchaseOpen} onClose={() => setPurchaseOpen(false)} />
       <AddCustomerModal open={addCustomerOpen} onClose={() => setAddCustomerOpen(false)} />
+      {/* Opened from the quick-action sheet; works whether or not Rokad bahi is switched on. */}
+      <AddExpenseModal
+        open={expenseOpen}
+        onClose={() => setExpenseOpen(false)}
+        onSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ["expenses"] });
+          queryClient.invalidateQueries({ queryKey: ["daybook"] });
+        }}
+      />
     </div>
   );
 }

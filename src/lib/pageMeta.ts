@@ -23,20 +23,21 @@ const routeKeys: Record<string, string> = {
   "/app/cashbook": "cashbook",
 };
 
-function metaFor(key: string): PageMeta {
+function metaFor(key: string, context?: string): PageMeta {
   return {
-    title: i18n.t(`pageMeta.${key}.title`),
-    subtitle: i18n.t(`pageMeta.${key}.subtitle`),
+    title: i18n.t(`pageMeta.${key}.title`, { context }),
+    subtitle: i18n.t(`pageMeta.${key}.subtitle`, { context }),
   };
 }
 
-export function getPageMeta(pathname: string): PageMeta {
+/** `context` is the business wording from useAppSetup().vocab ("firm" for traders/manufacturers). */
+export function getPageMeta(pathname: string, context?: string): PageMeta {
   if (/^\/app\/inventory\/[^/]+\/edit$/.test(pathname)) {
-    return metaFor("inventoryEdit");
+    return metaFor("inventoryEdit", context);
   }
   if (/^\/app\/staff\/[^/]+\/edit$/.test(pathname)) {
-    return metaFor("staffEdit");
+    return metaFor("staffEdit", context);
   }
   const key = routeKeys[pathname];
-  return key ? metaFor(key) : metaFor("fallback");
+  return key ? metaFor(key, context) : metaFor("fallback", context);
 }

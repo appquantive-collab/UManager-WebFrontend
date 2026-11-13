@@ -27,6 +27,8 @@ export interface PartySnapshot {
   name?: string;
   phone?: string;
   gstin?: string;
+  /** Buyer: last 4 Aadhaar digits (printed masked). */
+  aadhaarLast4?: string;
   address?: string;
   stateCode?: string;
 }
@@ -42,7 +44,7 @@ export interface SellerSnapshot extends PartySnapshot {
 export interface Invoice {
   _id: string;
   orderIds: string[];
-  customerId: { _id: string; name: string; phone?: string } | string;
+  customerId: { _id: string; name: string; phone?: string; aadhaarLast4?: string } | string;
   invoiceNumber: string;
   billType: BillType;
   /** Missing on bills made before cancelling existed (= active). */
@@ -65,8 +67,13 @@ export interface Invoice {
   dueDate?: string;
   cancelledAt?: string;
   cancelReason?: string;
+  /** Hidden from the bill list; still counts in accounts. */
+  archivedAt?: string | null;
+  editedAt?: string | null;
   createdAt: string;
 }
+
+export const isArchived = (invoice: Pick<Invoice, "archivedAt">) => Boolean(invoice.archivedAt);
 
 export const isCancelled = (invoice: Pick<Invoice, "status">) => invoice.status === "cancelled";
 
@@ -91,6 +98,8 @@ export interface BillLineItemInput {
   unit: string;
   unitPrice: number;
   discountPercent?: number;
+  /** GST % for this line on a GST bill (else the item's saved rate). */
+  gstPercent?: number;
   serials?: string[];
 }
 
@@ -100,6 +109,8 @@ export interface CreateBillInput {
   orderIds: string[];
   items: BillLineItemInput[];
   billType: BillType;
+  /** Own bill number; left out → next in the series. */
+  invoiceNumber?: string;
   roundOff?: boolean;
   allowShortStock?: boolean;
   allowOverCreditLimit?: boolean;
@@ -146,6 +157,23 @@ export function cancelBill(invoiceId: string, reason?: string): Promise<Invoice>
     method: "POST",
     body: JSON.stringify({ reason }),
   });
+}
+
+export function getNextBillNumber(): Promise<{ invoiceNumber: string }> {
+  return apiFetch("/invoices/next-number");
+}
+
+/** Change a bill's items, rates, GST, discount, type or number (owner/manager). */
+export function editBill(invoiceId: string, input: Omit<CreateBillInput, "customerId" | "orderIds" | "payment">): Promise<Invoice> {
+  return apiFetch(`/invoices/${invoiceId}`, { method: "PUT", body: JSON.stringify(input) });
+}
+
+export function renumberBill(invoiceId: string, invoiceNumber: string): Promise<Invoice> {
+  return apiFetch(`/invoices/${invoiceId}/number`, { method: "PATCH", body: JSON.stringify({ invoiceNumber }) });
+}
+
+export function archiveBill(invoiceId: string, archived: boolean): Promise<Invoice> {
+  return apiFetch(`/invoices/${invoiceId}/archive`, { method: "PATCH", body: JSON.stringify({ archived }) });
 }
 
 export function listInvoices(): Promise<Invoice[]> {

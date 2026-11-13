@@ -462,7 +462,7 @@ function DesktopDashboard({
               <Sparkles size={17} className="text-icon" aria-hidden="true" />
               {t("dashboard.desk.munshiNote")}
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-text">{aiLayout?.welcomeMessage ?? munshiNote}</p>
+            <p className="mt-2 text-sm leading-relaxed text-text">{(language === "en" && aiLayout?.welcomeMessage) || munshiNote}</p>
             <Link
               to="/app/ai"
               className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-on-primary-container hover:underline"

@@ -5,6 +5,7 @@ import { ArrowUp, Check, Copy, Loader2, Mic, Square, Trash2, Volume2, VolumeX, X
 import clsx from "clsx";
 import { Badge } from "../ui/Badge";
 import { ApiError } from "../../lib/api";
+import { errorMessage } from "../../lib/api-errors";
 import { showError, showSuccess } from "../../lib/toast";
 import { currentLanguage } from "../../lib/i18n";
 import { transcribeVoice, useVoiceRecorder, useVoiceStore, voiceOutputSupported, voiceRecordingSupported } from "../../lib/speech";
@@ -177,7 +178,8 @@ export function AiChatPanel() {
     onError: (err, content) => {
       setPendingText(null);
       setInput((current) => current || content); // give the text back so nothing is lost
-      showError(err instanceof ApiError ? err.message : t("ai.aiChatPanel.couldNotReachAssistant"));
+      // Plan / token-limit errors come back translated ("tokens used up — upgrade").
+      showError(err instanceof ApiError && err.code ? errorMessage(err, t) : err instanceof ApiError ? err.message : t("ai.aiChatPanel.couldNotReachAssistant"));
     },
   });
 

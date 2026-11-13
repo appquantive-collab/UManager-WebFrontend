@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { Plus, Sparkles } from "lucide-react";
 import { canSee, mobileBottomNav } from "../../lib/nav";
 import { useAuthStore } from "../../lib/auth-store";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { getDashboardSummary } from "../../lib/dashboard-api";
 import { useDisplayStore } from "../../lib/display-settings";
 
@@ -46,7 +47,8 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const role = useAuthStore((state) => state.user?.role);
-  const navItems = mobileBottomNav.filter((item) => canSee(item, role));
+  const { features } = useAppSetup();
+  const navItems = mobileBottomNav.filter((item) => canSee(item, role, features));
   const textSize = useDisplayStore((state) => state.textSize);
   const showAllLabels = textSize === "large" || textSize === "xlarge";
 
@@ -124,18 +126,20 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
       className={clsx(
         // Above the Create sheet only while it is open (so its × can close it); otherwise
         // below popups and forms, which must never have their buttons covered.
-        "pointer-events-none fixed inset-x-0 bottom-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
+        "pointer-events-none fixed inset-x-0 bottom-0 px-2 min-[400px]:px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
         quickActionsOpen ? "z-[60]" : "z-40"
       )}
     >
-      <div className="pointer-events-auto mx-auto flex max-w-md items-center gap-2.5">
+      <div className="pointer-events-auto mx-auto flex max-w-md items-center gap-2 min-[400px]:gap-2.5">
         {/* Frosted capsule (falls back to near-solid white where blur isn't supported). */}
         <div
           ref={barRef}
           className={clsx(
-            "relative flex h-16 flex-1 items-center justify-between rounded-full border border-white/70 p-1.5",
-            "bg-surface/95 supports-[backdrop-filter]:bg-surface/75 backdrop-blur-xl backdrop-saturate-[1.15]",
-            "shadow-[0_12px_32px_-12px_rgba(59,31,18,0.30),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(255,255,255,0.35)]"
+            "relative flex h-14 min-w-0 flex-1 items-center justify-between rounded-full border border-[rgba(59,31,18,0.09)] p-1 min-[400px]:h-16 min-[400px]:p-1.5",
+            // See-through frosted glass: what scrolls behind shows through, blurred.
+            "bg-surface/95 supports-[backdrop-filter]:bg-surface/55 backdrop-blur-2xl backdrop-saturate-[1.6]",
+            // Faint warm shadow under it plus a bright inner top edge.
+            "shadow-[0_8px_28px_-10px_rgba(59,31,18,0.22),0_1px_3px_rgba(59,31,18,0.06),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(255,255,255,0.3)]"
           )}
         >
           {/* Top sheen for the glass look. */}
@@ -170,7 +174,7 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
                   aria-label={quickActionsOpen ? t("layoutExtra.quickActionSheet.close") : t("quickActions.create")}
                   className={clsx(
                     "relative z-10 flex h-full shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40",
-                    showAllLabels ? "flex-1 flex-col gap-0.5 px-1" : "px-3.5"
+                    showAllLabels ? "min-w-0 flex-1 flex-col gap-0.5 px-1" : "px-2.5 min-[400px]:px-3.5"
                   )}
                 >
                   <Plus
@@ -198,7 +202,9 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
                 end={item.path === "/app"}
                 className={clsx(
                   "relative z-10 flex h-full shrink-0 items-center justify-center rounded-full outline-none transition-[padding] duration-300 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40",
-                  showAllLabels ? "flex-1 flex-col gap-0.5 px-1" : clsx("gap-2", active ? "px-4" : "px-3.5")
+                  showAllLabels
+                    ? "min-w-0 flex-1 flex-col gap-0.5 px-1"
+                    : clsx("gap-1.5 min-[400px]:gap-2", active ? "px-3 min-[400px]:px-4" : "px-2.5 min-[400px]:px-3.5")
                 )}
               >
                 <span className="relative flex items-center justify-center transition-transform active:scale-90">
@@ -215,7 +221,8 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
                     "overflow-hidden whitespace-nowrap leading-none transition-[max-width,opacity] duration-300",
                     showAllLabels ? "text-xs" : "text-sm",
                     active ? "font-bold text-text" : "font-medium text-text-muted",
-                    labelVisible ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0"
+                    labelVisible ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0",
+                    !showAllLabels && "max-[359px]:hidden"
                   )}
                 >
                   {t(item.labelKey)}
@@ -227,24 +234,42 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
           })}
         </div>
 
-        {/* Round glossy Munshi AI button: opens the assistant from anywhere. */}
+        {/* Munshi AI button: his face in a brand-orange ring, with a small AI sparkle on the edge. */}
         <NavLink
           to="/app/ai"
           aria-label={t("nav.ai")}
           title={t("nav.ai")}
           className={({ isActive }) =>
             clsx(
-              "relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border text-white outline-none",
-              "bg-[linear-gradient(150deg,#ef7a45_0%,#d4572a_45%,#b23c0e_100%)]",
-              "shadow-[0_12px_26px_-10px_rgba(178,60,14,0.65),inset_0_1px_1px_rgba(255,255,255,0.6),inset_0_-2px_6px_rgba(120,30,0,0.25)]",
+              "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full p-[3px] outline-none min-[400px]:h-16 min-[400px]:w-16",
+              "shadow-[0_12px_26px_-10px_rgba(178,60,14,0.65)]",
               "transition-transform duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2",
-              // On the Munshi AI screen: a white ring shows it's the current place.
-              isActive ? "border-white ring-2 ring-primary/50 ring-offset-2 ring-offset-background" : "border-white/50"
+              // On the Munshi AI screen: an outer ring shows it's the current place.
+              isActive && "ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
             )
           }
         >
-          <span aria-hidden="true" className="pointer-events-none absolute inset-x-2.5 top-1 h-[45%] rounded-full bg-gradient-to-b from-white/45 to-white/0" />
-          <Sparkles size={27} strokeWidth={2} aria-hidden="true" className="relative" />
+          {/* Soft halo that breathes out from the button. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full bg-primary/40 opacity-0 motion-safe:animate-[munshi-halo_2.8s_ease-out_infinite]"
+          />
+          {/* Orange ring with a light streak that slowly goes round. */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,#b23c0e,#d4572a,#ffb48a,#ef7a45,#b23c0e)] motion-safe:animate-[munshi-spin_4s_linear_infinite]"
+          />
+          <span
+            aria-hidden="true"
+            className="relative block h-full w-full rounded-full border-2 border-white bg-surface-muted bg-no-repeat"
+            style={{ backgroundImage: "url(/splash-munshi.webp)", backgroundSize: "190%", backgroundPosition: "50% 18%" }}
+          />
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-sm"
+          >
+            <Sparkles size={12} strokeWidth={2.4} className="motion-safe:animate-[munshi-twinkle_3.5s_ease-in-out_infinite]" />
+          </span>
         </NavLink>
       </div>
     </nav>

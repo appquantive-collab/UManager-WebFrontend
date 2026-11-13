@@ -31,6 +31,7 @@ import { listPurchases, supplierOf } from "../../lib/purchases-api";
 import { listStaff } from "../../lib/staff-api";
 import { askBusinessQuestion } from "../../lib/ai-chat-api";
 import { ApiError } from "../../lib/api";
+import { errorMessage } from "../../lib/api-errors";
 
 // One place to find anything (Normal search) or ask about the business in
 // plain words (AI search). Normal results open the right page already filtered
@@ -266,7 +267,7 @@ export function SearchPage() {
       onSuccess: ({ answer }) => setAnswers((current) => current.map((a) => (a.id === id ? { ...a, answer: answer || t("search.ai.noAnswer") } : a))),
       onError: (err) =>
         setAnswers((current) =>
-          current.map((a) => (a.id === id ? { ...a, error: err instanceof ApiError ? err.message : t("search.ai.failed") } : a))
+          current.map((a) => (a.id === id ? { ...a, error: err instanceof ApiError && err.code ? errorMessage(err, t) : err instanceof ApiError ? err.message : t("search.ai.failed") } : a))
         ),
     });
   };

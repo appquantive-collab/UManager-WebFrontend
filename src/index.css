@@ -99,17 +99,9 @@ body {
   touch-action: pan-x pan-y;
 }
 
-/* iOS Safari auto-zooms the page when focusing a text field smaller than
-   16px — this floor keeps every input/select/textarea at 16px on phone-width
-   viewports (where zoom-on-focus actually happens) without touching desktop
-   sizing, so component text-size classes elsewhere don't need to change. */
-@media (max-width: 640px) {
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-}
+/* No 16px floor on inputs: iOS Safari's zoom-on-focus is already stopped by
+   maximum-scale=1 in the viewport meta (index.html), so fields can follow the
+   app's text size and match their labels. */
 
 /* Scrolls normally but without a visible scrollbar track. */
 @utility scrollbar-hide {
@@ -144,6 +136,28 @@ body {
 :root[data-density="compact"] {
   --spacing: 0.205rem;
 }
+
+/* Phones: text 10% smaller at every text-size setting. Spacing is divided by
+   the same 0.9, so buttons, gaps and tap targets keep their size — only the
+   words shrink. */
+@media (max-width: 480px) {
+  :root {
+    font-size: 14.4px;
+    --spacing: calc(0.25rem / 0.9);
+  }
+  :root[data-text-size="small"] {
+    font-size: 12.6px;
+  }
+  :root[data-text-size="large"] {
+    font-size: 16.2px;
+  }
+  :root[data-text-size="xlarge"] {
+    font-size: 18px;
+  }
+  :root[data-density="compact"] {
+    --spacing: calc(0.205rem / 0.9);
+  }
+}
 svg.lucide {
   zoom: var(--icon-scale);
 }
@@ -169,6 +183,21 @@ svg.lucide {
 @keyframes guide-bulb {
   0%, 15%, 70%, 100% { color: var(--color-icon); transform: scale(1); }
   35% { color: var(--color-warning); transform: scale(1.15); }
+}
+
+/* Munshi AI dock button: the orange ring slowly turns, a soft halo breathes out,
+   and the sparkle badge twinkles now and then. Only via motion-safe:. */
+@keyframes munshi-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes munshi-halo {
+  0% { transform: scale(1); opacity: 0.45; }
+  70%, 100% { transform: scale(1.35); opacity: 0; }
+}
+@keyframes munshi-twinkle {
+  0%, 70%, 100% { transform: scale(1) rotate(0deg); }
+  80% { transform: scale(1.25) rotate(-15deg); }
+  90% { transform: scale(0.95) rotate(10deg); }
 }
 
 /* Bill printing: only the bill goes to paper (see BillActions/useBillPrinter). */

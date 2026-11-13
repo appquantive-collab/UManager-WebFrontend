@@ -3,16 +3,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Phone, Undo2, Wallet, X } from "lucide-react";
+import { Archive, ArchiveRestore, Ban, Check, FilePenLine, Pencil, Phone, Undo2, Wallet, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { TextField } from "../ui/TextField";
 import { StatusPill } from "../page/kit";
 import { BillActions } from "../bills/BillActions";
 import { ReturnModal } from "./ReturnModal";
+import { NewSaleModal } from "./NewSaleModal";
 import { useAuthStore } from "../../lib/auth-store";
 import { formatCurrency, formatMoney, formatQty } from "../../lib/format";
-import { cancelBill, getInvoice, isCancelled, recordPayment, type Invoice, type PaymentMethod } from "../../lib/invoices-api";
+import { archiveBill, cancelBill, getInvoice, isArchived, isCancelled, recordPayment, renumberBill, type Invoice, type PaymentMethod } from "../../lib/invoices-api";
 import { billCustomerName, billCustomerPhone } from "../../lib/bill-share";
 import { ApiError } from "../../lib/api";
 import { showError, showSuccess } from "../../lib/toast";
@@ -57,6 +58,9 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [returning, setReturning] = useState(false);
+  const [editingBill, setEditingBill] = useState(false);
+  const [editingNumber, setEditingNumber] = useState(false);
+  const [numberDraft, setNumberDraft] = useState("");
   const role = useAuthStore((st) => st.user?.role);
   const canCancel = role === "OWNER" || role === "MANAGER" || role === "SUPER_ADMIN";
 
@@ -70,6 +74,8 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
   const invoice = initial ? (invoiceQuery.data ?? initial) : null;
   const remaining = invoice ? Math.max(0, invoice.totalAmount - invoice.amountPaid) : 0;
   const cancelled = invoice ? isCancelled(invoice) : false;
+  // A bill with a return on it can't be edited (its credit note depends on it).
+  const hasReturn = invoice ? invoice.payments.some((p) => p.method === "credit_note") : false;
 
   const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
     unpaid: t("orders.invoiceDetailModal.paymentStatusLabel.unpaid"),
@@ -100,6 +106,7 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
     reset({ amount: undefined, method: "cash", note: "" });
     setConfirmCancel(false);
     setCancelReason("");
+    setEditingNumber(false);
   }, [initial?._id, reset]);
 
   useEffect(() => {
@@ -135,6 +142,28 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
     onError: (err) => showError(err instanceof ApiError ? errorMessage(err, t) : t("bill.cancelFailed")),
   });
 
+  // Fix a bill number (typo, or to match a paper bill book). Must stay unique.
+  const renumberMutation = useMutation({
+    mutationFn: () => renumberBill(invoice!._id, numberDraft.trim()),
+    onSuccess: (updated) => {
+      refresh(updated);
+      setEditingNumber(false);
+      showSuccess(t("bill.numberSaved", { number: updated.invoiceNumber }));
+    },
+    onError: (err) => showError(err instanceof ApiError ? errorMessage(err, t) : t("errors.generic")),
+  });
+
+  // Archive only hides the bill from the list; totals, udhaar and stock stay as they are.
+  const archiveMutation = useMutation({
+    mutationFn: (archived: boolean) => archiveBill(invoice!._id, archived),
+    onSuccess: (updated) => {
+      refresh(updated);
+      showSuccess(isArchived(updated) ? t("bill.archivedToast") : t("bill.unarchivedToast"));
+      if (isArchived(updated)) onClose();
+    },
+    onError: (err) => showError(err instanceof ApiError ? errorMessage(err, t) : t("errors.generic")),
+  });
+
   if (!invoice) return null;
 
   const submit = (values: PaymentFormValues) => {
@@ -156,7 +185,59 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
         <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg font-bold text-text">{invoice.invoiceNumber}</h2>
+              {editingNumber ? (
+                <form
+                  className="flex items-center gap-1.5"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (numberDraft.trim()) renumberMutation.mutate();
+                  }}
+                >
+                  <input
+                    autoFocus
+                    value={numberDraft}
+                    onChange={(e) => setNumberDraft(e.target.value)}
+                    maxLength={30}
+                    aria-label={t("bill.billNumber")}
+                    className="h-9 w-40 rounded-lg border border-border bg-surface px-2.5 text-base font-bold text-text outline-none focus:border-primary"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!numberDraft.trim() || renumberMutation.isPending}
+                    aria-label={t("common.save")}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-on-primary outline-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <Check size={16} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingNumber(false)}
+                    aria-label={t("common.cancel")}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-icon outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                </form>
+              ) : (
+                <h2 className="flex items-center gap-1 text-lg font-bold text-text">
+                  {invoice.invoiceNumber}
+                  {canCancel ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNumberDraft(invoice.invoiceNumber);
+                        setEditingNumber(true);
+                      }}
+                      aria-label={t("bill.editNumber")}
+                      title={t("bill.editNumber")}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-icon outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <Pencil size={14} aria-hidden="true" />
+                    </button>
+                  ) : null}
+                </h2>
+              )}
+              {isArchived(invoice) ? <StatusPill tone="neutral">{t("bill.archived")}</StatusPill> : null}
               {cancelled ? (
                 <StatusPill tone="neutral">{t("bill.cancelled")}</StatusPill>
               ) : (
@@ -193,14 +274,26 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
 
           <BillActions invoice={invoice} />
           {!cancelled ? (
-            <button
-              type="button"
-              onClick={() => setReturning(true)}
-              className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <Undo2 size={16} className="text-icon" aria-hidden="true" /> {t("returns.button")}
-            </button>
+            <div className={canCancel && !hasReturn ? "mt-2 grid grid-cols-2 gap-2" : "mt-2"}>
+              {canCancel && !hasReturn ? (
+                <button
+                  type="button"
+                  onClick={() => setEditingBill(true)}
+                  className="flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-3 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  <FilePenLine size={16} className="text-icon" aria-hidden="true" /> {t("bill.editBill")}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setReturning(true)}
+                className="flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-3 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <Undo2 size={16} className="text-icon" aria-hidden="true" /> {t("returns.button")}
+              </button>
+            </div>
           ) : null}
+          {invoice.editedAt ? <p className="mt-2 text-xs text-text-muted">{t("bill.editedOn", { date: formatDate(invoice.editedAt) })}</p> : null}
 
           <div className="mt-4 divide-y divide-border rounded-xl border border-border">
             {invoice.items.map((item, i) => (
@@ -370,9 +463,25 @@ export function InvoiceDetailModal({ invoice: initial, onClose }: { invoice: Inv
               )}
             </div>
           ) : null}
+
+          {canCancel ? (
+            <div className="mt-5 border-t border-border pt-4">
+              <button
+                type="button"
+                disabled={archiveMutation.isPending}
+                onClick={() => archiveMutation.mutate(!isArchived(invoice))}
+                className="flex items-center gap-1.5 text-sm font-semibold text-text-muted outline-none hover:text-text hover:underline disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                {isArchived(invoice) ? <ArchiveRestore size={14} aria-hidden="true" /> : <Archive size={14} aria-hidden="true" />}
+                {isArchived(invoice) ? t("bill.unarchive") : t("bill.archive")}
+              </button>
+              {!isArchived(invoice) ? <p className="mt-1 text-xs text-text-muted">{t("bill.archiveHint")}</p> : null}
+            </div>
+          ) : null}
         </div>
       </div>
       <ReturnModal invoice={invoice} open={returning} onClose={() => setReturning(false)} />
+      <NewSaleModal open={editingBill} onClose={() => setEditingBill(false)} editInvoice={editingBill ? invoice : null} />
     </div>
   );
 }

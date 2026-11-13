@@ -19,6 +19,7 @@ import { NewPurchaseModal } from "../../components/purchases/NewPurchaseModal";
 import { EmptyHelp, FilterChips, LoadingRows, PageGuide, PageIntro, StatusPill, SummaryRow, SummaryTile, TableShell, Th } from "../../components/page/kit";
 import { initialParam } from "../../lib/url-params";
 import { InventoryExtraActions } from "../../components/inventory/InventoryExtraActions";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { ExpiringPanel } from "../../components/inventory/ExpiringPanel";
 
 type StockFilter = "all" | "low" | "out" | "ok";
@@ -29,9 +30,10 @@ export function InventoryPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { features } = useAppSetup();
   const inventoryTabs = [
     { key: "products", label: t("inventory.tabs.products") },
-    { key: "raw-materials", label: t("inventory.tabs.rawMaterials") },
+    ...(features.rawMaterials ? [{ key: "raw-materials", label: t("inventory.tabs.rawMaterials") }] : []),
   ];
   const [tab, setTab] = useState("products");
   const [search, setSearch] = useState(() => initialParam("q"));
@@ -170,7 +172,7 @@ export function InventoryPage() {
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <Tabs tabs={inventoryTabs} active={tab} onChange={setTab} />
+        {inventoryTabs.length > 1 ? <Tabs tabs={inventoryTabs} active={tab} onChange={setTab} /> : null}
         <div className="w-72">
           <SearchInput
             value={search}

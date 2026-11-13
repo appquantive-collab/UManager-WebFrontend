@@ -25,7 +25,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             type={isPassword && revealed ? "text" : type}
             aria-invalid={error ? true : undefined}
             className={clsx(
-              "w-full rounded-lg border bg-surface-variant px-3.5 py-2.5 text-sm text-text",
+              "w-full rounded-lg border bg-surface-variant px-3.5 py-2 text-sm text-text",
               "outline-none transition-colors placeholder:text-text-muted",
               error ? "border-danger" : "border-transparent focus:border-primary",
               "disabled:cursor-not-allowed disabled:opacity-50",

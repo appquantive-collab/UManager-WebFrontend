@@ -68,7 +68,12 @@
       "ordersToBill_other": "{{count}} orders bill hone baaki",
       "lowStock_one": "{{count}} item kam ho raha",
       "lowStock_other": "{{count}} items kam ho rahe"
-    }
+    },
+    "planTrial_one": "Free trial · {{count}} din baaki",
+    "planTrial_other": "Free trial · {{count}} din baaki",
+    "planEnded": "Plan khatam — renew karein",
+    "planDays_one": "{{count}} din baaki",
+    "planDays_other": "{{count}} din baaki"
   },
   "quickActions": {
     "create": "Create"
@@ -88,7 +93,13 @@
     "products": "Products",
     "home": "Home",
     "stock": "Stock",
-    "cashbook": "Rokad bahi"
+    "cashbook": "Rokad bahi",
+    "group": {
+      "sell": "Bikri",
+      "stock": "Stock aur khareed",
+      "money": "Hisaab",
+      "manage": "Team aur settings"
+    }
   },
   "language": {
     "label": "Bhasha",
@@ -175,7 +186,9 @@
       "subscription": "Subscription",
       "display": "Display",
       "team": "Team",
-      "activity": "Gatividhi"
+      "activity": "Gatividhi",
+      "plan": "Plan",
+      "allPlans": "Saare business"
     },
     "businessName": "Business ka naam",
     "businessType": "Business type",
@@ -271,7 +284,8 @@
     },
     "cashbook": {
       "title": "Rokad bahi",
-      "subtitle": "Aaj ka paisa aaya-gaya aur galle ki ginti"
+      "subtitle": "Aaj ka paisa aaya-gaya aur galle ki ginti",
+      "subtitle_firm": "Aaj ka paisa aaya-gaya aur haath mein cash"
     }
   },
   "auth": {
@@ -820,7 +834,12 @@
       "warningTitle": "Order save ho gaya — raw materials kam hain",
       "warningSubtitle": "Order save ho gaya hai. Is quantity ko fully produce karne ke liye in products ke paas abhi itna raw material stock nahi hai:",
       "orderedCanMake": "Order kiya {{ordered}}, abhi bana sakte hain {{producible}}",
-      "gotIt": "Got it"
+      "gotIt": "Got it",
+      "micStart": "Order bolein",
+      "micStop": "Recording rokein",
+      "listening": "Sun raha hoon… order bolein, phir stop dabayein.",
+      "transcribing": "Aapki baat likh raha hoon…",
+      "micError": "Awaaz nahi mili. Mic ki permission check karke dobara try karein."
     },
     "orderDetailModal": {
       "unknownCustomer": "Unknown customer",
@@ -1158,7 +1177,8 @@
         "paymentsBody": "Bill par payment darj karne par (cash, UPI, bank ya cheque) woh yahan dikhega.",
         "noMatchTitle": "Kuch nahi mila",
         "noMatchBody": "Kuch aur khojein, ya tareekh “Sabhi” par karein."
-      }
+      },
+      "newSaleHint_firm": "Abhi bill banayein — kisi customer ka ya uske pending orders ka"
     }
   },
   "purchases": {
@@ -1329,57 +1349,57 @@
   "dashboard": {
     "mobileDashboard": {
       "quickActions": {
-        "newOrder": "New Order",
-        "newSale": "New Sale",
-        "voiceOrder": "Voice Order",
-        "scanStock": "Scan Stock"
+        "newOrder": "Naya Order",
+        "newSale": "Nayi Bikri",
+        "voiceOrder": "Voice+",
+        "gstBill": "GST Bill"
       },
       "statusLabel": {
-        "pending": "Pending",
-        "confirmed": "Confirmed",
-        "delivered": "Billed",
-        "cancelled": "Cancelled"
+        "pending": "Baaki",
+        "confirmed": "Pakka",
+        "delivered": "Bill bana",
+        "cancelled": "Radd"
       },
       "justNow": "abhi-abhi",
-      "minutesAgo": "{{count}}m pehle",
-      "hoursAgo": "{{count}}h pehle",
-      "daysAgo": "{{count}}d pehle",
-      "businessBriefLabel": "Business Brief",
-      "autonomousBusinessBrief": "Autonomous Business Brief",
-      "loadingBrief": "Aapki business brief load ho rahi hai…",
-      "fallbackBriefSales": "Aaj ki sales {{amount}} hai.",
-      "fallbackBriefLowStockOne": "{{count}} product reorder level se neeche hai.",
-      "fallbackBriefLowStockOther": "{{count}} products reorder level se neeche hain.",
-      "fallbackBriefNoLowStock": "Koi bhi product reorder level se neeche nahi hai.",
-      "fallbackBriefOverdue": "{{name}} ke {{amount}} overdue hain.",
-      "fallbackBriefNoOverdue": "Koi payment overdue nahi hai.",
-      "immediateOperations": "Immediate Operations",
-      "pendingCount": "{{count}} Pending",
-      "allClear": "Sab clear hai — koi low stock ya overdue payment nahi.",
-      "lowStockBadge": "{{count}} Low Stock",
-      "lowStockItemsFallback": "Low stock items",
-      "belowReorderLevel": "Reorder level se neeche",
-      "overdueBadge": "{{amount}} Overdue",
-      "partyPendingOne": "{{count}} Party Pending",
-      "partyPendingOther": "{{count}} Parties Pending",
-      "topOverdue": "Top: {{name}} ({{amount}})",
-      "ledgerMetrics": "Ledger & Logistics Metrics",
-      "updatedRealTime": "Real-time update hota hai",
-      "todaysTotalBilling": "Aaj ki Total Billing",
-      "vsYesterday": "kal ke {{amount}} ke mukable",
-      "monthSales": "Month Sales",
-      "inventoryValShort": "Inventory Val.",
-      "totalSkus": "{{count}} Total SKUs",
-      "receivables": "Receivables",
-      "overdueCount": "{{count}} overdue",
-      "payables": "Payables",
-      "notTracked": "Track nahi ho raha",
-      "noPurchasesModuleYet": "Abhi purchases module nahi hai",
-      "liveOrderFlow": "Live Order Flow",
-      "noOrdersYet": "Abhi tak koi order nahi hai.",
-      "itemsCountOne": "{{count}} item",
-      "itemsCountOther": "{{count}} items",
-      "allDataSynced": "Sara data sync ho gaya hai"
+      "minutesAgo": "{{count}} min pehle",
+      "hoursAgo": "{{count}} ghante pehle",
+      "daysAgo": "{{count}} din pehle",
+      "businessBriefLabel": "Munshi AI",
+      "autonomousBusinessBrief": "Aaj ke dhande ka haal",
+      "loadingBrief": "Aapke dhande ka haal laa raha hoon…",
+      "fallbackBriefSales": "Aaj ki bikri {{amount}} hai.",
+      "fallbackBriefLowStockOne": "{{count}} saamaan khatam hone wala hai.",
+      "fallbackBriefLowStockOther": "{{count}} saamaan khatam hone wale hain.",
+      "fallbackBriefNoLowStock": "Saara saamaan kaafi hai.",
+      "fallbackBriefOverdue": "{{name}} se {{amount}} lene baaki hain.",
+      "fallbackBriefNoOverdue": "Kisi ka paisa der se baaki nahi hai.",
+      "immediateOperations": "Abhi ke kaam",
+      "pendingCount": "{{count}} baaki",
+      "allClear": "Sab theek hai — na saamaan kam hai, na koi paisa atka hai.",
+      "lowStockBadge": "{{count}} saamaan kam",
+      "lowStockItemsFallback": "Kam stock wala saamaan",
+      "belowReorderLevel": "Mangwane ka samay",
+      "overdueBadge": "{{amount}} atka hai",
+      "partyPendingOne": "{{count}} party se lena hai",
+      "partyPendingOther": "{{count}} parties se lena hai",
+      "topOverdue": "Sabse zyada: {{name}} ({{amount}})",
+      "ledgerMetrics": "Hisaab-kitaab",
+      "updatedRealTime": "Saath-saath update hota hai",
+      "todaysTotalBilling": "Aaj ki kul bikri",
+      "vsYesterday": "kal ke {{amount}} ke muqable",
+      "monthSales": "Is mahine ki bikri",
+      "inventoryValShort": "Maal ki keemat",
+      "totalSkus": "{{count}} tarah ka saamaan",
+      "receivables": "Lena hai",
+      "overdueCount": "{{count}} der se",
+      "payables": "Dena hai",
+      "notTracked": "Hisaab nahi rakha ja raha",
+      "noPurchasesModuleYet": "Kharid ka hisaab abhi nahi hai",
+      "liveOrderFlow": "Taaza orders",
+      "noOrdersYet": "Abhi tak koi order nahi aaya.",
+      "itemsCountOne": "{{count}} saamaan",
+      "itemsCountOther": "{{count}} saamaan",
+      "allDataSynced": "Sab kuch save ho gaya hai"
     },
     "dashboardPage": {
       "welcomeBack": "Welcome back, {{businessName}}",
@@ -1751,46 +1771,11 @@
       }
     },
     "pricing": {
-      "eyebrow": "Pricing",
-      "heading": "Aapke business ke saath badhne wale plans",
-      "mostPopular": "Most popular",
-      "getStarted": "Get Started",
-      "plans": {
-        "starter": {
-          "name": "Starter",
-          "price": "Free",
-          "description": "Spreadsheets se nikal rahe ek business ke liye.",
-          "features": [
-            "1 business",
-            "2 users",
-            "1 warehouse",
-            "Sales & customers",
-            "Basic reports"
-          ]
-        },
-        "business": {
-          "name": "Business",
-          "price": "Contact us",
-          "description": "Multiple staff wale badhte wholesalers ke liye.",
-          "features": [
-            "Multiple users & warehouses",
-            "Purchases & suppliers",
-            "AI assistant & automations",
-            "Advanced reports"
-          ]
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Contact us",
-          "description": "Scale par kaam karne wale established distributors ke liye.",
-          "features": [
-            "Unlimited users",
-            "Advanced permissions",
-            "API & integrations",
-            "Priority support"
-          ]
-        }
-      }
+      "eyebrow": "Daam",
+      "heading": "Har dukaan, vyapari aur nirmata ke liye aasaan plan",
+      "mostPopular": "Sabse pasand",
+      "trialNote": "{{days}} din tak sab kuch free chalayein. Card ki zaroorat nahi.",
+      "startTrial": "{{days}} din ka free trial shuru karein"
     },
     "footer": {
       "ctaHeading": "Apna poora business ek hi jagah se chalane ke liye ready hain?",
@@ -2324,7 +2309,42 @@
     "cancelReasonPlaceholder": "Kaaran (zaroori nahi) — jaise galat saamaan",
     "keepBill": "Bill rakhein",
     "yesCancel": "Haan, radd karein",
-    "creditNote": "Wapasi (credit note)"
+    "creditNote": "Wapasi (credit note)",
+    "billNumber": "Bill no.",
+    "editNumber": "Bill number badlein",
+    "numberSaved": "Bill number {{number}} ho gaya.",
+    "archive": "Bill archive karein",
+    "unarchive": "Archive se wapas laayein",
+    "archiveHint": "Bill list se chhup jaayega. Total, udhaar aur stock nahi badlenge — bikri palatni ho to bill cancel karein.",
+    "archived": "Archived",
+    "archivedFilter": "Archived",
+    "archivedToast": "Bill archive ho gaya. Archived mein milega.",
+    "unarchivedToast": "Bill wapas list mein aa gaya.",
+    "showArchived_one": "{{count}} archived bill dikhayein",
+    "showArchived_other": "{{count}} archived bill dikhayein",
+    "backToBills": "Bills par wapas",
+    "invoiceNo": "Bill No.",
+    "invoiceDate": "Bill ki tareekh",
+    "dueDate": "Bhugtaan ki tareekh",
+    "reverseCharge": "Reverse charge",
+    "no": "Nahi",
+    "originalForRecipient": "Grahak ki asal prati",
+    "phoneFull": "Phone",
+    "unregistered": "Bina GST registration (B2C)",
+    "itemDescription": "Saamaan ka vivaran",
+    "amountInWords": "Rakam shabdon mein",
+    "totalTax": "Kul tax",
+    "grandTotal": "Kul rakam",
+    "declarationTitle": "Ghoshna",
+    "declaration": "Hum ghoshit karte hain ki is bill mein saamaan ka asli daam hai aur saari jaankari sahi hai.",
+    "authorisedSignatory": "Adhikrit hastakshar",
+    "computerGenerated": "Yeh computer se bana bill hai.",
+    "editBill": "Bill badlein",
+    "editingNumber": "Bill {{number}} badal rahe hain",
+    "saveEdit": "Badlav save karein · {{amount}}",
+    "editNumberHint": "Sirf tab badlein jab is bill ka number alag hona chahiye.",
+    "editedToast": "Bill {{number}} badal gaya. Stock aur udhaar theek kar diye.",
+    "editedOn": "{{date}} ko badla gaya"
   },
   "sale": {
     "walkInName": "Counter bikri",
@@ -2374,7 +2394,17 @@
     "imeiPlaceholder": "Likhein ya scan karein, phir Enter",
     "removeImei": "{{serial}} hatayein",
     "imeiNotInStock": "Laal wale aapke stock mein nahi hain. Number jaanchein.",
-    "imeiInStock": "Stock mein — jodne ke liye tap karein:"
+    "imeiInStock": "Stock mein — jodne ke liye tap karein:",
+    "gstRate": "Is item par GST %",
+    "yourGstin": "Aapka GSTIN",
+    "yourGstinHint": "Aapke business mein save hoga aur har GST bill par chhapega.",
+    "customerGstin": "Grahak ka GSTIN",
+    "customerGstinHint": "Business grahak ke liye. Grahak ke saath save hoga.",
+    "gstinInvalid": "GSTIN aisa hona chahiye: 09ABCDE1234F1Z5.",
+    "optional": "Zaroori nahi",
+    "billNumberHint": "Khaali chhodein to {{number}} lagega, ya apna number likhein (jaise bill book se).",
+    "addGstinAadhaar": "GSTIN / Aadhaar jodein (zaroori nahi)",
+    "lineGst": "GST {{amount}} shaamil"
   },
   "errors": {
     "insufficientStock": "Iske liye stock kam hai.",
@@ -2407,7 +2437,15 @@
     "tooMany": "Bahut zyada koshish. Thoda rukkar dobara karein.",
     "sessionExpired": "Login ki meyaad khatam. Dobara sign in karein.",
     "generic": "Kuch gadbad ho gayi. Dobara koshish karein.",
-    "offline": "Internet nahi hai. Network jaanch kar dobara karein."
+    "offline": "Internet nahi hai. Network jaanch kar dobara karein.",
+    "planExpired": "Aapka plan khatam ho gaya. Naya kaam save karne ke liye Settings → Plan mein plan chunein.",
+    "proRequired": "Yeh Pro feature hai. Settings → Plan mein Pro lein.",
+    "aiLimit": "Is mahine ke Munshi AI tokens khatam. 1 tareekh ko phir milenge, ya Settings → Plan mein upgrade karein.",
+    "paymentsOff": "Online payment abhi chalu nahi hai. SethSathi team se sampark karein.",
+    "paymentUnverified": "Yeh payment confirm nahi ho paya. Agar paisa kata hai to payment ID ke saath SethSathi team se baat karein.",
+    "billNumberTaken": "Yeh bill number pehle se laga hai. Doosra number likhein.",
+    "belowPaid": "Naya total pehle mile paise se kam hai. Iski jagah maal wapasi darj karein.",
+    "hasReturn": "Is bill par maal wapasi ho chuki hai, isliye ise badal nahi sakte."
   },
   "businessSettings": {
     "saved": "Save ho gaya. Naye bill par yeh vivaran dikhega.",
@@ -2444,7 +2482,10 @@
     "preview": "Bill ka namoona",
     "sampleCustomer": "Gupta General Store",
     "sampleItem1": "Basmati Chawal",
-    "sampleItem2": "Sabun 100g"
+    "sampleItem2": "Sabun 100g",
+    "detailsTitle_firm": "Business ka vivaran",
+    "shopPhone_firm": "Business ka phone",
+    "addressHint_firm": "Office ya godaam ka pata, shehar, PIN — jaisa bill par chahiye."
   },
   "returns": {
     "button": "Maal wapasi",
@@ -2499,8 +2540,10 @@
       },
       "s3": {
         "title": "Galla ginein aur band karein",
-        "body": "Gina hua cash daalein. SethSathi batayega kam hai ya zyada, aur agla din isi se shuru hoga."
-      }
+        "body": "Gina hua cash daalein. SethSathi batayega kam hai ya zyada, aur agla din isi se shuru hoga.",
+        "title_firm": "Cash ginein aur din band karein"
+      },
+      "subtitle_firm": "Roz din ke ant mein do minute."
     },
     "prevDay": "Pichhla din",
     "nextDay": "Agla din",
@@ -2560,7 +2603,17 @@
     "noExpenses": "Is din koi kharcha nahi",
     "noExpensesBody": "Kiraya, bijli, chai ya bhaada jodein taaki munafa aur cash sahi rahe.",
     "deleteConfirm": "Yeh kharcha hatayein?",
-    "deleteExpense": "Kharcha hatayein"
+    "deleteExpense": "Kharcha hatayein",
+    "intro_firm": "Din ka har rupaya ek jagah — bikri, mila paisa, diya paisa, aur haath mein kitna cash hona chahiye.",
+    "addExpenseSub_firm": "Kiraya, bijli, bhaada, loading, office ka kharcha — business chalane ka kharcha.",
+    "cashInDrawer_firm": "Haath mein cash",
+    "cashInDrawerDetail_firm": "Cash box mein itna hona chahiye",
+    "closeBody_firm": "Haath ka cash ginein aur yahan daalein.",
+    "openingHint_firm": "Din shuru hote waqt haath mein cash.",
+    "expected_firm": "Haath mein hona chahiye",
+    "countedHint_firm": "Aapke paas asal note aur sikke.",
+    "extra_firm": "Haath mein {{amount}} zyada.",
+    "expensesBody_firm": "Is din ke business ke kharche."
   },
   "expenses": {
     "category": {
@@ -2574,7 +2627,8 @@
       "packing": "Packing",
       "shop_supplies": "Dukaan ka saamaan",
       "bank_charges": "Bank charges",
-      "other": "Anya"
+      "other": "Anya",
+      "shop_supplies_firm": "Office aur godaam ka saamaan"
     }
   },
   "expiring": {
@@ -2769,5 +2823,368 @@
     "noExpenses": "Is samay mein koi kharcha darj nahi. Rokad bahi mein jodein.",
     "netProfit": "Shuddh munafa",
     "returnsNote": "Wapas aaya maal bikri aur laagat se ghataya gaya hai."
+  },
+  "setup": {
+    "title": "Apna business set karein",
+    "work": {
+      "title": "Aap kya kaam karte hain?",
+      "subtitle": "Apne shabdon mein likhein ya bolein — Munshi AI samajh lega.",
+      "placeholder": "jaise: meri kirana dukaan hai aur aas-paas ki dukaanon ko maal bhi deta hoon",
+      "mic": "Bolein",
+      "stopMic": "Rokein aur likha hua lein",
+      "listening": "Sun raha hoon… ho jaye to square dabayein.",
+      "micError": "Mic nahi chala. Kripya likh dein.",
+      "examplesLabel": "Ya ek chunein",
+      "examples": {
+        "kirana": "Kirana / general store",
+        "wholesale": "Thok vyapaar (wholesale)",
+        "namkeen": "Hum namkeen aur mithai banate hain",
+        "medical": "Medical store",
+        "mobile": "Mobile shop",
+        "garments": "Kapde ki dukaan"
+      },
+      "orPick": "Ya list se business chunein",
+      "picked": "Business: {{category}}",
+      "understanding": "Munshi AI samajh raha hai…"
+    },
+    "role": {
+      "understood": "Munshi AI ne samjha",
+      "change": "badlein",
+      "title": "Aap kaise bechte hain?",
+      "subtitle": "Jo bhi laagu ho, sab chunein.",
+      "retailer": {
+        "title": "Dukandar (retailer)",
+        "body": "Grahak ko seedha counter se bechte hain."
+      },
+      "trader": {
+        "title": "Vyapari / thok (trader)",
+        "body": "Bulk mein kharid kar dukaanon ya businesses ko bechte hain."
+      },
+      "manufacturer": {
+        "title": "Nirmata (manufacturer)",
+        "body": "Kachche maal se khud saamaan banate ya pack karte hain."
+      }
+    },
+    "online": {
+      "title": "Kya online bhi bechte hain?",
+      "subtitle": "Taaki har jagah ke order ek jagah rahein.",
+      "no": "Nahi, sirf dukaan se",
+      "website": {
+        "title": "Apni website / online store",
+        "body": "Aapka apna shop link ya app."
+      },
+      "marketplace": {
+        "title": "Amazon, Flipkart, Meesho…",
+        "body": "Marketplace par bechte hain."
+      },
+      "social": {
+        "title": "WhatsApp / Instagram",
+        "body": "Order chat par aate hain."
+      },
+      "urlLabel": "Website link (zaroori nahi)"
+    },
+    "gst": {
+      "title": "Kya aapke paas GST registration hai?",
+      "subtitle": "Zaroori nahi. Isse tay hoga ki bill pehle se GST bill bane ya nahi.",
+      "yes": {
+        "title": "Haan, GST hai",
+        "body": "CGST/SGST ya IGST wale GST bill."
+      },
+      "no": {
+        "title": "Nahi",
+        "body": "Saadha bill banayein. Kabhi bhi badal sakte hain."
+      },
+      "unsure": {
+        "title": "Pata nahi / baad mein",
+        "body": "Saadhe bill se shuru karein; GSTIN baad mein Settings mein."
+      },
+      "gstinLabel": "GSTIN (zaroori nahi)",
+      "gstinHint": "15 akshar. Bill par chhapega. Baad mein bhi daal sakte hain."
+    },
+    "size": {
+      "title": "Aapka business kitna bada hai?",
+      "subtitle": "Andaaza kaafi hai.",
+      "bills": "Mahine mein bill / order",
+      "staff": "Aapke saath kaam karne wale log",
+      "staffOptions": {
+        "justMe": "Sirf main",
+        "small": "2–5 log",
+        "medium": "6–20 log",
+        "large": "20 se zyada"
+      },
+      "godowns": "Dukaan / godaam",
+      "godownOptions": {
+        "one": "Ek",
+        "few": "2–3",
+        "many": "4 ya zyada"
+      }
+    },
+    "plans": {
+      "title": "Aapke liye taiyaar setup",
+      "subtitle": "Ek chunein. SethSathi billing, stock aur menu usi hisaab se set kar dega.",
+      "recommended": "Sabse sahi",
+      "changeLater": "Yeh sab baad mein Settings → Business mein badal sakte hain.",
+      "start": "Is setup se shuru karein"
+    },
+    "saving": {
+      "title": "Aapka app set ho raha hai…",
+      "body": "Bill ka prakaar, stock features aur saamaan ki category taiyaar ho rahi hain."
+    },
+    "done": {
+      "title": "Sab taiyaar!",
+      "body": "Aapka app ab \"{{setup}}\" ke hisaab se chalega.",
+      "nextTitle": "Aage, 3 kadam mein:",
+      "steps": {
+        "items": {
+          "title": "Apna saamaan jodein",
+          "body": "Ek-ek karke, ya Excel list import karein."
+        },
+        "billDetails": {
+          "title": "UPI aur bill vivaran daalein",
+          "body": "Har bill par UPI QR, bank aur shartein."
+        },
+        "firstBill": {
+          "title": "Pehla bill banayein",
+          "body": "Counter bikri ya kisi grahak ka."
+        }
+      },
+      "dashboard": "Dashboard par jaayein"
+    }
+  },
+  "setupTemplates": {
+    "kirana_counter": {
+      "name": "Kirana / counter dukaan",
+      "tagline": "Tez counter billing, udhaar aur roz ka cash."
+    },
+    "retail_gst": {
+      "name": "GST wali retail dukaan",
+      "tagline": "Counter par GST bill, UPI QR ke saath."
+    },
+    "wholesale_trader": {
+      "name": "Thok vyapari (wholesale)",
+      "tagline": "Dukaanon ke order, udhaar seema aur GST bill."
+    },
+    "manufacturer": {
+      "name": "Nirmata (manufacturer)",
+      "tagline": "Kachcha maal, production aur dealer ke order."
+    },
+    "medical_store": {
+      "name": "Medical store",
+      "tagline": "Har dawai ka batch aur expiry."
+    },
+    "mobile_electronics": {
+      "name": "Mobile & electronics",
+      "tagline": "Har piece ka IMEI / serial number."
+    },
+    "fashion_store": {
+      "name": "Kapde & joote",
+      "tagline": "Har size aur rang ka alag stock."
+    },
+    "online_seller": {
+      "name": "Online + dukaan",
+      "tagline": "Website, marketplace aur chat ke order ek jagah."
+    },
+    "points": {
+      "counterBilling": "3 tap mein counter bill — grahak ka naam zaroori nahi",
+      "udhaarKhata": "Udhaar khata aur WhatsApp reminder",
+      "lowStock": "Stock kam hone ki chetavni, samay par mangwayein",
+      "cashbook": "Roz ki rokad bahi aur galla ginti",
+      "gstBills": "GST bill — CGST/SGST ya IGST apne aap",
+      "upiQr": "Har bill par UPI QR",
+      "gstReport": "CA ke liye GST saar",
+      "whatsappOrders": "WhatsApp message se order (Munshi AI padh leta hai)",
+      "creditLimit": "Har grahak ki udhaar seema ki chetavni",
+      "supplierDues": "Kis supplier ko kitna dena hai",
+      "rawMaterials": "Kachche maal ka stock aur recipe",
+      "assembly": "Taiyaar maal banayein — kachcha maal apne aap ghatega",
+      "dealerOrders": "Dealer ke order aur GST bill",
+      "staffPayroll": "Staff ki haaziri aur tankhwah",
+      "batchExpiry": "Khareed par batch aur expiry; pehle expire hone wala pehle bikega",
+      "expiringList": "Agle 60 din mein expire hone wala dikhega",
+      "imei": "Khareed aur bikri par IMEI darj",
+      "imeiSearch": "Koi bhi IMEI khojein — kahan bika, pata chalega",
+      "returns": "Maal wapasi aur credit note",
+      "sizesColours": "Ek design ke saare size aur rang ek saath",
+      "importExcel": "Excel se saamaan ki list import",
+      "ordersOnePlace": "Har jagah ke order ek list mein likhein",
+      "stockAllChannels": "Dukaan aur online ka ek hi stock"
+    }
+  },
+  "appSetup": {
+    "title": "Business setup",
+    "current": "Abhi chal raha hai: {{setup}}",
+    "noneYet": "Abhi koi setup nahi chuna — saare features chalu hain.",
+    "redo": "Setup dobara karein",
+    "billType": "Nayi bikri ka pehle se bill prakaar",
+    "featuresTitle": "App ke hisse",
+    "featuresHint": "Jo istemaal nahi karte use band karein taaki app saral rahe. Kuch delete nahi hota.",
+    "feature": {
+      "counterSale": {
+        "title": "Counter bikri",
+        "body": "Bina grahak ke naam ke jaldi bill."
+      },
+      "orders": {
+        "title": "Order",
+        "body": "Bill se pehle grahak ka order likhein."
+      },
+      "purchases": {
+        "title": "Khareed aur supplier",
+        "body": "Supplier ke bill aur aapka dena."
+      },
+      "creditLimits": {
+        "title": "Udhaar aur seema",
+        "body": "Grahak seema paar kare to chetavni."
+      },
+      "warehouses": {
+        "title": "Godaam / kai jagah",
+        "body": "Ek se zyada jagah stock."
+      },
+      "staff": {
+        "title": "Staff, haaziri aur tankhwah",
+        "body": "Team ki haaziri aur payroll."
+      },
+      "rawMaterials": {
+        "title": "Kachcha maal aur production",
+        "body": "Recipe aur taiyaar maal banana."
+      },
+      "batch": {
+        "title": "Batch aur expiry",
+        "body": "Naya saamaan batch tracking ke saath shuru."
+      },
+      "serial": {
+        "title": "IMEI / serial number",
+        "body": "Naya saamaan IMEI tracking ke saath shuru."
+      },
+      "variants": {
+        "title": "Size aur rang",
+        "body": "Design ke har size/rang ka saamaan."
+      },
+      "cashbook": {
+        "title": "Rokad bahi (roz galla ginti)",
+        "body": "Din band karte waqt galle ka cash ginein. Counter wali dukaan ke liye."
+      }
+    }
+  },
+  "plan": {
+    "name": {
+      "basic": "Basic",
+      "pro": "Pro"
+    },
+    "trialName": "Free trial",
+    "proTag": "Pro",
+    "tagline": {
+      "basic": "Business chalane ke liye sab kuch, Munshi AI ke saath.",
+      "pro": "Advanced stock, AI se order padhna aur 10 guna zyada Munshi AI."
+    },
+    "period": {
+      "monthly": "Mahina",
+      "quarterly": "3 mahine",
+      "annual": "Saal"
+    },
+    "perMonth": "har mahine",
+    "perMonthEquiv": "{{amount}}/mahina, {{months}} mahine ke liye · {{save}} ki bachat",
+    "features": {
+      "basic": {
+        "allCrm": "Poora SethSathi: bill, GST, stock, udhaar, khareed, godaam, staff, production, reports",
+        "aiTokens": "Munshi AI: har mahine {{tokens}} tokens",
+        "noLimits": "Bill, saamaan, grahak ya team login par koi limit nahi",
+        "support": "Hindi aur English mein WhatsApp support"
+      },
+      "pro": {
+        "everythingBasic": "Basic ka sab kuch",
+        "aiTokens": "Munshi AI: har mahine {{tokens}} tokens",
+        "advancedStock": "Batch aur expiry, IMEI / serial number, size aur rang",
+        "orderReading": "Munshi AI WhatsApp aur voice order padh leta hai",
+        "aiInsights": "Aapke business ke hisaab se AI dashboard",
+        "importExport": "Excel se saamaan import aur CA ke liye GST report"
+      }
+    },
+    "currentLabel": "Aapka plan",
+    "current": "Abhi chal raha",
+    "popular": "Sabse pasand",
+    "status": {
+      "trial": "Trial",
+      "active": "Chalu",
+      "expired": "Khatam"
+    },
+    "trialBody_one": "{{count}} din baaki · {{date}} tak saare Pro features free.",
+    "trialBody_other": "{{count}} din baaki · {{date}} tak saare Pro features free.",
+    "activeBody_one": "{{date}} tak chalega ({{count}} din baaki).",
+    "activeBody_other": "{{date}} tak chalega ({{count}} din baaki).",
+    "expiredBody": "{{date}} ko khatam hua. Sab dekh sakte hain, par plan chunne tak naya kuch save nahi hoga.",
+    "aiTitle": "Is mahine Munshi AI",
+    "aiUsed": "{{limit}} mein se {{used}} tokens",
+    "aiHint": "Har sawaal, order padhna aur AI insight tokens leta hai. Har mahine ki 1 tareekh ko phir se poore milte hain.",
+    "aiUsedUp": "Is mahine ke tokens khatam. Munshi AI 1 tareekh ko phir chalega, ya zyada ke liye Pro lein.",
+    "chooseTitle": "Plan chunein",
+    "chooseBody": "Lambe samay ke liye lein aur bachayein. Pehle ka bhara hua samay kabhi bekaar nahi jaata.",
+    "choose": "{{plan}} lein · {{amount}}",
+    "renew": "Renew karein · {{amount}}",
+    "payNote": "Razorpay se UPI, card ya netbanking se bharein. Payment hote hi plan shuru.",
+    "offlineNote": "Online payment abhi chalu nahi hai. SethSathi team ko UPI ya bank se bharein, woh aapka plan shuru kar denge.",
+    "ownerPays": "Plan sirf owner le ya renew kar sakte hain.",
+    "paidToast": "Payment mil gaya. {{plan}} {{date}} tak chalu hai.",
+    "payFailed": "Payment nahi hua. Koi paisa nahi kata — dobara koshish karein.",
+    "historyTitle": "Payments",
+    "days_one": "{{count}} din",
+    "days_other": "{{count}} din",
+    "byTeam": "SethSathi team ne diya",
+    "online": "Online bhara",
+    "until": "{{date}} tak",
+    "proOnlyTitle": "Yeh Pro feature hai",
+    "proOnlyBody": "Iske liye Settings → Plan mein Pro lein."
+  },
+  "planBanner": {
+    "expired": "Aapka plan khatam ho gaya. Purana hisaab dekh sakte hain, par naya bill ya badlav save nahi hoga.",
+    "expiredStaff": "Business ka plan khatam ho gaya. Owner se renew karwayein — tab tak naya kuch save nahi hoga.",
+    "trialEnding_one": "Free trial {{count}} din mein khatam. Chalate rehne ke liye plan chunein.",
+    "trialEnding_other": "Free trial {{count}} din mein khatam. Chalate rehne ke liye plan chunein.",
+    "planEnding_one": "Plan {{count}} din mein khatam. Renew karein.",
+    "planEnding_other": "Plan {{count}} din mein khatam. Renew karein.",
+    "choose": "Plan chunein"
+  },
+  "planAdmin": {
+    "title": "Saare business (SethSathi team)",
+    "body": "Har business ka plan dekhein aur haath se plan dein ya badhayein — UPI/bank payment, free mahine ya support ke liye.",
+    "search": "Business, email ya phone khojein",
+    "emptyTitle": "Koi business nahi mila",
+    "emptyBody": "Doosra naam, email ya phone number try karein.",
+    "aiUsed": "AI: is mahine {{used}} tokens",
+    "give": "Plan dein",
+    "giveTitle": "{{business}} ko plan dein",
+    "giveBody": "Unke plan mein turant samay jud jaayega.",
+    "plan": "Plan",
+    "length": "Kitne samay ke liye",
+    "customDays": "Din",
+    "days": "Kitne din",
+    "amount": "Mila hua paisa (₹)",
+    "amountHint": "Free mahine ya support ke liye 0.",
+    "note": "Note",
+    "notePlaceholder": "jaise 12 Nov ko 98xxxxxx10 se UPI",
+    "addsNote": "Wahi plan: abhi ke plan ke khatam hone ke baad judega. Alag plan: bacha hua samay dono ke daam ke hisaab se badla jaata hai, kuch bekaar nahi jaata.",
+    "confirm": "Plan dein",
+    "given": "{{business}} ko plan de diya."
+  },
+  "customerForm": {
+    "kindLabel": "Yeh kaun hai?",
+    "kind": {
+      "person": "Vyakti",
+      "business": "Dukaan / business"
+    },
+    "businessName": "Dukaan ya firm ka naam",
+    "businessNamePlaceholder": "jaise Gupta General Store",
+    "idTitle": "Pehchaan (zaroori nahi)",
+    "idHintBusiness": "GSTIN se sahi state ke saath B2B GST bill banenge.",
+    "idHintPerson": "Udhaar ke record ke liye kaam ka. Aadhaar ke sirf aakhri 4 ank dikhte hain.",
+    "gstinLabel": "GSTIN",
+    "aadhaarLabel": "Aadhaar number",
+    "aadhaarSaved": "Saved: XXXX XXXX {{last4}} — badalne ke liye likhein",
+    "aadhaarHint": "Surakshit rakha jaata hai; app mein sirf aakhri 4 ank dikhte hain.",
+    "aadhaarInvalid": "Aadhaar 12 ank ka hona chahiye.",
+    "noLimit": "Koi limit nahi",
+    "moreDetails": "Pata, state aur email",
+    "addressPlaceholder": "Dukaan no., market, shehar, PIN",
+    "emailLabel": "Email (zaroori nahi)",
+    "emailInvalid": "Sahi email likhein."
   }
 }

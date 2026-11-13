@@ -12,7 +12,7 @@ export type Tone = "primary" | "success" | "danger" | "info" | "warning" | "neut
 const toneClasses: Record<Tone, string> = {
   primary: "bg-primary-container text-primary",
   success: "bg-success-container text-success",
-  danger: "bg-danger-container text-danger",
+  danger: "bg-danger text-white",
   info: "bg-info-container text-info",
   warning: "bg-warning-container text-warning",
   neutral: "bg-surface-variant text-text-muted",

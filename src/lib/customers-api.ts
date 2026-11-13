@@ -7,7 +7,11 @@ export interface Customer {
   phone?: string;
   creditLimit: number;
   isActive: boolean;
+  kind?: "person" | "business";
+  email?: string;
   gstin?: string;
+  /** Only the last 4 digits ever come back from the server. */
+  aadhaarLast4?: string;
   address?: string;
   stateCode?: string;
   isWalkIn?: boolean;
@@ -21,7 +25,10 @@ export interface CustomerListItem {
   phone?: string;
   creditLimit: number;
   isActive: boolean;
+  kind?: "person" | "business";
+  email?: string;
   gstin?: string;
+  aadhaarLast4?: string;
   address?: string;
   stateCode?: string;
   isWalkIn?: boolean;
@@ -33,9 +40,13 @@ export interface CustomerListItem {
 
 export interface CreateCustomerInput {
   name: string;
+  kind?: "person" | "business";
   phone?: string;
+  email?: string;
   creditLimit?: number;
   gstin?: string;
+  /** 12 digits; "" removes it. Sent only when typed. */
+  aadhaar?: string;
   address?: string;
   stateCode?: string;
 }
@@ -47,7 +58,10 @@ export interface CustomerPortfolio {
     phone?: string;
     creditLimit: number;
     isActive: boolean;
+  kind?: "person" | "business";
+  email?: string;
   gstin?: string;
+  aadhaarLast4?: string;
   address?: string;
   stateCode?: string;
   isWalkIn?: boolean;

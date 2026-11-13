@@ -68,7 +68,12 @@
       "ordersToBill_other": "{{count}} orders waiting to be billed",
       "lowStock_one": "{{count}} item running low",
       "lowStock_other": "{{count}} items running low"
-    }
+    },
+    "planTrial_one": "Free trial · {{count}} day left",
+    "planTrial_other": "Free trial · {{count}} days left",
+    "planEnded": "Plan ended — renew",
+    "planDays_one": "{{count}} day left",
+    "planDays_other": "{{count}} days left"
   },
   "quickActions": {
     "create": "Create"
@@ -88,7 +93,13 @@
     "products": "Products",
     "home": "Home",
     "stock": "Stock",
-    "cashbook": "Cash book"
+    "cashbook": "Cash book",
+    "group": {
+      "sell": "Sell",
+      "stock": "Stock & buying",
+      "money": "Money",
+      "manage": "Team & settings"
+    }
   },
   "language": {
     "label": "Language",
@@ -175,7 +186,9 @@
       "subscription": "Subscription",
       "display": "Display",
       "team": "Team",
-      "activity": "Activity"
+      "activity": "Activity",
+      "plan": "Plan",
+      "allPlans": "All businesses"
     },
     "businessName": "Business name",
     "businessType": "Business type",
@@ -271,7 +284,8 @@
     },
     "cashbook": {
       "title": "Cash book",
-      "subtitle": "Today's money in and out, and your galla count"
+      "subtitle": "Today's money in and out, and your galla count",
+      "subtitle_firm": "Today's money in and out, and your cash in hand"
     }
   },
   "auth": {
@@ -820,7 +834,12 @@
       "warningTitle": "Order saved — raw materials running low",
       "warningSubtitle": "The order was saved. These products don't have enough raw material stock to fully produce the ordered quantity yet:",
       "orderedCanMake": "Ordered {{ordered}}, can currently make {{producible}}",
-      "gotIt": "Got it"
+      "gotIt": "Got it",
+      "micStart": "Speak the order",
+      "micStop": "Stop recording",
+      "listening": "Listening… speak the order, then tap stop.",
+      "transcribing": "Writing down what you said…",
+      "micError": "Couldn't hear that. Check the mic permission and try again."
     },
     "orderDetailModal": {
       "unknownCustomer": "Unknown customer",
@@ -1158,7 +1177,8 @@
         "paymentsBody": "Payments appear here when you record them on a bill (cash, UPI, bank or cheque).",
         "noMatchTitle": "Nothing matches",
         "noMatchBody": "Try a different search, or set the date to “All time”."
-      }
+      },
+      "newSaleHint_firm": "Make a bill now — for a customer or their pending orders"
     }
   },
   "purchases": {
@@ -1331,8 +1351,8 @@
       "quickActions": {
         "newOrder": "New Order",
         "newSale": "New Sale",
-        "voiceOrder": "Voice Order",
-        "scanStock": "Scan Stock"
+        "voiceOrder": "Voice+",
+        "gstBill": "GST Bill"
       },
       "statusLabel": {
         "pending": "Pending",
@@ -1752,45 +1772,10 @@
     },
     "pricing": {
       "eyebrow": "Pricing",
-      "heading": "Plans that grow with your business",
+      "heading": "Simple plans for every shop, trader and manufacturer",
       "mostPopular": "Most popular",
-      "getStarted": "Get Started",
-      "plans": {
-        "starter": {
-          "name": "Starter",
-          "price": "Free",
-          "description": "For a single business getting off spreadsheets.",
-          "features": [
-            "1 business",
-            "2 users",
-            "1 warehouse",
-            "Sales & customers",
-            "Basic reports"
-          ]
-        },
-        "business": {
-          "name": "Business",
-          "price": "Contact us",
-          "description": "For growing wholesalers with multiple staff.",
-          "features": [
-            "Multiple users & warehouses",
-            "Purchases & suppliers",
-            "AI assistant & automations",
-            "Advanced reports"
-          ]
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Contact us",
-          "description": "For established distributors at scale.",
-          "features": [
-            "Unlimited users",
-            "Advanced permissions",
-            "API & integrations",
-            "Priority support"
-          ]
-        }
-      }
+      "trialNote": "Try everything free for {{days}} days. No card needed.",
+      "startTrial": "Start {{days}}-day free trial"
     },
     "footer": {
       "ctaHeading": "Ready to run your business from one place?",
@@ -2324,7 +2309,42 @@
     "cancelReasonPlaceholder": "Reason (optional) — e.g. wrong item",
     "keepBill": "Keep bill",
     "yesCancel": "Yes, cancel",
-    "creditNote": "Return (credit note)"
+    "creditNote": "Return (credit note)",
+    "billNumber": "Bill no.",
+    "editNumber": "Change bill number",
+    "numberSaved": "Bill number changed to {{number}}.",
+    "archive": "Archive bill",
+    "unarchive": "Bring back from archive",
+    "archiveHint": "Hides it from the bill list. Totals, udhaar and stock don't change — to undo a sale, cancel the bill instead.",
+    "archived": "Archived",
+    "archivedFilter": "Archived",
+    "archivedToast": "Bill archived. Find it under Archived.",
+    "unarchivedToast": "Bill is back in the list.",
+    "showArchived_one": "Show {{count}} archived bill",
+    "showArchived_other": "Show {{count}} archived bills",
+    "backToBills": "Back to bills",
+    "invoiceNo": "Invoice No.",
+    "invoiceDate": "Invoice Date",
+    "dueDate": "Due Date",
+    "reverseCharge": "Reverse Charge",
+    "no": "No",
+    "originalForRecipient": "Original for Recipient",
+    "phoneFull": "Phone",
+    "unregistered": "Unregistered (B2C)",
+    "itemDescription": "Description of Goods",
+    "amountInWords": "Amount in words",
+    "totalTax": "Total Tax",
+    "grandTotal": "Grand Total",
+    "declarationTitle": "Declaration",
+    "declaration": "We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.",
+    "authorisedSignatory": "Authorised Signatory",
+    "computerGenerated": "This is a computer-generated invoice.",
+    "editBill": "Edit bill",
+    "editingNumber": "Editing bill {{number}}",
+    "saveEdit": "Save changes · {{amount}}",
+    "editNumberHint": "Change only if this bill should have a different number.",
+    "editedToast": "Bill {{number}} updated. Stock and udhaar are adjusted.",
+    "editedOn": "Edited on {{date}}"
   },
   "sale": {
     "walkInName": "Counter sale",
@@ -2374,7 +2394,17 @@
     "imeiPlaceholder": "Type or scan, then Enter",
     "removeImei": "Remove {{serial}}",
     "imeiNotInStock": "Red ones are not in your stock. Check the number.",
-    "imeiInStock": "In stock — tap to add:"
+    "imeiInStock": "In stock — tap to add:",
+    "gstRate": "GST % for this item",
+    "yourGstin": "Your GSTIN",
+    "yourGstinHint": "Saved to your business and printed on every GST bill.",
+    "customerGstin": "Customer's GSTIN",
+    "customerGstinHint": "For business customers. Saved with the customer.",
+    "gstinInvalid": "GSTIN should look like 09ABCDE1234F1Z5.",
+    "optional": "Optional",
+    "billNumberHint": "Leave empty to use {{number}}, or type your own (e.g. from your bill book).",
+    "addGstinAadhaar": "Add GSTIN / Aadhaar (optional)",
+    "lineGst": "incl. GST {{amount}}"
   },
   "errors": {
     "insufficientStock": "Not enough stock for this.",
@@ -2407,7 +2437,15 @@
     "tooMany": "Too many tries. Please wait a little and try again.",
     "sessionExpired": "Your login expired. Please sign in again.",
     "generic": "Something went wrong. Please try again.",
-    "offline": "No internet connection. Check your network and try again."
+    "offline": "No internet connection. Check your network and try again.",
+    "planExpired": "Your plan has ended. Choose a plan in Settings → Plan to save new work.",
+    "proRequired": "This is a Pro feature. Upgrade in Settings → Plan.",
+    "aiLimit": "This month's Munshi AI tokens are used up. They reset on the 1st, or upgrade in Settings → Plan.",
+    "paymentsOff": "Online payment isn't switched on yet. Please contact the SethSathi team.",
+    "paymentUnverified": "We couldn't confirm this payment. If money was taken, contact the SethSathi team with the payment ID.",
+    "billNumberTaken": "This bill number is already used. Please type another.",
+    "belowPaid": "The new total is less than the money already received. Make a return instead.",
+    "hasReturn": "This bill has a return on it, so it can't be edited."
   },
   "businessSettings": {
     "saved": "Saved. New bills will show these details.",
@@ -2444,7 +2482,10 @@
     "preview": "Bill preview",
     "sampleCustomer": "Gupta General Store",
     "sampleItem1": "Basmati Rice",
-    "sampleItem2": "Soap 100g"
+    "sampleItem2": "Soap 100g",
+    "detailsTitle_firm": "Business details",
+    "shopPhone_firm": "Business phone",
+    "addressHint_firm": "Office or godown address, city, PIN — as you want it on bills."
   },
   "returns": {
     "button": "Return items",
@@ -2499,8 +2540,10 @@
       },
       "s3": {
         "title": "Count the galla and close",
-        "body": "Enter the cash you counted. SethSathi shows if it's short or extra, and the next day starts from it."
-      }
+        "body": "Enter the cash you counted. SethSathi shows if it's short or extra, and the next day starts from it.",
+        "title_firm": "Count your cash and close the day"
+      },
+      "subtitle_firm": "Two minutes at the end of every day."
     },
     "prevDay": "Previous day",
     "nextDay": "Next day",
@@ -2560,7 +2603,17 @@
     "noExpenses": "No expenses on this day",
     "noExpensesBody": "Add rent, electricity, tea or transport so your profit and cash are right.",
     "deleteConfirm": "Delete this expense?",
-    "deleteExpense": "Delete expense"
+    "deleteExpense": "Delete expense",
+    "intro_firm": "Every rupee of the day in one place — sales, payments received, what you paid out, and the cash you should have in hand.",
+    "addExpenseSub_firm": "Rent, electricity, transport, loading, office costs — money spent running the business.",
+    "cashInDrawer_firm": "Cash in hand",
+    "cashInDrawerDetail_firm": "What your cash box should hold",
+    "closeBody_firm": "Count the cash in hand and enter it here.",
+    "openingHint_firm": "Cash in hand when the day started.",
+    "expected_firm": "Should be in hand",
+    "countedHint_firm": "Notes and coins you actually have.",
+    "extra_firm": "{{amount}} extra cash in hand.",
+    "expensesBody_firm": "Business running costs for this day."
   },
   "expenses": {
     "category": {
@@ -2574,7 +2627,8 @@
       "packing": "Packing",
       "shop_supplies": "Shop supplies",
       "bank_charges": "Bank charges",
-      "other": "Other"
+      "other": "Other",
+      "shop_supplies_firm": "Office & godown supplies"
     }
   },
   "expiring": {
@@ -2769,5 +2823,368 @@
     "noExpenses": "No expenses recorded in this period. Add them in the Cash book.",
     "netProfit": "Net profit",
     "returnsNote": "Returned goods are taken off sales and cost."
+  },
+  "setup": {
+    "title": "Set up your business",
+    "work": {
+      "title": "What work do you do?",
+      "subtitle": "Write or speak in your own words — Munshi AI will understand.",
+      "placeholder": "e.g. I have a kirana shop and also supply to nearby shops",
+      "mic": "Speak",
+      "stopMic": "Stop and use what I said",
+      "listening": "Listening… tap the square when done.",
+      "micError": "Couldn't use the mic. Please type instead.",
+      "examplesLabel": "Or tap one",
+      "examples": {
+        "kirana": "Kirana / general store",
+        "wholesale": "Wholesale trading",
+        "namkeen": "We make namkeen and sweets",
+        "medical": "Medical store",
+        "mobile": "Mobile shop",
+        "garments": "Garment shop"
+      },
+      "orPick": "Or pick your business type from a list",
+      "picked": "Business type: {{category}}",
+      "understanding": "Munshi AI is understanding…"
+    },
+    "role": {
+      "understood": "Munshi AI understood",
+      "change": "change",
+      "title": "How do you sell?",
+      "subtitle": "Pick all that apply.",
+      "retailer": {
+        "title": "Retailer (shop)",
+        "body": "Sell directly to customers at the counter."
+      },
+      "trader": {
+        "title": "Trader / wholesaler",
+        "body": "Buy in bulk and sell to shops or businesses."
+      },
+      "manufacturer": {
+        "title": "Manufacturer",
+        "body": "Make or pack your own products from raw material."
+      }
+    },
+    "online": {
+      "title": "Do you sell online too?",
+      "subtitle": "So orders from everywhere can be kept in one place.",
+      "no": "No, only from my shop",
+      "website": {
+        "title": "My own website / online store",
+        "body": "Your own shop link or app."
+      },
+      "marketplace": {
+        "title": "Amazon, Flipkart, Meesho…",
+        "body": "Selling on marketplaces."
+      },
+      "social": {
+        "title": "WhatsApp / Instagram",
+        "body": "Orders come on chat."
+      },
+      "urlLabel": "Website link (optional)"
+    },
+    "gst": {
+      "title": "Do you have GST registration?",
+      "subtitle": "Optional. It decides whether bills are GST bills by default.",
+      "yes": {
+        "title": "Yes, I have GST",
+        "body": "Make GST bills with CGST/SGST or IGST."
+      },
+      "no": {
+        "title": "No",
+        "body": "Make simple bills. You can switch any time."
+      },
+      "unsure": {
+        "title": "Not sure / will add later",
+        "body": "Start simple; add GSTIN later in Settings."
+      },
+      "gstinLabel": "GSTIN (optional)",
+      "gstinHint": "15 characters. Prints on your bills. You can add it later too."
+    },
+    "size": {
+      "title": "How big is your business?",
+      "subtitle": "Rough answers are fine.",
+      "bills": "Bills / orders in a month",
+      "staff": "People working with you",
+      "staffOptions": {
+        "justMe": "Just me",
+        "small": "2–5 people",
+        "medium": "6–20 people",
+        "large": "More than 20"
+      },
+      "godowns": "Shops / godowns",
+      "godownOptions": {
+        "one": "One",
+        "few": "2–3",
+        "many": "4 or more"
+      }
+    },
+    "plans": {
+      "title": "Ready setups for you",
+      "subtitle": "Pick one. SethSathi will set up billing, stock and menus to match.",
+      "recommended": "Best match",
+      "changeLater": "You can change any of this later in Settings → Business.",
+      "start": "Start with this setup"
+    },
+    "saving": {
+      "title": "Setting up your app…",
+      "body": "Bill type, stock features and item categories are being prepared."
+    },
+    "done": {
+      "title": "All set!",
+      "body": "Your app now runs as \"{{setup}}\".",
+      "nextTitle": "Next, in 3 steps:",
+      "steps": {
+        "items": {
+          "title": "Add your items",
+          "body": "One by one, or import your Excel list."
+        },
+        "billDetails": {
+          "title": "Add UPI and bill details",
+          "body": "UPI QR, bank and terms on every bill."
+        },
+        "firstBill": {
+          "title": "Make your first bill",
+          "body": "Counter sale or for a customer."
+        }
+      },
+      "dashboard": "Go to dashboard"
+    }
+  },
+  "setupTemplates": {
+    "kirana_counter": {
+      "name": "Kirana / counter shop",
+      "tagline": "Fast counter billing, udhaar and daily cash."
+    },
+    "retail_gst": {
+      "name": "Retail shop with GST",
+      "tagline": "GST bills at the counter with UPI QR."
+    },
+    "wholesale_trader": {
+      "name": "Wholesale / trader",
+      "tagline": "Orders, credit limits and GST bills for shops you supply."
+    },
+    "manufacturer": {
+      "name": "Manufacturer",
+      "tagline": "Raw material, production and dealer orders."
+    },
+    "medical_store": {
+      "name": "Medical store",
+      "tagline": "Batch and expiry on every medicine."
+    },
+    "mobile_electronics": {
+      "name": "Mobile & electronics",
+      "tagline": "IMEI / serial number on every piece."
+    },
+    "fashion_store": {
+      "name": "Garments & footwear",
+      "tagline": "Every size and colour with its own stock."
+    },
+    "online_seller": {
+      "name": "Online + shop seller",
+      "tagline": "Orders from website, marketplace and chat in one place."
+    },
+    "points": {
+      "counterBilling": "Counter sale in 3 taps — no customer name needed",
+      "udhaarKhata": "Udhaar khata with WhatsApp reminders",
+      "lowStock": "Low-stock alerts so you reorder on time",
+      "cashbook": "Daily cash book and galla count",
+      "gstBills": "GST bills with CGST/SGST or IGST worked out",
+      "upiQr": "UPI QR on every bill",
+      "gstReport": "GST summary for your CA",
+      "whatsappOrders": "Orders from WhatsApp messages (Munshi AI reads them)",
+      "creditLimit": "Credit limit warning for every customer",
+      "supplierDues": "What you owe each supplier",
+      "rawMaterials": "Raw material stock and recipes",
+      "assembly": "Make finished goods — raw material goes down automatically",
+      "dealerOrders": "Dealer orders and GST bills",
+      "staffPayroll": "Staff attendance and salary",
+      "batchExpiry": "Batch and expiry on purchase; oldest sells first",
+      "expiringList": "See what's expiring in the next 60 days",
+      "imei": "IMEI recorded on purchase and sale",
+      "imeiSearch": "Search any IMEI to see where it was sold",
+      "returns": "Returns and credit notes",
+      "sizesColours": "Add all sizes and colours of a design at once",
+      "importExcel": "Import your item list from Excel",
+      "ordersOnePlace": "Note orders from every channel in one list",
+      "stockAllChannels": "One stock count for shop and online"
+    }
+  },
+  "appSetup": {
+    "title": "Business setup",
+    "current": "Running as: {{setup}}",
+    "noneYet": "No setup chosen yet — every feature is on.",
+    "redo": "Run setup again",
+    "billType": "Default bill type for new sales",
+    "featuresTitle": "Parts of the app",
+    "featuresHint": "Turn off what you don't use to keep the app simple. Nothing is deleted.",
+    "feature": {
+      "counterSale": {
+        "title": "Counter sale",
+        "body": "Quick bills without a customer name."
+      },
+      "orders": {
+        "title": "Orders",
+        "body": "Note customer orders before billing."
+      },
+      "purchases": {
+        "title": "Purchases & suppliers",
+        "body": "Supplier bills and what you owe."
+      },
+      "creditLimits": {
+        "title": "Udhaar & credit limits",
+        "body": "Warnings when a customer crosses their limit."
+      },
+      "warehouses": {
+        "title": "Godowns / multiple locations",
+        "body": "Stock in more than one place."
+      },
+      "staff": {
+        "title": "Staff, attendance & salary",
+        "body": "Your team's attendance and payroll."
+      },
+      "rawMaterials": {
+        "title": "Raw materials & production",
+        "body": "Recipes and making finished goods."
+      },
+      "batch": {
+        "title": "Batch & expiry",
+        "body": "New items start with batch tracking."
+      },
+      "serial": {
+        "title": "IMEI / serial numbers",
+        "body": "New items start with IMEI tracking."
+      },
+      "variants": {
+        "title": "Sizes & colours",
+        "body": "Create every size/colour of a design."
+      },
+      "cashbook": {
+        "title": "Rokad bahi (daily galla count)",
+        "body": "Close the day by counting the cash in the galla. Made for counter shops."
+      }
+    }
+  },
+  "plan": {
+    "name": {
+      "basic": "Basic",
+      "pro": "Pro"
+    },
+    "trialName": "Free trial",
+    "proTag": "Pro",
+    "tagline": {
+      "basic": "Everything to run your business, with Munshi AI.",
+      "pro": "Advanced stock, AI order reading and 10× more Munshi AI."
+    },
+    "period": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annual": "Annual"
+    },
+    "perMonth": "per month",
+    "perMonthEquiv": "{{amount}}/month for {{months}} months · you save {{save}}",
+    "features": {
+      "basic": {
+        "allCrm": "All of SethSathi: bills, GST, stock, udhaar, purchases, godowns, staff, manufacturing, reports",
+        "aiTokens": "Munshi AI: {{tokens}} tokens a month",
+        "noLimits": "No limit on bills, items, customers or team logins",
+        "support": "WhatsApp support in Hindi and English"
+      },
+      "pro": {
+        "everythingBasic": "Everything in Basic",
+        "aiTokens": "Munshi AI: {{tokens}} tokens a month",
+        "advancedStock": "Batch & expiry, IMEI / serial numbers, sizes & colours",
+        "orderReading": "Munshi AI reads WhatsApp and voice orders",
+        "aiInsights": "AI dashboard made for your business",
+        "importExport": "Excel item import and GST report for your CA"
+      }
+    },
+    "currentLabel": "Your plan",
+    "current": "Current",
+    "popular": "Most popular",
+    "status": {
+      "trial": "Trial",
+      "active": "Active",
+      "expired": "Ended"
+    },
+    "trialBody_one": "{{count}} day left · all Pro features free until {{date}}.",
+    "trialBody_other": "{{count}} days left · all Pro features free until {{date}}.",
+    "activeBody_one": "Runs till {{date}} ({{count}} day left).",
+    "activeBody_other": "Runs till {{date}} ({{count}} days left).",
+    "expiredBody": "Ended on {{date}}. You can still see everything, but nothing new can be saved until you choose a plan.",
+    "aiTitle": "Munshi AI this month",
+    "aiUsed": "{{used}} of {{limit}} tokens",
+    "aiHint": "Every question, order read and AI insight uses tokens. They reset on the 1st of every month.",
+    "aiUsedUp": "This month's tokens are used up. Munshi AI starts again on the 1st, or choose Pro for more.",
+    "chooseTitle": "Choose a plan",
+    "chooseBody": "Pay for longer and save. Time you've already paid for is never lost.",
+    "choose": "Choose {{plan}} · {{amount}}",
+    "renew": "Renew · {{amount}}",
+    "payNote": "Pay by UPI, card or netbanking through Razorpay. Your plan starts as soon as the payment goes through.",
+    "offlineNote": "Online payment isn't switched on yet. Pay the SethSathi team by UPI or bank transfer and they'll start your plan.",
+    "ownerPays": "Only the owner can buy or renew the plan.",
+    "paidToast": "Payment received. {{plan}} is active till {{date}}.",
+    "payFailed": "The payment didn't go through. No money was taken — please try again.",
+    "historyTitle": "Payments",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "byTeam": "Given by SethSathi team",
+    "online": "Paid online",
+    "until": "till {{date}}",
+    "proOnlyTitle": "This is a Pro feature",
+    "proOnlyBody": "Upgrade to Pro in Settings → Plan to use it."
+  },
+  "planBanner": {
+    "expired": "Your plan has ended. You can still see your records, but new bills and changes can't be saved.",
+    "expiredStaff": "The business plan has ended. Ask the owner to renew it — until then nothing new can be saved.",
+    "trialEnding_one": "Your free trial ends in {{count}} day. Choose a plan to keep going.",
+    "trialEnding_other": "Your free trial ends in {{count}} days. Choose a plan to keep going.",
+    "planEnding_one": "Your plan ends in {{count}} day. Renew to keep going.",
+    "planEnding_other": "Your plan ends in {{count}} days. Renew to keep going.",
+    "choose": "Choose plan"
+  },
+  "planAdmin": {
+    "title": "All businesses (SethSathi team)",
+    "body": "See every business's plan and give or extend one by hand — for UPI/bank payments, free months or support.",
+    "search": "Search business, email or phone",
+    "emptyTitle": "No businesses found",
+    "emptyBody": "Try another name, email or phone number.",
+    "aiUsed": "AI: {{used}} tokens this month",
+    "give": "Give plan",
+    "giveTitle": "Give plan to {{business}}",
+    "giveBody": "Adds time to their plan straight away.",
+    "plan": "Plan",
+    "length": "How long",
+    "customDays": "Days",
+    "days": "Number of days",
+    "amount": "Amount received (₹)",
+    "amountHint": "0 for a free month or support case.",
+    "note": "Note",
+    "notePlaceholder": "e.g. UPI from 98xxxxxx10 on 12 Nov",
+    "addsNote": "Same plan: added after their current end date. Different plan: unused time is converted at the two prices, so nothing paid is lost.",
+    "confirm": "Give plan",
+    "given": "Plan given to {{business}}."
+  },
+  "customerForm": {
+    "kindLabel": "Who is this?",
+    "kind": {
+      "person": "Person",
+      "business": "Shop / business"
+    },
+    "businessName": "Shop or firm name",
+    "businessNamePlaceholder": "e.g. Gupta General Store",
+    "idTitle": "ID (optional)",
+    "idHintBusiness": "GSTIN lets you make B2B GST bills with the right state.",
+    "idHintPerson": "Useful for udhaar records. Only the last 4 digits of Aadhaar are ever shown.",
+    "gstinLabel": "GSTIN",
+    "aadhaarLabel": "Aadhaar number",
+    "aadhaarSaved": "Saved: XXXX XXXX {{last4}} — type to change",
+    "aadhaarHint": "Stored safely; only the last 4 digits are shown in the app.",
+    "aadhaarInvalid": "Aadhaar should be 12 digits.",
+    "noLimit": "No limit",
+    "moreDetails": "Address, state and email",
+    "addressPlaceholder": "Shop no., market, city, PIN",
+    "emailLabel": "Email (optional)",
+    "emailInvalid": "Enter a valid email."
   }
 }

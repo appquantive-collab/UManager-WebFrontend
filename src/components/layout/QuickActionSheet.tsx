@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore, type UserRole } from "../../lib/auth-store";
+import { useAppSetup } from "../../lib/use-app-setup";
 import {
   Package,
   Receipt,
@@ -37,13 +38,20 @@ interface QuickActionSheetProps {
   onNewSale?: () => void;
   onNewPurchase?: () => void;
   onAddCustomer?: () => void;
+  onAddExpense?: () => void;
   onNavigate?: (path: string) => void;
 }
 
-export function QuickActionSheet({ open, onClose, onNewOrder, onNewSale, onNewPurchase, onAddCustomer, onNavigate }: QuickActionSheetProps) {
+export function QuickActionSheet({ open, onClose, onNewOrder, onNewSale, onNewPurchase, onAddCustomer, onAddExpense, onNavigate }: QuickActionSheetProps) {
   const { t } = useTranslation();
   const role = useAuthStore((state) => state.user?.role);
-  const visible = actions.filter((a) => !(role && hiddenFor[role]?.includes(a.key)));
+  const { features } = useAppSetup();
+  const visible = actions.filter(
+    (a) =>
+      !(role && hiddenFor[role]?.includes(a.key)) &&
+      !(a.key === "newOrder" && !features.orders) &&
+      !(a.key === "addPurchase" && !features.purchases)
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -88,7 +96,7 @@ export function QuickActionSheet({ open, onClose, onNewOrder, onNewSale, onNewPu
                 onClose();
                 // Every tile leads somewhere: forms open directly, the rest go to their page.
                 if (action.key === "newOrder") onNewOrder?.();
-                if (action.key === "addExpense") onNavigate?.("/app/cashbook?add=expense");
+                if (action.key === "addExpense") onAddExpense?.();
                 if (action.key === "newSale") onNewSale?.();
                 if (action.key === "addPurchase") onNewPurchase?.();
                 if (action.key === "addCustomer") onAddCustomer?.();

@@ -8,6 +8,7 @@ import { SearchInput } from "../../components/ui/SearchInput";
 import { Dialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
 import { InventoryExtraActions } from "../../components/inventory/InventoryExtraActions";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { ExpiringPanel } from "../../components/inventory/ExpiringPanel";
 import { listProducts, type Product } from "../../lib/products-api";
 import { createStockMovement, getStockLevels, listWarehouses, type CreateMovementInput } from "../../lib/stock-api";
@@ -29,7 +30,7 @@ function stockStatus(quantity: number, reorderLevel: number): "normal" | "low" |
 const statusBadge: Record<"normal" | "low" | "out", { labelKey: string; className: string; icon: typeof CheckCircle2 }> = {
   normal: { labelKey: "inventory.mobileStock.statusInStock", className: "bg-success-container text-success", icon: CheckCircle2 },
   low: { labelKey: "inventory.mobileStock.statusLowStock", className: "bg-warning-container text-warning", icon: AlertTriangle },
-  out: { labelKey: "inventory.mobileStock.statusOutOfStock", className: "bg-danger-container text-danger", icon: Ban },
+  out: { labelKey: "inventory.mobileStock.statusOutOfStock", className: "bg-danger text-white", icon: Ban },
 };
 
 export function MobileInventoryStock() {
@@ -39,6 +40,7 @@ export function MobileInventoryStock() {
   const [warehouseFilter, setWarehouseFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("products");
+  const { features } = useAppSetup();
   const [search, setSearch] = useState(() => initialParam("q"));
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [assembleProductState, setAssembleProductState] = useState<Product | null>(null);
@@ -233,6 +235,7 @@ export function MobileInventoryStock() {
         />
       </div>
 
+      {features.rawMaterials ? (
       <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-variant p-1">
         <button
           type="button"
@@ -255,6 +258,7 @@ export function MobileInventoryStock() {
           {t("inventory.mobileStock.rawMaterials")}
         </button>
       </div>
+      ) : null}
 
       <div className="scrollbar-hide flex items-center gap-1.5 overflow-x-auto pb-0.5">
         {statusFilters.map((f) => (

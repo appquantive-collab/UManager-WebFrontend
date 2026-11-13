@@ -1,12 +1,16 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { BarChart3, Boxes, Download, FileSpreadsheet, IndianRupee, Landmark, Percent, ReceiptText, Truck, Wallet } from "lucide-react";
+import { BarChart3, Boxes, Download, FileSpreadsheet, IndianRupee, Landmark, Percent, Plus, ReceiptText, Truck, Wallet } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
+import { ProBadge, useProGate } from "../../components/ui/ProBadge";
+import { AddExpenseModal } from "../../components/cashbook/AddExpenseModal";
 import { EmptyHelp, FilterChips, LoadingRows, PageIntro, SummaryRow, SummaryTile, TableShell, Th } from "../../components/page/kit";
 import { formatCurrency } from "../../lib/format";
+import { outT, printInEnglish } from "../../lib/output-lang";
 import { isCancelled, listInvoices, type Invoice } from "../../lib/invoices-api";
 import { listExpenses } from "../../lib/expenses-api";
 import { listReturns } from "../../lib/returns-api";
@@ -59,7 +63,7 @@ function downloadCsv(filename: string, rows: (string | number)[][]) {
   URL.revokeObjectURL(url);
 }
 
-function Section({ title, onExport, exportLabel, children }: { title: string; onExport?: () => void; exportLabel?: string; children: ReactNode }) {
+function Section({ title, onExport, exportLabel, pro, children }: { title: string; onExport?: () => void; exportLabel?: string; pro?: boolean; children: ReactNode }) {
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -72,6 +76,7 @@ function Section({ title, onExport, exportLabel, children }: { title: string; on
           >
             <Download size={15} aria-hidden="true" />
             {exportLabel}
+            {pro ? <ProBadge /> : null}
           </button>
         ) : null}
       </div>
@@ -115,9 +120,13 @@ function RankTable({ head, rows, emptyText }: { head: [string, string, string]; 
 
 export function ReportsPage() {
   const { t, i18n } = useTranslation();
+  const { vocab } = useAppSetup();
   const [report, setReport] = useState<Report>("sales");
   const [period, setPeriod] = useState<Period>("month");
   const [now] = useState(() => new Date());
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const proGate = useProGate();
+  const queryClient = useQueryClient();
   const locale = i18n.resolvedLanguage === "hi" ? "hi-IN" : "en-IN";
 
   const invoicesQuery = useQuery({ queryKey: ["invoices"], queryFn: listInvoices });
@@ -392,7 +401,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.sales.topProducts")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-products"), [[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")], ...sales.topProducts.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
+              onExport={() => downloadCsv(exportName("top-products"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...sales.topProducts.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")]}
@@ -403,7 +412,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.sales.topCustomers")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-customers"), [[t("reports.hub.col.customer"), t("reports.hub.col.bills"), t("reports.hub.col.amount")], ...sales.topCustomers.map((r) => [r.name, r.bills, r.amount.toFixed(2)])])}
+              onExport={() => downloadCsv(exportName("top-customers"), [[outT("reports.hub.col.customer"), outT("reports.hub.col.bills"), outT("reports.hub.col.amount")], ...sales.topCustomers.map((r) => [r.name, r.bills, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.customer"), t("reports.hub.col.bills"), t("reports.hub.col.amount")]}
@@ -424,7 +433,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.buy.topSuppliers")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-suppliers"), [[t("reports.hub.col.supplier"), t("reports.hub.col.purchases"), t("reports.hub.col.amount")], ...buying.topSuppliers.map((r) => [r.name, r.count, r.amount.toFixed(2)])])}
+              onExport={() => downloadCsv(exportName("top-suppliers"), [[outT("reports.hub.col.supplier"), outT("reports.hub.col.purchases"), outT("reports.hub.col.amount")], ...buying.topSuppliers.map((r) => [r.name, r.count, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.supplier"), t("reports.hub.col.purchases"), t("reports.hub.col.amount")]}
@@ -435,7 +444,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.buy.topItems")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("purchased-items"), [[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")], ...buying.topItems.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
+              onExport={() => downloadCsv(exportName("purchased-items"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...buying.topItems.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")]}
@@ -454,7 +463,13 @@ export function ReportsPage() {
             <SummaryTile label={t("reports.hub.profit.margin")} value={`${profit.margin.toFixed(1)}%`} detail={t("reports.hub.profit.marginHint")} icon={Percent} tone="warning" />
           </SummaryRow>
           <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
-            <h2 className="text-base font-bold text-text">{t("reportsExtra.netTitle")}</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-bold text-text">{t("reportsExtra.netTitle")}</h2>
+              {/* Expenses can be added here too, for businesses that keep Rokad bahi switched off. */}
+              <Button variant="secondary" onClick={() => setExpenseOpen(true)}>
+                <Plus size={15} aria-hidden="true" /> {t("cashbook.addExpense")}
+              </Button>
+            </div>
             <dl className="mt-3 space-y-1.5 text-sm tabular-nums">
               <div className="flex justify-between">
                 <dt className="text-text">{t("reportsExtra.grossProfit")}</dt>
@@ -462,7 +477,7 @@ export function ReportsPage() {
               </div>
               {profit.expenseRows.map(([category, amount]) => (
                 <div key={category} className="flex justify-between text-text-muted">
-                  <dt>− {t(`expenses.category.${category}`)}</dt>
+                  <dt>− {t(`expenses.category.${category}`, { context: vocab })}</dt>
                   <dd>{formatCurrency(amount)}</dd>
                 </div>
               ))}
@@ -473,13 +488,14 @@ export function ReportsPage() {
               </div>
             </dl>
           </section>
+          <AddExpenseModal open={expenseOpen} onClose={() => setExpenseOpen(false)} onSaved={() => queryClient.invalidateQueries({ queryKey: ["expenses"] })} />
           <p className="rounded-xl bg-surface-muted px-4 py-3 text-sm text-text">{t("reports.hub.profit.note")} {t("reportsExtra.returnsNote")}</p>
           <Section
             title={t("reports.hub.profit.byProduct")}
             exportLabel={t("reports.hub.download")}
             onExport={() =>
               downloadCsv(exportName("profit"), [
-                [t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.profit.revenue"), t("reports.hub.profit.cost"), t("reports.hub.profit.profit")],
+                [outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.profit.revenue"), outT("reports.hub.profit.cost"), outT("reports.hub.profit.profit")],
                 ...profit.rows.map((r) => [r.name, r.qty, r.revenue.toFixed(2), r.cost.toFixed(2), r.profit.toFixed(2)]),
               ])
             }
@@ -525,7 +541,7 @@ export function ReportsPage() {
             exportLabel={t("reports.hub.download")}
             onExport={() =>
               downloadCsv(exportName("stock"), [
-                [t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.stock.atCost"), t("reports.hub.stock.atWholesale"), t("reports.hub.stock.soldInPeriod")],
+                [outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.stock.atCost"), outT("reports.hub.stock.atWholesale"), outT("reports.hub.stock.soldInPeriod")],
                 ...stockReport.rows.map((r) => [r.name, `${r.qty} ${r.unit}`, r.cost.toFixed(2), r.wholesale.toFixed(2), r.sold ? "yes" : "no"]),
               ])
             }
@@ -574,7 +590,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.customersOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("sethsathi-customer-dues.csv", [[t("reports.hub.col.customer"), t("reports.hub.col.phone"), t("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])])}
+              onExport={() => downloadCsv("sethsathi-customer-dues.csv", [[outT("reports.hub.col.customer"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.customer"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}
@@ -585,7 +601,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.youOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("sethsathi-supplier-dues.csv", [[t("reports.hub.col.supplier"), t("reports.hub.col.phone"), t("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])])}
+              onExport={() => downloadCsv("sethsathi-supplier-dues.csv", [[outT("reports.hub.col.supplier"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.supplier"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}
@@ -612,11 +628,12 @@ export function ReportsPage() {
           <Section
             title={t("reports.hub.gst.byRate")}
             exportLabel={t("reports.hub.download")}
+            pro={proGate.locked}
             onExport={() =>
-              downloadCsv(exportName("gst"), [
-                ["GST %", t("reports.hub.gst.salesTaxable"), t("reports.hub.gst.output"), t("reports.hub.gst.buyTaxable"), t("reports.hub.gst.input")],
+              proGate.guard(() => downloadCsv(exportName("gst"), [
+                ["GST %", outT("reports.hub.gst.salesTaxable"), outT("reports.hub.gst.output"), outT("reports.hub.gst.buyTaxable"), outT("reports.hub.gst.input")],
                 ...gst.rows.map((r) => [r.rate, r.salesTaxable.toFixed(2), r.salesTax.toFixed(2), r.buyTaxable.toFixed(2), r.buyTax.toFixed(2)]),
-              ])
+              ]))
             }
           >
             {gst.rows.length === 0 ? (
@@ -651,7 +668,7 @@ export function ReportsPage() {
 
       {!loading && report !== "dues" ? (
         <div className="flex justify-end">
-          <Button variant="secondary" onClick={() => window.print()}>
+          <Button variant="secondary" onClick={() => void printInEnglish()}>
             {t("reports.hub.print")}
           </Button>
         </div>

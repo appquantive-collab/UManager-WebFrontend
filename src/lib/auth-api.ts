@@ -109,8 +109,38 @@ export type BusinessGoal =
   | "ai_insights"
   | "reporting";
 
+export type BusinessRole = "retailer" | "trader" | "manufacturer";
+export type OnlineChannel = "website" | "marketplace" | "social";
+
+export interface AppFeatures {
+  counterSale: boolean;
+  orders: boolean;
+  purchases: boolean;
+  warehouses: boolean;
+  rawMaterials: boolean;
+  batch: boolean;
+  serial: boolean;
+  variants: boolean;
+  staff: boolean;
+  creditLimits: boolean;
+  /** Rokad bahi (daily galla count). Missing on older setups — useAppSetup fills it from counterSale. */
+  cashbook?: boolean;
+}
+
+export interface AppSetup {
+  template: string;
+  defaultBillType: "gst" | "record";
+  features: AppFeatures;
+}
+
 export interface BusinessOnboarding {
   completed: boolean;
+  description?: string | null;
+  roles?: BusinessRole[];
+  sellsOnline?: OnlineChannel[];
+  onlineStoreUrl?: string | null;
+  hasGst?: boolean | null;
+  template?: string | null;
   category: BusinessCategory | null;
   customerType: CustomerType | null;
   orderVolume: OrderVolume | null;
@@ -134,6 +164,21 @@ export interface AiDashboardLayout {
   quickActionLabels: Record<string, string>;
 }
 
+export type PlanKey = "basic" | "pro";
+export type BillingPeriod = "monthly" | "quarterly" | "annual";
+
+/** The business's plan right now (see backend modules/billing). */
+export interface PlanState {
+  plan: PlanKey | null;
+  period: BillingPeriod | null;
+  status: "trial" | "active" | "expired";
+  /** Pro-only parts of the app are open (Pro plan or the trial). */
+  isPro: boolean;
+  endsAt: string | null;
+  daysLeft: number;
+  aiTokenLimit: number;
+}
+
 export interface Profile {
   userId: string;
   name: string;
@@ -141,6 +186,8 @@ export interface Profile {
   phone: string | null;
   role: AuthUser["role"];
   preferredLanguage: AuthUser["preferredLanguage"];
+  /** SethSathi team member: can give plans to any business. */
+  platformAdmin?: boolean;
   tenant: {
     tenantId: string;
     businessName: string;
@@ -150,6 +197,8 @@ export interface Profile {
     currency: string;
     onboarding: BusinessOnboarding;
     aiDashboardLayout: AiDashboardLayout | null;
+    appSetup?: AppSetup | null;
+    subscription?: PlanState | null;
     phone?: string;
     gstin?: string;
     address?: string;

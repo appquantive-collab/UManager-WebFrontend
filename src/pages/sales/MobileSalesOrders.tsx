@@ -8,7 +8,7 @@ import { SalesGuide } from "../../components/sales/SalesGuide";
 import { Badge } from "../../components/ui/Badge";
 import { formatCurrency } from "../../lib/format";
 import { listOrders, type Order } from "../../lib/orders-api";
-import { isCancelled, listInvoices, type Invoice } from "../../lib/invoices-api";
+import { isArchived, isCancelled, listInvoices, type Invoice } from "../../lib/invoices-api";
 import { OrderDetailModal } from "../../components/orders/OrderDetailModal";
 import { InvoiceDetailModal } from "../../components/orders/InvoiceDetailModal";
 import { initialParam } from "../../lib/url-params";
@@ -55,7 +55,7 @@ export function MobileSalesOrders({
     pending: { label: t("sales.mobileSalesOrders.statusLabel.pending"), className: "bg-warning-container text-warning" },
     confirmed: { label: t("sales.mobileSalesOrders.statusLabel.confirmed"), className: "bg-info-container text-info" },
     delivered: { label: t("sales.mobileSalesOrders.statusLabel.delivered"), className: "bg-success-container text-success" },
-    cancelled: { label: t("sales.mobileSalesOrders.statusLabel.cancelled"), className: "bg-danger-container text-danger" },
+    cancelled: { label: t("sales.mobileSalesOrders.statusLabel.cancelled"), className: "bg-danger text-white" },
   };
 
   const paymentStatusLabel: Record<Invoice["paymentStatus"], string> = {
@@ -67,6 +67,7 @@ export function MobileSalesOrders({
   const [search, setSearch] = useState(() => initialParam("q"));
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   const ordersQuery = useQuery({ queryKey: ["orders"], queryFn: () => listOrders() });
   const orders = ordersQuery.data ?? [];
@@ -99,6 +100,7 @@ export function MobileSalesOrders({
   });
 
   const filteredInvoices = invoices.filter((inv) => {
+    if (isArchived(inv) !== showArchived) return false;
     const query = search.trim().toLowerCase();
     return !query || customerName(inv).toLowerCase().includes(query) || inv.invoiceNumber.toLowerCase().includes(query);
   });
@@ -312,6 +314,16 @@ export function MobileSalesOrders({
               ))}
             </div>
           )}
+          {/* Archived bills sit apart; this switches the list between the two. */}
+          {invoices.some(isArchived) || showArchived ? (
+            <button
+              type="button"
+              onClick={() => setShowArchived((v) => !v)}
+              className="mx-auto mt-3 block rounded-full px-4 py-2 text-sm font-semibold text-primary outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              {showArchived ? t("bill.backToBills") : t("bill.showArchived", { count: invoices.filter(isArchived).length })}
+            </button>
+          ) : null}
         </>
       )}
 

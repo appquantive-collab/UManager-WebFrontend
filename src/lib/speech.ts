@@ -70,7 +70,9 @@ export function useVoiceRecorder(onError: (error: MicError) => void) {
         const type = recorder.mimeType || mimeType || "audio/webm";
         session.finish?.(session.cancelled || session.chunks.length === 0 ? null : new Blob(session.chunks, { type }));
       };
-      recorder.start();
+      // Hand over audio every second (not only at the end), so the clip-so-far
+      // can be read for a live transcript while still recording.
+      recorder.start(1000);
       session.startedAt = Date.now();
       setStartedAt(session.startedAt);
       setRecording(true);
@@ -115,22 +117,82 @@ export function useVoiceRecorder(onError: (error: MicError) => void) {
     []
   );
 
-  return { recording, startedAt, start, stop };
+  /** The audio recorded so far (still recording), or null if nothing yet. */
+  const snapshot = useCallback((): Blob | null => {
+    const session = sessionRef.current;
+    if (!session?.recorder || session.chunks.length === 0) return null;
+    return new Blob(session.chunks, { type: session.recorder.mimeType || "audio/webm" });
+  }, []);
+
+  return { recording, startedAt, start, stop, snapshot };
 }
 
 export type TranscribeKind = "text" | "phone" | "email";
 
-export async function transcribeVoice(blob: Blob, language: SupportedLanguageCode, kind: TranscribeKind): Promise<string> {
+export async function transcribeVoice(
+  blob: Blob,
+  language: SupportedLanguageCode,
+  kind: TranscribeKind,
+  options: { live?: boolean } = {}
+): Promise<string> {
   const form = new FormData();
   const extension = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
   form.append("audio", blob, `voice.${extension}`);
   form.append("lang", language);
   form.append("kind", kind);
-  const res = await fetch(`${API_BASE_URL}/munshi/transcribe`, { method: "POST", body: form });
+  const path = options.live ? "/munshi/transcribe/live" : "/munshi/transcribe";
+  const res = await fetch(`${API_BASE_URL}${path}`, { method: "POST", body: form });
   if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
   const { text } = (await res.json()) as { text: string };
   // Whisper sometimes "hears" these stock phrases in silence or noise.
   return /^(thank you\.?|thanks for watching!?|you\.?|\.+)$/i.test(text.trim()) ? "" : text.trim();
+}
+
+const LIVE_EVERY_MS = 2500;
+const LIVE_MAX_MS = 90_000;
+
+/**
+ * Live words while the mic is on: every few seconds the clip-so-far is read
+ * by Whisper and the text shown, so the person sees they're being heard. One
+ * read at a time; stops refreshing after 90s (the final read on stop still
+ * covers everything). Clears when a new recording starts.
+ */
+export function useLiveTranscript(
+  recorder: { recording: boolean; startedAt: number; snapshot: () => Blob | null },
+  language: SupportedLanguageCode,
+  kind: TranscribeKind = "text"
+): string {
+  const [text, setText] = useState("");
+  const { recording, startedAt, snapshot } = recorder;
+
+  useEffect(() => {
+    if (!recording) return;
+    setText("");
+    let alive = true;
+    let lastSize = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = async () => {
+      if (!alive) return;
+      const clip = snapshot();
+      if (clip && clip.size > lastSize && Date.now() - startedAt < LIVE_MAX_MS) {
+        lastSize = clip.size;
+        try {
+          const heard = await transcribeVoice(clip, language, kind, { live: true });
+          if (alive && heard) setText(heard);
+        } catch {
+          // A missed live update is fine; the final read on stop still runs.
+        }
+      }
+      if (alive) timer = setTimeout(() => void tick(), LIVE_EVERY_MS);
+    };
+    timer = setTimeout(() => void tick(), LIVE_EVERY_MS);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [recording, startedAt, snapshot, language, kind]);
+
+  return text;
 }
 
 // ---------- Text → speech (Munshi's voice) ----------

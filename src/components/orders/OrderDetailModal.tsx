@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { AlertTriangle, Ban, CheckCircle2, Phone, Plus, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
+import { DecimalInput } from "../ui/DecimalInput";
 import { Badge } from "../ui/Badge";
 import { formatCurrency } from "../../lib/format";
 import {
@@ -194,13 +195,10 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                   <div className="mt-2 grid grid-cols-3 gap-2">
                     <div>
                       <label className="text-xs text-text">{t("orders.common.qty")}</label>
-                      <input
-                        type="number"
-                        min={0.001}
-                        step="any"
+                      <DecimalInput
                         value={item.quantity}
                         disabled={!editable}
-                        onChange={(e) => updateItem(item.key, { quantity: Number(e.target.value) })}
+                        onValue={(n) => updateItem(item.key, { quantity: n })}
                         className="mt-0.5 w-full rounded-lg border border-transparent bg-surface-variant px-2.5 py-1.5 text-sm text-text outline-none focus:border-primary disabled:opacity-60"
                       />
                     </div>
@@ -215,13 +213,11 @@ export function OrderDetailModal({ order, onClose }: { order: Order | null; onCl
                     </div>
                     <div>
                       <label className="text-xs text-text">{t("orders.common.price")}</label>
-                      <input
-                        type="number"
-                        min={0}
-                        step="any"
+                      <DecimalInput
                         value={item.unitPrice}
                         disabled={!editable}
-                        onChange={(e) => updateItem(item.key, { unitPrice: Number(e.target.value) })}
+                        placeholder="0"
+                        onValue={(n) => updateItem(item.key, { unitPrice: n })}
                         className="mt-0.5 w-full rounded-lg border border-transparent bg-surface-variant px-2.5 py-1.5 text-sm text-text outline-none focus:border-primary disabled:opacity-60"
                       />
                     </div>

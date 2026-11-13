@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { Button } from "../ui/Button";
 import { Field, inputClass } from "../page/kit";
 import { getProfile } from "../../lib/auth-api";
@@ -101,11 +102,12 @@ const card = "max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-
 
 export function BusinessDetailsSettings() {
   const { t, form, set, changed, mutation, isLoading, canEdit } = useBusinessForm();
+  const { vocab } = useAppSetup();
   const keys: (keyof FormState)[] = ["businessName", "phone", "address", "stateCode"];
   return (
     <div className={card}>
       <div>
-        <h3 className="text-base font-bold text-text">{t("businessSettings.detailsTitle")}</h3>
+        <h3 className="text-base font-bold text-text">{t("businessSettings.detailsTitle", { context: vocab })}</h3>
         <p className="mt-0.5 text-sm text-text-muted">{t("businessSettings.detailsBody")}</p>
       </div>
       {isLoading ? <p className="text-sm text-text-muted">{t("common.loading")}</p> : null}
@@ -113,11 +115,11 @@ export function BusinessDetailsSettings() {
         <Field label={t("settingsPage.businessName")} htmlFor="bs-name">
           <input id="bs-name" className={inputClass} disabled={!canEdit} value={form.businessName} onChange={(e) => set("businessName")(e.target.value)} />
         </Field>
-        <Field label={t("businessSettings.shopPhone")} htmlFor="bs-phone">
+        <Field label={t("businessSettings.shopPhone", { context: vocab })} htmlFor="bs-phone">
           <input id="bs-phone" type="tel" inputMode="tel" className={inputClass} disabled={!canEdit} value={form.phone} onChange={(e) => set("phone")(e.target.value)} />
         </Field>
       </div>
-      <Field label={t("businessSettings.address")} hint={t("businessSettings.addressHint")} htmlFor="bs-address">
+      <Field label={t("businessSettings.address")} hint={t("businessSettings.addressHint", { context: vocab })} htmlFor="bs-address">
         <textarea
           id="bs-address"
           rows={3}

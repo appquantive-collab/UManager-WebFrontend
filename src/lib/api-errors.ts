@@ -10,6 +10,14 @@ const CODE_KEYS: Record<string, string> = {
   CANCELLED: "billCancelled",
   EMAIL_TAKEN: "emailTaken",
   FORBIDDEN: "forbidden",
+  PLAN_EXPIRED: "planExpired",
+  PRO_REQUIRED: "proRequired",
+  AI_LIMIT: "aiLimit",
+  PAYMENTS_OFF: "paymentsOff",
+  PAYMENT_UNVERIFIED: "paymentUnverified",
+  BILL_NUMBER_TAKEN: "billNumberTaken",
+  BELOW_PAID: "belowPaid",
+  HAS_RETURN: "hasReturn",
 };
 
 /**

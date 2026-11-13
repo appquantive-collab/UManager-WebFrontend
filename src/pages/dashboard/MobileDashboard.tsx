@@ -7,7 +7,6 @@ import {
   Mic,
   Package,
   Receipt,
-  ScanLine,
   ShieldCheck,
   ShoppingCart,
   Sparkles,
@@ -28,7 +27,7 @@ const quickActions = [
   { key: "new_order", i18nKey: "dashboard.mobileDashboard.quickActions.newOrder", icon: Sparkles },
   { key: "new_sale", i18nKey: "dashboard.mobileDashboard.quickActions.newSale", icon: ShoppingCart },
   { key: "voice_order", i18nKey: "dashboard.mobileDashboard.quickActions.voiceOrder", icon: Mic },
-  { key: "scan_stock", i18nKey: "dashboard.mobileDashboard.quickActions.scanStock", icon: ScanLine },
+  { key: "gst_bill", i18nKey: "dashboard.mobileDashboard.quickActions.gstBill", icon: Receipt },
 ];
 
 const SECTION_ORDER = ["ai_brief", "quick_actions", "immediate_operations", "ledger_metrics", "order_flow"] as const;
@@ -43,7 +42,7 @@ const statusClassName: Record<string, string> = {
   pending: "bg-warning-container text-warning",
   confirmed: "bg-info-container text-info",
   delivered: "bg-success-container text-success",
-  cancelled: "bg-danger-container text-danger",
+  cancelled: "bg-danger text-white",
 };
 
 interface MobileDashboardProps {
@@ -53,14 +52,21 @@ interface MobileDashboardProps {
 }
 
 export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashboardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // The AI's relabels and welcome note are written in English, so they're only
+  // used when the app is in English; Hinglish and Hindi use our own words.
+  const aiWords = (i18n.resolvedLanguage ?? "en") === "en" ? aiLayout : null;
   const [briefOpen, setBriefOpen] = useState(false);
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
+  const openVoiceOrder = useNewOrderModalStore((state) => state.openVoice);
+  const openGstBill = useNewSaleModalStore((state) => state.openGstBill);
 
   const quickActionHandlers: Record<string, (() => void) | undefined> = {
     new_order: openNewOrder,
     new_sale: openNewSale,
+    voice_order: openVoiceOrder,
+    gst_bill: openGstBill,
   };
 
   const timeAgo = (iso: string): string => {
@@ -95,7 +101,7 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
   }, [aiLayout]);
 
   const labelFor = (key: SectionKey, fallback: string) =>
-    aiLayout?.sections.find((s) => s.key === key)?.label || fallback;
+    aiWords?.sections.find((s) => s.key === key)?.label || fallback;
 
   const fallbackBrief = summary
     ? `${t("dashboard.mobileDashboard.fallbackBriefSales", { amount: formatCurrency(summary.todaySales) })} ${
@@ -151,7 +157,7 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
         >
           <div className="overflow-hidden">
             <div className="px-4 pb-4">
-              <p className="text-[0.8125rem] leading-relaxed text-text-muted">{aiLayout?.welcomeMessage ?? fallbackBrief}</p>
+              <p className="text-[0.8125rem] leading-relaxed text-text-muted">{aiWords?.welcomeMessage || fallbackBrief}</p>
             </div>
           </div>
         </div>
@@ -165,11 +171,17 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
             key={action.key}
             type="button"
             onClick={quickActionHandlers[action.key]}
-            className="group flex flex-col items-center justify-center rounded-xl border border-border bg-surface p-3 outline-none transition-all hover:border-primary/30 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40"
+            // Brand orange with a soft white sheen from the top-left; white icon and text.
+            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-xl bg-[linear-gradient(145deg,#d2601f_0%,#bb4413_55%,#9e3200_100%)] p-3 text-white shadow-elevation-2 outline-none transition-all hover:brightness-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
           >
-            <action.icon size={22} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
-            <span className="mt-2 text-center font-label text-xs font-semibold text-text">
-              {aiLayout?.quickActionLabels[action.key] || t(action.i18nKey)}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.08)_45%,transparent_70%)]"
+            />
+            <action.icon size={22} strokeWidth={1.9} className="relative text-white" aria-hidden="true" />
+            <span className="relative mt-2 text-center font-label text-xs font-semibold text-white">
+              {/* "Voice+" is a fixed name, so the AI dashboard doesn't relabel it. */}
+              {(action.key !== "voice_order" && aiWords?.quickActionLabels[action.key]) || t(action.i18nKey)}
             </span>
           </button>
         ))}
@@ -184,7 +196,7 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
           ? {
               icon: Package,
               badge: t("dashboard.mobileDashboard.lowStockBadge", { count: summary!.lowStockCount }),
-              badgeClass: "bg-danger-container text-danger",
+              badgeClass: "bg-danger text-white",
               title: summary!.lowStockItems.slice(0, 2).join(" • ") || t("dashboard.mobileDashboard.lowStockItemsFallback"),
               detail: t("dashboard.mobileDashboard.belowReorderLevel"),
             }
@@ -220,7 +232,7 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
               </h3>
             </div>
             {cards.length > 0 && (
-              <span className="rounded-full bg-danger-container px-2 py-0.5 font-label text-xs font-bold text-danger">
+              <span className="rounded-full bg-danger px-2 py-0.5 font-label text-xs font-bold text-white">
                 {t("dashboard.mobileDashboard.pendingCount", { count: cards.length })}
               </span>
             )}

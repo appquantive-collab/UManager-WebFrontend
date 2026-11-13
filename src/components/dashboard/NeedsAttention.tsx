@@ -22,7 +22,7 @@ export function NeedsAttention({ summary, businessName }: { summary?: DashboardS
           {t("dashboard.attention.title")}
         </h2>
         {!allClear && summary ? (
-          <span className="rounded-full bg-danger-container px-2.5 py-0.5 text-xs font-bold text-danger">
+          <span className="rounded-full bg-danger px-2.5 py-0.5 text-xs font-bold text-white">
             {dues.length + lowStock.length + (pendingOrders > 0 ? 1 : 0)}
           </span>
         ) : null}
@@ -107,7 +107,7 @@ export function NeedsAttention({ summary, businessName }: { summary?: DashboardS
                     <span
                       className={
                         item.quantity <= 0
-                          ? "shrink-0 rounded-full bg-danger-container px-2.5 py-0.5 text-xs font-bold text-danger"
+                          ? "shrink-0 rounded-full bg-danger px-2.5 py-0.5 text-xs font-bold text-white"
                           : "shrink-0 rounded-full bg-warning-container px-2.5 py-0.5 text-xs font-bold text-warning"
                       }
                     >

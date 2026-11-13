@@ -1,133 +1,23 @@
-import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Sparkles, Check } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Check } from "lucide-react";
 import clsx from "clsx";
-import { Button } from "../../components/ui/Button";
 import { Tabs } from "../../components/ui/Tabs";
-import { Badge } from "../../components/ui/Badge";
-import { getProfile, updateProfile } from "../../lib/auth-api";
+import { updateProfile } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
 import { showError, showSuccess } from "../../lib/toast";
 import { useAuthStore } from "../../lib/auth-store";
 import type { PreferredLanguage } from "../../lib/auth-store";
 import { supportedLanguages } from "../../lib/i18n";
-import { categoryLabel, customerTypeLabel, goalLabel, orderVolumeLabel } from "../../lib/onboarding-labels";
-import { OnboardingModal } from "../../components/onboarding/OnboardingModal";
 import { DisplaySettings } from "../../components/settings/DisplaySettings";
 import { BillSettings, BusinessDetailsSettings, GstSettings } from "../../components/settings/BusinessDetailsSettings";
 import { TeamSettings } from "../../components/settings/TeamSettings";
+import { AppSetupCard } from "../../components/settings/AppSetupCard";
+import { PlanSettings } from "../../components/settings/PlanSettings";
+import { PlatformAdminPlans } from "../../components/settings/PlatformAdminPlans";
+import { usePlan } from "../../lib/use-plan";
 import { ActivityLog } from "../../components/settings/ActivityLog";
-
-function BusinessProfileCard() {
-  const { t } = useTranslation();
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
-  });
-  const [wizardOpen, setWizardOpen] = useState(false);
-
-  const onboarding = profile?.tenant?.onboarding;
-  const aiLayout = profile?.tenant?.aiDashboardLayout;
-
-  if (isLoading) {
-    return (
-      <div className="max-w-xl rounded-2xl bg-surface p-6 shadow-elevation-1 text-sm text-text-muted">
-        {t("common.loading")}
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-text">{t("settingsPage.businessProfile")}</h3>
-          <p className="mt-1 text-xs text-text-muted">{t("settingsPage.businessProfileDescription")}</p>
-        </div>
-        <Badge tone={onboarding?.completed ? "success" : "warning"}>
-          {onboarding?.completed ? t("settingsPage.complete") : t("settingsPage.notSetUp")}
-        </Badge>
-      </div>
-
-      {onboarding?.completed ? (
-        <>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.category")}</p>
-              <p className="mt-0.5 text-sm font-medium text-text">
-                {onboarding.category ? categoryLabel(onboarding.category) : "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.customers")}</p>
-              <p className="mt-0.5 text-sm font-medium text-text">
-                {onboarding.customerType ? customerTypeLabel(onboarding.customerType) : "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.orderVolume")}</p>
-              <p className="mt-0.5 text-sm font-medium text-text">
-                {onboarding.orderVolume ? orderVolumeLabel(onboarding.orderVolume) : "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.warehousesAndStaff")}</p>
-              <p className="mt-0.5 text-sm font-medium text-text">
-                {t("settingsPage.warehousesStaffCount", {
-                  warehouses: onboarding.warehouseCount ?? 0,
-                  staff: onboarding.staffCount ?? 0,
-                })}
-              </p>
-            </div>
-          </div>
-
-          {onboarding.goals.length > 0 && (
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.priorities")}</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {onboarding.goals.map((g) => (
-                  <Badge key={g} tone="info">
-                    {goalLabel(g)}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {onboarding.painPoints && (
-            <div>
-              <p className="text-xs text-text-muted">{t("settingsPage.notes")}</p>
-              <p className="mt-0.5 text-sm text-text">{onboarding.painPoints}</p>
-            </div>
-          )}
-
-          {aiLayout && (
-            <div className="flex items-start gap-2 rounded-xl border border-primary-container bg-primary-container/40 p-3">
-              <Sparkles size={16} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
-              <div>
-                <p className="text-xs font-semibold text-primary">{t("settingsPage.aiPersonalizedActive")}</p>
-                <p className="mt-0.5 text-xs text-text-muted">{aiLayout.welcomeMessage}</p>
-              </div>
-            </div>
-          )}
-
-          <Button variant="secondary" onClick={() => setWizardOpen(true)}>
-            {t("settingsPage.updateBusinessProfile")}
-          </Button>
-        </>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-text-muted">{t("settingsPage.notCompletedYet")}</p>
-          <Button onClick={() => setWizardOpen(true)}>{t("settingsPage.completeSetup")}</Button>
-        </div>
-      )}
-
-      <OnboardingModal open={wizardOpen} onClose={() => setWizardOpen(false)} />
-    </div>
-  );
-}
 
 function LanguageSettings() {
   const { t } = useTranslation();
@@ -182,29 +72,37 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const role = useAuthStore((state) => state.user?.role);
   const isManager = role === "OWNER" || role === "MANAGER" || role === "SUPER_ADMIN";
-  const TAB_KEYS = isManager ? ["business", "tax", "invoice", "team", "activity", "language", "display"] : ["language", "display"];
+  const { platformAdmin } = usePlan();
+  const TAB_KEYS = [
+    ...(isManager ? ["business", "plan", "tax", "invoice", "team", "activity"] : []),
+    "language",
+    "display",
+    ...(platformAdmin ? ["allPlans"] : []),
+  ];
   const requested = searchParams.get("tab") ?? TAB_KEYS[0];
   const tab = TAB_KEYS.includes(requested) ? requested : TAB_KEYS[0];
   const setTab = (key: string) => setSearchParams({ tab: key }, { replace: true });
 
   const tabs = [
     { key: "business", label: t("settingsPage.tabs.business") },
+    { key: "plan", label: t("settingsPage.tabs.plan") },
     { key: "tax", label: t("settingsPage.tabs.tax") },
     { key: "invoice", label: t("settingsPage.tabs.invoice") },
     { key: "team", label: t("settingsPage.tabs.team") },
     { key: "activity", label: t("settingsPage.tabs.activity") },
     { key: "language", label: t("settingsPage.tabs.language") },
     { key: "display", label: t("settingsPage.tabs.display") },
+    { key: "allPlans", label: t("settingsPage.tabs.allPlans") },
   ].filter((item) => TAB_KEYS.includes(item.key));
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
       {tab === "business" && (
         <div className="space-y-6">
           <BusinessDetailsSettings />
-          <BusinessProfileCard />
+          <AppSetupCard />
         </div>
       )}
       {tab === "language" && <LanguageSettings />}
@@ -213,6 +111,8 @@ export function SettingsPage() {
       {tab === "invoice" && <BillSettings />}
       {tab === "team" && <TeamSettings />}
       {tab === "activity" && <ActivityLog />}
+      {tab === "plan" && <PlanSettings />}
+      {tab === "allPlans" && <PlatformAdminPlans />}
     </div>
   );
 }

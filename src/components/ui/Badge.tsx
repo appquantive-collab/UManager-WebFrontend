@@ -5,7 +5,7 @@ type BadgeTone = "success" | "warning" | "danger" | "info" | "neutral";
 const toneClasses: Record<BadgeTone, string> = {
   success: "bg-success-container text-success",
   warning: "bg-warning-container text-warning",
-  danger: "bg-danger-container text-danger",
+  danger: "bg-danger text-white",
   info: "bg-info-container text-info",
   neutral: "bg-surface-variant text-text-muted",
 };

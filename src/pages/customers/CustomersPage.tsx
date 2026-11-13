@@ -211,7 +211,7 @@ export function CustomersPage() {
                     <span className="block text-sm text-text-muted">{customer.phone || t("customers.hub.noPhone")}</span>
                   </span>
                   {overLimit(customer) ? (
-                    <span className="shrink-0 rounded-full bg-danger-container px-2.5 py-1 text-xs font-bold text-danger">{t("customers.hub.overLimitBadge")}</span>
+                    <span className="shrink-0 rounded-full bg-danger px-2.5 py-1 text-xs font-bold text-white">{t("customers.hub.overLimitBadge")}</span>
                   ) : null}
                 </button>
 

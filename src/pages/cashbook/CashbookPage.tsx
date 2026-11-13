@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { ArrowDownLeft, ArrowUpRight, Banknote, ChevronLeft, ChevronRight, Lock, Plus, ReceiptIndianRupee, Trash2, Wallet } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
@@ -27,6 +28,7 @@ function shiftDate(date: string, days: number) {
  */
 export function CashbookPage() {
   const { t, i18n } = useTranslation();
+  const { vocab } = useAppSetup();
   const queryClient = useQueryClient();
   const [date, setDate] = useState(todayIst);
   const [expenseOpen, setExpenseOpen] = useState(() => initialParam("add") === "expense");
@@ -89,7 +91,7 @@ export function CashbookPage() {
 
   return (
     <div className="space-y-5">
-      <PageIntro text={t("cashbook.intro")}>
+      <PageIntro text={t("cashbook.intro", { context: vocab })}>
         <Button onClick={() => setExpenseOpen(true)}>
           <Plus size={16} aria-hidden="true" /> {t("cashbook.addExpense")}
         </Button>
@@ -98,7 +100,7 @@ export function CashbookPage() {
       <PageGuide
         storageKey="cashbook"
         title={t("cashbook.guide.title")}
-        subtitle={t("cashbook.guide.subtitle")}
+        subtitle={t("cashbook.guide.subtitle", { context: vocab })}
         stepLabel={(number) => t("sales.guide.step", { number })}
         steps={[
           { icon: ReceiptIndianRupee, title: t("cashbook.guide.s1.title"), body: t("cashbook.guide.s1.body") },
@@ -108,7 +110,7 @@ export function CashbookPage() {
             body: t("cashbook.guide.s2.body"),
             action: { label: t("cashbook.addExpense"), onClick: () => setExpenseOpen(true) },
           },
-          { icon: Lock, title: t("cashbook.guide.s3.title"), body: t("cashbook.guide.s3.body") },
+          { icon: Lock, title: t("cashbook.guide.s3.title", { context: vocab }), body: t("cashbook.guide.s3.body", { context: vocab }) },
         ]}
       />
 
@@ -152,7 +154,7 @@ export function CashbookPage() {
             <SummaryTile icon={ReceiptIndianRupee} label={t("cashbook.sales")} value={formatMoney(data.sales.total)} detail={t("cashbook.billsCount", { count: data.sales.count })} />
             <SummaryTile icon={ArrowDownLeft} label={t("cashbook.received")} value={formatMoney(data.totals.received)} detail={t("cashbook.receivedDetail")} />
             <SummaryTile icon={ArrowUpRight} label={t("cashbook.paidOut")} value={formatMoney(data.totals.paidOut)} detail={t("cashbook.paidOutDetail")} />
-            <SummaryTile icon={Banknote} label={t("cashbook.cashInDrawer")} value={formatMoney(expected)} detail={t("cashbook.cashInDrawerDetail")} />
+            <SummaryTile icon={Banknote} label={t("cashbook.cashInDrawer", { context: vocab })} value={formatMoney(expected)} detail={t("cashbook.cashInDrawerDetail", { context: vocab })} />
           </SummaryRow>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -196,7 +198,7 @@ export function CashbookPage() {
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="text-base font-bold text-text">{t("cashbook.closeTitle")}</h2>
-                <p className="text-sm text-text-muted">{t("cashbook.closeBody")}</p>
+                <p className="text-sm text-text-muted">{t("cashbook.closeBody", { context: vocab })}</p>
               </div>
               {data.closing ? (
                 <span className="rounded-full bg-surface-variant px-2.5 py-1 text-xs font-bold text-text">{t("cashbook.closedBadge")}</span>
@@ -204,15 +206,15 @@ export function CashbookPage() {
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <Field label={t("cashbook.opening")} hint={data.cash.openingFrom && data.cash.openingFrom !== "saved" ? t("cashbook.openingFrom", { date: data.cash.openingFrom }) : t("cashbook.openingHint")} htmlFor="cb-opening">
+              <Field label={t("cashbook.opening")} hint={data.cash.openingFrom && data.cash.openingFrom !== "saved" ? t("cashbook.openingFrom", { date: data.cash.openingFrom }) : t("cashbook.openingHint", { context: vocab })} htmlFor="cb-opening">
                 <input id="cb-opening" type="number" inputMode="decimal" min={0} className={inputClass} value={opening} onChange={(e) => setOpening(e.target.value)} />
               </Field>
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-semibold text-text">{t("cashbook.expected")}</span>
+                <span className="text-sm font-semibold text-text">{t("cashbook.expected", { context: vocab })}</span>
                 <p className="flex h-11 items-center rounded-xl bg-surface-muted px-3 text-base font-bold tabular-nums text-text">{formatMoney(expected)}</p>
                 <p className="text-xs text-text-muted">{t("cashbook.expectedHint", { in: formatMoney(data.cash.in), out: formatMoney(data.cash.out) })}</p>
               </div>
-              <Field label={t("cashbook.counted")} hint={t("cashbook.countedHint")} htmlFor="cb-counted">
+              <Field label={t("cashbook.counted")} hint={t("cashbook.countedHint", { context: vocab })} htmlFor="cb-counted">
                 <input id="cb-counted" type="number" inputMode="decimal" min={0} className={inputClass} value={counted} onChange={(e) => setCounted(e.target.value)} placeholder="0" />
               </Field>
             </div>
@@ -228,7 +230,7 @@ export function CashbookPage() {
                 {difference === 0
                   ? t("cashbook.matches")
                   : difference > 0
-                    ? t("cashbook.extra", { amount: formatMoney(difference) })
+                    ? t("cashbook.extra", { amount: formatMoney(difference), context: vocab })
                     : t("cashbook.short", { amount: formatMoney(Math.abs(difference)) })}
               </p>
             ) : null}
@@ -249,7 +251,7 @@ export function CashbookPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-bold text-text">{t("cashbook.expensesTitle")}</h2>
-                <p className="text-sm text-text-muted">{t("cashbook.expensesBody")}</p>
+                <p className="text-sm text-text-muted">{t("cashbook.expensesBody", { context: vocab })}</p>
               </div>
               <Button variant="secondary" onClick={() => setExpenseOpen(true)}>
                 <Plus size={15} aria-hidden="true" /> {t("cashbook.add")}
@@ -266,7 +268,7 @@ export function CashbookPage() {
                 {(expenses.data ?? []).map((e) => (
                   <li key={e._id} className="flex items-center justify-between gap-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-text">{t(`expenses.category.${e.category}`)}</p>
+                      <p className="text-sm font-semibold text-text">{t(`expenses.category.${e.category}`, { context: vocab })}</p>
                       <p className="truncate text-xs text-text-muted">
                         {methodLabel(e.method)}
                         {e.note ? ` · ${e.note}` : ""}

@@ -8,17 +8,22 @@ import clsx from "clsx";
 import { AlertTriangle, Check, ChevronLeft, Package, Plus, Search, Store, Trash2, UserRound, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
+import { DecimalInput } from "../ui/DecimalInput";
 import { TextField } from "../ui/TextField";
 import { SegmentedControl } from "../ui/SegmentedControl";
 import { BillActions } from "../bills/BillActions";
-import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
+import { listCustomers, createCustomer, updateCustomer, type CustomerListItem } from "../../lib/customers-api";
+import { updateBusinessProfile } from "../../lib/tenants-api";
 import { listProducts, type Product } from "../../lib/products-api";
 import { getStockLevels } from "../../lib/stock-api";
 import { SerialPicker } from "./SerialPicker";
+import { useAppSetup } from "../../lib/use-app-setup";
 import { getProfile } from "../../lib/auth-api";
 import {
   getCustomerPendingItems,
+  getNextBillNumber,
   createBill,
+  editBill,
   recordPayment,
   type BillType,
   type CreateBillInput,
@@ -29,13 +34,22 @@ import {
 } from "../../lib/invoices-api";
 import { ApiError } from "../../lib/api";
 import { errorMessage } from "../../lib/api-errors";
-import { showError } from "../../lib/toast";
+import { showError, showSuccess } from "../../lib/toast";
 import { formatCurrency, formatMoney, formatQty } from "../../lib/format";
 import i18n from "../../lib/i18n";
 
 const newCustomerSchema = z.object({
   name: z.string().min(1, i18n.t("sales.newSaleModal.nameRequired")),
   phone: z.string().optional(),
+  // Both optional: GSTIN for business customers (GST bills), Aadhaar for people (udhaar records).
+  gstin: z
+    .string()
+    .optional()
+    .refine((v) => !v || /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(v.trim().toUpperCase()), { error: () => i18n.t("businessSettings.gstinInvalid") }),
+  aadhaar: z
+    .string()
+    .optional()
+    .refine((v) => !v || /^[2-9]\d{11}$/.test(v.replace(/\s+/g, "")), { error: () => i18n.t("customerForm.aadhaarInvalid") }),
 });
 type NewCustomerValues = z.infer<typeof newCustomerSchema>;
 
@@ -78,6 +92,10 @@ type Blocked =
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+const GSTIN_RE = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+/** GST slabs offered on a bill line. */
+const GST_RATES = [0, 3, 5, 12, 18, 28, 40];
+
 function lineAmounts(item: DraftItem, billType: BillType) {
   const gross = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
   const taxable = round2(gross * (1 - Math.min(100, Math.max(0, item.discountPercent || 0)) / 100));
@@ -85,23 +103,34 @@ function lineAmounts(item: DraftItem, billType: BillType) {
   return { gross, taxable, tax, total: round2(taxable + tax) };
 }
 
-export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+/**
+ * Make a bill — or, with `editInvoice`, change an existing one (opens on its
+ * items; customer stays the same; saved with editBill).
+ */
+export function NewSaleModal({ open, onClose, editInvoice = null }: { open: boolean; onClose: () => void; editInvoice?: Invoice | null }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>("customer");
   const [party, setParty] = useState<Party>(null);
   const [customerQuery, setCustomerQuery] = useState("");
   const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
+  const [showCustomerIds, setShowCustomerIds] = useState(false);
 
   const [items, setItems] = useState<DraftItem[]>([]);
   const [productQuery, setProductQuery] = useState("");
-  const [billType, setBillType] = useState<BillType>("record");
+  const appSetup = useAppSetup();
+  const [billType, setBillType] = useState<BillType>(appSetup.defaultBillType);
   const [blocked, setBlocked] = useState<Blocked>(null);
   const [overrides, setOverrides] = useState({ stock: false, credit: false });
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [method, setMethod] = useState<PaymentMethod>("cash");
   const [amount, setAmount] = useState("");
   const [counterMethod, setCounterMethod] = useState<"cash" | "upi" | "bank_transfer">("cash");
+  // Own bill number ("" = next in the series), and GSTINs typed on a GST bill.
+  const [billNumber, setBillNumber] = useState("");
+  const [sellerGstin, setSellerGstin] = useState("");
+  const [buyerGstin, setBuyerGstin] = useState<string | null>(null);
+  const [savingGstins, setSavingGstins] = useState(false);
   const productInputRef = useRef<HTMLInputElement>(null);
 
   const customerId = party?.kind === "customer" ? party.id : null;
@@ -116,13 +145,14 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
     resolver: zodResolver(newCustomerSchema),
     mode: "onChange",
     reValidateMode: "onChange",
-    defaultValues: { name: "", phone: "" },
+    defaultValues: { name: "", phone: "", gstin: "", aadhaar: "" },
   });
 
   const allCustomersQuery = useQuery({ queryKey: ["customers", "all"], queryFn: () => listCustomers(), enabled: open });
   const productsQuery = useQuery({ queryKey: ["products"], queryFn: () => listProducts(), enabled: open });
   const stockQuery = useQuery({ queryKey: ["stock-levels"], queryFn: getStockLevels, enabled: open });
   const profileQuery = useQuery({ queryKey: ["profile"], queryFn: getProfile, enabled: open, staleTime: 60_000 });
+  const nextNumberQuery = useQuery({ queryKey: ["invoices", "next-number"], queryFn: getNextBillNumber, enabled: open && step === "items", staleTime: 0 });
 
   const customers = useMemo(() => (allCustomersQuery.data ?? []).filter((c) => !c.isWalkIn), [allCustomersQuery.data]);
   const selectedCustomer = customers.find((c) => c._id === customerId) ?? null;
@@ -131,7 +161,18 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
     return !q || c.name.toLowerCase().includes(q) || (c.phone ?? "").includes(q);
   });
 
-  const stockOf = (productId?: string) => (productId ? (stockQuery.data?.[productId]?.total ?? 0) : undefined);
+  // Editing: this bill's own items count as available (they go back to stock first).
+  const editHeld = useMemo(() => {
+    const held = new Map<string, number>();
+    for (const i of editInvoice?.items ?? []) {
+      const pid = String(i.productId);
+      const product = (productsQuery.data ?? []).find((p) => p._id === pid);
+      const factor = product?.altUnit && i.unit === product.altUnit.name && i.unit !== product.unit ? product.altUnit.factor : 1;
+      held.set(pid, (held.get(pid) ?? 0) + i.quantity * factor);
+    }
+    return held;
+  }, [editInvoice, productsQuery.data]);
+  const stockOf = (productId?: string) => (productId ? (stockQuery.data?.[productId]?.total ?? 0) + (editHeld.get(productId) ?? 0) : undefined);
   /** Quantity in the item's base unit (2 box × 24 = 48 pcs). */
   const baseQtyOf = (item: DraftItem) => {
     const product = item.productId ? productById.get(item.productId) : undefined;
@@ -152,7 +193,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
   const pendingItemsQuery = useQuery({
     queryKey: ["invoices", "pending-items", customerId],
     queryFn: () => getCustomerPendingItems(customerId!),
-    enabled: Boolean(customerId) && step === "items",
+    enabled: Boolean(customerId) && step === "items" && !editInvoice,
   });
 
   useEffect(() => {
@@ -181,15 +222,25 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       setParty({ kind: "customer", id: customer._id });
       setShowNewCustomerForm(false);
-      resetNewCustomerForm({ name: "", phone: "" });
+      resetNewCustomerForm({ name: "", phone: "", gstin: "", aadhaar: "" });
+      setShowCustomerIds(false);
       setStep("items");
     },
     onError: (err) => showError(err instanceof ApiError ? errorMessage(err, t) : t("sales.newSaleModal.couldNotAddCustomer")),
   });
 
   const createBillMutation = useMutation({
-    mutationFn: createBill,
+    mutationFn: (input: CreateBillInput) => (editInvoice ? editBill(editInvoice._id, input) : createBill(input)),
     onSuccess: (inv) => {
+      if (editInvoice) {
+        queryClient.setQueryData(["invoices", "one", inv._id], inv);
+        for (const key of ["invoices", "orders", "products", "stock-levels", "stock-level", "customers", "dashboard", "daybook"]) {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+        showSuccess(t("bill.editedToast", { number: inv.invoiceNumber }));
+        onClose();
+        return;
+      }
       setInvoice(inv);
       setBlocked(null);
       // Counter sales are almost always paid on the spot; credit customers often aren't.
@@ -233,6 +284,37 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
   // Opened for a specific customer (e.g. "Make bill" on an order): skip choosing
   // the customer; their unbilled order items load into the bill automatically.
   const presetCustomerId = useNewSaleModalStore((state) => state.presetCustomerId);
+
+  // Editing: open straight on the bill's items, with its type and number.
+  useEffect(() => {
+    if (!open || !editInvoice || !allCustomersQuery.data) return;
+    const cid = typeof editInvoice.customerId === "object" ? editInvoice.customerId._id : editInvoice.customerId;
+    const walkIn = allCustomersQuery.data.find((c) => c._id === cid)?.isWalkIn;
+    setParty(walkIn ? { kind: "walk-in" } : { kind: "customer", id: cid });
+    setItems(
+      editInvoice.items.map((i) => ({
+        key: nextKey(),
+        orderId: i.orderId,
+        productId: String(i.productId),
+        productName: i.productName,
+        quantity: i.quantity,
+        unit: i.unit,
+        unitPrice: i.unitPrice,
+        discountPercent: i.discountPercent ?? 0,
+        gstPercent: i.gstPercent ?? 0,
+        isNew: false,
+        serials: i.serials ?? [],
+      }))
+    );
+    setBillType(editInvoice.billType);
+    setBillNumber(editInvoice.invoiceNumber);
+    setStep("items");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editInvoice, allCustomersQuery.data]);
+  const presetBillType = useNewSaleModalStore((state) => state.presetBillType);
+  useEffect(() => {
+    if (open && presetBillType && !editInvoice) setBillType(presetBillType);
+  }, [open, presetBillType, editInvoice]);
   useEffect(() => {
     if (!open || !presetCustomerId) return;
     setParty({ kind: "customer", id: presetCustomerId });
@@ -244,16 +326,20 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
     setParty(null);
     setCustomerQuery("");
     setShowNewCustomerForm(false);
-    resetNewCustomerForm({ name: "", phone: "" });
+    resetNewCustomerForm({ name: "", phone: "", gstin: "", aadhaar: "" });
+      setShowCustomerIds(false);
     setItems([]);
     setProductQuery("");
-    setBillType("record");
+    setBillType(appSetup.defaultBillType);
     setBlocked(null);
     setOverrides({ stock: false, credit: false });
     setInvoice(null);
     setMethod("cash");
     setAmount("");
     setCounterMethod("cash");
+    setBillNumber("");
+    setSellerGstin("");
+    setBuyerGstin(null);
   };
 
   useEffect(() => {
@@ -339,6 +425,11 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
   ];
   const orderIds = [...new Set(items.map((i) => i.orderId).filter((id): id is string => Boolean(id)))];
   const businessGstin = profileQuery.data?.tenant?.gstin;
+  // GST bill: the customer's GSTIN (saved on the customer) — editable here, saved back on billing.
+  const buyerGstinValue = (buyerGstin ?? selectedCustomer?.gstin ?? "").trim().toUpperCase();
+  const sellerGstinValue = sellerGstin.trim().toUpperCase();
+  const sellerGstinBad = billType === "gst" && !businessGstin && sellerGstinValue !== "" && !GSTIN_RE.test(sellerGstinValue);
+  const buyerGstinBad = billType === "gst" && Boolean(customerId) && buyerGstinValue !== "" && !GSTIN_RE.test(buyerGstinValue);
 
   const makeBill = (next: { stock?: boolean; credit?: boolean } = {}) => {
     const flags = { stock: overrides.stock || Boolean(next.stock), credit: overrides.credit || Boolean(next.credit) };
@@ -354,15 +445,38 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
         unit: i.unit || "pcs",
         unitPrice: Number(i.unitPrice) || 0,
         discountPercent: i.discountPercent > 0 ? Math.min(100, i.discountPercent) : undefined,
+        gstPercent: billType === "gst" ? i.gstPercent || 0 : undefined,
         serials: i.serials.length ? i.serials : undefined,
       })),
       billType,
+      invoiceNumber: billNumber.trim() || undefined,
       allowShortStock: flags.stock || undefined,
       allowOverCreditLimit: flags.credit || undefined,
       // Counter sale: paid in full right here, by the method picked below the total.
       payment: party?.kind === "walk-in" ? { amount: totalAmount, method: counterMethod } : undefined,
     };
-    createBillMutation.mutate(input);
+    // Save GSTINs typed on this GST bill first, so they print on it and are remembered.
+    void (async () => {
+      if (billType === "gst" && (sellerGstinValue || (customerId && buyerGstinValue !== (selectedCustomer?.gstin ?? "")))) {
+        setSavingGstins(true);
+        try {
+          if (!businessGstin && sellerGstinValue) {
+            await updateBusinessProfile({ gstin: sellerGstinValue });
+            await queryClient.invalidateQueries({ queryKey: ["profile"] });
+          }
+          if (customerId && buyerGstinValue !== (selectedCustomer?.gstin ?? "")) {
+            await updateCustomer(customerId, { gstin: buyerGstinValue });
+            await queryClient.invalidateQueries({ queryKey: ["customers"] });
+          }
+        } catch (err) {
+          showError(errorMessage(err, t));
+          return;
+        } finally {
+          setSavingGstins(false);
+        }
+      }
+      createBillMutation.mutate(input);
+    })();
   };
 
   const partyName = party?.kind === "walk-in" ? t("sale.walkInName") : (selectedCustomer?.name ?? "");
@@ -373,7 +487,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
     <div className="fixed inset-0 z-100 flex items-end justify-center bg-black/40 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={t("sales.newSaleModal.customerStepTitle")}>
       <div className="relative flex max-h-[94dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl bg-surface shadow-elevation-3 sm:rounded-3xl">
         <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
-          {step === "items" && !(presetCustomerId && customerId === presetCustomerId) ? (
+          {step === "items" && !editInvoice && !(presetCustomerId && customerId === presetCustomerId) ? (
             <button
               type="button"
               onClick={() => setStep("customer")}
@@ -388,7 +502,9 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
               {step === "customer" ? t("sales.newSaleModal.customerStepTitle") : step === "items" ? partyName : invoice?.invoiceNumber}
             </h2>
             <p className="truncate text-xs text-text-muted">
-              {step === "customer"
+              {editInvoice && step === "items"
+                ? t("bill.editingNumber", { number: editInvoice.invoiceNumber })
+                : step === "customer"
                 ? t("sale.customerHint")
                 : step === "items"
                   ? party?.kind === "walk-in"
@@ -412,6 +528,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {step === "customer" && (
             <>
+              {appSetup.features.counterSale ? (
               <button
                 type="button"
                 onClick={() => {
@@ -427,6 +544,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                   <span className="block text-xs text-text-muted">{t("sale.walkInBody")}</span>
                 </span>
               </button>
+              ) : null}
 
               <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-text-muted">{t("sale.orPickCustomer")}</p>
               <div className="relative mt-2">
@@ -447,6 +565,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                     type="button"
                     onClick={() => {
                       setParty({ kind: "customer", id: c._id });
+                      setBuyerGstin(null);
                       setStep("items");
                     }}
                     className="flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left outline-none transition-colors hover:bg-surface-muted focus-visible:bg-surface-muted"
@@ -483,7 +602,13 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                 <form
                   className="mt-3 space-y-2 rounded-xl border border-border p-3.5"
                   onSubmit={handleNewCustomerSubmit((values) =>
-                    createCustomerMutation.mutate({ name: values.name.trim(), phone: values.phone?.trim() || undefined })
+                    createCustomerMutation.mutate({
+                      name: values.name.trim(),
+                      phone: values.phone?.trim() || undefined,
+                      gstin: values.gstin?.trim().toUpperCase() || undefined,
+                      aadhaar: values.aadhaar?.replace(/\s+/g, "") || undefined,
+                      kind: values.gstin?.trim() ? "business" : "person",
+                    })
                   )}
                   noValidate
                 >
@@ -495,6 +620,35 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                     error={newCustomerErrors.phone?.message}
                     {...registerNewCustomer("phone")}
                   />
+                  {showCustomerIds ? (
+                    <>
+                      <TextField
+                        label={t("customerForm.gstinLabel") + " (" + t("sale.optional") + ")"}
+                        placeholder="07ABCDE1234F1Z5"
+                        maxLength={15}
+                        className="uppercase"
+                        error={newCustomerErrors.gstin?.message}
+                        {...registerNewCustomer("gstin")}
+                      />
+                      <TextField
+                        label={t("customerForm.aadhaarLabel") + " (" + t("sale.optional") + ")"}
+                        placeholder="1234 5678 9012"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        maxLength={14}
+                        error={newCustomerErrors.aadhaar?.message}
+                        {...registerNewCustomer("aadhaar")}
+                      />
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomerIds(true)}
+                      className="flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <Plus size={15} aria-hidden="true" /> {t("sale.addGstinAadhaar")}
+                    </button>
+                  )}
                   <Button type="submit" className="w-full" isLoading={createCustomerMutation.isPending}>
                     {t("sales.newSaleModal.saveAndContinue")}
                   </Button>
@@ -603,8 +757,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                                   {short ? t("sale.onlyInStock", { qty: formatQty(Math.max(0, stock)), unit: baseUnit }) : t("sale.inStock", { qty: formatQty(stock), unit: baseUnit })}
                                 </span>
                               ) : null}
-                              {billType === "gst" && item.gstPercent > 0 ? <span>GST {item.gstPercent}%</span> : null}
-                            </p>
+                                          </p>
                           </div>
                           <button
                             type="button"
@@ -618,14 +771,10 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                         <div className="mt-2 grid grid-cols-[1fr_0.8fr_1.1fr_0.8fr] gap-2">
                           <label className="text-xs text-text-muted">
                             {t("sales.newSaleModal.qty")}
-                            <input
-                              type="number"
-                              inputMode="decimal"
-                              min={0.001}
-                              step="any"
+                            <DecimalInput
                               value={item.quantity}
                               readOnly={serialItem}
-                              onChange={(e) => updateItem(item.key, { quantity: Number(e.target.value) })}
+                              onValue={(n) => updateItem(item.key, { quantity: n })}
                               className={clsx(fieldClass, serialItem && "bg-surface-muted")}
                             />
                           </label>
@@ -656,27 +805,19 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                           <label className={clsx("text-xs", priceMissing ? "font-semibold text-danger" : "text-text-muted")}>
                             {t("sales.newSaleModal.price")}
                             {item.isNew ? " *" : ""}
-                            <input
-                              type="number"
-                              inputMode="decimal"
-                              min={0}
-                              step="any"
+                            <DecimalInput
                               value={item.unitPrice}
-                              onChange={(e) => updateItem(item.key, { unitPrice: Number(e.target.value) })}
+                              placeholder="0"
+                              onValue={(n) => updateItem(item.key, { unitPrice: n })}
                               className={clsx(fieldClass, priceMissing && "border-danger")}
                             />
                           </label>
                           <label className="text-xs text-text-muted">
                             {t("sale.discount")}
-                            <input
-                              type="number"
-                              inputMode="decimal"
-                              min={0}
-                              max={100}
-                              step="any"
-                              value={item.discountPercent || ""}
+                            <DecimalInput
+                              value={item.discountPercent}
                               placeholder="0"
-                              onChange={(e) => updateItem(item.key, { discountPercent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
+                              onValue={(n) => updateItem(item.key, { discountPercent: Math.min(100, Math.max(0, n)) })}
                               className={fieldClass}
                             />
                           </label>
@@ -688,7 +829,34 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                             onChange={(serials) => updateItem(item.key, { serials, quantity: serials.length })}
                           />
                         ) : null}
-                        <p className="mt-1.5 text-right text-sm font-semibold tabular-nums text-text">{formatMoney(amounts[index].total)}</p>
+                        {billType === "gst" ? (
+                          // GST bill: pick the GST % for this item (starts at the item's saved rate).
+                          <div className="mt-2" role="group" aria-label={t("sale.gstRate")}>
+                            <p className="text-xs text-text-muted">{t("sale.gstRate")}</p>
+                            <div className="mt-1 flex flex-wrap gap-1.5">
+                              {[...new Set([...GST_RATES, item.gstPercent || 0])].sort((x, y) => x - y).map((r) => (
+                                <button
+                                  key={r}
+                                  type="button"
+                                  aria-pressed={(item.gstPercent || 0) === r}
+                                  onClick={() => updateItem(item.key, { gstPercent: r })}
+                                  className={clsx(
+                                    "h-8 min-w-11 rounded-lg border px-2 text-sm font-semibold tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+                                    (item.gstPercent || 0) === r ? "border-text bg-text text-surface" : "border-border text-text hover:bg-surface-muted"
+                                  )}
+                                >
+                                  {r}%
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+                        <div className="mt-1.5 flex items-center justify-between gap-2 text-sm">
+                          <span className="text-xs text-text-muted tabular-nums">
+                            {billType === "gst" && amounts[index].tax > 0 ? t("sale.lineGst", { amount: formatMoney(amounts[index].tax) }) : ""}
+                          </span>
+                          <p className="font-semibold tabular-nums text-text">{formatMoney(amounts[index].total)}</p>
+                        </div>
                       </div>
                     );
                   })}
@@ -710,14 +878,68 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                   }}
                 />
                 <p className="mt-1.5 text-xs text-text-muted">
-                  {billType === "gst" ? (businessGstin ? t("sales.newSaleModal.gstBillDescription") : t("sale.noGstinYet")) : t("sales.newSaleModal.recordBillDescription")}
+                  {billType === "gst" ? t("sales.newSaleModal.gstBillDescription") : t("sales.newSaleModal.recordBillDescription")}
                 </p>
+
+                {billType === "gst" ? (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {businessGstin ? (
+                      <div className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-text-muted">
+                        {t("sale.yourGstin")}
+                        <span className="mt-0.5 block font-mono text-sm font-semibold text-text">{businessGstin}</span>
+                      </div>
+                    ) : (
+                      <label className={clsx("text-xs", sellerGstinBad ? "font-semibold text-danger" : "text-text-muted")}>
+                        {t("sale.yourGstin")}
+                        <input
+                          value={sellerGstin}
+                          onChange={(e) => setSellerGstin(e.target.value.toUpperCase())}
+                          maxLength={15}
+                          placeholder="09ABCDE1234F1Z5"
+                          autoCapitalize="characters"
+                          className={clsx(fieldClass, "font-mono", sellerGstinBad && "border-danger")}
+                        />
+                        <span className="mt-0.5 block font-normal text-text-muted">{sellerGstinBad ? t("sale.gstinInvalid") : t("sale.yourGstinHint")}</span>
+                      </label>
+                    )}
+                    {customerId ? (
+                      <label className={clsx("text-xs", buyerGstinBad ? "font-semibold text-danger" : "text-text-muted")}>
+                        {t("sale.customerGstin")}
+                        <input
+                          value={buyerGstin ?? selectedCustomer?.gstin ?? ""}
+                          onChange={(e) => setBuyerGstin(e.target.value.toUpperCase())}
+                          maxLength={15}
+                          placeholder={t("sale.optional")}
+                          autoCapitalize="characters"
+                          className={clsx(fieldClass, "font-mono", buyerGstinBad && "border-danger")}
+                        />
+                        <span className="mt-0.5 block font-normal text-text-muted">{buyerGstinBad ? t("sale.gstinInvalid") : t("sale.customerGstinHint")}</span>
+                      </label>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <label className="mt-3 block text-xs text-text-muted">
+                  {t("bill.billNumber")}
+                  <input
+                    value={billNumber}
+                    onChange={(e) => setBillNumber(e.target.value)}
+                    maxLength={30}
+                    placeholder={nextNumberQuery.data?.invoiceNumber ?? ""}
+                    className={clsx(fieldClass, "sm:w-56")}
+                  />
+                  <span className="mt-0.5 block text-text-muted">
+                    {editInvoice ? t("bill.editNumberHint") : t("sale.billNumberHint", { number: nextNumberQuery.data?.invoiceNumber ?? "" })}
+                  </span>
+                </label>
               </div>
 
               {blocked?.kind === "stock" ? (
-                <div className="mt-4 rounded-xl border border-warning/60 px-3.5 py-3" role="alert">
-                  <p className="flex items-center gap-1.5 text-sm font-bold text-text">
-                    <AlertTriangle size={15} className="text-warning" aria-hidden="true" /> {t("sale.shortTitle")}
+                // Shown as a pop-up over the sale so it is never hidden below the scroll.
+                <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 p-3 sm:items-center" role="alertdialog" aria-modal="true" aria-labelledby="sale-short-title" onClick={() => setBlocked(null)}>
+                <div className="w-full max-w-md rounded-2xl border border-warning/60 bg-surface p-4 shadow-elevation-3" onClick={(e) => e.stopPropagation()}>
+                  <p id="sale-short-title" className="flex items-center gap-1.5 text-base font-bold text-text">
+                    <AlertTriangle size={17} className="text-warning" aria-hidden="true" /> {t("sale.shortTitle")}
                   </p>
                   <ul className="mt-1.5 space-y-0.5 text-sm text-text">
                     {blocked.shortages.map((s) => (
@@ -736,12 +958,15 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                     </Button>
                   </div>
                 </div>
+                </div>
               ) : null}
 
               {blocked?.kind === "credit" ? (
-                <div className="mt-4 rounded-xl border border-warning/60 px-3.5 py-3" role="alert">
-                  <p className="flex items-center gap-1.5 text-sm font-bold text-text">
-                    <AlertTriangle size={15} className="text-warning" aria-hidden="true" /> {t("sale.creditTitle")}
+                // Shown as a pop-up over the sale so it is never hidden below the scroll.
+                <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 p-3 sm:items-center" role="alertdialog" aria-modal="true" aria-labelledby="sale-credit-title" onClick={() => setBlocked(null)}>
+                <div className="w-full max-w-md rounded-2xl border border-warning/60 bg-surface p-4 shadow-elevation-3" onClick={(e) => e.stopPropagation()}>
+                  <p id="sale-credit-title" className="flex items-center gap-1.5 text-base font-bold text-text">
+                    <AlertTriangle size={17} className="text-warning" aria-hidden="true" /> {t("sale.creditTitle")}
                   </p>
                   <p className="mt-1.5 text-sm text-text">
                     {t("sale.creditBody", {
@@ -758,6 +983,7 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                       {t("sale.billAnyway")}
                     </Button>
                   </div>
+                </div>
                 </div>
               ) : null}
             </>
@@ -880,8 +1106,8 @@ export function NewSaleModal({ open, onClose }: { open: boolean; onClose: () => 
                 </div>
               </div>
             ) : null}
-            <Button className="mt-3 w-full" disabled={!canMakeBill || Boolean(blocked)} isLoading={createBillMutation.isPending && !blocked} onClick={() => makeBill()}>
-              {party?.kind === "walk-in" ? t("sale.makeBillPaid", { amount: formatMoney(totalAmount) }) : t("sale.makeBill")}
+            <Button className="mt-3 w-full" disabled={!canMakeBill || Boolean(blocked) || sellerGstinBad || buyerGstinBad} isLoading={(createBillMutation.isPending || savingGstins) && !blocked} onClick={() => makeBill()}>
+              {editInvoice ? t("bill.saveEdit", { amount: formatMoney(totalAmount) }) : party?.kind === "walk-in" ? t("sale.makeBillPaid", { amount: formatMoney(totalAmount) }) : t("sale.makeBill")}
             </Button>
           </div>
         ) : null}

@@ -4,15 +4,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { AlertTriangle, Check, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { AlertTriangle, Check, Loader2, Mic, Plus, Sparkles, Square, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
+import { DecimalInput } from "../ui/DecimalInput";
+import { ProBadge, useProGate } from "../ui/ProBadge";
 import { TextField } from "../ui/TextField";
 import { parseOrderText, createOrder, type OrderLineItemInput, type RawMaterialWarning } from "../../lib/orders-api";
 import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
 import { ApiError } from "../../lib/api";
+import { errorMessage } from "../../lib/api-errors";
 import { showError } from "../../lib/toast";
-import i18n from "../../lib/i18n";
+import i18n, { currentLanguage } from "../../lib/i18n";
+import { useNewOrderModalStore } from "../../lib/new-order-store";
+import { transcribeVoice, useLiveTranscript, useVoiceRecorder, voiceRecordingSupported } from "../../lib/speech";
 
 const newCustomerSchema = z.object({
   name: z.string().min(1, i18n.t("orders.common.nameRequired")),
@@ -38,6 +43,7 @@ type Mode = "choose" | "ai" | "manual" | "review" | "warning";
 
 export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
+  const proGate = useProGate();
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<Mode>("choose");
   const [orderText, setOrderText] = useState("");
@@ -51,6 +57,29 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
   const [rawTextForSave, setRawTextForSave] = useState<string | undefined>(undefined);
   const [source, setSource] = useState<"manual" | "ai_parsed">("manual");
   const [rawMaterialWarnings, setRawMaterialWarnings] = useState<RawMaterialWarning[]>([]);
+
+  // Voice order: speak the order, it's written into the box for Munshi AI to read.
+  const voiceStart = useNewOrderModalStore((state) => state.voice);
+  const [transcribing, setTranscribing] = useState(false);
+  const recorder = useVoiceRecorder(() => showError(t("orders.newOrderModal.micError")));
+  const liveText = useLiveTranscript(recorder, currentLanguage());
+  const toggleMic = async () => {
+    if (!recorder.recording) {
+      void recorder.start();
+      return;
+    }
+    const clip = await recorder.stop();
+    if (!clip || clip.durationMs < 600) return;
+    setTranscribing(true);
+    try {
+      const text = await transcribeVoice(clip.blob, currentLanguage(), "text");
+      if (text) setOrderText((current) => (current.trim() ? `${current.trim()} ${text}` : text));
+    } catch {
+      showError(t("orders.newOrderModal.micError"));
+    } finally {
+      setTranscribing(false);
+    }
+  };
 
   const {
     register: registerNewCustomer,
@@ -102,7 +131,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setMode("review");
     },
     onError: (err) => {
-      showError(err instanceof ApiError ? err.message : t("orders.newOrderModal.couldNotParse"));
+      showError(err instanceof ApiError && err.code ? errorMessage(err, t) : err instanceof ApiError ? err.message : t("orders.newOrderModal.couldNotParse"));
     },
   });
 
@@ -137,8 +166,22 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
     },
   });
 
+  // Opened from "Voice order": straight to Munshi AI with the mic on (Pro).
+  useEffect(() => {
+    if (!open || !voiceStart) return;
+    if (proGate.locked) {
+      onClose();
+      proGate.guard(() => undefined);
+      return;
+    }
+    setMode("ai");
+    if (voiceRecordingSupported) void recorder.start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, voiceStart]);
+
   useEffect(() => {
     if (!open) {
+      void recorder.stop(true);
       setMode("choose");
       setOrderText("");
       setCustomerId(null);
@@ -219,14 +262,18 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
 
               <button
                 type="button"
-                onClick={() => setMode("ai")}
+                // Munshi AI reading orders is Pro: on Basic this explains and opens the plan page.
+                onClick={() => (proGate.locked ? (onClose(), proGate.guard(() => undefined)) : setMode("ai"))}
                 className="mt-5 flex w-full items-start gap-3 rounded-xl border border-primary/30 bg-primary-container/40 p-4 text-left outline-none transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary">
                   <Sparkles size={18} />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-text">{t("orders.newOrderModal.typeOrPaste")}</span>
+                  <span className="flex items-center gap-2 text-sm font-semibold text-text">
+                    {t("orders.newOrderModal.typeOrPaste")}
+                    {proGate.locked ? <ProBadge /> : null}
+                  </span>
                   <span className="mt-0.5 block text-xs text-text-muted">
                     {t("orders.newOrderModal.typeOrPasteExample")}
                   </span>
@@ -256,21 +303,67 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
               <h2 className="text-lg font-bold text-text">{t("orders.newOrderModal.aiTitle")}</h2>
               <p className="mt-1 text-sm text-text-muted">{t("orders.newOrderModal.aiSubtitle")}</p>
 
-              <textarea
-                value={orderText}
-                onChange={(e) => setOrderText(e.target.value)}
-                rows={6}
-                placeholder={t("orders.newOrderModal.aiTextareaPlaceholder")}
-                className="mt-4 w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary"
-              />
+              <div className="relative mt-4">
+                <textarea
+                  value={orderText}
+                  onChange={(e) => setOrderText(e.target.value)}
+                  rows={6}
+                  placeholder={t("orders.newOrderModal.aiTextareaPlaceholder")}
+                  className={clsx(
+                    "w-full resize-none rounded-lg border border-transparent bg-surface-variant px-3.5 py-2.5 text-sm text-text outline-none transition-colors placeholder:text-text-muted focus:border-primary",
+                    voiceRecordingSupported && "pb-14"
+                  )}
+                />
+                {voiceRecordingSupported ? (
+                  <button
+                    type="button"
+                    onClick={() => void toggleMic()}
+                    disabled={transcribing}
+                    aria-label={recorder.recording ? t("orders.newOrderModal.micStop") : t("orders.newOrderModal.micStart")}
+                    className={clsx(
+                      "absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-60",
+                      recorder.recording ? "bg-danger text-white" : "bg-primary text-on-primary hover:bg-primary-hover"
+                    )}
+                  >
+                    {transcribing ? (
+                      <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                    ) : recorder.recording ? (
+                      <Square size={14} fill="currentColor" aria-hidden="true" />
+                    ) : (
+                      <Mic size={18} aria-hidden="true" />
+                    )}
+                  </button>
+                ) : null}
+              </div>
+              {recorder.recording || transcribing ? (
+                <div className="mt-2 rounded-lg border border-border bg-surface px-3 py-2" role="status" aria-live="polite">
+                  <p className="flex items-center gap-2 text-xs font-medium text-text-muted">
+                    {recorder.recording ? (
+                      <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-danger opacity-60 motion-safe:animate-ping" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-danger" />
+                      </span>
+                    ) : null}
+                    {transcribing ? t("orders.newOrderModal.transcribing") : t("orders.newOrderModal.listening")}
+                  </p>
+                  {liveText ? <p className="mt-1 text-sm text-text">{liveText}</p> : null}
+                </div>
+              ) : null}
 
               <div className="mt-5 flex gap-3">
-                <Button variant="secondary" className="flex-1" onClick={() => setMode("choose")}>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => {
+                    void recorder.stop(true);
+                    setMode("choose");
+                  }}
+                >
                   {t("common.back")}
                 </Button>
                 <Button
                   className="flex-1"
-                  disabled={orderText.trim().length < 3}
+                  disabled={orderText.trim().length < 3 || recorder.recording || transcribing}
                   isLoading={parseMutation.isPending}
                   onClick={() => parseMutation.mutate(orderText.trim())}
                 >
@@ -423,12 +516,9 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         <div>
                           <label className="text-xs text-text">{t("orders.common.qty")}</label>
-                          <input
-                            type="number"
-                            min={0.001}
-                            step="any"
+                          <DecimalInput
                             value={item.quantity}
-                            onChange={(e) => updateItem(item.key, { quantity: Number(e.target.value) })}
+                            onValue={(n) => updateItem(item.key, { quantity: n })}
                             className="mt-0.5 w-full rounded-lg border border-transparent bg-surface-variant px-2.5 py-1.5 text-sm text-text outline-none focus:border-primary"
                           />
                         </div>
@@ -451,12 +541,10 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                           >
                             {t("orders.common.price")} {item.isNewProduct ? "*" : ""}
                           </label>
-                          <input
-                            type="number"
-                            min={0}
-                            step="any"
+                          <DecimalInput
                             value={item.unitPrice}
-                            onChange={(e) => updateItem(item.key, { unitPrice: Number(e.target.value) })}
+                            placeholder="0"
+                            onValue={(n) => updateItem(item.key, { unitPrice: n })}
                             className={clsx(
                               "mt-0.5 w-full rounded-lg border bg-surface-variant px-2.5 py-1.5 text-sm text-text outline-none focus:border-primary",
                               item.isNewProduct && (!item.unitPrice || item.unitPrice <= 0)

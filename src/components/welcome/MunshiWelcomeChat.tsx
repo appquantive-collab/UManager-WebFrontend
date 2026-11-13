@@ -344,14 +344,12 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     if (aliveRef.current) navigate("/login");
   };
 
+  // "Fill in manually" opens the full register page instead of asking field by field.
   const chooseManual = async () => {
-    setMode("manual");
-    signupTokenRef.current = null;
-    push({ role: "user", text: t("welcomeChat.choiceManual") });
-    setBusy(true);
-    await say("welcomeChat.manualIntro");
-    await askField("name");
+    stopSpeaking();
+    navigate("/register");
   };
+
 
   const chooseLanguage = async (code: SupportedLanguageCode, label: string) => {
     push({ role: "user", text: label });

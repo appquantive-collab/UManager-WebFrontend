@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useAppSetup } from "../../lib/use-app-setup";
 import clsx from "clsx";
 import { Button } from "../ui/Button";
 import { Field, ModalShell, inputClass } from "../page/kit";
@@ -28,6 +29,7 @@ export function AddExpenseModal({
   defaultDate?: string;
 }) {
   const { t } = useTranslation();
+  const { vocab } = useAppSetup();
   const [category, setCategory] = useState<ExpenseCategory>("tea_food");
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<ExpenseMethod>("cash");
@@ -64,7 +66,7 @@ export function AddExpenseModal({
       open={open}
       onClose={onClose}
       title={t("cashbook.addExpense")}
-      subtitle={t("cashbook.addExpenseSub")}
+      subtitle={t("cashbook.addExpenseSub", { context: vocab })}
       closeLabel={t("common.close")}
       footer={
         <div className="flex gap-3">
@@ -92,7 +94,7 @@ export function AddExpenseModal({
                   category === c ? "border-text bg-text text-surface" : "border-border text-text hover:bg-surface-muted"
                 )}
               >
-                {t(`expenses.category.${c}`)}
+                {t(`expenses.category.${c}`, { context: vocab })}
               </button>
             ))}
           </div>
