@@ -1,24 +1,29 @@
-// Pre-records Munshi AI's fixed chat lines (no {{variables}}) in the Indian male
-// voice, so they play instantly from the website instead of waiting on the
-// backend's live voice service (which can also be asleep on Render's free plan).
+// Pre-records Munshi AI's fixed chat lines (no {{variables}}) so they play
+// instantly from the website instead of waiting on the backend's live voice
+// service (which can also be asleep on Render's free plan).
 //
-// Run after changing any welcomeChat text:  npm run voice:generate
-// Voices and speed must match backend/src/modules/tts/tts.service.ts.
+// The audio comes from the backend's own /api/tts, so recordings sound exactly
+// like live replies (Hinglish is written in Devanagari and read by the Hindi
+// voice there). Start the backend first, then run:  npm run voice:generate
+// Point it elsewhere with TTS_URL=https://…/api/tts.
+// VOICE_IDS must match src/lib/speech.ts.
 
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public", "voice");
 const manifestPath = join(root, "src", "lib", "voice-manifest.ts");
+const TTS_URL = process.env.TTS_URL ?? "http://localhost:4000/api/tts";
+// The TTS route allows 40 requests a minute per IP.
+const PAUSE_MS = 1600;
 
-const VOICES = {
-  en: { name: "en-IN-PrabhatNeural", rate: "+22%" },
-  "hi-Latn": { name: "en-IN-PrabhatNeural", rate: "+22%" },
-  hi: { name: "hi-IN-MadhurNeural", rate: "+16%" },
+const VOICE_IDS = {
+  en: "en-IN-PrabhatNeural|-5%",
+  "hi-Latn": "hi-IN-MadhurNeural|-5%|spoken",
+  hi: "hi-IN-MadhurNeural|-5%|spoken",
 };
 
 // welcomeChat keys Munshi says out loud. Keys with {{variables}} are skipped automatically.
@@ -32,40 +37,46 @@ const SPOKEN_KEYS = [
   "socialFailed", "socialCancelled", "socialExpired", "socialNotReady",
 ];
 
-// Must match cleanForSpeech() and voiceKey() in src/lib/speech.ts.
+// Must match cleanForSpeech() and prerecordedKey() in src/lib/speech.ts.
 function cleanForSpeech(text) {
-  return text.replace(/\p{Extended_Pictographic}️?/gu, "").replace(/\s+/g, " ").trim();
+  return text
+    .replace(/\p{Extended_Pictographic}️?/gu, "")
+    .replace(/\*\*|__|`/g, "")
+    .replace(/^[ \t]*(?:[-*•]|\d+[.)])[ \t]+/gm, "")
+    .replace(/([^\s.!?।:,;])[ \t]*\n+/g, "$1.\n")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 function voiceKey(language, text) {
-  return createHash("sha256").update(`${VOICES[language].name}|${VOICES[language].rate}|${text}`).digest("hex").slice(0, 16);
+  return createHash("sha256").update(`${VOICE_IDS[language]}|${text}`).digest("hex").slice(0, 16);
 }
 
 function lookup(obj, path) {
   return path.split(".").reduce((value, part) => (value == null ? undefined : value[part]), obj);
 }
 
-async function synth(tts, text, rate) {
-  const { audioStream } = tts.toStream(
-    text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"),
-    { rate }
-  );
-  const chunks = [];
-  await new Promise((resolve, reject) => {
-    audioStream.on("data", (chunk) => chunks.push(chunk));
-    audioStream.on("end", resolve);
-    audioStream.on("error", reject);
-  });
-  return Buffer.concat(chunks);
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function synth(text, language) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const res = await fetch(TTS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, lang: language }),
+    });
+    if (res.ok) return Buffer.from(await res.arrayBuffer());
+    if (res.status !== 429 && res.status !== 503) throw new Error(`TTS ${res.status} for "${text}"`);
+    await sleep(attempt * 20_000);
+  }
+  throw new Error(`TTS kept failing for "${text}"`);
 }
 
 mkdirSync(outDir, { recursive: true });
 const keys = new Set();
 let created = 0;
 
-for (const [language, voice] of Object.entries(VOICES)) {
+for (const language of Object.keys(VOICE_IDS)) {
   const strings = JSON.parse(readFileSync(join(root, "src", "locales", `${language}.json`), "utf8")).welcomeChat;
-  const tts = new MsEdgeTTS();
-  await tts.setMetadata(voice.name, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
 
   for (const path of SPOKEN_KEYS) {
     const raw = lookup(strings, path);
@@ -76,13 +87,13 @@ for (const [language, voice] of Object.entries(VOICES)) {
     keys.add(key);
     const file = join(outDir, `${key}.mp3`);
     if (existsSync(file)) continue;
-    const audio = await synth(tts, text, voice.rate);
+    const audio = await synth(text, language);
     if (audio.length === 0) throw new Error(`Empty audio for ${language} ${path}`);
     writeFileSync(file, audio);
     created += 1;
     console.log(`  ${language.padEnd(7)} ${path}`);
+    await sleep(PAUSE_MS);
   }
-  tts.close();
 }
 
 // Remove recordings of text that no longer exists.

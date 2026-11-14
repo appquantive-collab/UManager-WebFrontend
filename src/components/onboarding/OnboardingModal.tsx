@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Factory,
   Globe,
+  Phone,
   Loader2,
   Mic,
   PackagePlus,
@@ -22,8 +23,8 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
-import { saveOnboarding, personalizeDashboard, understandBusiness } from "../../lib/tenants-api";
-import type { BusinessCategory, BusinessRole, OnlineChannel, OrderVolume } from "../../lib/auth-api";
+import { planSetups, saveOnboarding, personalizeDashboard, understandBusiness } from "../../lib/tenants-api";
+import type { AppSetup, BusinessCategory, BusinessRole, OnlineChannel, OrderVolume } from "../../lib/auth-api";
 import { categoryGroups } from "../../lib/business-categories";
 import { categoryLabel, orderVolumeLabel } from "../../lib/onboarding-labels";
 import {
@@ -53,7 +54,7 @@ const ROLE_OPTIONS: { value: BusinessRole; icon: LucideIcon }[] = [
   { value: "manufacturer", icon: Factory },
 ];
 
-const ONLINE_OPTIONS: OnlineChannel[] = ["website", "marketplace", "social"];
+const ONLINE_OPTIONS: OnlineChannel[] = ["phone", "social", "website", "marketplace"];
 const ORDER_VOLUMES: OrderVolume[] = ["lt_100", "100_500", "500_2000", "gt_2000"];
 const STAFF_OPTIONS = [
   { key: "justMe", value: 1 },
@@ -78,10 +79,24 @@ const TEMPLATE_ICONS: Record<TemplateKey, LucideIcon> = {
   online_seller: Globe,
 };
 
+/** One setup the owner can pick on the last step. */
+interface SetupOption {
+  id: string;
+  /** Standard setup it's closest to (for the icon). */
+  base: TemplateKey;
+  name: string;
+  tagline: string;
+  points: string[];
+  appSetup: AppSetup;
+  categories: string[];
+}
+
+const isTemplateKey = (key: string): key is TemplateKey => key in TEMPLATES;
+
 /**
  * Business setup, one question at a time: what they do (typed, spoken or
- * picked) → how they sell → online → GST → size → a choice of ready setups
- * that configure the app for them.
+ * picked) → how they sell → online → GST → size → setups that Munshi AI writes
+ * for this business from those answers (fixed ready-made setups if AI is down).
  */
 export function OnboardingModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
@@ -109,7 +124,10 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
   const [orderVolume, setOrderVolume] = useState<OrderVolume>("lt_100");
   const [staffCount, setStaffCount] = useState(1);
   const [warehouseCount, setWarehouseCount] = useState(1);
-  const [template, setTemplate] = useState<TemplateKey | null>(null);
+  const [chosenId, setChosenId] = useState<string | null>(null);
+  // Munshi AI's setups, and the answers they were made for (redone if answers change).
+  const [aiSetups, setAiSetups] = useState<SetupOption[] | null>(null);
+  const [plannedFor, setPlannedFor] = useState("");
   const [transcribing, setTranscribing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -132,10 +150,45 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     onError: () => setStep("role"),
   });
 
+  const planInput = () => ({ ...currentAnswers(), description: description.trim() || undefined, orderVolume, language });
+
+  const plan = useMutation({
+    mutationFn: () => planSetups(planInput()),
+    onSuccess: (res) => {
+      if (!res.setups) setPlannedFor(""); // AI had nothing: try again next time
+      setAiSetups(
+        res.setups
+          ? res.setups.map((s, i) => {
+              const base: TemplateKey = isTemplateKey(s.base) ? s.base : "retail_gst";
+              // ":" would be read as an i18n namespace where the name is shown later.
+              const name = s.name.replace(/:/g, " -").slice(0, 40);
+              return {
+                id: `ai-${i}`,
+                base,
+                name,
+                tagline: s.tagline,
+                points: s.points,
+                appSetup: { template: name, defaultBillType: s.defaultBillType, features: s.features },
+                categories: s.categories.length ? s.categories : starterCategoriesFor(category, base),
+              };
+            })
+          : null
+      );
+      setChosenId(null);
+      setStep("plans");
+    },
+    // AI being down must never block setup: show the ready-made setups.
+    onError: () => {
+      setAiSetups(null);
+      setChosenId(null);
+      setPlannedFor(""); // try Munshi AI again next time
+      setStep("plans");
+    },
+  });
+
   const save = useMutation({
-    mutationFn: async (key: TemplateKey) => {
-      const answers = currentAnswers();
-      const appSetup = buildAppSetup(key, answers);
+    mutationFn: async (option: SetupOption) => {
+      const appSetup = option.appSetup;
       await saveOnboarding({
         category: category ?? "other",
         customerType: roles.includes("retailer") && roles.length === 1 ? "retail" : roles.includes("retailer") ? "both" : "wholesale",
@@ -150,7 +203,7 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
         hasGst: hasGst ?? null,
         gstin: hasGst && GSTIN_PATTERN.test(gstin) ? gstin : undefined,
         appSetup,
-        starterCategories: starterCategoriesFor(category, key),
+        starterCategories: option.categories,
       });
       try {
         await personalizeDashboard();
@@ -174,8 +227,18 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     return { category, roles, needs, sellsOnline: online ?? [], hasGst: hasGst ?? null, staffCount, warehouseCount };
   }
 
-  const suggestions = suggestTemplates(currentAnswers());
-  const chosen = template ?? suggestions[0];
+  // Ready-made setups: shown when Munshi AI couldn't write any.
+  const fixedOptions: SetupOption[] = suggestTemplates(currentAnswers()).map((key) => ({
+    id: key,
+    base: key,
+    name: t(`setupTemplates.${key}.name`),
+    tagline: t(`setupTemplates.${key}.tagline`),
+    points: TEMPLATES[key].points.map((p) => t(`setupTemplates.points.${p}`)),
+    appSetup: buildAppSetup(key, currentAnswers()),
+    categories: starterCategoriesFor(category, key),
+  }));
+  const options = aiSetups ?? fixedOptions;
+  const chosen = options.find((o) => o.id === chosenId) ?? options[0];
   const stepIndex = QUESTION_STEPS.indexOf(step);
   const gstinInvalid = hasGst === true && gstin !== "" && !GSTIN_PATTERN.test(gstin);
 
@@ -210,6 +273,16 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     }
     if (step === "plans") {
       if (chosen) save.mutate(chosen);
+      return;
+    }
+    if (step === "size") {
+      // Munshi AI writes the setups from all the answers; reuse them if nothing changed.
+      const key = JSON.stringify(planInput());
+      if (key === plannedFor) setStep("plans");
+      else {
+        setPlannedFor(key);
+        plan.mutate();
+      }
       return;
     }
     setStep(QUESTION_STEPS[stepIndex + 1]);
@@ -421,7 +494,7 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
                       onClick={() => setOnline((o) => (selected ? (o ?? []).filter((x) => x !== ch) : [...(o ?? []), ch]))}
                       className={choice(selected)}
                     >
-                      {selected ? <Check size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" /> : <Globe size={20} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />}
+                      {selected ? <Check size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" /> : ch === "phone" ? <Phone size={20} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" /> : <Globe size={20} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />}
                       <span>
                         <span className="block text-base font-bold text-text">{t(`setup.online.${ch}.title`)}</span>
                         <span className="mt-0.5 block text-sm text-text-muted">{t(`setup.online.${ch}.body`)}</span>
@@ -518,23 +591,23 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
           {step === "plans" && (
             <>
               <h2 className="text-xl font-bold text-text">{t("setup.plans.title")}</h2>
-              <p className="mt-1 text-sm text-text-muted">{t("setup.plans.subtitle")}</p>
+              <p className="mt-1 text-sm text-text-muted">{aiSetups ? t("setup.plans.aiSubtitle") : t("setup.plans.subtitle")}</p>
               <div className="mt-4 space-y-3">
-                {suggestions.map((key, index) => {
-                  const Icon = TEMPLATE_ICONS[key];
-                  const selected = chosen === key;
+                {options.map((option, index) => {
+                  const Icon = TEMPLATE_ICONS[option.base];
+                  const selected = chosen?.id === option.id;
                   return (
-                    <button key={key} type="button" aria-pressed={selected} onClick={() => setTemplate(key)} className={clsx(choice(selected), "flex-col gap-2")}>
+                    <button key={option.id} type="button" aria-pressed={selected} onClick={() => setChosenId(option.id)} className={clsx(choice(selected), "flex-col gap-2")}>
                       <span className="flex w-full items-start gap-3">
                         <Icon size={22} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
                         <span className="min-w-0 flex-1">
                           <span className="flex flex-wrap items-center gap-2">
-                            <span className="text-base font-bold text-text">{t(`setupTemplates.${key}.name`)}</span>
+                            <span className="text-base font-bold text-text">{option.name}</span>
                             {index === 0 ? (
-                              <span className="rounded-full bg-text px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-surface">{t("setup.plans.recommended")}</span>
+                              <span className="rounded-full border border-primary/40 bg-primary-container px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-on-primary-container">{t("setup.plans.recommended")}</span>
                             ) : null}
                           </span>
-                          <span className="mt-0.5 block text-sm text-text-muted">{t(`setupTemplates.${key}.tagline`)}</span>
+                          <span className="mt-0.5 block text-sm text-text-muted">{option.tagline}</span>
                         </span>
                         <span
                           className={clsx(
@@ -547,10 +620,10 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
                         </span>
                       </span>
                       <ul className="ml-9 space-y-1">
-                        {TEMPLATES[key].points.map((p) => (
+                        {option.points.map((p) => (
                           <li key={p} className="flex items-start gap-2 text-sm text-text">
                             <Check size={14} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
-                            {t(`setupTemplates.points.${p}`)}
+                            {p}
                           </li>
                         ))}
                       </ul>
@@ -575,7 +648,7 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
               <div className="flex flex-col items-center text-center">
                 <Check size={34} className="text-success" aria-hidden="true" />
                 <h2 className="mt-3 text-xl font-bold text-text">{t("setup.done.title")}</h2>
-                <p className="mt-1 text-sm text-text-muted">{t("setup.done.body", { setup: t(`setupTemplates.${chosen}.name`) })}</p>
+                <p className="mt-1 text-sm text-text-muted">{t("setup.done.body", { setup: chosen.name })}</p>
               </div>
               <p className="mt-6 text-sm font-semibold text-text">{t("setup.done.nextTitle")}</p>
               <div className="mt-2 space-y-2">
@@ -608,8 +681,14 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
 
         {stepIndex >= 0 ? (
           <div className="border-t border-border bg-surface-muted px-5 py-3.5">
-            <Button className="w-full" disabled={!canNext} isLoading={understand.isPending} onClick={next}>
-              {understand.isPending ? t("setup.work.understanding") : step === "plans" ? t("setup.plans.start") : t("onboarding.continue")}
+            <Button className="w-full" disabled={!canNext} isLoading={understand.isPending || plan.isPending} onClick={next}>
+              {understand.isPending
+                ? t("setup.work.understanding")
+                : plan.isPending
+                  ? t("setup.plans.making")
+                  : step === "plans"
+                    ? t("setup.plans.start")
+                    : t("onboarding.continue")}
             </Button>
           </div>
         ) : step === "done" ? (

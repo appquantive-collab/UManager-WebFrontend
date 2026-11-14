@@ -1832,14 +1832,14 @@
       "title": "Add customer",
       "nameRequired": "Name is required",
       "creditLimitMin": "Must be 0 or more",
-      "namePlaceholder": "e.g. Sharma Traders",
+      "namePlaceholder": "e.g. Ramesh Kumar",
       "phoneLabel": "Phone (optional)",
       "creditLimitLabel": "Credit limit (optional)",
       "submit": "Add customer",
       "addError": "Could not add customer. Please try again.",
       "saved": "Customer updated.",
       "editTitle": "Edit customer",
-      "creditLimitHint": "Max udhaar allowed. You'll get a warning before a bill crosses it. 0 = no limit.",
+      "creditLimitHint": "Max udhaar. You'll be warned before a bill crosses it.",
       "gstSection": "GST details (for GST bills)",
       "stateHint": "Different state from yours → IGST on their GST bills."
     },
@@ -1861,7 +1861,15 @@
       "aiOrder": "AI Order",
       "manualOrder": "Manual",
       "gstBill": "GST Bill",
-      "recordBill": "Record Bill"
+      "recordBill": "Record Bill",
+      "customerSince": "Customer since {{date}}",
+      "details": {
+        "phone": "Phone",
+        "email": "Email",
+        "address": "Address",
+        "aadhaar": "Aadhaar",
+        "addMissing": "Add missing details"
+      }
     },
     "hub": {
       "intro": "Everyone you sell to — who owes you money, who is over their credit limit, and who hasn't bought in a while.",
@@ -2869,6 +2877,10 @@
       "title": "Do you sell online too?",
       "subtitle": "So orders from everywhere can be kept in one place.",
       "no": "No, only from my shop",
+      "phone": {
+        "title": "Orders on call / WhatsApp only",
+        "body": "Customers call or message; we write the order down ourselves."
+      },
       "website": {
         "title": "My own website / online store",
         "body": "Your own shop link or app."
@@ -2878,8 +2890,8 @@
         "body": "Selling on marketplaces."
       },
       "social": {
-        "title": "WhatsApp / Instagram",
-        "body": "Orders come on chat."
+        "title": "Instagram / WhatsApp catalog",
+        "body": "We show products online and sell through chat."
       },
       "urlLabel": "Website link (optional)"
     },
@@ -2924,7 +2936,9 @@
       "subtitle": "Pick one. SethSathi will set up billing, stock and menus to match.",
       "recommended": "Best match",
       "changeLater": "You can change any of this later in Settings → Business.",
-      "start": "Start with this setup"
+      "start": "Start with this setup",
+      "aiSubtitle": "Munshi AI made these from what you told us. Pick one — you can change anything later.",
+      "making": "Munshi AI is making your setup…"
     },
     "saving": {
       "title": "Setting up your app…",
@@ -3185,6 +3199,8 @@
     "moreDetails": "Address, state and email",
     "addressPlaceholder": "Shop no., market, city, PIN",
     "emailLabel": "Email (optional)",
-    "emailInvalid": "Enter a valid email."
+    "emailInvalid": "Enter a valid email.",
+    "addGstin": "Add GSTIN",
+    "addAadhaar": "Add Aadhaar"
   }
 }

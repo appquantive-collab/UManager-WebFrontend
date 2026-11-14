@@ -1,4 +1,5 @@
 import { apiFetch } from "./api";
+import { currentLanguage } from "./i18n";
 
 export type ActionStatus = "pending" | "confirmed" | "dismissed";
 export type ActionType = "mark_attendance" | "create_order";
@@ -30,7 +31,8 @@ export function listMessages(): Promise<AiChatMessage[]> {
 export function sendMessage(content: string): Promise<SendMessageResult> {
   return apiFetch("/ai-chat/messages", {
     method: "POST",
-    body: JSON.stringify({ content }),
+    // Munshi AI replies in the app's language.
+    body: JSON.stringify({ content, language: currentLanguage() }),
   });
 }
 
@@ -44,5 +46,5 @@ export function dismissAction(messageId: string): Promise<AiChatMessage> {
 
 /** AI search: a quick question about the business, answered by Munshi AI (not saved to the chat). */
 export function askBusinessQuestion(question: string): Promise<{ answer: string }> {
-  return apiFetch("/ai-chat/ask", { method: "POST", body: JSON.stringify({ question }) });
+  return apiFetch("/ai-chat/ask", { method: "POST", body: JSON.stringify({ question, language: currentLanguage() }) });
 }

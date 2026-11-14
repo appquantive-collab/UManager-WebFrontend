@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { AlertTriangle, Check, Loader2, Mic, Plus, Sparkles, Square, Trash2, X } from "lucide-react";
@@ -10,20 +7,16 @@ import { Button } from "../ui/Button";
 import { DecimalInput } from "../ui/DecimalInput";
 import { ProBadge, useProGate } from "../ui/ProBadge";
 import { TextField } from "../ui/TextField";
+import { AddCustomerModal } from "../customers/AddCustomerModal";
 import { parseOrderText, createOrder, type OrderLineItemInput, type RawMaterialWarning } from "../../lib/orders-api";
-import { listCustomers, createCustomer, type CustomerListItem } from "../../lib/customers-api";
+import { listCustomers, type CustomerListItem } from "../../lib/customers-api";
 import { ApiError } from "../../lib/api";
 import { errorMessage } from "../../lib/api-errors";
 import { showError } from "../../lib/toast";
-import i18n, { currentLanguage } from "../../lib/i18n";
+import { currentLanguage } from "../../lib/i18n";
 import { useNewOrderModalStore } from "../../lib/new-order-store";
 import { transcribeVoice, useLiveTranscript, useVoiceRecorder, voiceRecordingSupported } from "../../lib/speech";
 
-const newCustomerSchema = z.object({
-  name: z.string().min(1, i18n.t("orders.common.nameRequired")),
-  phone: z.string().optional(),
-});
-type NewCustomerValues = z.infer<typeof newCustomerSchema>;
 
 interface DraftItem extends OrderLineItemInput {
   key: string;
@@ -51,7 +44,8 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [customerQuery, setCustomerQuery] = useState("");
   const [showCustomerPicker, setShowCustomerPicker] = useState(false);
-  const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
+  // "Add new party" opens the full customer form (the same one as Customers).
+  const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [items, setItems] = useState<DraftItem[]>([]);
   const [rawTextForSave, setRawTextForSave] = useState<string | undefined>(undefined);
@@ -80,19 +74,6 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setTranscribing(false);
     }
   };
-
-  const {
-    register: registerNewCustomer,
-    handleSubmit: handleNewCustomerSubmit,
-    reset: resetNewCustomerForm,
-    setValue: setNewCustomerValue,
-    formState: { errors: newCustomerErrors },
-  } = useForm<NewCustomerValues>({
-    resolver: zodResolver(newCustomerSchema),
-    mode: "onChange",
-    reValidateMode: "onChange",
-    defaultValues: { name: "", phone: "" },
-  });
 
   const customersQuery = useQuery({
     queryKey: ["customers", customerQuery],
@@ -135,20 +116,6 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
     },
   });
 
-  const createCustomerMutation = useMutation({
-    mutationFn: createCustomer,
-    onSuccess: (customer) => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-      setCustomerId(customer._id);
-      setShowNewCustomerForm(false);
-      setShowCustomerPicker(false);
-      resetNewCustomerForm({ name: "", phone: "" });
-    },
-    onError: (err) => {
-      showError(err instanceof ApiError ? err.message : t("orders.common.couldNotAddCustomer"));
-    },
-  });
-
   const saveOrderMutation = useMutation({
     mutationFn: createOrder,
     onSuccess: (result) => {
@@ -187,12 +154,11 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
       setCustomerId(null);
       setCustomerQuery("");
       setShowCustomerPicker(false);
-      setShowNewCustomerForm(false);
-      resetNewCustomerForm({ name: "", phone: "" });
+      setAddingCustomer(false);
       setItems([]);
       setRawMaterialWarnings([]);
     }
-  }, [open, resetNewCustomerForm]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -243,6 +209,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4">
       <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-surface shadow-elevation-3">
         <button
@@ -438,39 +405,13 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
                       )}
                     </div>
 
-                    {!showNewCustomerForm ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowNewCustomerForm(true);
-                          setNewCustomerValue("name", customerQuery);
-                        }}
-                        className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
-                      >
-                        <Plus size={14} /> {t("orders.common.addNewCustomer")}
-                      </button>
-                    ) : (
-                      <form
-                        className="mt-2 space-y-2 border-t border-border pt-2"
-                        onSubmit={handleNewCustomerSubmit((values) =>
-                          createCustomerMutation.mutate({
-                            name: values.name.trim(),
-                            phone: values.phone?.trim() || undefined,
-                          })
-                        )}
-                        noValidate
-                      >
-                        <TextField label={t("common.name")} error={newCustomerErrors.name?.message} {...registerNewCustomer("name")} />
-                        <TextField
-                          label={t("orders.common.phoneOptional")}
-                          error={newCustomerErrors.phone?.message}
-                          {...registerNewCustomer("phone")}
-                        />
-                        <Button type="submit" className="w-full" isLoading={createCustomerMutation.isPending}>
-                          {t("orders.common.saveCustomer")}
-                        </Button>
-                      </form>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setAddingCustomer(true)}
+                      className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <Plus size={14} /> {t("orders.common.addNewCustomer")}
+                    </button>
                   </div>
                 )}
               </div>
@@ -625,5 +566,15 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
         </div>
       </div>
     </div>
+    <AddCustomerModal
+      open={addingCustomer}
+      onClose={() => setAddingCustomer(false)}
+      initialName={customerQuery}
+      onCreated={(created) => {
+        setCustomerId(created._id);
+        setShowCustomerPicker(false);
+      }}
+    />
+    </>
   );
 }

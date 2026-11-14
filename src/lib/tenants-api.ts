@@ -43,6 +43,35 @@ export function understandBusiness(text: string, language: string): Promise<Unde
   return apiFetch("/tenants/onboarding/understand", { method: "POST", body: JSON.stringify({ text, language }) });
 }
 
+export interface PlannedSetup {
+  /** Closest standard setup (for its icon). */
+  base: string;
+  name: string;
+  tagline: string;
+  points: string[];
+  defaultBillType: "gst" | "record";
+  features: AppFeatures;
+  categories: string[];
+}
+
+export interface PlanSetupsInput {
+  description?: string;
+  category: BusinessCategory | null;
+  roles: BusinessRole[];
+  needs: { batch: boolean; serial: boolean; variants: boolean; rawMaterials: boolean };
+  sellsOnline: OnlineChannel[];
+  hasGst: boolean | null;
+  staffCount: number;
+  warehouseCount: number;
+  orderVolume?: OrderVolume;
+  language: string;
+}
+
+/** Setups written by Munshi AI for this business; null when AI is unavailable. */
+export function planSetups(input: PlanSetupsInput): Promise<{ setups: PlannedSetup[] | null }> {
+  return apiFetch("/tenants/onboarding/plan", { method: "POST", body: JSON.stringify(input) });
+}
+
 export function updateAppSetup(input: { defaultBillType?: "gst" | "record"; features?: Partial<AppFeatures> }): Promise<{ appSetup: AppSetup }> {
   return apiFetch("/tenants/setup", { method: "PATCH", body: JSON.stringify(input) });
 }

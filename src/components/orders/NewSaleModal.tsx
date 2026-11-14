@@ -1,23 +1,21 @@
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { AlertTriangle, Check, ChevronLeft, Package, Plus, Search, Store, Trash2, UserRound, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { DecimalInput } from "../ui/DecimalInput";
-import { TextField } from "../ui/TextField";
+import { AddCustomerModal } from "../customers/AddCustomerModal";
 import { SegmentedControl } from "../ui/SegmentedControl";
 import { BillActions } from "../bills/BillActions";
-import { listCustomers, createCustomer, updateCustomer, type CustomerListItem } from "../../lib/customers-api";
+import { listCustomers, updateCustomer, type CustomerListItem } from "../../lib/customers-api";
 import { updateBusinessProfile } from "../../lib/tenants-api";
 import { listProducts, type Product } from "../../lib/products-api";
 import { getStockLevels } from "../../lib/stock-api";
 import { SerialPicker } from "./SerialPicker";
 import { useAppSetup } from "../../lib/use-app-setup";
+import { useKeyboardOpen } from "../../lib/use-keyboard-open";
 import { getProfile } from "../../lib/auth-api";
 import {
   getCustomerPendingItems,
@@ -36,22 +34,7 @@ import { ApiError } from "../../lib/api";
 import { errorMessage } from "../../lib/api-errors";
 import { showError, showSuccess } from "../../lib/toast";
 import { formatCurrency, formatMoney, formatQty } from "../../lib/format";
-import i18n from "../../lib/i18n";
 
-const newCustomerSchema = z.object({
-  name: z.string().min(1, i18n.t("sales.newSaleModal.nameRequired")),
-  phone: z.string().optional(),
-  // Both optional: GSTIN for business customers (GST bills), Aadhaar for people (udhaar records).
-  gstin: z
-    .string()
-    .optional()
-    .refine((v) => !v || /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(v.trim().toUpperCase()), { error: () => i18n.t("businessSettings.gstinInvalid") }),
-  aadhaar: z
-    .string()
-    .optional()
-    .refine((v) => !v || /^[2-9]\d{11}$/.test(v.replace(/\s+/g, "")), { error: () => i18n.t("customerForm.aadhaarInvalid") }),
-});
-type NewCustomerValues = z.infer<typeof newCustomerSchema>;
 
 interface DraftItem {
   key: string;
@@ -113,8 +96,8 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
   const [step, setStep] = useState<Step>("customer");
   const [party, setParty] = useState<Party>(null);
   const [customerQuery, setCustomerQuery] = useState("");
-  const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
-  const [showCustomerIds, setShowCustomerIds] = useState(false);
+  // "Add new party" opens the full customer form (the same one as Customers).
+  const [addingCustomer, setAddingCustomer] = useState(false);
 
   const [items, setItems] = useState<DraftItem[]>([]);
   const [productQuery, setProductQuery] = useState("");
@@ -132,21 +115,9 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
   const [buyerGstin, setBuyerGstin] = useState<string | null>(null);
   const [savingGstins, setSavingGstins] = useState(false);
   const productInputRef = useRef<HTMLInputElement>(null);
+  const keyboardOpen = useKeyboardOpen();
 
   const customerId = party?.kind === "customer" ? party.id : null;
-
-  const {
-    register: registerNewCustomer,
-    handleSubmit: handleNewCustomerSubmit,
-    reset: resetNewCustomerForm,
-    setValue: setNewCustomerValue,
-    formState: { errors: newCustomerErrors },
-  } = useForm<NewCustomerValues>({
-    resolver: zodResolver(newCustomerSchema),
-    mode: "onChange",
-    reValidateMode: "onChange",
-    defaultValues: { name: "", phone: "", gstin: "", aadhaar: "" },
-  });
 
   const allCustomersQuery = useQuery({ queryKey: ["customers", "all"], queryFn: () => listCustomers(), enabled: open });
   const productsQuery = useQuery({ queryKey: ["products"], queryFn: () => listProducts(), enabled: open });
@@ -215,19 +186,6 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingItemsQuery.data]);
-
-  const createCustomerMutation = useMutation({
-    mutationFn: createCustomer,
-    onSuccess: (customer) => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-      setParty({ kind: "customer", id: customer._id });
-      setShowNewCustomerForm(false);
-      resetNewCustomerForm({ name: "", phone: "", gstin: "", aadhaar: "" });
-      setShowCustomerIds(false);
-      setStep("items");
-    },
-    onError: (err) => showError(err instanceof ApiError ? errorMessage(err, t) : t("sales.newSaleModal.couldNotAddCustomer")),
-  });
 
   const createBillMutation = useMutation({
     mutationFn: (input: CreateBillInput) => (editInvoice ? editBill(editInvoice._id, input) : createBill(input)),
@@ -325,9 +283,7 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
     setStep("customer");
     setParty(null);
     setCustomerQuery("");
-    setShowNewCustomerForm(false);
-    resetNewCustomerForm({ name: "", phone: "", gstin: "", aadhaar: "" });
-      setShowCustomerIds(false);
+    setAddingCustomer(false);
     setItems([]);
     setProductQuery("");
     setBillType(appSetup.defaultBillType);
@@ -484,6 +440,7 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
     "mt-0.5 h-10 w-full rounded-lg border border-border bg-surface px-2.5 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
 
   return (
+    <>
     <div className="fixed inset-0 z-100 flex items-end justify-center bg-black/40 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={t("sales.newSaleModal.customerStepTitle")}>
       <div className="relative flex max-h-[94dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl bg-surface shadow-elevation-3 sm:rounded-3xl">
         <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
@@ -587,73 +544,13 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
                 ) : null}
               </div>
 
-              {!showNewCustomerForm ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowNewCustomerForm(true);
-                    setNewCustomerValue("name", customerQuery);
-                  }}
-                  className="mt-3 flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
-                >
-                  <Plus size={15} aria-hidden="true" /> {t("sales.newSaleModal.addNewCustomer")}
-                </button>
-              ) : (
-                <form
-                  className="mt-3 space-y-2 rounded-xl border border-border p-3.5"
-                  onSubmit={handleNewCustomerSubmit((values) =>
-                    createCustomerMutation.mutate({
-                      name: values.name.trim(),
-                      phone: values.phone?.trim() || undefined,
-                      gstin: values.gstin?.trim().toUpperCase() || undefined,
-                      aadhaar: values.aadhaar?.replace(/\s+/g, "") || undefined,
-                      kind: values.gstin?.trim() ? "business" : "person",
-                    })
-                  )}
-                  noValidate
-                >
-                  <TextField label={t("common.name")} error={newCustomerErrors.name?.message} {...registerNewCustomer("name")} />
-                  <TextField
-                    label={t("sales.newSaleModal.phoneOptional")}
-                    type="tel"
-                    inputMode="tel"
-                    error={newCustomerErrors.phone?.message}
-                    {...registerNewCustomer("phone")}
-                  />
-                  {showCustomerIds ? (
-                    <>
-                      <TextField
-                        label={t("customerForm.gstinLabel") + " (" + t("sale.optional") + ")"}
-                        placeholder="07ABCDE1234F1Z5"
-                        maxLength={15}
-                        className="uppercase"
-                        error={newCustomerErrors.gstin?.message}
-                        {...registerNewCustomer("gstin")}
-                      />
-                      <TextField
-                        label={t("customerForm.aadhaarLabel") + " (" + t("sale.optional") + ")"}
-                        placeholder="1234 5678 9012"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        maxLength={14}
-                        error={newCustomerErrors.aadhaar?.message}
-                        {...registerNewCustomer("aadhaar")}
-                      />
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setShowCustomerIds(true)}
-                      className="flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
-                    >
-                      <Plus size={15} aria-hidden="true" /> {t("sale.addGstinAadhaar")}
-                    </button>
-                  )}
-                  <Button type="submit" className="w-full" isLoading={createCustomerMutation.isPending}>
-                    {t("sales.newSaleModal.saveAndContinue")}
-                  </Button>
-                </form>
-              )}
+              <button
+                type="button"
+                onClick={() => setAddingCustomer(true)}
+                className="mt-3 flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <Plus size={15} aria-hidden="true" /> {t("sales.newSaleModal.addNewCustomer")}
+              </button>
             </>
           )}
 
@@ -1074,7 +971,8 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
           )}
         </div>
 
-        {step === "items" ? (
+        {/* Hidden while the phone keyboard is up, so the item list keeps the room. */}
+        {step === "items" && !keyboardOpen ? (
           <div className="border-t border-border bg-surface-muted px-5 py-3.5">
             <div className="flex items-end justify-between gap-3">
               <div className="min-w-0 text-xs text-text-muted tabular-nums">
@@ -1142,5 +1040,17 @@ export function NewSaleModal({ open, onClose, editInvoice = null }: { open: bool
         ) : null}
       </div>
     </div>
+    {/* Outside the sheet, so its slide-in transform can't trap this popup. */}
+    <AddCustomerModal
+      open={addingCustomer}
+      onClose={() => setAddingCustomer(false)}
+      initialName={customerQuery}
+      onCreated={(created) => {
+        setParty({ kind: "customer", id: created._id });
+        setBuyerGstin(null);
+        setStep("items");
+      }}
+    />
+    </>
   );
 }

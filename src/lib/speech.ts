@@ -237,9 +237,15 @@ function pickVoice(lang: string): SpeechSynthesisVoice | null {
   return best;
 }
 
+// Must match cleanForSpeech() in scripts/generate-voice.mjs.
+// Markdown marks go, list markers go, and each line break becomes a pause, so
+// a list isn't read as one breathless run.
 function cleanForSpeech(text: string): string {
   return text
     .replace(/\p{Extended_Pictographic}️?/gu, "")
+    .replace(/\*\*|__|`/g, "")
+    .replace(/^[ \t]*(?:[-*•]|\d+[.)])[ \t]+/gm, "")
+    .replace(/([^\s.!?।:,;])[ \t]*\n+/g, "$1.\n")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -266,15 +272,42 @@ function getAudioContext(): AudioContext | null {
 export const voiceOutputSupported = typeof window !== "undefined" && (Boolean(getAudioContext()) || speechSynthesisSupported);
 
 if (typeof window !== "undefined") {
-  // Browsers only let audio start after a user gesture; resume on the first one
-  // (e.g. the splash's "Get started" tap) so later replies can play on their own.
+  // Browsers only let audio start after a user gesture, so every tap/keypress
+  // makes sure Munshi's audio is unlocked; later replies then play on their own
+  // with the speaker already on. Notes:
+  // - On phones a touch's "pointerdown" doesn't count as a gesture (only the
+  //   lift/click does), so listen to those too — this was why replies stayed
+  //   silent until the speaker was switched off and on.
+  // - iOS needs a sound actually started inside the gesture, so play one
+  //   silent sample; it also re-locks audio after the app was in the
+  //   background, so keep listening (cheap: it returns at once when running).
+  let browserVoicePrimed = false;
   const unlock = () => {
-    void getAudioContext()?.resume();
-    window.removeEventListener("pointerdown", unlock);
-    window.removeEventListener("keydown", unlock);
+    const ctx = getAudioContext();
+    if (ctx && ctx.state !== "running") {
+      try {
+        const source = ctx.createBufferSource();
+        source.buffer = ctx.createBuffer(1, 1, 22050);
+        source.connect(ctx.destination);
+        source.start(0);
+      } catch {
+        // Not fatal: resume() below is enough on most browsers.
+      }
+      void ctx.resume().catch(() => undefined);
+    }
+    // The browser's own voice (fallback) has the same rule on iOS.
+    if (!browserVoicePrimed && speechSynthesisSupported) {
+      browserVoicePrimed = true;
+      try {
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+      } catch {
+        // Ignore: only a fallback.
+      }
+    }
   };
-  window.addEventListener("pointerdown", unlock);
-  window.addEventListener("keydown", unlock);
+  for (const event of ["pointerdown", "pointerup", "touchend", "click", "keydown"]) {
+    window.addEventListener(event, unlock, { capture: true, passive: true });
+  }
 }
 
 const AUDIO_CACHE_MAX = 80;
@@ -300,11 +333,12 @@ export function prefetchVoice(text: string, language: SupportedLanguageCode) {
   if (spoken && getAudioContext()) void fetchVoice(spoken, language);
 }
 
-// Must match VOICES in backend tts.service.ts and scripts/generate-voice.mjs.
+// Must match VOICE_IDS in scripts/generate-voice.mjs (and the voices in backend
+// tts.service.ts). Hinglish is read by the Hindi voice after being written in Devanagari.
 const VOICE_IDS: Record<SupportedLanguageCode, string> = {
-  en: "en-IN-PrabhatNeural|+22%",
-  "hi-Latn": "en-IN-PrabhatNeural|+22%",
-  hi: "hi-IN-MadhurNeural|+16%",
+  en: "en-IN-PrabhatNeural|-5%",
+  "hi-Latn": "hi-IN-MadhurNeural|-5%|spoken",
+  hi: "hi-IN-MadhurNeural|-5%|spoken",
 };
 
 // Same key the generator script uses to name pre-recorded files.

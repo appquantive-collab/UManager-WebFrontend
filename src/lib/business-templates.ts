@@ -126,7 +126,8 @@ export function suggestTemplates(a: SetupAnswers): TemplateKey[] {
   if (industry) add(industry);
   if (a.roles.includes("trader")) add("wholesale_trader");
   if (a.roles.includes("retailer") || a.roles.length === 0) add(retailer);
-  if (a.sellsOnline.length > 0) add("online_seller");
+  // Orders by call or WhatsApp alone are still a shop, not an online seller.
+  if (a.sellsOnline.some((ch) => ch !== "phone")) add("online_seller");
   for (const k of [retailer, "wholesale_trader", "kirana_counter", "retail_gst", "manufacturer"] as TemplateKey[]) {
     if (out.length >= 4) break;
     add(k);

@@ -6,19 +6,11 @@ import clsx from "clsx";
 import { ArrowUp, Mic, PartyPopper, Square, Volume2, VolumeX, X } from "lucide-react";
 import i18n, { currentLanguage, supportedLanguages, type SupportedLanguageCode } from "../../lib/i18n";
 import {
-  appleSignIn,
   completeSocialSignup,
   googleSignIn,
   register as registerTenant,
   type SocialSignInResult,
 } from "../../lib/auth-api";
-import {
-  AppleSignInCancelled,
-  appleSignInEnabled,
-  googleSignInEnabled,
-  preloadAppleSignIn,
-  signInWithApple,
-} from "../../lib/social-auth";
 import { GoogleSignInButton } from "../auth/GoogleSignInButton";
 import { askMunshi } from "../../lib/munshi-api";
 import { ApiError } from "../../lib/api";
@@ -379,7 +371,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     } catch (err) {
       if (!aliveRef.current) return;
       setTyping(false);
-      await say(err instanceof AppleSignInCancelled ? "welcomeChat.socialCancelled" : "welcomeChat.socialFailed");
+      await say("welcomeChat.socialFailed");
       setStep("choose");
       setBusy(false);
       return;
@@ -417,17 +409,6 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
   };
 
   const continueWithGoogle = (credential: string) => continueWithProvider("google", () => googleSignIn(credential));
-
-  // Apple's popup must open inside the tap, so signInWithApple() is called before any await.
-  const continueWithApple = () =>
-    continueWithProvider("apple", async () => {
-      const { idToken, name } = await signInWithApple();
-      return appleSignIn(idToken, name);
-    });
-
-  useEffect(() => {
-    preloadAppleSignIn();
-  }, []);
 
   // A visitor's own question: a short, SethSathi-only answer, then the chat
   // carries on from the same step (the options/placeholder stay on screen).
@@ -868,19 +849,14 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
 
       {step === "choose" && !busy ? (
         <div className="flex shrink-0 flex-col gap-2 px-4 pb-3">
-          {googleSignInEnabled ? (
-            <GoogleSignInButton
-              onCredential={(credential) => void continueWithGoogle(credential)}
-              locale={currentLanguage() === "en" ? "en" : "hi"}
-              width={320}
-            />
-          ) : (
-            // Not configured yet: same look, Munshi explains instead of signing in.
-            <button
-              type="button"
-              onClick={() => void providerNotReady("google")}
-              className="mx-auto flex h-10 w-[320px] max-w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-[#1f1f1f] outline-none transition-colors hover:bg-[#f8f9fa] focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
+          {/* Our own face in the app's style; Google's real button sits invisibly on top.
+              Not configured (or Google unreachable): Munshi explains instead. */}
+          <GoogleSignInButton
+            onCredential={(credential) => void continueWithGoogle(credential)}
+            onUnavailable={() => void providerNotReady("google")}
+            locale={currentLanguage() === "en" ? "en" : "hi"}
+            width={320}
+          >
               <svg viewBox="0 0 48 48" aria-hidden="true" className="h-4.5 w-4.5">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
@@ -888,20 +864,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
                 <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
               </svg>
               {t("welcomeChat.withGoogle")}
-            </button>
-          )}
-          {
-            <button
-              type="button"
-              onClick={() => void (appleSignInEnabled ? continueWithApple() : providerNotReady("apple"))}
-              className="mx-auto flex h-10 w-[320px] max-w-full items-center justify-center gap-2 rounded-full bg-black text-sm font-semibold text-white outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <svg viewBox="0 0 814 1000" aria-hidden="true" className="h-4 w-4 fill-current">
-                <path d="M788 341c-6 4-108 62-108 190 0 148 130 200 134 202-1 3-21 72-69 142-43 62-88 124-156 124s-86-40-164-40c-77 0-104 41-167 41s-106-58-156-128C44 790 0 671 0 557 0 374 119 277 236 277c62 0 114 41 153 41 37 0 95-43 166-43 27 0 124 2 188 66zM566 162c29-35 50-83 50-132 0-7-1-14-2-19-48 2-104 32-138 71-27 30-52 78-52 128 0 7 1 15 2 17 3 1 8 1 13 1 43 0 97-29 127-66z" />
-              </svg>
-              {t("welcomeChat.withApple")}
-            </button>
-          }
+          </GoogleSignInButton>
           <button
             type="button"
             onClick={() => void chooseManual()}

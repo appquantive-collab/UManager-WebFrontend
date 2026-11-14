@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MapPin, Pencil, Phone, Receipt, FileText, Wallet, X } from "lucide-react";
+import { CalendarDays, IdCard, Mail, MapPin, Pencil, Phone, Plus, Receipt, FileText, Wallet, X } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
 import { Tabs } from "../ui/Tabs";
@@ -97,19 +97,16 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                       </button>
                     ) : null}
                   </div>
-                  {data.customer.gstin ? <p className="mt-0.5 text-sm text-text-muted">GSTIN {data.customer.gstin}</p> : null}
-                  {data.customer.address || data.customer.stateCode ? (
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-text-muted">
-                      <MapPin size={13} className="shrink-0 text-icon" aria-hidden="true" />
-                      <span className="truncate">{[data.customer.address, stateName(data.customer.stateCode)].filter(Boolean).join(", ")}</span>
-                    </p>
-                  ) : null}
-                  {data.customer.phone ? (
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-text-muted">
-                      <Phone size={13} />
-                      {data.customer.phone}
-                    </p>
-                  ) : null}
+                  {/* Kind of party and how long they've been a customer. */}
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-muted">
+                    {!data.customer.isWalkIn ? (
+                      <Badge tone="neutral">{t(`customerForm.kind.${data.customer.kind ?? "person"}`)}</Badge>
+                    ) : null}
+                    <span className="flex items-center gap-1">
+                      <CalendarDays size={13} className="shrink-0 text-icon" aria-hidden="true" />
+                      {t("customers.partyPortfolioModal.customerSince", { date: formatDate(data.customer.createdAt) })}
+                    </span>
+                  </p>
                   {!data.customer.isActive ? (
                     <span className="mt-1 inline-block">
                       <Badge tone="neutral">{t("customers.partyPortfolioModal.inactive")}</Badge>
@@ -117,6 +114,80 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                   ) : null}
                 </div>
               </div>
+
+              {/* Every detail saved for this party; missing ones are one tap away. */}
+              {!data.customer.isWalkIn ? (
+                <div className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface text-sm">
+                  {[
+                    data.customer.phone
+                      ? {
+                          key: "phone",
+                          icon: Phone,
+                          label: t("customers.partyPortfolioModal.details.phone"),
+                          value: (
+                            <a href={`tel:${data.customer.phone}`} className="font-medium text-text hover:text-primary hover:underline">
+                              {data.customer.phone}
+                            </a>
+                          ),
+                        }
+                      : null,
+                    data.customer.email
+                      ? {
+                          key: "email",
+                          icon: Mail,
+                          label: t("customers.partyPortfolioModal.details.email"),
+                          value: (
+                            <a href={`mailto:${data.customer.email}`} className="break-all font-medium text-text hover:text-primary hover:underline">
+                              {data.customer.email}
+                            </a>
+                          ),
+                        }
+                      : null,
+                    data.customer.address || data.customer.stateCode
+                      ? {
+                          key: "address",
+                          icon: MapPin,
+                          label: t("customers.partyPortfolioModal.details.address"),
+                          value: <span className="font-medium text-text">{[data.customer.address, stateName(data.customer.stateCode)].filter(Boolean).join(", ")}</span>,
+                        }
+                      : null,
+                    data.customer.gstin
+                      ? {
+                          key: "gstin",
+                          icon: FileText,
+                          label: "GSTIN",
+                          value: <span className="font-medium tabular-nums tracking-wide text-text">{data.customer.gstin}</span>,
+                        }
+                      : null,
+                    data.customer.aadhaarLast4
+                      ? {
+                          key: "aadhaar",
+                          icon: IdCard,
+                          label: t("customers.partyPortfolioModal.details.aadhaar"),
+                          value: <span className="font-medium tabular-nums tracking-wide text-text">•••• •••• {data.customer.aadhaarLast4}</span>,
+                        }
+                      : null,
+                  ]
+                    .filter((row): row is NonNullable<typeof row> => row !== null)
+                    .map((row) => (
+                      <div key={row.key} className="flex items-start gap-3 px-3.5 py-2.5">
+                        <row.icon size={15} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
+                        <span className="w-20 shrink-0 text-text-muted">{row.label}</span>
+                        <span className="min-w-0 flex-1">{row.value}</span>
+                      </div>
+                    ))}
+                  {!data.customer.phone || !data.customer.address || !(data.customer.gstin || data.customer.aadhaarLast4) ? (
+                    <button
+                      type="button"
+                      onClick={() => setEditing(true)}
+                      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left font-semibold text-primary outline-none hover:bg-surface-muted focus-visible:bg-surface-muted"
+                    >
+                      <Plus size={15} aria-hidden="true" />
+                      {t("customers.partyPortfolioModal.details.addMissing")}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
 
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-xl border border-border bg-surface p-3">
@@ -131,7 +202,9 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                 </div>
                 <div className="rounded-xl border border-border bg-surface p-3">
                   <p className="text-xs text-text-muted">{t("customers.customersPage.creditLimit")}</p>
-                  <p className="mt-1 text-base font-bold text-text">{formatCurrency(data.customer.creditLimit)}</p>
+                  <p className="mt-1 text-base font-bold text-text">
+                    {data.customer.creditLimit > 0 ? formatCurrency(data.customer.creditLimit) : t("customerForm.noLimit")}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-border bg-surface p-3">
                   <p className="text-xs text-text-muted">{t("customers.partyPortfolioModal.pendingOrders")}</p>

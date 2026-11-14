@@ -110,7 +110,7 @@ export type BusinessGoal =
   | "reporting";
 
 export type BusinessRole = "retailer" | "trader" | "manufacturer";
-export type OnlineChannel = "website" | "marketplace" | "social";
+export type OnlineChannel = "website" | "marketplace" | "social" | "phone";
 
 export interface AppFeatures {
   counterSale: boolean;

@@ -1823,23 +1823,23 @@
       "emptyTitle": "Abhi koi customer nahi hai",
       "emptyDescriptionMobile": "Orders aur credit track karna shuru karne ke liye apna pehla customer add karein.",
       "emptyDescriptionDesktop": "Sales aur credit track karna shuru karne ke liye apna pehla customer add karein.",
-      "totalPurchases": "Total Purchases",
-      "outstanding": "Outstanding",
-      "creditLimit": "Credit Limit",
+      "totalPurchases": "Kul kharid",
+      "outstanding": "Baaki paisa",
+      "creditLimit": "Udhaar seema",
       "lastPurchase": "Last Purchase"
     },
     "addCustomerModal": {
       "title": "Add customer",
       "nameRequired": "Name is required",
       "creditLimitMin": "0 ya usse zyada hona chahiye",
-      "namePlaceholder": "e.g. Sharma Traders",
+      "namePlaceholder": "jaise Ramesh Kumar",
       "phoneLabel": "Phone (optional)",
       "creditLimitLabel": "Credit limit (optional)",
       "submit": "Add customer",
       "addError": "Customer add nahi ho saka. Dobara try karein.",
       "saved": "Grahak update ho gaya.",
       "editTitle": "Grahak badlein",
-      "creditLimitHint": "Zyada se zyada udhaar. Bill is seema ke paar jaane se pehle chetavni milegi. 0 = koi seema nahi.",
+      "creditLimitHint": "Zyada se zyada udhaar. Bill is seema ke paar jaane se pehle chetavni milegi.",
       "gstSection": "GST vivaran (GST bill ke liye)",
       "stateHint": "Aapse alag rajya → unke GST bill par IGST."
     },
@@ -1852,7 +1852,7 @@
       "loading": "Party portfolio load ho raha hai…",
       "loadError": "Yeh customer load nahi ho saka.",
       "inactive": "Inactive",
-      "pendingOrders": "Pending Orders",
+      "pendingOrders": "Baaki orders",
       "noOrders": "Is customer se abhi koi order nahi aaya hai.",
       "noInvoices": "Is customer ke liye abhi koi invoice generate nahi hua hai.",
       "noPayments": "Is customer ke liye abhi koi payment record nahi hai.",
@@ -1861,7 +1861,15 @@
       "aiOrder": "AI Order",
       "manualOrder": "Manual",
       "gstBill": "GST Bill",
-      "recordBill": "Record Bill"
+      "recordBill": "Record Bill",
+      "customerSince": "{{date}} se grahak",
+      "details": {
+        "phone": "Phone",
+        "email": "Email",
+        "address": "Pata",
+        "aadhaar": "Aadhaar",
+        "addMissing": "Baaki details jodein"
+      }
     },
     "hub": {
       "intro": "Jinhe aap maal bechte hain — kis par udhaar hai, kaun limit se upar hai, aur kisne kaafi din se kharida nahi.",
@@ -2869,6 +2877,10 @@
       "title": "Kya online bhi bechte hain?",
       "subtitle": "Taaki har jagah ke order ek jagah rahein.",
       "no": "Nahi, sirf dukaan se",
+      "phone": {
+        "title": "Sirf call / WhatsApp pe order",
+        "body": "Grahak call ya message karte hain, order hum khud likhte hain."
+      },
       "website": {
         "title": "Apni website / online store",
         "body": "Aapka apna shop link ya app."
@@ -2878,8 +2890,8 @@
         "body": "Marketplace par bechte hain."
       },
       "social": {
-        "title": "WhatsApp / Instagram",
-        "body": "Order chat par aate hain."
+        "title": "Instagram / WhatsApp catalog",
+        "body": "Saamaan online dikhakar chat se bechte hain."
       },
       "urlLabel": "Website link (zaroori nahi)"
     },
@@ -2924,7 +2936,9 @@
       "subtitle": "Ek chunein. SethSathi billing, stock aur menu usi hisaab se set kar dega.",
       "recommended": "Sabse sahi",
       "changeLater": "Yeh sab baad mein Settings → Business mein badal sakte hain.",
-      "start": "Is setup se shuru karein"
+      "start": "Is setup se shuru karein",
+      "aiSubtitle": "Munshi AI ne aapki baaton ke hisaab se banaye hain. Ek chunein — baad mein sab badal sakte hain.",
+      "making": "Munshi AI aapka setup bana raha hai…"
     },
     "saving": {
       "title": "Aapka app set ho raha hai…",
@@ -3185,6 +3199,8 @@
     "moreDetails": "Pata, state aur email",
     "addressPlaceholder": "Dukaan no., market, shehar, PIN",
     "emailLabel": "Email (zaroori nahi)",
-    "emailInvalid": "Sahi email likhein."
+    "emailInvalid": "Sahi email likhein.",
+    "addGstin": "GSTIN bhi daalein",
+    "addAadhaar": "Aadhaar bhi daalein"
   }
 }
