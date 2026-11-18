@@ -288,6 +288,17 @@ function getAudioContext(): AudioContext | null {
   const Ctor: AudioContextConstructor | undefined =
     window.AudioContext ?? (window as unknown as { webkitAudioContext?: AudioContextConstructor }).webkitAudioContext;
   if (!Ctor) return null;
+  // iPhone: Web Audio counts as "ambient" sound, so the Ring/Silent switch mutes
+  // Munshi completely (videos still play, which makes it look broken). Safari 17+
+  // lets a page say its audio is playback, like a video: then it's heard on silent too.
+  const audioSession = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (audioSession) {
+    try {
+      audioSession.type = "playback";
+    } catch {
+      // Older Safari: nothing to change.
+    }
+  }
   audioContext = new Ctor();
   return audioContext;
 }
@@ -493,11 +504,12 @@ function playNext() {
 
 const VOICE_ENABLED_KEY = "sethsathi.munshi-voice";
 
+/** Munshi speaks by default; only someone who turned the speaker off ("0") stays silent. */
 function readVoiceEnabled(): boolean {
   try {
-    return localStorage.getItem(VOICE_ENABLED_KEY) === "1";
+    return localStorage.getItem(VOICE_ENABLED_KEY) !== "0";
   } catch {
-    return false;
+    return true;
   }
 }
 

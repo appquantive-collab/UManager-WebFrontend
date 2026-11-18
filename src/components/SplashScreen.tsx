@@ -36,13 +36,24 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   const requestChat = useSplashStore((state) => state.requestChat);
   const [mode] = useState<"welcome" | "brief">(() => (shouldWelcome() ? "welcome" : "brief"));
   const [phase, setPhase] = useState<"show" | "fade" | "hidden">(() => hasSignedInBefore() || useAuthStore.getState().accessToken ? "hidden" : "show");
-  const [tutorialOpen, setTutorialOpen] = useState(shouldShowTutorial);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  // First visit: the Munshi screen shows first, then the tutorial opens over it.
+  const [tutorialPending, setTutorialPending] = useState(shouldShowTutorial);
 
   useEffect(() => {
-    if (tutorialOpen || mode !== "brief" || phase !== "show") return;
+    if (!tutorialPending) return;
+    const timer = setTimeout(() => {
+      setTutorialPending(false);
+      setTutorialOpen(true);
+    }, phase === "hidden" ? 0 : BRIEF_VISIBLE_MS);
+    return () => clearTimeout(timer);
+  }, [tutorialPending, phase]);
+
+  useEffect(() => {
+    if (tutorialOpen || tutorialPending || mode !== "brief" || phase !== "show") return;
     const timer = setTimeout(() => setPhase("fade"), BRIEF_VISIBLE_MS);
     return () => clearTimeout(timer);
-  }, [mode, phase, tutorialOpen]);
+  }, [mode, phase, tutorialOpen, tutorialPending]);
 
   useEffect(() => {
     if (phase !== "fade") return;

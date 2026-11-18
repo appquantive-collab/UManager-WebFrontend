@@ -42,6 +42,8 @@ export interface AiChatMessage {
   steps?: WorkflowStep[];
   /** Answers the user can tap (Munshi asked a question). */
   quickReplies?: string[];
+  /** Questions to ask next about this answer (suggestion chips). */
+  followUps?: string[];
   createdAt: string;
 }
 

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUp, Check, Copy, Loader2, Mic, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowUp, Check, Copy, Loader2, Mic, RotateCcw, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import clsx from "clsx";
 import { Badge } from "../ui/Badge";
 import { ApiError } from "../../lib/api";
@@ -275,6 +275,10 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
   // Phones: Enter adds a new line like WhatsApp; desktop: Enter sends, Shift+Enter for a new line.
   const enterSends = typeof window !== "undefined" && !window.matchMedia("(pointer: coarse)").matches;
   const hasText = input.trim().length > 0;
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const lastFollowUps = lastAssistant?.followUps ?? [];
+  // Munshi asked a question with tap-answers: those show instead of suggestions.
+  const lastAsked = Boolean(messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.quickReplies?.length);
   const busy = sendMutation.isPending;
 
   return (
@@ -446,9 +450,38 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
 
       {/* Suggestions + composer */}
       <div className={clsx("border-t border-border bg-surface px-3 pb-3 pt-2", fullScreen && "pb-[max(0.5rem,env(safe-area-inset-bottom))]")}>
-        {messages.length > 0 && !hasText && !recorder.recording ? (
+        {/* Text came in (typed or spoken): clear it, or say it again from scratch. */}
+        {hasText && !recorder.recording && !transcribing ? (
+          <div className="mb-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setInput("")}
+              className="flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <X size={14} className="text-icon" aria-hidden="true" />
+              {t("setup.work.clear")}
+            </button>
+            {voiceRecordingSupported ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setInput("");
+                  startRecording();
+                }}
+                disabled={busy}
+                className="flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50"
+              >
+                <RotateCcw size={14} className="text-icon" aria-hidden="true" />
+                {t("setup.work.retry")}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        {messages.length > 0 && !hasText && !recorder.recording && !lastAsked ? (
           <div className="scrollbar-hide -mx-3 mb-2 flex gap-2 overflow-x-auto px-3">
-            {(Array.isArray(suggestions) ? suggestions : []).map((s) => (
+            {/* Follow-ups to the last answer when Munshi gave some; otherwise the usual starters. */}
+            {(lastFollowUps.length ? lastFollowUps : Array.isArray(suggestions) ? suggestions : []).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -464,7 +497,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
 
         <div className="flex items-end gap-2">
           {recorder.recording ? (
-            <div className="flex min-h-12 flex-1 items-center gap-3 rounded-3xl border border-danger/30 bg-danger-container/40 px-3" role="status">
+            <div className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-3xl border border-danger/30 bg-danger-container/40 px-2.5" role="status">
               <button
                 type="button"
                 onClick={() => void finishRecording(true)}

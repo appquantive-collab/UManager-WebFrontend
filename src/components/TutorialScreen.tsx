@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { ArrowRight, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Play, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { tutorialSlides } from "../lib/tutorial";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-
-function formatTime(seconds: number): string {
-  const whole = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
-}
 
 function TutorialVideo({ slide, onEnded, onError }: {
   slide: (typeof tutorialSlides)[number];
@@ -17,18 +12,6 @@ function TutorialVideo({ slide, onEnded, onError }: {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [needsPlay, setNeedsPlay] = useState(false);
-  const [playback, setPlayback] = useState({ playing: false, muted: false, current: 0, duration: 0 });
-
-  const syncPlayback = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    setPlayback({
-      playing: !video.paused,
-      muted: video.muted || video.volume === 0,
-      current: Number.isFinite(video.currentTime) ? video.currentTime : 0,
-      duration: Number.isFinite(video.duration) ? video.duration : 0,
-    });
-  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -58,8 +41,6 @@ function TutorialVideo({ slide, onEnded, onError }: {
     void videoRef.current?.play().catch(() => setNeedsPlay(true));
   };
 
-  const controlClass = "flex h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white";
-
   return (
     <>
       <video
@@ -67,47 +48,23 @@ function TutorialVideo({ slide, onEnded, onError }: {
         src={`/tutorial/${slide}.mp4`}
         poster={`/tutorial/${slide}.jpg`}
         aria-label={t(`tutorial.slides.${slide}.title`)}
-        className="h-full w-full object-cover"
+        // Whole frame always visible (the clips are 9:16); black fills any leftover space instead of cropping.
+        className="h-full w-full object-contain"
+        // No controls on screen: tapping the video pauses / resumes it.
+        onClick={() => {
+          const video = videoRef.current;
+          if (!video) return;
+          if (video.paused) play();
+          else video.pause();
+        }}
         muted={false}
         playsInline
         controls={false}
         preload="auto"
-        onPlay={() => { setNeedsPlay(false); syncPlayback(); }}
-        onPause={syncPlayback}
-        onTimeUpdate={syncPlayback}
-        onLoadedMetadata={syncPlayback}
-        onDurationChange={syncPlayback}
-        onVolumeChange={syncPlayback}
-        onEmptied={syncPlayback}
+        onPlay={() => setNeedsPlay(false)}
         onEnded={onEnded}
         onError={onError}
       />
-      <div role="group" aria-label={t("tutorial.controls")} className="absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/95 to-black/65 px-3 pb-2 text-white">
-        <div className="flex items-center gap-1">
-          <button type="button" className={controlClass} aria-label={t(playback.playing ? "tutorial.pause" : "tutorial.play")} onClick={() => { if (videoRef.current?.paused) play(); else videoRef.current?.pause(); }}>
-            {playback.playing ? <Pause size={20} aria-hidden="true" /> : <Play size={20} aria-hidden="true" />}
-          </button>
-          <span className="flex-1 whitespace-nowrap text-xs tabular-nums">{formatTime(playback.current)} / {formatTime(playback.duration)}</span>
-          <button type="button" className={controlClass} aria-label={t("tutorial.replay")} onClick={() => { if (videoRef.current) videoRef.current.currentTime = 0; play(); }}>
-            <RotateCcw size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={controlClass} aria-label={t(playback.muted ? "tutorial.unmute" : "tutorial.mute")} onClick={() => { const video = videoRef.current; if (video) { video.muted = !playback.muted; if (!video.muted && video.volume === 0) video.volume = 1; } }}>
-            {playback.muted ? <VolumeX size={20} aria-hidden="true" /> : <Volume2 size={20} aria-hidden="true" />}
-          </button>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={playback.duration || 1}
-          step={0.1}
-          value={Math.min(playback.current, playback.duration || 1)}
-          disabled={!playback.duration}
-          aria-label={t("tutorial.seek")}
-          aria-valuetext={`${formatTime(playback.current)} / ${formatTime(playback.duration)}`}
-          onChange={(event) => { if (videoRef.current) videoRef.current.currentTime = Number(event.target.value); }}
-          className="block h-6 w-full cursor-pointer accent-white"
-        />
-      </div>
       {needsPlay && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
           <button
@@ -192,16 +149,14 @@ export function TutorialScreen({ onComplete }: { onComplete: () => void }) {
       <header className="mx-auto mb-4 flex w-full max-w-5xl shrink-0 items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="" className="h-10 w-10 rounded-xl" />
-          <div>
-            <p className="text-xs font-bold text-primary">{t("brand.name")}</p>
-            <h1 id="tutorial-heading" className="text-lg font-bold text-text">{t("tutorial.title")}</h1>
-          </div>
+          <p className="text-sm font-bold text-primary">{t("brand.name")}</p>
+          <h1 id="tutorial-heading" className="sr-only">{t("tutorial.title")}</h1>
         </div>
         <LanguageSwitcher />
       </header>
 
-      <main className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 grid-rows-[minmax(150px,1fr)_auto] gap-4 lg:grid-cols-2 lg:grid-rows-1 lg:gap-12">
-        <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-black">
+      <main className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col lg:max-w-3xl">
+        <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-2xl bg-black">
           {failed ? (
             <div role="status" className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center text-white">
               <p className="text-sm">{t("tutorial.videoError")}</p>
@@ -222,21 +177,10 @@ export function TutorialScreen({ onComplete }: { onComplete: () => void }) {
             />
           )}
         </div>
-
-        <div className="flex flex-col justify-center lg:py-10">
-          <div aria-live="polite" aria-atomic="true">
-            <p className="text-xs font-bold tracking-wide text-primary">
-              {t("tutorial.step", { current: index + 1, total: tutorialSlides.length })}
-            </p>
-            <h2 className="mt-2 text-2xl font-extrabold leading-tight text-text lg:text-4xl">
-              {t(`tutorial.slides.${slide}.title`)}
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-text-subtle lg:mt-4 lg:text-lg">
-              {t(`tutorial.slides.${slide}.description`)}
-            </p>
-          </div>
-          <p className="mt-2 text-xs text-text-subtle lg:mt-6">{t("tutorial.soundHint")}</p>
-        </div>
+        {/* Which step it is, for screen readers only (no text on screen). */}
+        <p className="sr-only" aria-live="polite">
+          {t("tutorial.step", { current: index + 1, total: tutorialSlides.length })}: {t(`tutorial.slides.${slide}.title`)}
+        </p>
       </main>
 
       <footer className="mx-auto mt-4 w-full max-w-5xl shrink-0">
