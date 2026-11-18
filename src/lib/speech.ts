@@ -2,6 +2,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import type { SupportedLanguageCode } from "./i18n";
 import { API_BASE_URL } from "./api";
+import { useAuthStore } from "./auth-store";
+
+/** Signed-in requests let the server put AI costs (speech, voice) on the right business. */
+function authHeader(): Record<string, string> {
+  const token = useAuthStore.getState().accessToken;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 import { PRERECORDED_VOICE_KEYS } from "./voice-manifest";
 
 // Munshi AI's ears and voice. Hold-to-talk clips go to our backend for Whisper
@@ -29,6 +36,9 @@ interface RecordingSession {
   cancelled: boolean;
   finish?: (blob: Blob | null) => void;
 }
+
+/** Extra listening after stop is pressed, so the last word isn't clipped. */
+const TAIL_MS = 600;
 
 function releaseMic(session: RecordingSession) {
   session.stream?.getTracks().forEach((track) => track.stop());
@@ -96,7 +106,14 @@ export function useVoiceRecorder(onError: (error: MicError) => void) {
 
     return new Promise((resolve) => {
       session.finish = (blob) => resolve(blob ? { blob, durationMs } : null);
-      if (session.recorder && session.recorder.state !== "inactive") session.recorder.stop();
+      if (session.recorder && session.recorder.state !== "inactive") {
+        // People press stop while still saying the last word: keep listening a
+        // moment longer so it isn't cut off (cancel stops at once).
+        const recorder = session.recorder;
+        window.setTimeout(() => {
+          if (recorder.state !== "inactive") recorder.stop();
+        }, cancel ? 0 : TAIL_MS);
+      }
       else if (session.stream) {
         releaseMic(session);
         resolve(null);
@@ -133,15 +150,21 @@ export async function transcribeVoice(
   blob: Blob,
   language: SupportedLanguageCode,
   kind: TranscribeKind,
-  options: { live?: boolean } = {}
+  /**
+   * live: quick preview read while the mic is on.
+   * purpose: what they're saying it for; Munshi AI then fixes what speech-to-text misheard ("Raksin" → rexine).
+   */
+  options: { live?: boolean; purpose?: "business" | "order" | "chat"; durationMs?: number } = {}
 ): Promise<string> {
   const form = new FormData();
   const extension = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
   form.append("audio", blob, `voice.${extension}`);
   form.append("lang", language);
   form.append("kind", kind);
+  if (options.purpose && !options.live) form.append("purpose", options.purpose);
+  if (options.durationMs) form.append("durationMs", String(Math.round(options.durationMs)));
   const path = options.live ? "/munshi/transcribe/live" : "/munshi/transcribe";
-  const res = await fetch(`${API_BASE_URL}${path}`, { method: "POST", body: form });
+  const res = await fetch(`${API_BASE_URL}${path}`, { method: "POST", body: form, headers: authHeader() });
   if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
   const { text } = (await res.json()) as { text: string };
   // Whisper sometimes "hears" these stock phrases in silence or noise.
@@ -177,7 +200,7 @@ export function useLiveTranscript(
       if (clip && clip.size > lastSize && Date.now() - startedAt < LIVE_MAX_MS) {
         lastSize = clip.size;
         try {
-          const heard = await transcribeVoice(clip, language, kind, { live: true });
+          const heard = await transcribeVoice(clip, language, kind, { live: true, durationMs: Date.now() - startedAt });
           if (alive && heard) setText(heard);
         } catch {
           // A missed live update is fine; the final read on stop still runs.
@@ -337,8 +360,8 @@ export function prefetchVoice(text: string, language: SupportedLanguageCode) {
 // tts.service.ts). Hinglish is read by the Hindi voice after being written in Devanagari.
 const VOICE_IDS: Record<SupportedLanguageCode, string> = {
   en: "en-IN-PrabhatNeural|-5%",
-  "hi-Latn": "hi-IN-MadhurNeural|-5%|spoken",
-  hi: "hi-IN-MadhurNeural|-5%|spoken",
+  "hi-Latn": "sarvam|v3_shubh|exact",
+  hi: "sarvam|v3_shubh|exact",
 };
 
 // Same key the generator script uses to name pre-recorded files.
@@ -365,7 +388,7 @@ async function fetchAudioBytes(text: string, language: SupportedLanguageCode): P
   }
   const res = await fetch(`${API_BASE_URL}/tts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify({ text, lang: language }),
   });
   return res.ok ? res.arrayBuffer() : null;

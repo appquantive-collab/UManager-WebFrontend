@@ -14,6 +14,7 @@ import { createCustomer, updateCustomer, type CreateCustomerInput, type Customer
 import { showError, showSuccess } from "../../lib/toast";
 import { errorMessage } from "../../lib/api-errors";
 import { GST_STATES, GSTIN_PATTERN, stateFromGstin } from "../../lib/gst-states";
+import { optionalNumber } from "../../lib/number-input";
 import i18n from "../../lib/i18n";
 
 type Kind = "person" | "business";
@@ -28,10 +29,7 @@ const schema = z.object({
     .string()
     .optional()
     .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()), { error: () => i18n.t("customerForm.emailInvalid") }),
-  creditLimit: z.coerce
-    .number()
-    .min(0, { error: () => i18n.t("customers.addCustomerModal.creditLimitMin") })
-    .optional(),
+  creditLimit: optionalNumber((n) => n.min(0, { error: () => i18n.t("customers.addCustomerModal.creditLimitMin") })),
   gstin: z
     .string()
     .optional()

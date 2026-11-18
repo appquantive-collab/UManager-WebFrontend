@@ -1,6 +1,6 @@
 {
   "brand": {
-    "name": "SethSathi",
+    "name": "VoiceMunshi",
     "assistantName": "Munshi AI"
   },
   "splash": {
@@ -13,7 +13,46 @@
     "login": "Login – existing user",
     "madeFor": "Made for India's traders",
     "photoAlt": "Munshi AI greeting you with a namaste",
-    "loading": "Loading SethSathi"
+    "loading": "Loading VoiceMunshi"
+  },
+  "tutorial": {
+    "title": "Tutorial",
+    "step": "{{current}} of {{total}}",
+    "next": "Next",
+    "skip": "Skip",
+    "finish": "Get started",
+    "watchAgain": "Watch tutorial",
+    "soundHint": "Videos play with sound. The next slide starts automatically when each video ends.",
+    "playWithSound": "Play video with sound",
+    "controls": "Video controls",
+    "play": "Play video",
+    "pause": "Pause video",
+    "mute": "Mute video",
+    "unmute": "Unmute video",
+    "replay": "Replay video",
+    "seek": "Video progress",
+    "videoError": "This video could not play. Try again, or continue to the next slide.",
+    "retry": "Try again",
+    "slidesLabel": "Tutorial slides",
+    "goToSlide": "Go to slide {{number}}",
+    "slides": {
+      "welcome": {
+        "title": "Meet your digital munshi",
+        "description": "See how VoiceMunshi helps you manage your shop, billing and everyday business."
+      },
+      "billing": {
+        "title": "Make billing simple",
+        "description": "Create bills and keep your sales organised with your digital assistant."
+      },
+      "voice": {
+        "title": "Just speak to get started",
+        "description": "Use your voice to tell Munshi what you need, while you focus on your customers."
+      },
+      "ai": {
+        "title": "Your AI business assistant",
+        "description": "Ask Munshi about your business and get help with your daily work."
+      }
+    }
   },
   "common": {
     "cancel": "Cancel",
@@ -44,7 +83,9 @@
     "total": "Total",
     "amount": "Amount",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "enterNumber": "Enter a number",
+    "validNumber": "Enter a valid number, e.g. 14500"
   },
   "layout": {
     "tenantAdmin": "Tenant Admin",
@@ -211,7 +252,7 @@
     "completeSetup": "Complete setup",
     "comingSoon": "{{label}} settings coming soon",
     "beingDesigned": "This section is being designed.",
-    "languageDescription": "Choose the language SethSathi is shown in. This is saved to your account and follows you across devices."
+    "languageDescription": "Choose the language VoiceMunshi is shown in. This is saved to your account and follows you across devices."
   },
   "pageMeta": {
     "dashboard": {
@@ -275,7 +316,7 @@
       "subtitle": "Business configuration and preferences."
     },
     "fallback": {
-      "title": "SethSathi",
+      "title": "VoiceMunshi",
       "subtitle": ""
     },
     "search": {
@@ -309,7 +350,9 @@
       "emailInvalid": "Enter a valid email",
       "signIn": "Sign in",
       "signInWithMobileInstead": "Sign in with mobile number instead",
-      "genericError": "Something went wrong. Please try again."
+      "genericError": "Something went wrong. Please try again.",
+      "emailOrPhone": "Email or mobile number",
+      "emailOrPhoneInvalid": "Enter a valid email or 10-digit mobile number"
     },
     "register": {
       "title": "Get started with wholesale",
@@ -378,7 +421,8 @@
         "SMS_FAILED": "We couldn't send the code. Please try again.",
         "CODE_EXPIRED": "This code has expired. Please request a new one.",
         "CODE_INVALID": "Incorrect code. Please check and try again.",
-        "TOO_MANY_ATTEMPTS": "Too many wrong attempts. Please request a new code."
+        "TOO_MANY_ATTEMPTS": "Too many wrong attempts. Please request a new code.",
+        "ACCOUNT_SUSPENDED": "This business account is suspended. Please contact VoiceMunshi."
       }
     }
   },
@@ -386,7 +430,7 @@
     "skipForNow": "Skip for now",
     "step1": {
       "heading": "Tell us about your business",
-      "subheading": "This helps us tailor SethSathi to how you work.",
+      "subheading": "This helps us tailor VoiceMunshi to how you work.",
       "categoryLabel": "Business category",
       "customersLabel": "Who are your customers?",
       "groups": {
@@ -889,7 +933,8 @@
       "recordPayment": "Record payment",
       "couldNotRecordPayment": "Couldn't record payment. Please try again.",
       "close": "Close",
-      "gstPercentSuffix": " · GST {{percent}}%"
+      "gstPercentSuffix": " · GST {{percent}}%",
+      "enterAmount": "Enter the amount received"
     }
   },
   "sales": {
@@ -1044,7 +1089,7 @@
       "beingDesigned": "This section is being designed."
     },
     "guide": {
-      "title": "How selling works in SethSathi",
+      "title": "How selling works in VoiceMunshi",
       "subtitle": "4 simple steps — tap to show or hide",
       "step": "Step {{number}}",
       "newOrder": "New order",
@@ -1399,7 +1444,8 @@
       "noOrdersYet": "No orders yet.",
       "itemsCountOne": "{{count}} item",
       "itemsCountOther": "{{count}} items",
-      "allDataSynced": "All data synced"
+      "allDataSynced": "All data synced",
+      "openMunshi": "Chat with Munshi AI"
     },
     "dashboardPage": {
       "welcomeBack": "Welcome back, {{businessName}}",
@@ -1522,10 +1568,11 @@
       "online": "Online · knows your business",
       "typing": "typing…",
       "welcomeTitle": "Namaste! Ask me anything about your business",
-      "welcomeBody": "Sales, stock, dues, profit, GST, staff — or how to do something in SethSathi. Type or tap the mic to speak.",
+      "welcomeBody": "Sales, stock, dues, profit, GST, staff — or how to do something in VoiceMunshi. Type or tap the mic to speak.",
       "suggestions": [
         "How much did I sell today?",
         "Which items should I reorder?",
+        "Add a new supplier",
         "Who owes me the most money?",
         "Compare this month's sales with last month",
         "What is my profit this month?",
@@ -1540,7 +1587,60 @@
       "copy": "Copy",
       "copied": "Copied",
       "copyFailed": "Couldn't copy",
-      "disclaimer": "Munshi AI answers from your SethSathi data. It only proposes changes — you confirm them."
+      "disclaimer": "Munshi AI answers from your VoiceMunshi data. It only proposes changes — you confirm them.",
+      "back": "Back"
+    },
+    "workflow": {
+      "heading": "To do",
+      "progress": "{{done}}/{{total}} done",
+      "autoAdded": "Munshi added this: it isn't saved yet",
+      "counterSale": "Counter sale",
+      "skip": "Skip",
+      "confirm": "Yes, do it",
+      "anyway": "Do it anyway",
+      "skipped": "Skipped",
+      "allDone": "All done.",
+      "savedPrice": "saved",
+      "quickReplies": "Quick answers",
+      "title": {
+        "create_customer": "Add customer: {{name}}",
+        "create_supplier": "Add supplier: {{name}}",
+        "create_product": "Add item: {{name}}",
+        "record_purchase": "Purchase from {{party}}: {{items}}",
+        "create_bill": "Bill for {{party}}: {{items}}",
+        "create_order": "Order for {{party}}: {{items}}",
+        "mark_attendance": "Attendance: {{name}}, {{status}} ({{date}})"
+      },
+      "done": {
+        "create_customer": "Customer added",
+        "create_supplier": "Supplier added",
+        "create_product": "Item added",
+        "record_purchase": "Purchase saved, stock up",
+        "create_bill": "Bill made",
+        "create_order": "Order saved",
+        "mark_attendance": "Attendance marked"
+      },
+      "fields": {
+        "name": "Name",
+        "phone": "Mobile (optional)",
+        "item": "Item",
+        "unit": "Unit",
+        "qty": "Qty",
+        "rate": "Rate ₹",
+        "cost": "Cost ₹",
+        "salePrice": "Sale price ₹",
+        "supplier": "Supplier",
+        "customer": "Customer"
+      },
+      "warning": {
+        "INSUFFICIENT_STOCK": "Not enough stock for this. Make the bill anyway?",
+        "CREDIT_LIMIT": "This takes the customer over their credit limit. Make the bill anyway?"
+      },
+      "replaced": "Changed: see the new list below",
+      "listReplaced": "List changed",
+      "viewBill": "View bill",
+      "viewPurchase": "View purchase",
+      "openFailed": "Couldn't open it. Please try again."
     }
   },
   "reports": {
@@ -1781,7 +1881,7 @@
       "ctaHeading": "Ready to run your business from one place?",
       "ctaDescription": "Set up your workspace in minutes — no credit card required to get started.",
       "getStarted": "Get Started",
-      "copyright": "© {{year}} SethSathi. All rights reserved.",
+      "copyright": "© {{year}} VoiceMunshi. All rights reserved.",
       "features": "Features",
       "pricing": "Pricing",
       "signIn": "Sign in"
@@ -2068,7 +2168,7 @@
     "typing": "Munshi AI is typing",
     "send": "Send",
     "chooseAbove": "Pick an option or ask me anything…",
-    "greeting": "Namaste! I'm Munshi AI, your digital munshi at SethSathi. First, which language would you like to talk in?",
+    "greeting": "Namaste! I'm Munshi AI, your digital munshi at VoiceMunshi. First, which language would you like to talk in?",
     "choiceRegister": "Create a new account",
     "choiceLogin": "I have an account — log in",
     "goingToLogin": "Sure! Taking you to the login page…",
@@ -2120,7 +2220,7 @@
       "language": "Which language would you like?"
     },
     "creating": "Creating your account… this takes just a moment.",
-    "success": "Congratulations, {{name}}! {{business}} is now set up on SethSathi.",
+    "success": "Congratulations, {{name}}! {{business}} is now set up on VoiceMunshi.",
     "successHelp": "From today, Munshi AI will help you with every task — making bills, managing stock, tracking customer dues and payments, staff attendance, and answering any question about your business. Just ask me anytime!",
     "goHome": "Go to my dashboard",
     "loginInstead": "Log in instead",
@@ -2449,11 +2549,14 @@
     "planExpired": "Your plan has ended. Choose a plan in Settings → Plan to save new work.",
     "proRequired": "This is a Pro feature. Upgrade in Settings → Plan.",
     "aiLimit": "This month's Munshi AI tokens are used up. They reset on the 1st, or upgrade in Settings → Plan.",
-    "paymentsOff": "Online payment isn't switched on yet. Please contact the SethSathi team.",
-    "paymentUnverified": "We couldn't confirm this payment. If money was taken, contact the SethSathi team with the payment ID.",
+    "paymentsOff": "Online payment isn't switched on yet. Please contact the VoiceMunshi team.",
+    "paymentUnverified": "We couldn't confirm this payment. If money was taken, contact the VoiceMunshi team with the payment ID.",
     "billNumberTaken": "This bill number is already used. Please type another.",
     "belowPaid": "The new total is less than the money already received. Make a return instead.",
-    "hasReturn": "This bill has a return on it, so it can't be edited."
+    "hasReturn": "This bill has a return on it, so it can't be edited.",
+    "aiBusy": "Munshi AI is busy right now. Please try again in a minute.",
+    "accountSuspended": "This business account is suspended. Please contact VoiceMunshi.",
+    "accountDisabled": "Your login has been stopped. Please contact your business owner or VoiceMunshi."
   },
   "businessSettings": {
     "saved": "Saved. New bills will show these details.",
@@ -2471,7 +2574,7 @@
     "gstinHint": "15 characters, e.g. 27ABCDE1234F1Z5. Your state is picked from the first two digits.",
     "gstinInvalid": "This doesn't look like a GSTIN. Check it on your GST certificate.",
     "gstinState": "State from GSTIN: {{state}}",
-    "howGstTitle": "How SethSathi applies GST",
+    "howGstTitle": "How VoiceMunshi applies GST",
     "howGst1": "Each item's GST rate comes from the item (Inventory → edit item). HSN code is printed too.",
     "howGst2": "Customer in your state → CGST + SGST (half each). Customer in another state (by their GSTIN or state) → IGST.",
     "howGst3": "Discounts are taken off before GST. The total is rounded to the nearest rupee and the round-off is shown.",
@@ -2548,7 +2651,7 @@
       },
       "s3": {
         "title": "Count the galla and close",
-        "body": "Enter the cash you counted. SethSathi shows if it's short or extra, and the next day starts from it.",
+        "body": "Enter the cash you counted. VoiceMunshi shows if it's short or extra, and the next day starts from it.",
         "title_firm": "Count your cash and close the day"
       },
       "subtitle_firm": "Two minutes at the end of every day."
@@ -2660,7 +2763,7 @@
     "noName": "We couldn't find an item-name column. Name it \"Item name\".",
     "columns": "Columns in your file",
     "ignored": "Not used",
-    "existing": "If an item is already in SethSathi",
+    "existing": "If an item is already in VoiceMunshi",
     "mode": {
       "update": "Update its prices and details",
       "skip": "Leave it as it is"
@@ -2853,7 +2956,9 @@
       },
       "orPick": "Or pick your business type from a list",
       "picked": "Business type: {{category}}",
-      "understanding": "Munshi AI is understanding…"
+      "understanding": "Munshi AI is understanding…",
+      "clear": "Clear",
+      "retry": "Say it again"
     },
     "role": {
       "understood": "Munshi AI understood",
@@ -2933,7 +3038,7 @@
     },
     "plans": {
       "title": "Ready setups for you",
-      "subtitle": "Pick one. SethSathi will set up billing, stock and menus to match.",
+      "subtitle": "Pick one. VoiceMunshi will set up billing, stock and menus to match.",
       "recommended": "Best match",
       "changeLater": "You can change any of this later in Settings → Business.",
       "start": "Start with this setup",
@@ -2963,6 +3068,43 @@
         }
       },
       "dashboard": "Go to dashboard"
+    },
+    "trade": {
+      "title": "How do you buy and sell your goods?",
+      "subtitle": "Many businesses buy in one unit and sell in another, like goods that come in a sack and sell by the kilo. Pick a ready-made way or choose the units yourself.",
+      "munshiFound": "Munshi AI looked it up",
+      "looking": "Munshi AI is looking up your trade…",
+      "buy": "You buy stock in",
+      "sell": "You sell in",
+      "moreUnits": "More units",
+      "factorTitle": "Roughly how much is each?",
+      "factorHint": "A rough number is fine. You can set the exact one on each item.",
+      "notesLabel": "Anything else about how you buy or sell? (optional)",
+      "notesPlaceholder": "e.g. cloth comes by the thaan from Surat, we sell by the meter; leftover cut pieces sell cheaper",
+      "productHint": "As set up: you buy in {{buy}} and sell in {{sell}}.",
+      "units": {
+        "pcs": "Piece",
+        "kg": "Kilo",
+        "gram": "Gram",
+        "quintal": "Quintal",
+        "meter": "Meter",
+        "feet": "Feet",
+        "sqft": "Sq. ft",
+        "litre": "Litre",
+        "dozen": "Dozen",
+        "box": "Box",
+        "carton": "Carton",
+        "packet": "Packet",
+        "bag": "Bag / sack",
+        "roll": "Roll",
+        "than": "Than (bale)",
+        "pair": "Pair",
+        "set": "Set"
+      },
+      "patternsTitle": "Pick a ready-made way",
+      "suggested": "Munshi's pick",
+      "multiHint": "You can pick more than one unit on each side. The first one you pick is the main one.",
+      "main": "main"
     }
   },
   "setupTemplates": {
@@ -3099,7 +3241,7 @@
     "perMonthEquiv": "{{amount}}/month for {{months}} months · you save {{save}}",
     "features": {
       "basic": {
-        "allCrm": "All of SethSathi: bills, GST, stock, udhaar, purchases, godowns, staff, manufacturing, reports",
+        "allCrm": "All of VoiceMunshi: bills, GST, stock, udhaar, purchases, godowns, staff, manufacturing, reports",
         "aiTokens": "Munshi AI: {{tokens}} tokens a month",
         "noLimits": "No limit on bills, items, customers or team logins",
         "support": "WhatsApp support in Hindi and English"
@@ -3135,14 +3277,14 @@
     "choose": "Choose {{plan}} · {{amount}}",
     "renew": "Renew · {{amount}}",
     "payNote": "Pay by UPI, card or netbanking through Razorpay. Your plan starts as soon as the payment goes through.",
-    "offlineNote": "Online payment isn't switched on yet. Pay the SethSathi team by UPI or bank transfer and they'll start your plan.",
+    "offlineNote": "Online payment isn't switched on yet. Pay the VoiceMunshi team by UPI or bank transfer and they'll start your plan.",
     "ownerPays": "Only the owner can buy or renew the plan.",
     "paidToast": "Payment received. {{plan}} is active till {{date}}.",
     "payFailed": "The payment didn't go through. No money was taken — please try again.",
     "historyTitle": "Payments",
     "days_one": "{{count}} day",
     "days_other": "{{count}} days",
-    "byTeam": "Given by SethSathi team",
+    "byTeam": "Given by VoiceMunshi team",
     "online": "Paid online",
     "until": "till {{date}}",
     "proOnlyTitle": "This is a Pro feature",
@@ -3158,7 +3300,7 @@
     "choose": "Choose plan"
   },
   "planAdmin": {
-    "title": "All businesses (SethSathi team)",
+    "title": "All businesses (VoiceMunshi team)",
     "body": "See every business's plan and give or extend one by hand — for UPI/bank payments, free months or support.",
     "search": "Search business, email or phone",
     "emptyTitle": "No businesses found",
@@ -3202,5 +3344,263 @@
     "emailInvalid": "Enter a valid email.",
     "addGstin": "Add GSTIN",
     "addAadhaar": "Add Aadhaar"
+  },
+  "speechEngine": {
+    "title": "Speech-to-text (mic)",
+    "body": "Which service turns what people say into text, for every business.",
+    "saved": "Speech-to-text setting saved",
+    "sarvamReady": "Sarvam: key set and working.",
+    "sarvamPaused": "Sarvam: paused for an hour after a credits or key error. Whisper is being used.",
+    "sarvamMissing": "Sarvam: no key on the server (KEY_SARVAM). Whisper is being used.",
+    "options": {
+      "auto": {
+        "title": "Auto (recommended)",
+        "body": "Sarvam first; Whisper if Sarvam fails or its credits run out."
+      },
+      "sarvam": {
+        "title": "Sarvam only",
+        "body": "Best for Hindi and Hinglish. No backup: the mic shows an error if Sarvam fails."
+      },
+      "whisper": {
+        "title": "Whisper only",
+        "body": "Groq's Whisper with Munshi's clean-up. No Sarvam credits used."
+      }
+    }
+  },
+  "admin": {
+    "brand": "VoiceMunshi Admin",
+    "brandSub": "Founder's console",
+    "menuLink": "Admin panel",
+    "backToApp": "Back to my business",
+    "never": "never",
+    "todayAt": "today {{time}}",
+    "lastSeen": "Last seen: {{when}}",
+    "nav": {
+      "overview": "Overview",
+      "businesses": "Businesses",
+      "users": "Users",
+      "settings": "Settings",
+      "growth": "Growth",
+      "costs": "AI costs"
+    },
+    "status": {
+      "trial": "Free trial",
+      "active": "Paid",
+      "expired": "Plan ended",
+      "suspended": "Suspended"
+    },
+    "filter": {
+      "all": "All",
+      "trial": "Free trial",
+      "paid": "Paid",
+      "expired": "Plan ended",
+      "suspended": "Suspended"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Everything happening on VoiceMunshi.",
+      "businesses": "Businesses",
+      "newWeek": "{{count}} new this week · {{today}} today",
+      "expiredCount": "{{count}} plans ended",
+      "paidHint": "On a paid plan",
+      "users": "Logins",
+      "activeWeek": "{{count}} opened the app this week",
+      "aiTokens": "Munshi AI tokens (month)",
+      "aiCalls": "{{count}} AI calls",
+      "signups": "New businesses, last 14 days",
+      "today": "Today",
+      "recent": "Newest businesses",
+      "aiCost": "AI cost (month)",
+      "aiCostPer": "{{amount}} per business",
+      "revenue": "Revenue (month)",
+      "revenueAll": "{{amount}} all time"
+    },
+    "businesses": {
+      "title": "Businesses",
+      "subtitle": "Every business on VoiceMunshi. Tap one to see details, give a plan or suspend it.",
+      "search": "Search by business, owner, mobile or email",
+      "filter": "Filter businesses",
+      "rowMeta": "Joined {{joined}} · seen {{seen}} · {{users}} logins · AI {{ai}} this month",
+      "emptyTitle": "No businesses found",
+      "emptyBody": "Try another name or filter."
+    },
+    "business": {
+      "joined": "Joined {{date}}",
+      "plan": "Plan",
+      "givePlan": "Give / extend plan",
+      "ai": "Munshi AI this month",
+      "aiUsed": "{{used}} tokens used ({{calls}} calls)",
+      "aiLimit": "limit {{limit}}",
+      "aiUnlimited": "Unlimited AI",
+      "aiMakeUnlimited": "Make unlimited",
+      "aiBackToPlan": "Back to plan limit",
+      "aiSaved": "AI limit saved",
+      "usage": "In the app",
+      "counts": {
+        "bills": "Bills",
+        "sales": "Total sales",
+        "products": "Items",
+        "customers": "Customers",
+        "suppliers": "Suppliers",
+        "purchases": "Purchases"
+      },
+      "details": "Business details",
+      "phone": "Phone",
+      "address": "Address",
+      "work": "Their work",
+      "setup": "App setup",
+      "trade": "Buy → sell",
+      "setupPending": "Setup not finished",
+      "logins": "Logins ({{count}})",
+      "payments": "Plan payments",
+      "days": "{{count}} days",
+      "suspendTitle": "Suspend this business",
+      "suspendBody": "Everyone in this business is signed out at once and can't sign in again until you un-suspend it. Their data stays safe.",
+      "suspend": "Suspend business",
+      "suspendConfirm": "Yes, suspend {{business}}",
+      "isSuspended": "This business is suspended",
+      "unsuspendBody": "Its logins can't open the app. Un-suspend to let them back in.",
+      "unsuspend": "Un-suspend",
+      "suspendedDone": "Business suspended",
+      "unsuspendedDone": "Business is active again",
+      "tabs": {
+        "label": "Business sections",
+        "info": "Details",
+        "work": "Their work",
+        "ai": "AI cost"
+      }
+    },
+    "user": {
+      "founder": "Founder",
+      "stoppedBadge": "Stopped",
+      "stop": "Stop login",
+      "restart": "Restart login",
+      "stopped": "{{name}}'s login stopped",
+      "restarted": "{{name}} can sign in again"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Every login on VoiceMunshi: owners and their staff.",
+      "search": "Search by name, mobile or email",
+      "emptyTitle": "No users found",
+      "emptyBody": "Try another name or number."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Switches that apply to every business."
+    },
+    "growth": {
+      "title": "Growth",
+      "subtitle": "How the product is growing and what businesses actually use.",
+      "businesses": "Businesses",
+      "paidEver": "Ever paid",
+      "conversion": "Trial → paid",
+      "conversionHint": "of {{count}} trials that ended",
+      "revenueAll": "Revenue (all time)",
+      "signups": "New businesses per week",
+      "last12Weeks": "Last 12 weeks",
+      "active": "Active businesses per week",
+      "activeHint": "Made a bill or purchase, or used Munshi AI, that week",
+      "gmv": "Sales recorded in the app",
+      "gmvHint": "Total of all bills made per week (GMV)",
+      "revenue": "Plan revenue",
+      "revenueHint": "Plan payments per month (online + given by hand)",
+      "adoption": "Feature adoption",
+      "adoptionHint": "Share of all businesses that have used each part of the app",
+      "ofBusinesses": "{{count}} of {{total}} businesses",
+      "weekOf": "Week of {{date}}",
+      "tipSignups": "{{count}} new",
+      "tipActive": "{{count}} active",
+      "tipBills": "{{count}} bills",
+      "tipPayments": "{{count}} payments",
+      "features": {
+        "setup": "Finished setup",
+        "bills": "Made a bill",
+        "gstBills": "Made a GST bill",
+        "purchases": "Recorded a purchase",
+        "munshiChat": "Chatted with Munshi AI",
+        "voice": "Used voice (mic)",
+        "team": "Added staff logins"
+      }
+    },
+    "costs": {
+      "title": "AI costs",
+      "subtitle": "What Groq and Sarvam cost us, in rupees, by day, kind of work, model and business.",
+      "range": "Period",
+      "days": "{{count}} days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month {{amount}}",
+      "estimatedPart": "incl. {{amount}} estimated from older token totals",
+      "estimate": "estimate",
+      "inRange": "Last {{count}} days",
+      "calls": "{{count}} calls",
+      "perBusiness": "Per business (month)",
+      "perBusinessHint": "This month's cost ÷ all businesses",
+      "preLogin": "Before sign-up",
+      "preLoginHint": "Munshi on the welcome screen",
+      "perDay": "Cost per day",
+      "perDayHint": "Priced from the list in Settings ($1 = ₹{{rate}})",
+      "byKind": "By kind of work",
+      "topBusinesses": "Costliest businesses",
+      "byModel": "By model",
+      "byModelHint": "Tokens for chat models, audio minutes for speech-to-text",
+      "model": "Model",
+      "callsCol": "Calls",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens",
+      "audio": "Audio",
+      "tokens": "{{count}} tokens",
+      "minutes": "{{count}} min",
+      "none": "No AI use yet in this period.",
+      "byMonth": "Last 6 months",
+      "byMonthEstimated": "Months before per-call tracking are estimated from token totals"
+    },
+    "kind": {
+      "chat": "Munshi AI chat",
+      "ask": "AI search",
+      "order_reading": "Reading WhatsApp orders",
+      "dashboard": "Dashboard words",
+      "setup": "Setup wizard",
+      "stt": "Speech-to-text",
+      "stt_live": "Live words while speaking",
+      "stt_cleanup": "Fixing what was heard",
+      "tts": "Hindi voice rewrite",
+      "pre_login": "Welcome-screen Munshi"
+    },
+    "work": {
+      "bills": "Bills (30 days)",
+      "sales": "Sales (30 days)",
+      "purchases": "Purchases (30 days)",
+      "activeDays": "Active days",
+      "salesByDay": "Sales per day",
+      "last30": "Last 30 days",
+      "topItems": "Top items",
+      "recentBills": "Latest bills",
+      "recentPurchases": "Latest purchases",
+      "noBills": "No bills yet.",
+      "counter": "Counter sale",
+      "cancelled": "Cancelled",
+      "pay": {
+        "paid": "Paid",
+        "partial": "Part paid",
+        "unpaid": "Unpaid"
+      }
+    },
+    "pricing": {
+      "title": "AI price list",
+      "body": "Used to turn tokens and audio into rupees. Update it when Groq or Sarvam change prices.",
+      "usdToInr": "Dollar rate",
+      "sarvam": "Sarvam speech-to-text",
+      "whisperMin": "Whisper minimum billed",
+      "perMillion": "USD per 1M tokens",
+      "input": "Input",
+      "cached": "Cached input",
+      "output": "Output",
+      "perHour": "USD per hour",
+      "save": "Save prices",
+      "defaults": "Reset to list prices",
+      "saved": "Prices saved",
+      "note": "New AI calls use these prices; calls already recorded keep the price they had."
+    }
   }
 }

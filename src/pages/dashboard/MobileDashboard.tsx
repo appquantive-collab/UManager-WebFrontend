@@ -1,9 +1,11 @@
 import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   ChevronDown,
   Hash,
+  MessageCircle,
   Mic,
   Package,
   Receipt,
@@ -53,6 +55,7 @@ interface MobileDashboardProps {
 
 export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   // The AI's relabels and welcome note are written in English, so they're only
   // used when the app is in English; Hinglish and Hindi use our own words.
   const aiWords = (i18n.resolvedLanguage ?? "en") === "en" ? aiLayout : null;
@@ -129,11 +132,12 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
         key="ai_brief"
         className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-elevation-1"
       >
+        <div className="relative z-10 flex items-center gap-1 pr-2">
         <button
           type="button"
           onClick={() => setBriefOpen((open) => !open)}
           aria-expanded={briefOpen}
-          className="relative z-10 flex w-full items-start justify-between gap-3 p-4 pb-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="flex min-w-0 flex-1 items-start justify-between gap-3 p-4 pb-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <div className="flex items-center gap-2">
             <Sparkles size={20} strokeWidth={1.75} className="shrink-0 text-icon" aria-hidden="true" />
@@ -148,6 +152,20 @@ export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashb
           </div>
           <ChevronDown size={18} className={clsx("shrink-0 text-text-muted transition-transform", briefOpen && "rotate-180")} />
         </button>
+        {/* Straight into the Munshi AI chat. */}
+        <button
+          type="button"
+          onClick={() => navigate("/app/ai")}
+          aria-label={t("dashboard.mobileDashboard.openMunshi")}
+          title={t("dashboard.mobileDashboard.openMunshi")}
+          className="relative h-11 w-11 shrink-0 rounded-full outline-none ring-2 ring-primary/30 transition-transform active:scale-95 focus-visible:ring-primary"
+        >
+          <img src="/splash-munshi.webp" alt="" className="h-full w-full rounded-full object-cover object-[center_12%]" />
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-surface bg-primary text-on-primary">
+            <MessageCircle size={10} strokeWidth={2.5} aria-hidden="true" />
+          </span>
+        </button>
+        </div>
 
         <div
           className={clsx(

@@ -1,7 +1,7 @@
 import type { AppFeatures, AppSetup, BusinessCategory, BusinessRole, OnlineChannel } from "./auth-api";
 
 /**
- * Ready-made ways to run a business on SethSathi. Setup suggests 3–4 of these
+ * Ready-made ways to run a business on VoiceMunshi. Setup suggests 3–4 of these
  * from the owner's answers; the chosen one decides the default bill type,
  * which parts of the app are shown, and starter item categories.
  * Names and descriptions live in locales under `setupTemplates.<key>`.

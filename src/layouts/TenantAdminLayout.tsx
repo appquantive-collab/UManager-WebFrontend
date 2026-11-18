@@ -69,9 +69,14 @@ export function TenantAdminLayout() {
   const newSaleOpen = useNewSaleModalStore((state) => state.open);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
   const closeNewSale = useNewSaleModalStore((state) => state.closeModal);
-  const [onboardingDismissed, setOnboardingDismissed] = useState(
-    () => sessionStorage.getItem(ONBOARDING_SKIPPED_KEY) === "1"
-  );
+  // Skipping setup is remembered per business, so a new account in the same tab still gets the wizard.
+  const [dismissedFor, setDismissedFor] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem(ONBOARDING_SKIPPED_KEY);
+    } catch {
+      return null;
+    }
+  });
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -85,11 +90,17 @@ export function TenantAdminLayout() {
   }, [profile]);
 
   // Only the owner sets the business up; staff logins never see the setup wizard.
-  const showOnboarding = Boolean(profile) && profile?.role === "OWNER" && !profile?.tenant?.onboarding.completed && !onboardingDismissed;
+  const tenantId = profile?.tenant?.tenantId ?? null;
+  const showOnboarding =
+    Boolean(profile) && profile?.role === "OWNER" && !profile?.tenant?.onboarding.completed && (tenantId === null || dismissedFor !== tenantId);
 
   const dismissOnboarding = () => {
-    sessionStorage.setItem(ONBOARDING_SKIPPED_KEY, "1");
-    setOnboardingDismissed(true);
+    try {
+      if (tenantId) sessionStorage.setItem(ONBOARDING_SKIPPED_KEY, tenantId);
+    } catch {
+      // Private mode: skipping still works until the page reloads.
+    }
+    setDismissedFor(tenantId);
   };
 
   // Navigating on a phone should dismiss the drawer, not leave it covering the page.

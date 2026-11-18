@@ -1,3 +1,4 @@
+import { adminFetch } from "./admin-session";
 import { apiFetch } from "./api";
 import type { BillingPeriod, PlanKey, PlanState } from "./auth-api";
 
@@ -104,7 +105,7 @@ export function verifyPayment(input: { orderId: string; paymentId: string; signa
   return apiFetch<{ state: PlanState }>("/billing/verify", { method: "POST", body: JSON.stringify(input) });
 }
 
-// ---------- SethSathi team ----------
+// ---------- VoiceMunshi team ----------
 
 export interface AdminTenantRow {
   tenantId: string;
@@ -117,7 +118,7 @@ export interface AdminTenantRow {
 }
 
 export function listAllBusinesses(q: string): Promise<AdminTenantRow[]> {
-  return apiFetch<AdminTenantRow[]>(`/billing/admin/tenants?q=${encodeURIComponent(q)}`);
+  return adminFetch<AdminTenantRow[]>(`/billing/admin/tenants?q=${encodeURIComponent(q)}`);
 }
 
 export function grantPlan(input: {
@@ -128,5 +129,29 @@ export function grantPlan(input: {
   amount: number;
   note?: string;
 }): Promise<{ state: PlanState }> {
-  return apiFetch<{ state: PlanState }>("/billing/admin/grant", { method: "POST", body: JSON.stringify(input) });
+  return adminFetch<{ state: PlanState }>("/billing/admin/grant", { method: "POST", body: JSON.stringify(input) });
+}
+
+/** Which speech-to-text turns recordings into text, for every business (super admin). */
+export type SttEngine = "auto" | "sarvam" | "whisper";
+
+export interface PlatformSettings {
+  sttEngine: SttEngine;
+  /** A Sarvam key is set on the server. */
+  sarvamConfigured: boolean;
+  /** Not paused after a credits/key error. */
+  sarvamAvailable: boolean;
+  /** Who speaks Munshi's Hindi/Hinglish replies. */
+  ttsEngine: "auto" | "sarvam" | "edge";
+  ttsVoice: string;
+  sarvamVoiceAvailable: boolean;
+  voices: { key: string; label: string; model: string }[];
+}
+
+export function getPlatformSettings(): Promise<PlatformSettings> {
+  return adminFetch<PlatformSettings>("/billing/admin/settings");
+}
+
+export function updatePlatformSettings(input: { sttEngine?: SttEngine; ttsEngine?: PlatformSettings["ttsEngine"]; ttsVoice?: string }): Promise<PlatformSettings> {
+  return adminFetch<PlatformSettings>("/billing/admin/settings", { method: "PATCH", body: JSON.stringify(input) });
 }

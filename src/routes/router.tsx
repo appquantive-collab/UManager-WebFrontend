@@ -21,6 +21,14 @@ import { LandingPage } from "../pages/landing/LandingPage";
 import { WelcomePage } from "../pages/welcome/WelcomePage";
 import { SearchPage } from "../pages/search/SearchPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { AdminLayout } from "../layouts/AdminLayout";
+import { AdminLoginPage } from "../pages/admin/AdminLoginPage";
+import { AdminOverviewPage } from "../pages/admin/AdminOverviewPage";
+import { AdminBusinessesPage } from "../pages/admin/AdminBusinessesPage";
+import { AdminUsersPage } from "../pages/admin/AdminUsersPage";
+import { AdminSettingsPage } from "../pages/admin/AdminSettingsPage";
+import { AdminGrowthPage } from "../pages/admin/AdminGrowthPage";
+import { AdminCostsPage } from "../pages/admin/AdminCostsPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -28,6 +36,21 @@ export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  // VoiceMunshi team console: its own sign-in and session, separate from shop logins.
+  { path: "/admin/login", element: <AdminLoginPage /> },
+  {
+    // Founder's console (PLATFORM_ADMIN logins; signed-out → /admin/login).
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminOverviewPage /> },
+      { path: "growth", element: <AdminGrowthPage /> },
+      { path: "costs", element: <AdminCostsPage /> },
+      { path: "businesses", element: <AdminBusinessesPage /> },
+      { path: "users", element: <AdminUsersPage /> },
+      { path: "settings", element: <AdminSettingsPage /> },
+    ],
+  },
   {
     element: <ProtectedRoute />,
     children: [

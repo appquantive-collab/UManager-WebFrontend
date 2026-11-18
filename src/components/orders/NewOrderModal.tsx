@@ -66,7 +66,7 @@ export function NewOrderModal({ open, onClose }: { open: boolean; onClose: () =>
     if (!clip || clip.durationMs < 600) return;
     setTranscribing(true);
     try {
-      const text = await transcribeVoice(clip.blob, currentLanguage(), "text");
+      const text = await transcribeVoice(clip.blob, currentLanguage(), "text", { purpose: "order", durationMs: clip.durationMs });
       if (text) setOrderText((current) => (current.trim() ? `${current.trim()} ${text}` : text));
     } catch {
       showError(t("orders.newOrderModal.micError"));

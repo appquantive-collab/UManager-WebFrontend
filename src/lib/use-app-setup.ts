@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProfile, type AppFeatures } from "./auth-api";
+import { getProfile, type AppFeatures, type TradeProfile } from "./auth-api";
 import { ALL_FEATURES_ON } from "./business-templates";
 
 /**
@@ -18,6 +18,8 @@ export function useAppSetup(): {
    * `key_firm` exists.
    */
   vocab: "firm" | undefined;
+  /** How they buy and sell (kg in, meter out…), from setup. Null if not set. */
+  trade: TradeProfile | null;
 } {
   const { data } = useQuery({ queryKey: ["profile"], queryFn: getProfile, staleTime: 60_000 });
   const setup = data?.tenant?.appSetup;
@@ -29,5 +31,6 @@ export function useAppSetup(): {
     defaultBillType: setup?.defaultBillType ?? "record",
     template: setup?.template ?? null,
     vocab: features.counterSale ? undefined : "firm",
+    trade: data?.tenant?.onboarding?.trade ?? null,
   };
 }

@@ -22,8 +22,8 @@ const PAUSE_MS = 1600;
 
 const VOICE_IDS = {
   en: "en-IN-PrabhatNeural|-5%",
-  "hi-Latn": "hi-IN-MadhurNeural|-5%|spoken",
-  hi: "hi-IN-MadhurNeural|-5%|spoken",
+  "hi-Latn": "sarvam|v3_shubh|exact",
+  hi: "sarvam|v3_shubh|exact",
 };
 
 // welcomeChat keys Munshi says out loud. Keys with {{variables}} are skipped automatically.

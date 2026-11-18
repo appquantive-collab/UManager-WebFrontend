@@ -11,14 +11,14 @@ import { showError } from "../../lib/toast";
 import type { Product } from "../../lib/products-api";
 import { listWarehouses } from "../../lib/stock-api";
 import { getProducibleQuantity } from "../../lib/assembly-api";
+import { requiredNumber } from "../../lib/number-input";
 import i18n from "../../lib/i18n";
 
 const assembleFormSchema = z.object({
   warehouseId: z.string().min(1, { error: () => i18n.t("inventory.assembleForm.selectWarehouse") }),
-  quantity: z.coerce
-    .number()
-    .int({ error: () => i18n.t("inventory.assembleForm.mustBeWholeNumber") })
-    .positive({ error: () => i18n.t("inventory.assembleForm.mustBeGreaterThanZero") }),
+  quantity: requiredNumber((n) =>
+    n.int({ error: () => i18n.t("inventory.assembleForm.mustBeWholeNumber") }).positive({ error: () => i18n.t("inventory.assembleForm.mustBeGreaterThanZero") })
+  ),
   note: z.string().optional(),
 });
 

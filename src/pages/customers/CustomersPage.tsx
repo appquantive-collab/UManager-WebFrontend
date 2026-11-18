@@ -38,7 +38,7 @@ export function CustomersPage() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
   // The shared "Walk-in customer" record holds counter sales; it is not a real party to manage here.
   const customers = useMemo(() => (customersQuery.data ?? []).filter((c) => !c.isWalkIn), [customersQuery.data]);
-  const businessName = profile?.tenant?.businessName ?? "SethSathi";
+  const businessName = profile?.tenant?.businessName ?? "VoiceMunshi";
 
   const isInactive = (c: CustomerListItem) => !c.lastPurchaseAt || now - new Date(c.lastPurchaseAt).getTime() > INACTIVE_DAYS * DAY_MS;
   const daysSince = (iso: string) => Math.max(0, Math.floor((now - new Date(iso).getTime()) / DAY_MS));

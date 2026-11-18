@@ -59,7 +59,7 @@ export function ImportProductsModal({ open, onClose }: { open: boolean; onClose:
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "sethsathi-items-template.csv";
+    a.download = "voicemunshi-items-template.csv";
     a.click();
     URL.revokeObjectURL(url);
   };

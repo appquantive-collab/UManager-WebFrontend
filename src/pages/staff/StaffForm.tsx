@@ -16,6 +16,7 @@ import {
   listDesignations,
 } from "../../lib/staff-api";
 import type { CreateStaffInput, DaySchedule, PayType, StaffMember, StaffRole } from "../../lib/staff-api";
+import { optionalNumber } from "../../lib/number-input";
 import i18n from "../../lib/i18n";
 
 function buildStaffSchema(payType: PayType) {
@@ -23,8 +24,8 @@ function buildStaffSchema(payType: PayType) {
     .object({
       name: z.string().min(2, { error: () => i18n.t("staff.staffForm.nameTooShort") }),
       phone: z.string().optional(),
-      monthlySalary: z.coerce.number().optional(),
-      dailyWage: z.coerce.number().optional(),
+      monthlySalary: optionalNumber(),
+      dailyWage: optionalNumber(),
     })
     .superRefine((values, ctx) => {
       if (payType === "salary" && !(values.monthlySalary && values.monthlySalary > 0)) {

@@ -15,6 +15,7 @@ import { listCategories, createCategory, listBrands, createBrand } from "../../l
 import { listProducts, uploadProductImage, type BomLine, type Product, type ProductInput } from "../../lib/products-api";
 import i18n from "../../lib/i18n";
 import { useAppSetup } from "../../lib/use-app-setup";
+import { numberOrZero } from "../../lib/number-input";
 import { ProBadge, useProGate } from "../../components/ui/ProBadge";
 
 const productSchema = z.object({
@@ -22,10 +23,10 @@ const productSchema = z.object({
   sku: z.string().optional(),
   barcode: z.string().optional(),
   unit: z.string().min(1, { error: () => i18n.t("inventory.productForm.unitRequired") }),
-  purchasePrice: z.coerce.number().min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") }),
-  wholesalePrice: z.coerce.number().min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") }),
-  retailPrice: z.coerce.number().min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") }),
-  reorderLevel: z.coerce.number().min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") }),
+  purchasePrice: numberOrZero((n) => n.min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") })),
+  wholesalePrice: numberOrZero((n) => n.min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") })),
+  retailPrice: numberOrZero((n) => n.min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") })),
+  reorderLevel: numberOrZero((n) => n.min(0, { error: () => i18n.t("inventory.productForm.mustBeZeroOrMore") })),
 });
 
 type ProductFormInput = z.input<typeof productSchema>;
@@ -68,9 +69,13 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
   // pickers/toggles with no free-text validation beyond what's done on submit.
   const [gstPercent, setGstPercent] = useState<number>(initialValues?.gstPercent ?? 0);
   const [hsn, setHsn] = useState(initialValues?.hsn ?? "");
-  const [altUnitName, setAltUnitName] = useState(initialValues?.altUnit?.name ?? "");
-  const [altUnitFactor, setAltUnitFactor] = useState(initialValues?.altUnit ? String(initialValues.altUnit.factor) : "");
-  const { features: setupFeatures, template: setupTemplate } = useAppSetup();
+  const { features: setupFeatures, template: setupTemplate, trade } = useAppSetup();
+  // A new item starts in the units the business trades in: sold by the meter, bought by the kilo (1 kg ≈ 7 meter).
+  const tradeAlt = !initialValues && trade && trade.buyUnit !== trade.sellUnit ? trade : null;
+  const [altUnitName, setAltUnitName] = useState(initialValues?.altUnit?.name ?? tradeAlt?.buyUnit ?? "");
+  const [altUnitFactor, setAltUnitFactor] = useState(
+    initialValues?.altUnit ? String(initialValues.altUnit.factor) : tradeAlt?.factor ? String(tradeAlt.factor) : ""
+  );
   // A new item in a medical store starts batch-tracked, in a mobile shop IMEI-tracked.
   const [trackBatch, setTrackBatch] = useState(initialValues ? Boolean(initialValues.trackBatch) : Boolean(setupTemplate) && setupFeatures.batch && !proGate.locked);
   const [trackSerial, setTrackSerial] = useState(initialValues ? Boolean(initialValues.trackSerial) : Boolean(setupTemplate) && setupFeatures.serial && !proGate.locked);
@@ -78,7 +83,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
   const [color, setColor] = useState(initialValues?.color ?? "");
   const [moreOpen, setMoreOpen] = useState(
     Boolean(initialValues?.altUnit || initialValues?.trackBatch || initialValues?.trackSerial || initialValues?.size || initialValues?.color) ||
-      (!initialValues && (trackBatch || trackSerial))
+      (!initialValues && (trackBatch || trackSerial || Boolean(tradeAlt)))
   );
 
   const rawMaterialsQuery = useQuery({
@@ -117,7 +122,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
           retailPrice: initialValues.retailPrice,
           reorderLevel: initialValues.reorderLevel,
         }
-      : { unit: "pcs", purchasePrice: "", wholesalePrice: "", retailPrice: "", reorderLevel: "" },
+      : { unit: trade?.sellUnit ?? "pcs", purchasePrice: "", wholesalePrice: "", retailPrice: "", reorderLevel: "" },
   });
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: listCategories });
@@ -262,7 +267,14 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
                 </div>
                 {errors.sku?.message ? <p className="mt-1 text-xs text-danger">{errors.sku.message}</p> : null}
               </div>
-              <TextField label={t("inventory.productForm.unit")} error={errors.unit?.message} {...register("unit")} />
+              <div>
+                <TextField label={t("inventory.productForm.unit")} error={errors.unit?.message} {...register("unit")} />
+                {tradeAlt ? (
+                  <p className="mt-1 text-xs text-text-muted">
+                    {t("setup.trade.productHint", { buy: t(`setup.trade.units.${tradeAlt.buyUnit}`, { defaultValue: tradeAlt.buyUnit }), sell: t(`setup.trade.units.${tradeAlt.sellUnit}`, { defaultValue: tradeAlt.sellUnit }) })}
+                  </p>
+                ) : null}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -83,7 +83,7 @@ export function SalesPage() {
   const ordersQuery = useQuery({ queryKey: ["orders"], queryFn: () => listOrders() });
   const invoicesQuery = useQuery({ queryKey: ["invoices"], queryFn: listInvoices });
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
-  const businessName = profile?.tenant?.businessName ?? "SethSathi";
+  const businessName = profile?.tenant?.businessName ?? "VoiceMunshi";
 
   const locale = i18n.resolvedLanguage === "hi" ? "hi-IN" : "en-IN";
   const formatDate = (iso: string) => new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });

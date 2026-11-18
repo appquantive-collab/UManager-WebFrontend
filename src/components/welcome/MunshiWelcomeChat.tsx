@@ -410,7 +410,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
 
   const continueWithGoogle = (credential: string) => continueWithProvider("google", () => googleSignIn(credential));
 
-  // A visitor's own question: a short, SethSathi-only answer, then the chat
+  // A visitor's own question: a short, VoiceMunshi-only answer, then the chat
   // carries on from the same step (the options/placeholder stay on screen).
   const answerQuestion = async (question: string) => {
     push({ role: "user", text: question });
@@ -707,7 +707,7 @@ export function MunshiWelcomeChat({ onClose }: { onClose?: () => void }) {
     let text = "";
     try {
       const kind = target === "phone" || target === "email" ? target : "text";
-      text = await transcribeVoice(result.blob, currentLanguage(), kind);
+      text = await transcribeVoice(result.blob, currentLanguage(), kind, { durationMs: result.durationMs });
     } catch {
       showError(t("welcomeChat.voice.micFailed"));
       return;

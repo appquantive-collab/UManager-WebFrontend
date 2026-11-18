@@ -16,7 +16,7 @@ export interface RegisterInput {
   businessName: string;
   businessType: string;
   ownerName: string;
-  email: string;
+  email?: string;
   password: string;
   phone?: string;
   preferredLanguage?: AuthUser["preferredLanguage"];
@@ -133,6 +133,19 @@ export interface AppSetup {
   features: AppFeatures;
 }
 
+export interface TradeProfile {
+  buyUnit: string;
+  sellUnit: string;
+  /** Sell units in one buy unit, roughly (1 kg cloth ≈ 7 meter). */
+  factor: number | null;
+  /** Every unit they buy in / sell in, main first (thaan and kilo in; meter and cut piece out). */
+  buyUnits?: string[];
+  sellUnits?: string[];
+  /** Rough size of each buy unit in the main sell unit: 1 thaan ≈ 40 meter. */
+  conversions?: { unit: string; factor: number }[];
+  notes?: string | null;
+}
+
 export interface BusinessOnboarding {
   completed: boolean;
   description?: string | null;
@@ -148,6 +161,8 @@ export interface BusinessOnboarding {
   staffCount: number | null;
   painPoints: string | null;
   goals: BusinessGoal[];
+  /** How they buy and sell (cloth: buy by kg, sell by meter). */
+  trade?: TradeProfile | null;
   completedAt: string | null;
 }
 
@@ -186,7 +201,7 @@ export interface Profile {
   phone: string | null;
   role: AuthUser["role"];
   preferredLanguage: AuthUser["preferredLanguage"];
-  /** SethSathi team member: can give plans to any business. */
+  /** VoiceMunshi team member: can give plans to any business. */
   platformAdmin?: boolean;
   tenant: {
     tenantId: string;

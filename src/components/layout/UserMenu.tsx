@@ -2,13 +2,14 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, Languages, LogOut, Settings, UserRound } from "lucide-react";
+import { Check, ChevronDown, Languages, LogOut, Settings, ShieldCheck, UserRound } from "lucide-react";
 import clsx from "clsx";
 import { updateProfile } from "../../lib/auth-api";
 import { ApiError } from "../../lib/api";
 import { showError, showSuccess } from "../../lib/toast";
 import { useAuthStore, type PreferredLanguage } from "../../lib/auth-store";
 import { supportedLanguages } from "../../lib/i18n";
+import { usePlan } from "../../lib/use-plan";
 
 // The account menu (Profile, Settings, Change language, Logout), shared by the
 // phone top bar and the desktop sidebar. Language is saved to the user's
@@ -25,6 +26,7 @@ export function UserMenuPanel({ onClose, onLogout, className }: { onClose: () =>
   const updateUser = useAuthStore((state) => state.updateUser);
   const currentLanguage = user?.preferredLanguage ?? "en";
   const [languagesOpen, setLanguagesOpen] = useState(false);
+  const { platformAdmin } = usePlan();
 
   const changeLanguage = useMutation({
     mutationFn: (preferredLanguage: PreferredLanguage) => updateProfile({ preferredLanguage }),
@@ -58,6 +60,12 @@ export function UserMenuPanel({ onClose, onLogout, className }: { onClose: () =>
           <Settings size={17} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
           {t("layout.userMenu.settings")}
         </button>
+        {platformAdmin ? (
+          <button type="button" role="menuitem" onClick={() => go("/admin")} className={itemClass}>
+            <ShieldCheck size={17} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
+            {t("admin.menuLink")}
+          </button>
+        ) : null}
         <button
           type="button"
           role="menuitem"

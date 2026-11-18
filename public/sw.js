@@ -1,4 +1,4 @@
-const CACHE = "sethsathi-shell-v6";
+const CACHE = "voicemunshi-shell-v6";
 // Replaced at build time with the hashed asset list (see vite.config.ts).
 const SHELL = ["/", "/manifest.webmanifest", "/logo-192.png", "/logo-512.png"];
 
@@ -65,6 +65,10 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
+  // Let the browser serve video byte ranges. Cache.put cannot store partial
+  // (206) responses, and a cached full response is not a valid range response.
+  if (request.headers.has("range")) return;
 
   // Static assets: cache-first, populating on first successful fetch.
   event.respondWith(

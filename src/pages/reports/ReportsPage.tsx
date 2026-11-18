@@ -590,7 +590,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.customersOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("sethsathi-customer-dues.csv", [[outT("reports.hub.col.customer"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])])}
+              onExport={() => downloadCsv("voicemunshi-customer-dues.csv", [[outT("reports.hub.col.customer"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.customer"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}
@@ -601,7 +601,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.youOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("sethsathi-supplier-dues.csv", [[outT("reports.hub.col.supplier"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])])}
+              onExport={() => downloadCsv("voicemunshi-supplier-dues.csv", [[outT("reports.hub.col.supplier"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.supplier"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}

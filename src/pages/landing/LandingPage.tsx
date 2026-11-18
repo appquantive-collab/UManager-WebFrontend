@@ -10,6 +10,7 @@ import { MunshiWelcomeChat } from "../../components/welcome/MunshiWelcomeChat";
 import { useMediaQuery } from "../../lib/useMediaQuery";
 import { useAuthStore } from "../../lib/auth-store";
 import { useSplashStore } from "../../lib/splash-store";
+import { hasSignedInBefore } from "../../lib/tutorial";
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -19,7 +20,12 @@ export function LandingPage() {
   // Read once: signing up inside the chat creates a session, and the chat has
   // to stay open for its congratulations instead of vanishing mid-message.
   const [signedInOnArrival] = useState(() => Boolean(useAuthStore.getState().accessToken));
+  const [returningOnArrival] = useState(hasSignedInBefore);
   const chatRequested = useSplashStore((state) => state.chatRequested);
+
+  if (returningOnArrival || signedInOnArrival) {
+    return <Navigate to={accessToken ? "/app" : "/login"} replace />;
+  }
 
   // Mobile/tablet has no marketing site — it boots straight into the app,
   // same as a real installed app never shows a landing page after launch.

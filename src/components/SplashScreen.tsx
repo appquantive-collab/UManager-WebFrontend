@@ -5,6 +5,8 @@ import { useAuthStore } from "../lib/auth-store";
 import { useSplashStore } from "../lib/splash-store";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { router } from "../routes/router";
+import { TutorialScreen } from "./TutorialScreen";
+import { completeTutorial, hasSignedInBefore, shouldShowTutorial } from "../lib/tutorial";
 
 // A soft halo in the page colour keeps headings readable where they overlap the photo on phones.
 const TEXT_HALO = "[text-shadow:0_0_14px_var(--color-background),0_0_4px_var(--color-background)] lg:[text-shadow:none]";
@@ -14,7 +16,8 @@ const FADE_MS = 400;
 
 // Signed-out visitors on any pre-login page get an interactive welcome that
 // stays until they choose: "Get started" opens the Munshi AI chat, "Login" is
-// for existing users. Signed-in users and app pages get a brief splash.
+// for existing users. Once a user has signed in on this device, the entire
+// splash is bypassed on future launches, including after logout.
 const PRE_LOGIN_PATHS = ["/", "/welcome", "/login", "/register", "/forgot-password"];
 const CHAT_PATHS = ["/", "/welcome"];
 
@@ -32,13 +35,14 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   const finishSplash = useSplashStore((state) => state.finish);
   const requestChat = useSplashStore((state) => state.requestChat);
   const [mode] = useState<"welcome" | "brief">(() => (shouldWelcome() ? "welcome" : "brief"));
-  const [phase, setPhase] = useState<"show" | "fade" | "hidden">("show");
+  const [phase, setPhase] = useState<"show" | "fade" | "hidden">(() => hasSignedInBefore() || useAuthStore.getState().accessToken ? "hidden" : "show");
+  const [tutorialOpen, setTutorialOpen] = useState(shouldShowTutorial);
 
   useEffect(() => {
-    if (mode !== "brief" || phase !== "show") return;
+    if (tutorialOpen || mode !== "brief" || phase !== "show") return;
     const timer = setTimeout(() => setPhase("fade"), BRIEF_VISIBLE_MS);
     return () => clearTimeout(timer);
-  }, [mode, phase]);
+  }, [mode, phase, tutorialOpen]);
 
   useEffect(() => {
     if (phase !== "fade") return;
@@ -72,8 +76,9 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {children}
-      {phase !== "hidden" && (
+      <div inert={phase !== "hidden" || tutorialOpen} style={{ display: "contents" }}>{children}</div>
+      {tutorialOpen && <TutorialScreen onComplete={() => { completeTutorial(); setTutorialOpen(false); }} />}
+      {!tutorialOpen && phase !== "hidden" && (
         <div
           className="fixed inset-0 z-100 overflow-hidden bg-background transition-opacity"
           style={{ opacity: phase === "fade" ? 0 : 1, transitionDuration: `${FADE_MS}ms` }}
@@ -175,6 +180,12 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
                     />
                   ))}
                 </span>
+              )}
+
+              {isWelcome && (
+                <button type="button" onClick={() => setTutorialOpen(true)} className="mt-3 min-h-11 rounded-xl px-4 text-sm font-semibold text-primary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-primary">
+                  {t("tutorial.watchAgain")}
+                </button>
               )}
 
               <span

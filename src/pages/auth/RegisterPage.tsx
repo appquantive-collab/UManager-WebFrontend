@@ -19,7 +19,11 @@ const registerSchema = z.object({
   ownerName: z.string().min(2, { error: () => i18n.t("auth.register.fullNameRequired") }),
   businessName: z.string().min(2, { error: () => i18n.t("auth.register.businessNameRequired") }),
   phone: z.string().regex(/^\d{10}$/, { error: () => i18n.t("auth.register.phoneInvalid") }),
-  email: z.string().email({ error: () => i18n.t("auth.register.emailInvalid") }),
+  // Optional: shopkeepers without email sign in with their mobile number.
+  email: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || z.string().email().safeParse(v).success, { error: () => i18n.t("auth.register.emailInvalid") }),
   password: z.string().min(8, { error: () => i18n.t("auth.register.passwordTooShort") }),
   agreeToTerms: z.literal(true, { error: () => i18n.t("auth.register.agreeToTermsRequired") }),
 });
@@ -48,7 +52,7 @@ export function RegisterPage() {
         businessName: values.businessName,
         businessType: "Wholesale",
         ownerName: values.ownerName,
-        email: values.email,
+        email: values.email || undefined,
         password: values.password,
         phone: values.phone,
         preferredLanguage: currentLanguage(),
@@ -83,7 +87,7 @@ export function RegisterPage() {
           {...registerField("phone")}
         />
         <TextField
-          label={t("auth.register.email")}
+          label={`${t("auth.register.email")} (${t("common.optional")})`}
           type="email"
           autoComplete="email"
           error={errors.email?.message}

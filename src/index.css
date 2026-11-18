@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* SethSathi design tokens (terracotta + warm cream), from the Stitch
-   "SethSathi Hindi business UI" design. Plus Jakarta Sans has no Devanagari
+/* VoiceMunshi design tokens (terracotta + warm cream), from the Stitch
+   "VoiceMunshi Hindi business UI" design. Plus Jakarta Sans has no Devanagari
    glyphs; the design was rendered with Windows' Nirmala UI for Hindi, so that
    comes next, with the Noto Sans Devanagari webfont for Android/iOS/macOS. */
 @theme {

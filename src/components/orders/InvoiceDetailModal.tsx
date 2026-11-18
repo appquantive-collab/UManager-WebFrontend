@@ -18,6 +18,7 @@ import { billCustomerName, billCustomerPhone } from "../../lib/bill-share";
 import { ApiError } from "../../lib/api";
 import { showError, showSuccess } from "../../lib/toast";
 import { errorMessage } from "../../lib/api-errors";
+import { requiredNumber } from "../../lib/number-input";
 import i18n from "../../lib/i18n";
 
 const paymentStatusTone = {
@@ -41,10 +42,13 @@ function formatDate(iso: string): string {
 
 function buildPaymentSchema(remaining: number) {
   return z.object({
-    amount: z.coerce
-      .number()
-      .positive(i18n.t("orders.invoiceDetailModal.amountMustBePositive"))
-      .max(remaining + 0.01, i18n.t("orders.invoiceDetailModal.amountExceedsRemaining", { amount: formatCurrency(remaining) })),
+    amount: requiredNumber(
+      (n) =>
+        n
+          .positive(i18n.t("orders.invoiceDetailModal.amountMustBePositive"))
+          .max(remaining + 0.01, i18n.t("orders.invoiceDetailModal.amountExceedsRemaining", { amount: formatCurrency(remaining) })),
+      () => i18n.t("orders.invoiceDetailModal.enterAmount")
+    ),
     method: z.string().min(1) as z.ZodType<PaymentMethod>,
     note: z.string().optional(),
   });

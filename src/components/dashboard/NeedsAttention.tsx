@@ -54,7 +54,7 @@ export function NeedsAttention({ summary, businessName }: { summary?: DashboardS
                   const reminder = t("dashboard.attention.reminderMessage", {
                     name: due.name,
                     amount: formatCurrency(due.due),
-                    business: businessName ?? "SethSathi",
+                    business: businessName ?? "VoiceMunshi",
                   });
                   return (
                     <li key={due.customerId} className="flex items-center gap-3">

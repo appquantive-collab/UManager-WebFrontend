@@ -12,6 +12,7 @@ import { ApiError } from "../../lib/api";
 import { showError } from "../../lib/toast";
 import type { Product } from "../../lib/products-api";
 import { getProductStockLevel, listWarehouses, type StockMovementType } from "../../lib/stock-api";
+import { requiredNumber } from "../../lib/number-input";
 import i18n from "../../lib/i18n";
 
 type Direction = "in" | "out";
@@ -35,10 +36,9 @@ const outTypes: { value: StockMovementType; label: string }[] = [
 const stockFormSchema = z.object({
   warehouseId: z.string().min(1, { error: () => i18n.t("inventory.stockForm.selectWarehouse") }),
   movementType: z.string().min(1, { error: () => i18n.t("inventory.stockForm.selectReason") }),
-  quantity: z.coerce
-    .number()
-    .int({ error: () => i18n.t("inventory.stockForm.mustBeWholeNumber") })
-    .positive({ error: () => i18n.t("inventory.stockForm.mustBeGreaterThanZero") }),
+  quantity: requiredNumber((n) =>
+    n.int({ error: () => i18n.t("inventory.stockForm.mustBeWholeNumber") }).positive({ error: () => i18n.t("inventory.stockForm.mustBeGreaterThanZero") })
+  ),
   note: z.string().optional(),
 });
 

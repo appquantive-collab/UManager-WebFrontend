@@ -12,6 +12,8 @@ import {
   Loader2,
   Mic,
   PackagePlus,
+  RotateCcw,
+  Scale,
   ReceiptText,
   Settings2,
   Sparkles,
@@ -23,7 +25,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
-import { planSetups, saveOnboarding, personalizeDashboard, understandBusiness } from "../../lib/tenants-api";
+import { TRADE_UNITS, planSetups, researchTrade, saveOnboarding, personalizeDashboard, understandBusiness, type TradeUnit } from "../../lib/tenants-api";
 import type { AppSetup, BusinessCategory, BusinessRole, OnlineChannel, OrderVolume } from "../../lib/auth-api";
 import { categoryGroups } from "../../lib/business-categories";
 import { categoryLabel, orderVolumeLabel } from "../../lib/onboarding-labels";
@@ -43,8 +45,33 @@ import { errorMessage } from "../../lib/api-errors";
 import { showError } from "../../lib/toast";
 import type { SupportedLanguageCode } from "../../lib/i18n";
 
-type Step = "work" | "role" | "online" | "gst" | "size" | "plans" | "saving" | "done";
-const QUESTION_STEPS: Step[] = ["work", "role", "online", "gst", "size", "plans"];
+type Step = "work" | "role" | "trade" | "online" | "gst" | "size" | "plans" | "saving" | "done";
+const QUESTION_STEPS: Step[] = ["work", "role", "trade", "online", "gst", "size", "plans"];
+
+/** Units shown first on the buy/sell step; the rest open with "more". */
+const COMMON_UNITS: TradeUnit[] = ["pcs", "kg", "meter", "than", "roll", "litre", "box", "dozen", "bag", "packet"];
+
+/** A ready-made way of buying and selling; several units on a side make a combination. */
+interface TradePattern {
+  buy: TradeUnit[];
+  sell: TradeUnit[];
+  /** Usual size of a buy unit in the main sell unit, where it's standard (1 dozen = 12 piece). */
+  factor?: Partial<Record<TradeUnit, number>>;
+}
+
+const TRADE_PATTERNS: TradePattern[] = [
+  { buy: ["than", "kg"], sell: ["meter"] },
+  { buy: ["than", "roll"], sell: ["meter", "pcs"] },
+  { buy: ["roll"], sell: ["meter"] },
+  { buy: ["bag"], sell: ["kg", "gram"], factor: { bag: 25 } },
+  { buy: ["carton"], sell: ["packet", "pcs"] },
+  { buy: ["box", "dozen"], sell: ["pcs"], factor: { dozen: 12 } },
+  { buy: ["dozen"], sell: ["pcs", "pair"], factor: { dozen: 12 } },
+  { buy: ["box"], sell: ["sqft", "box"] },
+  { buy: ["kg", "quintal"], sell: ["kg", "gram"], factor: { quintal: 100 } },
+  { buy: ["litre"], sell: ["litre"] },
+  { buy: ["pcs"], sell: ["pcs"] },
+];
 
 const EXAMPLES = ["kirana", "wholesale", "namkeen", "medical", "mobile", "garments"] as const;
 
@@ -129,6 +156,17 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
   const [aiSetups, setAiSetups] = useState<SetupOption[] | null>(null);
   const [plannedFor, setPlannedFor] = useState("");
   const [transcribing, setTranscribing] = useState(false);
+  // How they buy and sell: Munshi AI's first guess (looked up for this trade), then the owner's own.
+  // Several units allowed on each side (thaan and kilo in; meter and cut piece out); the first is the main one.
+  const [buyUnits, setBuyUnits] = useState<TradeUnit[]>([]);
+  const [sellUnits, setSellUnits] = useState<TradeUnit[]>([]);
+  // Rough size of each buy unit in the main sell unit: { than: "40", kg: "7" }.
+  const [factors, setFactors] = useState<Record<string, string>>({});
+  const [tradeNotes, setTradeNotes] = useState("");
+  const [tradeHint, setTradeHint] = useState("");
+  const [suggested, setSuggested] = useState<TradePattern | null>(null);
+  const [tradeFor, setTradeFor] = useState("");
+  const [allUnits, setAllUnits] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -150,7 +188,63 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     onError: () => setStep("role"),
   });
 
-  const planInput = () => ({ ...currentAnswers(), description: description.trim() || undefined, orderVolume, language });
+  const tradeInput = () => ({ description: description.trim() || undefined, category, roles, language });
+
+  const trade = useMutation({
+    mutationFn: () => researchTrade(tradeInput()),
+    onSuccess: ({ trade: found }) => {
+      const pattern: TradePattern = {
+        buy: found.buyUnits?.length ? found.buyUnits : [found.buyUnit],
+        sell: found.sellUnits?.length ? found.sellUnits : [found.sellUnit],
+        factor: found.factor ? { [found.buyUnit]: found.factor } : undefined,
+      };
+      setSuggested(pattern);
+      applyPattern(pattern);
+      setTradeHint(found.note);
+      setStep("trade");
+    },
+    // AI being down must never block setup: they pick the units themselves.
+    onError: () => {
+      setTradeFor("");
+      setStep("trade");
+    },
+  });
+
+  function applyPattern(p: TradePattern) {
+    setBuyUnits(p.buy);
+    setSellUnits(p.sell);
+    setFactors(Object.fromEntries(Object.entries(p.factor ?? {}).map(([u, f]) => [u, String(f)])));
+  }
+
+  /** Tap a unit: add it (the first picked stays the main one) or take it off. */
+  const toggleUnit = (list: TradeUnit[], set: (next: TradeUnit[]) => void, unit: TradeUnit) =>
+    set(list.includes(unit) ? list.filter((u) => u !== unit) : [...list, unit]);
+
+  const mainSell = sellUnits[0];
+  // Buy units that need a size in the main sell unit (1 thaan = ? meter).
+  const sizedBuyUnits = buyUnits.filter((u) => mainSell && u !== mainSell);
+  const tradeAnswer = () => {
+    const [buyUnit] = buyUnits;
+    if (!buyUnit || !mainSell) return undefined;
+    const conversions = sizedBuyUnits
+      .map((unit) => ({ unit, factor: Number(factors[unit]) }))
+      .filter((c) => Number.isFinite(c.factor) && c.factor > 0);
+    return {
+      buyUnit,
+      sellUnit: mainSell,
+      factor: conversions.find((c) => c.unit === buyUnit)?.factor ?? null,
+      buyUnits,
+      sellUnits,
+      conversions,
+      notes: tradeNotes.trim() || null,
+    };
+  };
+  const unitName = (u: string) => t(`setup.trade.units.${u}`, { defaultValue: u });
+  const patternLabel = (p: TradePattern) => `${p.buy.map(unitName).join(" / ")} → ${p.sell.map(unitName).join(" / ")}`;
+  const samePattern = (p: TradePattern) => p.buy.join() === buyUnits.join() && p.sell.join() === sellUnits.join();
+  const patterns = suggested ? [suggested, ...TRADE_PATTERNS.filter((p) => patternLabel(p) !== patternLabel(suggested))] : TRADE_PATTERNS;
+
+  const planInput = () => ({ ...currentAnswers(), description: description.trim() || undefined, orderVolume, trade: tradeAnswer(), language });
 
   const plan = useMutation({
     mutationFn: () => planSetups(planInput()),
@@ -204,6 +298,7 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
         gstin: hasGst && GSTIN_PATTERN.test(gstin) ? gstin : undefined,
         appSetup,
         starterCategories: option.categories,
+        trade: tradeAnswer(),
       });
       try {
         await personalizeDashboard();
@@ -251,7 +346,7 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     if (!clip || clip.durationMs < 600) return;
     setTranscribing(true);
     try {
-      const text = await transcribeVoice(clip.blob, language, "text");
+      const text = await transcribeVoice(clip.blob, language, "text", { purpose: "business", durationMs: clip.durationMs });
       if (text.trim()) setDescription((d) => (d ? `${d} ${text.trim()}` : text.trim()));
     } catch {
       showError(t("setup.work.micError"));
@@ -275,6 +370,16 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
       if (chosen) save.mutate(chosen);
       return;
     }
+    if (step === "role") {
+      // Munshi AI looks up how this trade buys and sells; reuse it if nothing changed.
+      const key = JSON.stringify(tradeInput());
+      if (key === tradeFor) setStep("trade");
+      else {
+        setTradeFor(key);
+        trade.mutate();
+      }
+      return;
+    }
     if (step === "size") {
       // Munshi AI writes the setups from all the answers; reuse them if nothing changed.
       const key = JSON.stringify(planInput());
@@ -293,6 +398,8 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
       ? description.trim().length >= 2 || category !== null
       : step === "role"
         ? roles.length > 0
+        : step === "trade"
+          ? buyUnits.length > 0 && sellUnits.length > 0
         : step === "online"
           ? online !== null
           : step === "gst"
@@ -375,6 +482,32 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
                 ) : null}
               </div>
               {recorder.recording ? <p className="mt-1.5 text-xs font-semibold text-danger">{t("setup.work.listening")}</p> : null}
+              {description && !recorder.recording && !transcribing ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDescription("")}
+                    className="flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3.5 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <X size={15} className="text-icon" aria-hidden="true" />
+                    {t("setup.work.clear")}
+                  </button>
+                  {voiceRecordingSupported ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Say it again from scratch: the old words go, the mic starts.
+                        setDescription("");
+                        void recorder.start();
+                      }}
+                      className="flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3.5 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <RotateCcw size={15} className="text-icon" aria-hidden="true" />
+                      {t("setup.work.retry")}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
 
               <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-text-muted">{t("setup.work.examplesLabel")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -472,6 +605,118 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
                   );
                 })}
               </div>
+            </>
+          )}
+
+          {step === "trade" && (
+            <>
+              <h2 className="text-xl font-bold text-text">{t("setup.trade.title")}</h2>
+              <p className="mt-1 text-sm text-text-muted">{t("setup.trade.subtitle")}</p>
+              {tradeHint ? (
+                <div className="mt-4 flex items-start gap-3 rounded-2xl bg-surface-muted px-4 py-3">
+                  <Sparkles size={18} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
+                  <div className="min-w-0 text-sm">
+                    <p className="font-semibold text-text">{t("setup.trade.munshiFound")}</p>
+                    <p className="mt-0.5 text-text">{tradeHint}</p>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Ready-made ways of buying and selling; Munshi AI's own suggestion first. */}
+              <p className="mt-5 text-sm font-semibold text-text">{t("setup.trade.patternsTitle")}</p>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {patterns.map((p, i) => {
+                  const selected = samePattern(p);
+                  return (
+                    <button
+                      key={patternLabel(p)}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => applyPattern(p)}
+                      className={clsx(
+                        "flex min-h-12 items-center gap-2 rounded-xl border px-3.5 py-2 text-left text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+                        selected ? "border-primary bg-primary-container text-text" : "border-border text-text hover:bg-surface-muted"
+                      )}
+                    >
+                      {selected ? <Check size={16} className="shrink-0 text-primary" aria-hidden="true" /> : <Scale size={16} className="shrink-0 text-icon" aria-hidden="true" />}
+                      <span className="min-w-0 flex-1 leading-snug">{patternLabel(p)}</span>
+                      {suggested && i === 0 ? (
+                        <span className="shrink-0 rounded-full border border-primary/40 bg-primary-container px-2 py-0.5 text-[11px] font-bold text-on-primary-container">
+                          {t("setup.trade.suggested")}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mt-6 text-xs text-text-muted">{t("setup.trade.multiHint")}</p>
+              {([
+                ["buy", buyUnits, setBuyUnits],
+                ["sell", sellUnits, setSellUnits],
+              ] as const).map(([which, list, set]) => (
+                <div key={which} className="mt-3">
+                  <p className="text-sm font-semibold text-text">{t(`setup.trade.${which}`)}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(allUnits ? TRADE_UNITS : [...new Set([...COMMON_UNITS, ...list])]).map((u) => {
+                      const selected = list.includes(u);
+                      return (
+                        <button key={u} type="button" aria-pressed={selected} className={clsx(chip(selected), "min-h-10 px-3.5")} onClick={() => toggleUnit(list, set, u)}>
+                          {unitName(u)}
+                          {selected && list[0] === u && list.length > 1 ? <span className="ml-1 text-xs font-medium text-text-muted">· {t("setup.trade.main")}</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              {!allUnits ? (
+                <button
+                  type="button"
+                  onClick={() => setAllUnits(true)}
+                  className="mt-3 text-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  {t("setup.trade.moreUnits")}
+                </button>
+              ) : null}
+
+              {sizedBuyUnits.length > 0 ? (
+                <div className="mt-5 rounded-2xl border border-border px-4 py-3.5">
+                  <p className="text-sm font-semibold text-text">{t("setup.trade.factorTitle")}</p>
+                  <div className="mt-1 space-y-2">
+                    {sizedBuyUnits.map((u) => (
+                      <div key={u} className="flex flex-wrap items-center gap-2 text-base text-text">
+                        <span>1 {unitName(u)} =</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min={0}
+                          step="any"
+                          value={factors[u] ?? ""}
+                          onChange={(e) => setFactors((f) => ({ ...f, [u]: e.target.value }))}
+                          placeholder="?"
+                          aria-label={`1 ${unitName(u)} = ? ${unitName(mainSell)}`}
+                          className="h-11 w-24 rounded-xl border border-border bg-surface px-3 text-base tabular-nums outline-none focus:border-primary"
+                        />
+                        <span>{unitName(mainSell)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-xs text-text-muted">{t("setup.trade.factorHint")}</p>
+                </div>
+              ) : null}
+
+              <label className="mt-5 block text-sm font-semibold text-text">
+                {t("setup.trade.notesLabel")}
+                <textarea
+                  value={tradeNotes}
+                  onChange={(e) => setTradeNotes(e.target.value)}
+                  rows={2}
+                  maxLength={500}
+                  placeholder={t("setup.trade.notesPlaceholder")}
+                  className="mt-1.5 w-full resize-none rounded-2xl border border-border bg-surface px-4 py-3 text-base font-normal text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </label>
             </>
           )}
 
@@ -681,9 +926,11 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
 
         {stepIndex >= 0 ? (
           <div className="border-t border-border bg-surface-muted px-5 py-3.5">
-            <Button className="w-full" disabled={!canNext} isLoading={understand.isPending || plan.isPending} onClick={next}>
+            <Button className="w-full" disabled={!canNext} isLoading={understand.isPending || trade.isPending || plan.isPending} onClick={next}>
               {understand.isPending
                 ? t("setup.work.understanding")
+                : trade.isPending
+                  ? t("setup.trade.looking")
                 : plan.isPending
                   ? t("setup.plans.making")
                   : step === "plans"

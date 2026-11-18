@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { rememberSignedIn } from "./tutorial";
 
 export type UserRole = "SUPER_ADMIN" | "OWNER" | "MANAGER" | "SALESMAN" | "WAREHOUSE_STAFF";
 export type PreferredLanguage = "en" | "hi" | "hi-Latn";
@@ -29,7 +30,9 @@ function loadPersisted(): Pick<AuthState, "accessToken" | "refreshToken" | "user
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { accessToken: null, refreshToken: null, user: null };
-    return JSON.parse(raw);
+    const session = JSON.parse(raw);
+    if (session?.accessToken) rememberSignedIn();
+    return session;
   } catch {
     return { accessToken: null, refreshToken: null, user: null };
   }
@@ -47,6 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   ...loadPersisted(),
   isHydrated: true,
   setSession: (session) => {
+    rememberSignedIn();
     persist(session);
     set({ ...session });
   },

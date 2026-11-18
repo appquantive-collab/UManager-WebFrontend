@@ -10,9 +10,10 @@ import { grantPlan, listAllBusinesses, type AdminTenantRow } from "../../lib/bil
 import type { BillingPeriod, PlanKey } from "../../lib/auth-api";
 import { errorMessage } from "../../lib/api-errors";
 import { showError, showSuccess } from "../../lib/toast";
+import { SpeechEngineCard } from "./SpeechEngineCard";
 
 /**
- * SethSathi team only (PLATFORM_ADMIN_EMAILS): every business with its plan,
+ * VoiceMunshi team only (PLATFORM_ADMIN_EMAILS): every business with its plan,
  * and giving or extending a plan by hand — offline UPI/bank payments, free
  * months, support cases.
  */
@@ -32,7 +33,8 @@ export function PlatformAdminPlans() {
 
   return (
     <div className="max-w-3xl space-y-4">
-      <div>
+      <SpeechEngineCard />
+      <div className="pt-2">
         <h3 className="text-base font-bold text-text">{t("planAdmin.title")}</h3>
         <p className="text-sm text-text-muted">{t("planAdmin.body")}</p>
       </div>
@@ -71,7 +73,7 @@ export function PlatformAdminPlans() {
   );
 }
 
-function GrantModal({ row, onClose }: { row: AdminTenantRow | null; onClose: () => void }) {
+export function GrantModal({ row, onClose }: { row: AdminTenantRow | null; onClose: () => void }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [plan, setPlan] = useState<PlanKey>("basic");

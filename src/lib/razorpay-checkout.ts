@@ -58,7 +58,7 @@ export async function openRazorpay(order: CheckoutOrder, opts: { description: st
       order_id: order.orderId,
       amount: order.amount,
       currency: order.currency,
-      name: "SethSathi",
+      name: "VoiceMunshi",
       description: opts.description,
       prefill: order.prefill,
       notes: { business: order.businessName },

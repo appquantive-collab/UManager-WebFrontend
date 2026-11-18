@@ -1,6 +1,6 @@
 {
   "brand": {
-    "name": "SethSathi",
+    "name": "VoiceMunshi",
     "assistantName": "Munshi AI"
   },
   "splash": {
@@ -13,7 +13,46 @@
     "login": "Login – purane user",
     "madeFor": "Bharat ke vyapariyon ke liye bana",
     "photoAlt": "Namaste karte hue Munshi AI",
-    "loading": "SethSathi load ho raha hai"
+    "loading": "VoiceMunshi load ho raha hai"
+  },
+  "tutorial": {
+    "title": "Tutorial",
+    "step": "{{total}} mein se {{current}}",
+    "next": "Agla",
+    "skip": "Skip karein",
+    "finish": "Shuru karein",
+    "watchAgain": "Tutorial dekhein",
+    "soundHint": "Video awaaz ke saath chalega. Khatam hone par agli slide apne aap shuru hogi.",
+    "playWithSound": "Awaaz ke saath video chalayen",
+    "controls": "Video controls",
+    "play": "Video chalayen",
+    "pause": "Video rokein",
+    "mute": "Awaaz band karein",
+    "unmute": "Awaaz chalu karein",
+    "replay": "Video dobara chalayen",
+    "seek": "Video progress",
+    "videoError": "Video nahi chal paya. Dobara try karein ya agli slide par jaayein.",
+    "retry": "Dobara try karein",
+    "slidesLabel": "Tutorial slides",
+    "goToSlide": "Slide {{number}} par jaayein",
+    "slides": {
+      "welcome": {
+        "title": "Miliye apne digital munshi se",
+        "description": "Dekhein kaise VoiceMunshi aapki dukaan, billing aur roz ke business mein madad karta hai."
+      },
+      "billing": {
+        "title": "Billing banayein aasaan",
+        "description": "Apne digital assistant ke saath bill banayein aur sales ka hisaab rakhein."
+      },
+      "voice": {
+        "title": "Bas bolkar shuru karein",
+        "description": "Munshi ko bolkar batayein kya chahiye aur apne customers par dhyaan dein."
+      },
+      "ai": {
+        "title": "Aapka AI business assistant",
+        "description": "Munshi se apne business ke baare mein poochhein aur roz ke kaam mein madad paayein."
+      }
+    }
   },
   "common": {
     "cancel": "Cancel karein",
@@ -44,7 +83,9 @@
     "total": "Total",
     "amount": "Amount",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "enterNumber": "Number daalein",
+    "validNumber": "Sahi number daalein, jaise 14500"
   },
   "layout": {
     "tenantAdmin": "Tenant Admin",
@@ -211,7 +252,7 @@
     "completeSetup": "Setup complete karein",
     "comingSoon": "{{label}} settings jald aa rahi hain",
     "beingDesigned": "Yeh section design ho raha hai.",
-    "languageDescription": "Woh bhasha chunein jisme SethSathi dikhega. Yeh aapke account mein save hoga aur har device par saath rahega."
+    "languageDescription": "Woh bhasha chunein jisme VoiceMunshi dikhega. Yeh aapke account mein save hoga aur har device par saath rahega."
   },
   "pageMeta": {
     "dashboard": {
@@ -275,7 +316,7 @@
       "subtitle": "Business configuration aur preferences."
     },
     "fallback": {
-      "title": "SethSathi",
+      "title": "VoiceMunshi",
       "subtitle": ""
     },
     "search": {
@@ -309,7 +350,9 @@
       "emailInvalid": "Valid email daalein",
       "signIn": "Sign in",
       "signInWithMobileInstead": "Mobile number se sign in karein",
-      "genericError": "Kuch gadbad ho gayi. Dobara try karein."
+      "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
+      "emailOrPhone": "Email ya mobile number",
+      "emailOrPhoneInvalid": "Valid email ya 10 digit mobile number daalein"
     },
     "register": {
       "title": "Wholesale ke saath shuru karein",
@@ -378,7 +421,8 @@
         "SMS_FAILED": "Code nahi bhej paaye. Dobara try karein.",
         "CODE_EXPIRED": "Yeh code expire ho gaya. Naya code maangein.",
         "CODE_INVALID": "Galat code. Check karke dobara daalein.",
-        "TOO_MANY_ATTEMPTS": "Bahut baar galat code daala gaya. Naya code maangein."
+        "TOO_MANY_ATTEMPTS": "Bahut baar galat code daala gaya. Naya code maangein.",
+        "ACCOUNT_SUSPENDED": "Yeh business account band kiya gaya hai. VoiceMunshi se sampark karein."
       }
     }
   },
@@ -386,7 +430,7 @@
     "skipForNow": "Abhi skip karein",
     "step1": {
       "heading": "Apne business ke baare mein batayein",
-      "subheading": "Isse SethSathi ko aapke kaam karne ke tareeke ke hisaab se dhalne mein madad milti hai.",
+      "subheading": "Isse VoiceMunshi ko aapke kaam karne ke tareeke ke hisaab se dhalne mein madad milti hai.",
       "categoryLabel": "Business category",
       "customersLabel": "Aapke customers kaun hain?",
       "groups": {
@@ -889,7 +933,8 @@
       "recordPayment": "Payment record karein",
       "couldNotRecordPayment": "Couldn't record payment. Please try again.",
       "close": "Close",
-      "gstPercentSuffix": " · GST {{percent}}%"
+      "gstPercentSuffix": " · GST {{percent}}%",
+      "enterAmount": "Mili hui rakam daalein"
     }
   },
   "sales": {
@@ -1044,7 +1089,7 @@
       "beingDesigned": "Yeh section design ho raha hai."
     },
     "guide": {
-      "title": "SethSathi mein bikri kaise karein",
+      "title": "VoiceMunshi mein bikri kaise karein",
       "subtitle": "4 aasaan steps — dekhne/chhupane ke liye tap karein",
       "step": "Step {{number}}",
       "newOrder": "Naya order",
@@ -1399,7 +1444,8 @@
       "noOrdersYet": "Abhi tak koi order nahi aaya.",
       "itemsCountOne": "{{count}} saamaan",
       "itemsCountOther": "{{count}} saamaan",
-      "allDataSynced": "Sab kuch save ho gaya hai"
+      "allDataSynced": "Sab kuch save ho gaya hai",
+      "openMunshi": "Munshi AI se baat karein"
     },
     "dashboardPage": {
       "welcomeBack": "Welcome back, {{businessName}}",
@@ -1522,10 +1568,11 @@
       "online": "Online · aapka business jaanta hai",
       "typing": "likh raha hai…",
       "welcomeTitle": "Namaste! Business ke baare mein kuch bhi poochhein",
-      "welcomeBody": "Bikri, stock, udhaar, munafa, GST, staff — ya SethSathi mein koi kaam kaise karein. Likhein ya mic dabakar bolein.",
+      "welcomeBody": "Bikri, stock, udhaar, munafa, GST, staff — ya VoiceMunshi mein koi kaam kaise karein. Likhein ya mic dabakar bolein.",
       "suggestions": [
         "Aaj kitni bikri hui?",
         "Kaun sa maal mangwana chahiye?",
+        "Naya supplier jodo",
         "Sabse zyada udhaar kis par hai?",
         "Is mahine aur pichhle mahine ki bikri compare karo",
         "Is mahine kitna munafa hua?",
@@ -1540,7 +1587,60 @@
       "copy": "Copy",
       "copied": "Copy ho gaya",
       "copyFailed": "Copy nahi hua",
-      "disclaimer": "Munshi AI aapke SethSathi data se jawab deta hai. Badlaav sirf sujhata hai — aap confirm karte hain."
+      "disclaimer": "Munshi AI aapke VoiceMunshi data se jawab deta hai. Badlaav sirf sujhata hai — aap confirm karte hain.",
+      "back": "Wapas"
+    },
+    "workflow": {
+      "heading": "Kaam ki list",
+      "progress": "{{done}}/{{total}} ho gaye",
+      "autoAdded": "Munshi ne joda: yeh abhi list mein nahi hai",
+      "counterSale": "Counter sale",
+      "skip": "Chhodein",
+      "confirm": "Haan, karein",
+      "anyway": "Phir bhi karein",
+      "skipped": "Chhod diya",
+      "allDone": "Sab ho gaya.",
+      "savedPrice": "saved",
+      "quickReplies": "Jhatpat jawab",
+      "title": {
+        "create_customer": "Naya customer: {{name}}",
+        "create_supplier": "Naya supplier: {{name}}",
+        "create_product": "Naya item: {{name}}",
+        "record_purchase": "Kharid {{party}} se: {{items}}",
+        "create_bill": "Bill {{party}}: {{items}}",
+        "create_order": "Order {{party}}: {{items}}",
+        "mark_attendance": "Haaziri: {{name}}, {{status}} ({{date}})"
+      },
+      "done": {
+        "create_customer": "Customer jud gaye",
+        "create_supplier": "Supplier jud gaye",
+        "create_product": "Item jud gaya",
+        "record_purchase": "Kharid darj, stock badha",
+        "create_bill": "Bill ban gaya",
+        "create_order": "Order ban gaya",
+        "mark_attendance": "Haaziri lag gayi"
+      },
+      "fields": {
+        "name": "Naam",
+        "phone": "Mobile (zaroori nahi)",
+        "item": "Item",
+        "unit": "Unit",
+        "qty": "Maatra",
+        "rate": "Rate ₹",
+        "cost": "Kharid ₹",
+        "salePrice": "Bikri rate ₹",
+        "supplier": "Supplier",
+        "customer": "Customer"
+      },
+      "warning": {
+        "INSUFFICIENT_STOCK": "Itna stock nahi hai. Phir bhi bill banayein?",
+        "CREDIT_LIMIT": "Isse customer ki udhaar seema paar ho jayegi. Phir bhi bill banayein?"
+      },
+      "replaced": "Badla gaya: neeche nayi list dekhiye",
+      "listReplaced": "List badal di gayi",
+      "viewBill": "Bill dekhein",
+      "viewPurchase": "Kharid dekhein",
+      "openFailed": "Khul nahi paaya. Phir koshish kijiye."
     }
   },
   "reports": {
@@ -1781,7 +1881,7 @@
       "ctaHeading": "Apna poora business ek hi jagah se chalane ke liye ready hain?",
       "ctaDescription": "Minutes mein apna workspace set up karein — shuru karne ke liye credit card ki zaroorat nahi.",
       "getStarted": "Get Started",
-      "copyright": "© {{year}} SethSathi. All rights reserved.",
+      "copyright": "© {{year}} VoiceMunshi. All rights reserved.",
       "features": "Features",
       "pricing": "Pricing",
       "signIn": "Sign in"
@@ -2068,7 +2168,7 @@
     "typing": "Munshi AI likh raha hai",
     "send": "Bhejein",
     "chooseAbove": "Option chunein ya kuch bhi poochein…",
-    "greeting": "Namaste! Main Munshi AI hoon, SethSathi par aapka digital munshi. Sabse pehle, aap kis bhasha mein baat karna chahenge?",
+    "greeting": "Namaste! Main Munshi AI hoon, VoiceMunshi par aapka digital munshi. Sabse pehle, aap kis bhasha mein baat karna chahenge?",
     "choiceRegister": "Naya account banayein",
     "choiceLogin": "Mera account hai — login karein",
     "goingToLogin": "Theek hai! Aapko login page par le chalte hain…",
@@ -2120,7 +2220,7 @@
       "language": "Aap kaunsi bhasha chahenge?"
     },
     "creating": "Aapka account ban raha hai… bas ek pal.",
-    "success": "Badhai ho, {{name}}! {{business}} ab SethSathi par taiyaar hai.",
+    "success": "Badhai ho, {{name}}! {{business}} ab VoiceMunshi par taiyaar hai.",
     "successHelp": "Aaj se Munshi AI har kaam mein aapki madad karega — bill banana, stock sambhalna, customers ka udhaar aur payment, staff ki attendance, aur aapke business ke har sawaal ka jawaab. Bas mujhse poochiye!",
     "goHome": "Mere dashboard par chalein",
     "loginInstead": "Login karein",
@@ -2449,11 +2549,14 @@
     "planExpired": "Aapka plan khatam ho gaya. Naya kaam save karne ke liye Settings → Plan mein plan chunein.",
     "proRequired": "Yeh Pro feature hai. Settings → Plan mein Pro lein.",
     "aiLimit": "Is mahine ke Munshi AI tokens khatam. 1 tareekh ko phir milenge, ya Settings → Plan mein upgrade karein.",
-    "paymentsOff": "Online payment abhi chalu nahi hai. SethSathi team se sampark karein.",
-    "paymentUnverified": "Yeh payment confirm nahi ho paya. Agar paisa kata hai to payment ID ke saath SethSathi team se baat karein.",
+    "paymentsOff": "Online payment abhi chalu nahi hai. VoiceMunshi team se sampark karein.",
+    "paymentUnverified": "Yeh payment confirm nahi ho paya. Agar paisa kata hai to payment ID ke saath VoiceMunshi team se baat karein.",
     "billNumberTaken": "Yeh bill number pehle se laga hai. Doosra number likhein.",
     "belowPaid": "Naya total pehle mile paise se kam hai. Iski jagah maal wapasi darj karein.",
-    "hasReturn": "Is bill par maal wapasi ho chuki hai, isliye ise badal nahi sakte."
+    "hasReturn": "Is bill par maal wapasi ho chuki hai, isliye ise badal nahi sakte.",
+    "aiBusy": "Munshi AI abhi vyast hai. Ek minute baad phir koshish kijiye.",
+    "accountSuspended": "Yeh business account band kiya gaya hai. VoiceMunshi se sampark karein.",
+    "accountDisabled": "Aapka login rok diya gaya hai. Apne business ke maalik ya VoiceMunshi se sampark karein."
   },
   "businessSettings": {
     "saved": "Save ho gaya. Naye bill par yeh vivaran dikhega.",
@@ -2471,7 +2574,7 @@
     "gstinHint": "15 akshar, jaise 27ABCDE1234F1Z5. Pehle do ank se rajya apne aap chun liya jata hai.",
     "gstinInvalid": "Yeh GSTIN jaisa nahi lagta. GST certificate se jaanch lein.",
     "gstinState": "GSTIN se rajya: {{state}}",
-    "howGstTitle": "SethSathi GST kaise lagata hai",
+    "howGstTitle": "VoiceMunshi GST kaise lagata hai",
     "howGst1": "Har saamaan ka GST rate saamaan se aata hai (Inventory → saamaan edit). HSN code bhi chhapta hai.",
     "howGst2": "Grahak aapke rajya ka → CGST + SGST (aadha-aadha). Doosre rajya ka (GSTIN ya rajya se) → IGST.",
     "howGst3": "Chhoot GST se pehle ghatai jaati hai. Kul rakam poore rupaye mein round hoti hai aur round-off dikhta hai.",
@@ -2548,7 +2651,7 @@
       },
       "s3": {
         "title": "Galla ginein aur band karein",
-        "body": "Gina hua cash daalein. SethSathi batayega kam hai ya zyada, aur agla din isi se shuru hoga.",
+        "body": "Gina hua cash daalein. VoiceMunshi batayega kam hai ya zyada, aur agla din isi se shuru hoga.",
         "title_firm": "Cash ginein aur din band karein"
       },
       "subtitle_firm": "Roz din ke ant mein do minute."
@@ -2660,7 +2763,7 @@
     "noName": "Saamaan ke naam ka column nahi mila. Uska naam \"Item name\" rakhein.",
     "columns": "Aapki file ke column",
     "ignored": "Istemaal nahi",
-    "existing": "Agar saamaan SethSathi mein pehle se hai",
+    "existing": "Agar saamaan VoiceMunshi mein pehle se hai",
     "mode": {
       "update": "Uske daam aur vivaran update karein",
       "skip": "Jaisa hai waisa rehne dein"
@@ -2853,7 +2956,9 @@
       },
       "orPick": "Ya list se business chunein",
       "picked": "Business: {{category}}",
-      "understanding": "Munshi AI samajh raha hai…"
+      "understanding": "Munshi AI samajh raha hai…",
+      "clear": "Mitaayein",
+      "retry": "Dobara bolein"
     },
     "role": {
       "understood": "Munshi AI ne samjha",
@@ -2933,7 +3038,7 @@
     },
     "plans": {
       "title": "Aapke liye taiyaar setup",
-      "subtitle": "Ek chunein. SethSathi billing, stock aur menu usi hisaab se set kar dega.",
+      "subtitle": "Ek chunein. VoiceMunshi billing, stock aur menu usi hisaab se set kar dega.",
       "recommended": "Sabse sahi",
       "changeLater": "Yeh sab baad mein Settings → Business mein badal sakte hain.",
       "start": "Is setup se shuru karein",
@@ -2963,6 +3068,43 @@
         }
       },
       "dashboard": "Dashboard par jaayein"
+    },
+    "trade": {
+      "title": "Maal kaise kharidte aur bechte hain?",
+      "subtitle": "Bahut kaam mein maal ek tarah se aata hai aur doosri tarah bikta hai, jaise bori mein aata hai aur kilo mein bikta hai. Neeche se tareeka chunein ya khud units chunein.",
+      "munshiFound": "Munshi AI ne pata kiya",
+      "looking": "Munshi AI aapke kaam ke baare mein dekh raha hai…",
+      "buy": "Maal kis mein kharidte hain",
+      "sell": "Kis mein bechte hain",
+      "moreUnits": "Aur units",
+      "factorTitle": "Lagbhag kitna banta hai?",
+      "factorHint": "Andaaza kaafi hai. Har item par sahi number baad mein daal sakte hain.",
+      "notesLabel": "Kharid-bikri ke baare mein kuch aur? (zaroori nahi)",
+      "notesPlaceholder": "jaise: Surat se thaan aata hai, meter mein bechte hain, bacha hua cut piece sasta bikta hai",
+      "productHint": "Aapke setup mein: {{buy}} mein kharid, {{sell}} mein bikri.",
+      "units": {
+        "pcs": "Piece",
+        "kg": "Kilo",
+        "gram": "Gram",
+        "quintal": "Quintal",
+        "meter": "Meter",
+        "feet": "Feet",
+        "sqft": "Sq. ft",
+        "litre": "Litre",
+        "dozen": "Darjan",
+        "box": "Dibba / box",
+        "carton": "Peti / carton",
+        "packet": "Packet",
+        "bag": "Bori / bag",
+        "roll": "Roll",
+        "than": "Thaan",
+        "pair": "Jodi",
+        "set": "Set"
+      },
+      "patternsTitle": "Jhatpat chunein",
+      "suggested": "Munshi ka sujhaav",
+      "multiHint": "Har taraf ek se zyada unit chun sakte hain. Pehla chuna hua mukhya rahega.",
+      "main": "mukhya"
     }
   },
   "setupTemplates": {
@@ -3099,7 +3241,7 @@
     "perMonthEquiv": "{{amount}}/mahina, {{months}} mahine ke liye · {{save}} ki bachat",
     "features": {
       "basic": {
-        "allCrm": "Poora SethSathi: bill, GST, stock, udhaar, khareed, godaam, staff, production, reports",
+        "allCrm": "Poora VoiceMunshi: bill, GST, stock, udhaar, khareed, godaam, staff, production, reports",
         "aiTokens": "Munshi AI: har mahine {{tokens}} tokens",
         "noLimits": "Bill, saamaan, grahak ya team login par koi limit nahi",
         "support": "Hindi aur English mein WhatsApp support"
@@ -3135,14 +3277,14 @@
     "choose": "{{plan}} lein · {{amount}}",
     "renew": "Renew karein · {{amount}}",
     "payNote": "Razorpay se UPI, card ya netbanking se bharein. Payment hote hi plan shuru.",
-    "offlineNote": "Online payment abhi chalu nahi hai. SethSathi team ko UPI ya bank se bharein, woh aapka plan shuru kar denge.",
+    "offlineNote": "Online payment abhi chalu nahi hai. VoiceMunshi team ko UPI ya bank se bharein, woh aapka plan shuru kar denge.",
     "ownerPays": "Plan sirf owner le ya renew kar sakte hain.",
     "paidToast": "Payment mil gaya. {{plan}} {{date}} tak chalu hai.",
     "payFailed": "Payment nahi hua. Koi paisa nahi kata — dobara koshish karein.",
     "historyTitle": "Payments",
     "days_one": "{{count}} din",
     "days_other": "{{count}} din",
-    "byTeam": "SethSathi team ne diya",
+    "byTeam": "VoiceMunshi team ne diya",
     "online": "Online bhara",
     "until": "{{date}} tak",
     "proOnlyTitle": "Yeh Pro feature hai",
@@ -3158,7 +3300,7 @@
     "choose": "Plan chunein"
   },
   "planAdmin": {
-    "title": "Saare business (SethSathi team)",
+    "title": "Saare business (VoiceMunshi team)",
     "body": "Har business ka plan dekhein aur haath se plan dein ya badhayein — UPI/bank payment, free mahine ya support ke liye.",
     "search": "Business, email ya phone khojein",
     "emptyTitle": "Koi business nahi mila",
@@ -3202,5 +3344,138 @@
     "emailInvalid": "Sahi email likhein.",
     "addGstin": "GSTIN bhi daalein",
     "addAadhaar": "Aadhaar bhi daalein"
+  },
+  "speechEngine": {
+    "title": "Bolkar likhna (mic)",
+    "body": "Har business ke liye: bola hua text mein kaun badlega.",
+    "saved": "Bolkar likhne ki setting save ho gayi",
+    "sarvamReady": "Sarvam: key lagi hai aur chal rahi hai.",
+    "sarvamPaused": "Sarvam: credits ya key ki galti ke baad ek ghante ke liye ruka hai. Abhi Whisper chal raha hai.",
+    "sarvamMissing": "Sarvam: server par key nahi hai (KEY_SARVAM). Abhi Whisper chal raha hai.",
+    "options": {
+      "auto": {
+        "title": "Auto (sujhaav)",
+        "body": "Pehle Sarvam; Sarvam fail ho ya credits khatam hon to Whisper."
+      },
+      "sarvam": {
+        "title": "Sirf Sarvam",
+        "body": "Hindi aur Hinglish ke liye sabse achha. Backup nahi: Sarvam fail ho to mic error dikhayega."
+      },
+      "whisper": {
+        "title": "Sirf Whisper",
+        "body": "Groq ka Whisper, Munshi ke sudhaar ke saath. Sarvam ke credits nahi lagenge."
+      }
+    }
+  },
+  "admin": {
+    "brand": "VoiceMunshi Admin",
+    "brandSub": "Founder ka panel",
+    "menuLink": "Admin panel",
+    "backToApp": "Apne business par wapas",
+    "never": "kabhi nahi",
+    "todayAt": "aaj {{time}}",
+    "lastSeen": "Aakhri baar: {{when}}",
+    "nav": {
+      "overview": "Jhalak",
+      "businesses": "Businesses",
+      "users": "Users",
+      "settings": "Settings"
+    },
+    "status": {
+      "trial": "Free trial",
+      "active": "Paid",
+      "expired": "Plan khatam",
+      "suspended": "Band (suspended)"
+    },
+    "filter": {
+      "all": "Sab",
+      "trial": "Free trial",
+      "paid": "Paid",
+      "expired": "Plan khatam",
+      "suspended": "Band"
+    },
+    "overview": {
+      "title": "Jhalak",
+      "subtitle": "VoiceMunshi par jo kuch ho raha hai, ek jagah.",
+      "businesses": "Businesses",
+      "newWeek": "Is hafte {{count}} naye · aaj {{today}}",
+      "expiredCount": "{{count}} ke plan khatam",
+      "paidHint": "Paid plan par",
+      "users": "Logins",
+      "activeWeek": "Is hafte {{count}} ne app khola",
+      "aiTokens": "Munshi AI tokens (mahina)",
+      "aiCalls": "{{count}} AI calls",
+      "signups": "Naye business, pichhle 14 din",
+      "today": "Aaj",
+      "recent": "Sabse naye business"
+    },
+    "businesses": {
+      "title": "Businesses",
+      "subtitle": "VoiceMunshi ke saare business. Kisi par tap karke details dekhein, plan dein ya band karein.",
+      "search": "Business, maalik, mobile ya email se dhoondhein",
+      "filter": "Business chhaantein",
+      "rowMeta": "Jude {{joined}} · aakhri baar {{seen}} · {{users}} login · AI {{ai}}",
+      "emptyTitle": "Koi business nahi mila",
+      "emptyBody": "Doosra naam ya filter aazmaiye."
+    },
+    "business": {
+      "joined": "{{date}} ko jude",
+      "plan": "Plan",
+      "givePlan": "Plan dein / badhayein",
+      "ai": "Is mahine Munshi AI",
+      "aiUsed": "{{used}} tokens lage ({{calls}} calls)",
+      "aiLimit": "seema {{limit}}",
+      "aiUnlimited": "Unlimited AI",
+      "aiMakeUnlimited": "Unlimited karein",
+      "aiBackToPlan": "Plan wali seema par wapas",
+      "aiSaved": "AI seema save ho gayi",
+      "usage": "App mein kaam",
+      "counts": {
+        "bills": "Bill",
+        "sales": "Kul bikri",
+        "products": "Items",
+        "customers": "Customers",
+        "suppliers": "Suppliers",
+        "purchases": "Kharid"
+      },
+      "details": "Business ki jaankari",
+      "phone": "Phone",
+      "address": "Pata",
+      "work": "Unka kaam",
+      "setup": "App setup",
+      "trade": "Kharid → bikri",
+      "setupPending": "Setup poora nahi hua",
+      "logins": "Logins ({{count}})",
+      "payments": "Plan ke payment",
+      "days": "{{count}} din",
+      "suspendTitle": "Yeh business band karein",
+      "suspendBody": "Is business ke sab log turant bahar ho jayenge, aur jab tak aap chalu na karein, login nahi kar payenge. Unka data surakshit rahega.",
+      "suspend": "Business band karein",
+      "suspendConfirm": "Haan, {{business}} band karein",
+      "isSuspended": "Yeh business band hai",
+      "unsuspendBody": "Iske log app nahi khol sakte. Chalu karne par wapas aa jayenge.",
+      "unsuspend": "Phir se chalu karein",
+      "suspendedDone": "Business band kar diya",
+      "unsuspendedDone": "Business phir se chalu"
+    },
+    "user": {
+      "founder": "Founder",
+      "stoppedBadge": "Ruka hua",
+      "stop": "Login rokein",
+      "restart": "Login chalu karein",
+      "stopped": "{{name}} ka login rok diya",
+      "restarted": "{{name}} phir login kar sakte hain"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "VoiceMunshi ke saare login: maalik aur unka staff.",
+      "search": "Naam, mobile ya email se dhoondhein",
+      "emptyTitle": "Koi user nahi mila",
+      "emptyBody": "Doosra naam ya number aazmaiye."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Yeh settings har business par lagti hain."
+    }
   }
 }

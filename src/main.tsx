@@ -6,6 +6,10 @@ import './lib/i18n'
 import './lib/display-settings'
 import App from './App.tsx'
 import { API_BASE_URL } from './lib/api'
+import { keepFocusedFieldVisible } from './lib/keep-field-visible'
+
+// Phones: a tapped field always ends up above the keyboard.
+keepFocusedFieldVisible()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

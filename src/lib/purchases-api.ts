@@ -70,3 +70,8 @@ export const purchaseStatusTone = { unpaid: "danger", partial: "warning", paid: 
 export function supplierOf(purchase: Purchase): { _id: string; name: string; phone?: string } {
   return typeof purchase.supplierId === "string" ? { _id: purchase.supplierId, name: "" } : purchase.supplierId;
 }
+
+/** One purchase (e.g. opened from a Munshi AI step). */
+export function getPurchase(id: string): Promise<Purchase> {
+  return apiFetch<Purchase>(`/purchases/${id}`);
+}

@@ -39,7 +39,11 @@ function otpErrorMessage(err: unknown): string {
 }
 
 const credentialsSchema = z.object({
-  email: z.string().email({ error: () => i18n.t("auth.login.emailInvalid") }),
+  // Email, or the 10-digit mobile number for accounts made without email.
+  email: z
+    .string()
+    .trim()
+    .refine((v) => /^d{10}$/.test(v) || z.string().email().safeParse(v).success, { error: () => i18n.t("auth.login.emailOrPhoneInvalid") }),
   password: z.string().min(8, { error: () => i18n.t("auth.login.passwordTooShort") }),
 });
 type CredentialsFormValues = z.infer<typeof credentialsSchema>;
@@ -48,6 +52,19 @@ export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Signed out because the VoiceMunshi team suspended the business or stopped this login: say so once.
+  useEffect(() => {
+    let reason: string | null = null;
+    try {
+      reason = sessionStorage.getItem("sethsathi.signedOutReason");
+      sessionStorage.removeItem("sethsathi.signedOutReason");
+    } catch {
+      // private mode
+    }
+    if (reason === "ACCOUNT_SUSPENDED") showError(t("errors.accountSuspended"));
+    if (reason === "ACCOUNT_DISABLED") showError(t("errors.accountDisabled"));
+  }, [t]);
   const setSession = useAuthStore((state) => state.setSession);
   const [useEmail, setUseEmail] = useState(false);
   const [otpPhone, setOtpPhone] = useState<string | null>(null);
@@ -159,7 +176,7 @@ export function LoginPage() {
       setSession(session);
       redirectAfterLogin();
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : t("auth.login.genericError"));
+      showError(err instanceof ApiError && err.code === "ACCOUNT_SUSPENDED" ? t("errors.accountSuspended") : err instanceof ApiError ? err.message : t("auth.login.genericError"));
     }
   };
 
@@ -298,9 +315,10 @@ export function LoginPage() {
     <AuthLayout title={t("auth.login.emailTitle")} subtitle={t("auth.login.emailSubtitle")}>
       <form className="flex flex-col gap-4" onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} noValidate>
         <TextField
-          label={t("common.email")}
-          type="email"
-          autoComplete="email"
+          label={t("auth.login.emailOrPhone")}
+          type="text"
+          inputMode="email"
+          autoComplete="username"
           error={credentialsForm.formState.errors.email?.message}
           {...credentialsForm.register("email")}
         />

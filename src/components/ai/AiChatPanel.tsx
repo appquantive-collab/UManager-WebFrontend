@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Check, Copy, Loader2, Mic, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowUp, Check, Copy, Loader2, Mic, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import clsx from "clsx";
 import { Badge } from "../ui/Badge";
 import { ApiError } from "../../lib/api";
@@ -10,6 +10,7 @@ import { showError, showSuccess } from "../../lib/toast";
 import { currentLanguage } from "../../lib/i18n";
 import { transcribeVoice, useVoiceRecorder, useVoiceStore, voiceOutputSupported, voiceRecordingSupported } from "../../lib/speech";
 import { confirmAction, dismissAction, listMessages, sendMessage, type AiChatMessage } from "../../lib/ai-chat-api";
+import { WorkflowCard } from "./WorkflowCard";
 
 // Munshi AI chat: WhatsApp-style composer (grows as you type; mic when empty,
 // send when there's text), voice notes transcribed into the box for review,
@@ -145,7 +146,12 @@ function RecordingTimer({ startedAt }: { startedAt: number }) {
 
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-export function AiChatPanel() {
+/**
+ * onBack: phone full-screen mode (WhatsApp-like): a back arrow in the header,
+ * room for the notch and home bar, and no footer note.
+ */
+export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
+  const fullScreen = Boolean(onBack);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
@@ -169,6 +175,10 @@ export function AiChatPanel() {
     mutationFn: sendMessage,
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["ai-chat-messages"] });
+      // Saying "haan" can do a step (add a party, record a purchase, make a bill): refresh what it touches.
+      for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders"]) {
+        void queryClient.invalidateQueries({ queryKey: [key] });
+      }
       setPendingText(null);
       // Auto-read new replies when the speaker is on.
       if (useVoiceStore.getState().enabled && result?.assistantMessage?.content) {
@@ -224,7 +234,7 @@ export function AiChatPanel() {
     }
     setTranscribing(true);
     try {
-      const text = await transcribeVoice(result.blob, currentLanguage(), "text");
+      const text = await transcribeVoice(result.blob, currentLanguage(), "text", { purpose: "chat", durationMs: result.durationMs });
       if (!text) {
         showError(t("welcomeChat.voice.micFailed"));
         return;
@@ -270,7 +280,22 @@ export function AiChatPanel() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+      <div
+        className={clsx(
+          "flex items-center gap-3 border-b border-border px-4 py-3",
+          fullScreen && "gap-2 bg-surface pl-1.5 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-elevation-1"
+        )}
+      >
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label={t("ai.chat.back")}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <ArrowLeft size={21} aria-hidden="true" />
+          </button>
+        ) : null}
         <img src="/splash-munshi.webp" alt="" className="h-10 w-10 shrink-0 rounded-full border border-border object-cover object-[center_12%]" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[0.9375rem] font-bold leading-tight text-text">{t("brand.assistantName")}</p>
@@ -297,7 +322,12 @@ export function AiChatPanel() {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4" role="log" aria-live="polite">
+      <div
+        ref={scrollRef}
+        className={clsx("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4", fullScreen && "bg-background px-3")}
+        role="log"
+        aria-live="polite"
+      >
         {messagesQuery.isLoading ? (
           <div className="space-y-3" aria-busy="true">
             <div className="h-10 w-2/3 animate-pulse rounded-2xl bg-surface-variant" />
@@ -337,6 +367,7 @@ export function AiChatPanel() {
                     <div className="rounded-2xl rounded-bl-md border border-border bg-surface px-3.5 py-2 text-[0.9375rem] leading-relaxed text-text shadow-elevation-1">
                       <RichText text={message.content} />
                       {message.proposedAction ? <ActionCard message={message} /> : null}
+                      {message.steps?.length ? <WorkflowCard message={message} /> : null}
                     </div>
                     <div className="mt-1 flex items-center gap-0.5 pl-1 text-text-muted">
                       <span className="mr-1 text-[0.6875rem]">{timeOf(message.createdAt)}</span>
@@ -371,6 +402,23 @@ export function AiChatPanel() {
                 </div>
               )
             )}
+            {(() => {
+              const last = messages[messages.length - 1];
+              return last?.role === "assistant" && last.quickReplies?.length && !pendingText && !busy ? (
+                <div className="flex flex-wrap gap-2 pl-1" aria-label={t("ai.workflow.quickReplies")}>
+                  {last.quickReplies.map((reply) => (
+                    <button
+                      key={reply}
+                      type="button"
+                      onClick={() => handleSend(reply)}
+                      className="min-h-10 rounded-full border border-primary/40 bg-surface px-3.5 text-sm font-semibold text-text outline-none transition-colors hover:bg-primary-container focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      {reply}
+                    </button>
+                  ))}
+                </div>
+              ) : null;
+            })()}
             {pendingText ? (
               <div className="flex justify-end">
                 <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-[0.9375rem] text-on-primary opacity-80 sm:max-w-md">
@@ -397,7 +445,7 @@ export function AiChatPanel() {
       </div>
 
       {/* Suggestions + composer */}
-      <div className="border-t border-border bg-surface px-3 pb-3 pt-2">
+      <div className={clsx("border-t border-border bg-surface px-3 pb-3 pt-2", fullScreen && "pb-[max(0.5rem,env(safe-area-inset-bottom))]")}>
         {messages.length > 0 && !hasText && !recorder.recording ? (
           <div className="scrollbar-hide -mx-3 mb-2 flex gap-2 overflow-x-auto px-3">
             {(Array.isArray(suggestions) ? suggestions : []).map((s) => (
@@ -485,7 +533,7 @@ export function AiChatPanel() {
             </button>
           )}
         </div>
-        <p className="mt-1.5 px-2 text-center text-[0.6875rem] leading-snug text-text-muted">{t("ai.chat.disclaimer")}</p>
+        {!fullScreen ? <p className="mt-1.5 px-2 text-center text-[0.6875rem] leading-snug text-text-muted">{t("ai.chat.disclaimer")}</p> : null}
       </div>
     </div>
   );

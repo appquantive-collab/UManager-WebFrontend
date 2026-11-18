@@ -15,6 +15,7 @@ import { formatCurrency } from "../../lib/format";
 import { ApiError } from "../../lib/api";
 import { errorMessage } from "../../lib/api-errors";
 import { showError, showSuccess } from "../../lib/toast";
+import { useAppSetup } from "../../lib/use-app-setup";
 
 // Record a purchase bill from a supplier: items go into stock, the supplier's
 // balance goes up by whatever isn't paid now.
@@ -51,6 +52,7 @@ export function NewPurchaseModal({ open, onClose, presetSupplierId }: { open: bo
 
 function PurchaseForm({ onClose, presetSupplierId }: { onClose: () => void; presetSupplierId: string }) {
   const { t } = useTranslation();
+  const { trade } = useAppSetup();
   const queryClient = useQueryClient();
   const [supplierId, setSupplierId] = useState(presetSupplierId);
   const [warehouseId, setWarehouseId] = useState("");
@@ -106,12 +108,15 @@ function PurchaseForm({ onClose, presetSupplierId }: { onClose: () => void; pres
 
   const pickProduct = (key: number, productId: string) => {
     const product = productById.get(productId);
+    // Bought in the business's buying unit (kilo of cloth that sells by the meter): start the line in it.
+    const buyAlt = product?.altUnit && trade?.buyUnit === product.altUnit.name ? product.altUnit : null;
+    const baseCost = product?.purchasePrice ?? 0;
     updateLine(key, {
       productId,
       // Start from the last cost paid and the product's GST rate.
-      unitCost: product?.purchasePrice ? String(product.purchasePrice) : "",
+      unitCost: baseCost ? String(buyAlt ? Math.round(baseCost * buyAlt.factor * 100) / 100 : baseCost) : "",
       gstPercent: product?.gstPercent ? String(product.gstPercent) : "",
-      unit: product?.unit ?? "",
+      unit: buyAlt ? buyAlt.name : (product?.unit ?? ""),
       batchNo: "",
       expiryDate: "",
       serialsText: "",

@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../lib/auth-store";
 import { MunshiWelcomeChat } from "../../components/welcome/MunshiWelcomeChat";
+import { hasSignedInBefore } from "../../lib/tutorial";
 
 export function WelcomePage() {
   const navigate = useNavigate();
   // Checked once on arrival only: signing up inside the chat creates a session,
   // and the chat must stay on screen for its congratulations before moving on.
   const [signedInOnArrival] = useState(() => Boolean(useAuthStore.getState().accessToken));
-  if (signedInOnArrival) return <Navigate to="/app" replace />;
+  const [returningOnArrival] = useState(hasSignedInBefore);
+  if (signedInOnArrival || returningOnArrival) return <Navigate to={useAuthStore.getState().accessToken ? "/app" : "/login"} replace />;
 
   return (
     <div className="relative flex h-dvh justify-center bg-background lg:items-center lg:p-6">

@@ -30,6 +30,16 @@ async function parseErrorBody(res: Response): Promise<never> {
   const body = await res.json().catch(() => ({}));
   const message =
     typeof body.error === "string" ? body.error : (body.error?.message ?? `Request failed: ${res.status}`);
+  // The VoiceMunshi team suspended this business or stopped this login: sign out
+  // now (the login page explains why) instead of failing screen by screen.
+  if (res.status === 403 && (body.code === "ACCOUNT_SUSPENDED" || body.code === "ACCOUNT_DISABLED") && useAuthStore.getState().accessToken) {
+    try {
+      sessionStorage.setItem("sethsathi.signedOutReason", body.code);
+    } catch {
+      // private mode: the toast below still says it
+    }
+    useAuthStore.getState().clearSession();
+  }
   throw new ApiError(
     message,
     res.status,

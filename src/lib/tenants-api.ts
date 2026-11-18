@@ -10,6 +10,7 @@ import type {
   CustomerType,
   OnlineChannel,
   OrderVolume,
+  TradeProfile,
 } from "./auth-api";
 
 export interface OnboardingInput {
@@ -28,6 +29,7 @@ export interface OnboardingInput {
   gstin?: string;
   appSetup?: AppSetup;
   starterCategories?: string[];
+  trade?: TradeProfile;
 }
 
 export interface Understanding {
@@ -41,6 +43,27 @@ export interface Understanding {
 /** Munshi AI reads "aap kya kaam karte hain" and suggests category, role and needs. */
 export function understandBusiness(text: string, language: string): Promise<Understanding> {
   return apiFetch("/tenants/onboarding/understand", { method: "POST", body: JSON.stringify({ text, language }) });
+}
+
+/** Units the app knows; items store them exactly like this. */
+export const TRADE_UNITS = ["pcs", "kg", "gram", "quintal", "meter", "feet", "sqft", "litre", "dozen", "box", "carton", "packet", "bag", "roll", "than", "pair", "set"] as const;
+export type TradeUnit = (typeof TRADE_UNITS)[number];
+
+export interface TradeSuggestion {
+  buyUnit: TradeUnit;
+  sellUnit: TradeUnit;
+  factor: number | null;
+  /** All units this trade usually buys in / sells in, main first. */
+  buyUnits: TradeUnit[];
+  sellUnits: TradeUnit[];
+  /** How this trade usually buys and sells, in the owner's language. */
+  note: string;
+  source: "web" | "ai" | "rules";
+}
+
+/** Munshi AI looks up how a business like this buys and sells (units and conversion). */
+export function researchTrade(input: { description?: string; category: BusinessCategory | null; roles: BusinessRole[]; language: string }): Promise<{ trade: TradeSuggestion }> {
+  return apiFetch("/tenants/onboarding/trade", { method: "POST", body: JSON.stringify(input) });
 }
 
 export interface PlannedSetup {
@@ -64,6 +87,7 @@ export interface PlanSetupsInput {
   staffCount: number;
   warehouseCount: number;
   orderVolume?: OrderVolume;
+  trade?: TradeProfile;
   language: string;
 }
 

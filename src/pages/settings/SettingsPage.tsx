@@ -15,8 +15,6 @@ import { BillSettings, BusinessDetailsSettings, GstSettings } from "../../compon
 import { TeamSettings } from "../../components/settings/TeamSettings";
 import { AppSetupCard } from "../../components/settings/AppSetupCard";
 import { PlanSettings } from "../../components/settings/PlanSettings";
-import { PlatformAdminPlans } from "../../components/settings/PlatformAdminPlans";
-import { usePlan } from "../../lib/use-plan";
 import { ActivityLog } from "../../components/settings/ActivityLog";
 
 function LanguageSettings() {
@@ -72,12 +70,10 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const role = useAuthStore((state) => state.user?.role);
   const isManager = role === "OWNER" || role === "MANAGER" || role === "SUPER_ADMIN";
-  const { platformAdmin } = usePlan();
   const TAB_KEYS = [
     ...(isManager ? ["business", "plan", "tax", "invoice", "team", "activity"] : []),
     "language",
     "display",
-    ...(platformAdmin ? ["allPlans"] : []),
   ];
   const requested = searchParams.get("tab") ?? TAB_KEYS[0];
   const tab = TAB_KEYS.includes(requested) ? requested : TAB_KEYS[0];
@@ -92,7 +88,6 @@ export function SettingsPage() {
     { key: "activity", label: t("settingsPage.tabs.activity") },
     { key: "language", label: t("settingsPage.tabs.language") },
     { key: "display", label: t("settingsPage.tabs.display") },
-    { key: "allPlans", label: t("settingsPage.tabs.allPlans") },
   ].filter((item) => TAB_KEYS.includes(item.key));
 
   return (
@@ -112,7 +107,6 @@ export function SettingsPage() {
       {tab === "team" && <TeamSettings />}
       {tab === "activity" && <ActivityLog />}
       {tab === "plan" && <PlanSettings />}
-      {tab === "allPlans" && <PlatformAdminPlans />}
     </div>
   );
 }
