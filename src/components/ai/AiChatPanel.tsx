@@ -182,7 +182,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
       }
       await queryClient.invalidateQueries({ queryKey: ["ai-chat-messages"] });
       // Saying "haan" can do a step (add a party, record a purchase, make a bill): refresh what it touches.
-      for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders"]) {
+      for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders", "staff", "departments", "expenses", "daybook"]) {
         void queryClient.invalidateQueries({ queryKey: [key] });
       }
       setPendingText(null);

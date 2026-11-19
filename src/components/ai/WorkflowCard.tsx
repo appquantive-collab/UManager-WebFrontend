@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, FileText, Loader2, Plus, X } from "lucide-react";
+import { AlertTriangle, Check, FileText, Loader2, Pencil, Plus, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { InvoiceDetailModal } from "../orders/InvoiceDetailModal";
+import { OrderDetailModal } from "../orders/OrderDetailModal";
 import { PurchaseDetailModal } from "../purchases/PurchaseDetailModal";
+import { PartyPortfolioModal } from "../customers/PartyPortfolioModal";
+import { AddCustomerModal, type EditableCustomer } from "../customers/AddCustomerModal";
 import { getInvoice, type Invoice } from "../../lib/invoices-api";
 import { getPurchase, type Purchase } from "../../lib/purchases-api";
+import { getOrder, type Order } from "../../lib/orders-api";
+import { getCustomerPortfolio } from "../../lib/customers-api";
 import clsx from "clsx";
 import { ApiError } from "../../lib/api";
 import { formatCurrency } from "../../lib/format";
 import { showError } from "../../lib/toast";
-import { confirmStep, dismissStep, type AiChatMessage, type StepLine, type WorkflowStep } from "../../lib/ai-chat-api";
+import { confirmStep, dismissStep, type AiChatMessage, type StepLine, type StepType, type WorkflowStep } from "../../lib/ai-chat-api";
 
 /**
  * A Munshi AI workflow inside a chat reply: the steps it made from the
@@ -27,6 +33,28 @@ function useStepText() {
     (lines ?? [])
       .map((l) => `${l.productName} ${l.quantity}${l.unit ? ` ${l.unit}` : ""}${l.price ? ` @ ${formatCurrency(l.price)}` : ""}`)
       .join(", ");
+  const money = (v: unknown) => formatCurrency(Number(v ?? 0));
+  // "naya naam Ravi Kumar, mobile 98…, bikri rate ₹35": only what changes.
+  const changes = (payload: Record<string, unknown>) => {
+    const parts: string[] = [];
+    const add = (key: string, label: string, isMoney = false) => {
+      const v = payload[key];
+      if (v !== undefined && v !== null && v !== "") parts.push(`${label} ${isMoney ? money(v) : String(v)}`);
+    };
+    add("newName", t("ai.workflow.fields.newName"));
+    add("phone", t("ai.workflow.fields.mobile"));
+    add("address", t("ai.workflow.fields.address"));
+    add("gstin", "GSTIN");
+    add("department", t("ai.workflow.fields.department"));
+    add("salePrice", t("ai.workflow.fields.salePrice"), true);
+    add("purchasePrice", t("ai.workflow.fields.cost"), true);
+    add("unit", t("ai.workflow.fields.unit"));
+    add("reorderLevel", t("ai.workflow.fields.reorderLevel"));
+    add("monthlySalary", t("ai.workflow.fields.salary"), true);
+    add("dailyWage", t("ai.workflow.fields.dailyWage"), true);
+    if (payload.role) parts.push(t(`team.role.${String(payload.role)}`));
+    return parts.length ? `: ${parts.join(", ")}` : "";
+  };
   return (step: WorkflowStep): string => {
     const p = step.payload as Record<string, string | undefined>;
     switch (step.type) {
@@ -44,6 +72,34 @@ function useStepText() {
         return t("ai.workflow.title.create_order", { party: p.customerName, items: items(step.payload.items) });
       case "mark_attendance":
         return t("ai.workflow.title.mark_attendance", { name: p.staffName, status: String(p.status ?? "").replace("_", " "), date: p.date });
+      case "create_staff":
+        return t("ai.workflow.title.create_staff", { name: p.name, department: p.department ? ` · ${p.department}` : "" });
+      case "receive_payment":
+        return t("ai.workflow.title.receive_payment", { party: p.customerName, amount: money(step.payload.amount), bill: p.billNumber ? ` (${p.billNumber})` : "" });
+      case "pay_supplier":
+        return t("ai.workflow.title.pay_supplier", { party: p.supplierName, amount: money(step.payload.amount) });
+      case "add_expense":
+        return t("ai.workflow.title.add_expense", {
+          amount: money(step.payload.amount),
+          category: t(`expenses.category.${p.category ?? "other"}`),
+          note: p.note ? ` · ${p.note}` : "",
+        });
+      case "edit_bill":
+        return t("ai.workflow.title.edit_bill", { bill: p.billNumber, items: items(step.payload.items) });
+      case "cancel_bill":
+        return t("ai.workflow.title.cancel_bill", { bill: p.billNumber, reason: p.reason ? ` · ${p.reason}` : "" });
+      case "bill_order":
+        return t("ai.workflow.title.bill_order", { party: p.customerName });
+      case "update_customer":
+      case "update_supplier":
+      case "update_product":
+      case "update_staff":
+        return t(`ai.workflow.title.${step.type}`, { name: p.name, changes: changes(step.payload) });
+      case "adjust_stock": {
+        const qty = Math.abs(Number(step.payload.quantity ?? 0));
+        const out = p.reason === "damage" || p.direction === "out" || (p.direction === undefined && Number(step.payload.quantity) < 0);
+        return t("ai.workflow.title.adjust_stock", { name: p.productName, change: `${out ? "−" : "+"}${qty}` });
+      }
     }
   };
 }
@@ -76,6 +132,132 @@ function StepEditor({ step, draft, setDraft }: { step: WorkflowStep; draft: Reco
       </div>
     );
   }
+  if (step.type === "receive_payment" || step.type === "pay_supplier") {
+    const customer = step.type === "receive_payment";
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        {text(customer ? "customerName" : "supplierName", customer ? t("ai.workflow.fields.customer") : t("ai.workflow.fields.supplier"))}
+        {text("amount", t("ai.workflow.fields.amount"), { inputMode: "decimal" })}
+        <label className="col-span-2 block min-w-0 text-xs font-medium text-text-muted sm:col-span-1">
+          {t("ai.workflow.fields.method")}
+          <select value={String(draft.paymentMethod ?? "cash")} onChange={(e) => set("paymentMethod", e.target.value)} className={clsx(inputClass, "mt-1")}>
+            {(["cash", "upi", "bank_transfer", "cheque"] as const).map((m) => (
+              <option key={m} value={m}>
+                {t(`ai.workflow.method.${m}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    );
+  }
+  if (step.type === "add_expense") {
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        {text("amount", t("ai.workflow.fields.amount"), { inputMode: "decimal" })}
+        <label className="block min-w-0 text-xs font-medium text-text-muted">
+          {t("ai.workflow.fields.category")}
+          <select value={String(draft.category ?? "other")} onChange={(e) => set("category", e.target.value)} className={clsx(inputClass, "mt-1")}>
+            {["rent", "salary", "electricity", "transport", "tea_food", "repairs", "phone_internet", "packing", "shop_supplies", "bank_charges", "other"].map((c) => (
+              <option key={c} value={c}>
+                {t(`expenses.category.${c}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="col-span-2">{text("note", t("ai.workflow.fields.note"))}</div>
+      </div>
+    );
+  }
+  if (step.type === "cancel_bill") {
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        {text("billNumber", t("ai.workflow.fields.billNumber"))}
+        {text("reason", t("ai.workflow.fields.reason"))}
+      </div>
+    );
+  }
+  if (step.type === "bill_order") {
+    return <div className="grid grid-cols-1 gap-2">{text("customerName", t("ai.workflow.fields.customer"))}</div>;
+  }
+  if (step.type === "update_customer" || step.type === "update_supplier") {
+    return (
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {text("name", t("ai.workflow.fields.name"))}
+        {text("newName", t("ai.workflow.fields.newName"))}
+        {text("phone", t("ai.workflow.fields.phone"), { inputMode: "tel" })}
+        {step.type === "update_customer" ? text("address", t("ai.workflow.fields.address")) : text("gstin", "GSTIN")}
+      </div>
+    );
+  }
+  if (step.type === "update_product") {
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        {text("name", t("ai.workflow.fields.item"))}
+        {text("newName", t("ai.workflow.fields.newName"))}
+        {text("salePrice", t("ai.workflow.fields.salePrice"), { inputMode: "decimal" })}
+        {text("purchasePrice", t("ai.workflow.fields.cost"), { inputMode: "decimal" })}
+      </div>
+    );
+  }
+  if (step.type === "update_staff") {
+    return (
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {text("name", t("ai.workflow.fields.name"))}
+        {text("newName", t("ai.workflow.fields.newName"))}
+        {text("phone", t("ai.workflow.fields.phone"), { inputMode: "tel" })}
+        {text("department", t("ai.workflow.fields.department"))}
+      </div>
+    );
+  }
+  if (step.type === "adjust_stock") {
+    const qty = Math.abs(Number(draft.quantity ?? 0)) || "";
+    const out = draft.reason === "damage" || draft.direction === "out" || (draft.direction === undefined && Number(draft.quantity) < 0);
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        <div className="col-span-2">{text("productName", t("ai.workflow.fields.item"))}</div>
+        <label className="block min-w-0 text-xs font-medium text-text-muted">
+          {t("ai.workflow.fields.qty")}
+          <input
+            value={qty}
+            onChange={(e) => set("quantity", e.target.value === "" ? undefined : Math.abs(Number(e.target.value)))}
+            inputMode="decimal"
+            className={clsx(inputClass, "mt-1 tabular-nums")}
+          />
+        </label>
+        <label className="block min-w-0 text-xs font-medium text-text-muted">
+          {t("ai.workflow.fields.direction")}
+          <select
+            value={out ? "out" : "in"}
+            onChange={(e) => setDraft({ ...draft, direction: e.target.value, ...(e.target.value === "in" && draft.reason === "damage" ? { reason: "adjustment" } : {}) })}
+            className={clsx(inputClass, "mt-1")}
+          >
+            <option value="out">{t("ai.workflow.stockOut")}</option>
+            <option value="in">{t("ai.workflow.stockIn")}</option>
+          </select>
+        </label>
+      </div>
+    );
+  }
+  if (step.type === "create_staff") {
+    return (
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {text("name", t("ai.workflow.fields.name"))}
+        {text("phone", t("ai.workflow.fields.phone"), { inputMode: "tel", placeholder: "98230 45812" })}
+        {text("department", t("ai.workflow.fields.department"), { placeholder: t("ai.workflow.fields.departmentHint") })}
+        <label className="block min-w-0 text-xs font-medium text-text-muted">
+          {t("ai.workflow.fields.role")}
+          <select value={String(draft.role ?? "WAREHOUSE_STAFF")} onChange={(e) => set("role", e.target.value)} className={clsx(inputClass, "mt-1")}>
+            {(["WAREHOUSE_STAFF", "SALESMAN", "MANAGER"] as const).map((r) => (
+              <option key={r} value={r}>
+                {t(`team.role.${r}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    );
+  }
   if (step.type === "create_product") {
     return (
       <div className="grid grid-cols-2 gap-2">
@@ -86,14 +268,14 @@ function StepEditor({ step, draft, setDraft }: { step: WorkflowStep; draft: Reco
       </div>
     );
   }
-  if (step.type === "record_purchase" || step.type === "create_bill" || step.type === "create_order") {
-    const partyKey = step.type === "record_purchase" ? "supplierName" : "customerName";
+  if (step.type === "record_purchase" || step.type === "create_bill" || step.type === "create_order" || step.type === "edit_bill") {
+    const partyKey = step.type === "record_purchase" ? "supplierName" : step.type === "edit_bill" ? "billNumber" : "customerName";
     const lines = (draft.items as StepLine[] | undefined) ?? [];
     const setLine = (i: number, patch: Partial<StepLine>) => set("items", lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
     const num = (v: string) => (v === "" ? undefined : Number(v));
     return (
       <div className="space-y-2">
-        {text(partyKey, step.type === "record_purchase" ? t("ai.workflow.fields.supplier") : t("ai.workflow.fields.customer"), {
+        {text(partyKey, step.type === "record_purchase" ? t("ai.workflow.fields.supplier") : step.type === "edit_bill" ? t("ai.workflow.fields.billNumber") : t("ai.workflow.fields.customer"), {
           placeholder: step.type === "create_bill" ? t("ai.workflow.counterSale") : undefined,
         })}
         <div className="space-y-1.5">
@@ -137,7 +319,7 @@ function cleanPayload(draft: Record<string, unknown>): Record<string, unknown> {
         ...(l.unit ? { unit: l.unit } : {}),
         ...(l.price !== undefined && String(l.price) !== "" ? { price: Number(l.price) } : {}),
       }));
-    } else if (["purchasePrice", "salePrice", "paidAmount"].includes(key)) {
+    } else if (["purchasePrice", "salePrice", "paidAmount", "monthlySalary", "dailyWage", "amount", "quantity", "reorderLevel"].includes(key)) {
       out[key] = Number(value);
     } else out[key] = value;
   }
@@ -153,7 +335,7 @@ function ActiveStep({ message, step, index, total }: { message: AiChatMessage; s
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["ai-chat-messages"] });
     // What a step changes shows up elsewhere in the app right away.
-    for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders"]) {
+    for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders", "staff", "departments", "expenses", "daybook"]) {
       void queryClient.invalidateQueries({ queryKey: [key] });
     }
   };
@@ -233,33 +415,88 @@ function ActiveStep({ message, step, index, total }: { message: AiChatMessage; s
   );
 }
 
-/** "Bill dekhein" / "Kharid dekhein" on a done step: opens it right here in the chat. */
-function OpenResult({ step }: { step: WorkflowStep }) {
+const BILL_STEPS = new Set<StepType>(["create_bill", "edit_bill", "cancel_bill", "bill_order"]);
+const PURCHASE_STEPS = new Set<StepType>(["record_purchase", "pay_supplier"]);
+const CUSTOMER_STEPS = new Set<StepType>(["create_customer", "update_customer", "receive_payment"]);
+const PRODUCT_STEPS = new Set<StepType>(["create_product", "update_product", "adjust_stock"]);
+
+const linkClass =
+  "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-xs font-semibold text-text outline-none hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-60";
+
+/**
+ * "Dekhein" / "Badlein" on every done step: bills, purchases, orders and
+ * customers open right here in the chat (the bill view can also edit or cancel
+ * it); items, staff, suppliers and expenses open their page in the app.
+ */
+function StepLinks({ step }: { step: WorkflowStep }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [bill, setBill] = useState<Invoice | null>(null);
   const [purchase, setPurchase] = useState<Purchase | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+  const [editCustomer, setEditCustomer] = useState<EditableCustomer | null>(null);
+  const id = step.resultId;
+
   const open = useMutation({
-    mutationFn: async () => {
-      if (step.type === "create_bill") setBill(await getInvoice(step.resultId!));
-      else setPurchase(await getPurchase(step.resultId!));
+    mutationFn: async (what: "view" | "edit") => {
+      if (!id) return;
+      if (BILL_STEPS.has(step.type)) setBill(await getInvoice(id));
+      else if (PURCHASE_STEPS.has(step.type)) setPurchase(await getPurchase(id));
+      else if (step.type === "create_order") setOrder(await getOrder(id));
+      else if (CUSTOMER_STEPS.has(step.type)) {
+        if (what === "view") setCustomerId(id);
+        else setEditCustomer((await getCustomerPortfolio(id)).customer as EditableCustomer);
+      }
     },
     onError: (err) => showError(err instanceof ApiError ? err.message : t("ai.workflow.openFailed")),
   });
-  if (!step.resultId || (step.type !== "create_bill" && step.type !== "record_purchase")) return null;
+
+  // Pages in the app (closes Munshi on phones, since it's a page of its own there).
+  const page =
+    PRODUCT_STEPS.has(step.type) && id
+      ? `/app/inventory/${id}/edit`
+      : (step.type === "create_staff" || step.type === "update_staff") && id
+        ? `/app/staff/${id}/edit`
+        : step.type === "mark_attendance"
+          ? "/app/staff"
+          : step.type === "create_supplier" || step.type === "update_supplier"
+            ? "/app/suppliers"
+            : step.type === "add_expense"
+              ? "/app/cashbook"
+              : null;
+
+  const viewLabel = BILL_STEPS.has(step.type)
+    ? t("ai.workflow.viewBill")
+    : PURCHASE_STEPS.has(step.type)
+      ? t("ai.workflow.viewPurchase")
+      : step.type === "create_order"
+        ? t("ai.workflow.viewOrder")
+        : page && (PRODUCT_STEPS.has(step.type) || step.type === "create_staff" || step.type === "update_staff")
+          ? t("ai.workflow.openEdit")
+          : t("ai.workflow.view");
+
+  const inChat = Boolean(id) && (BILL_STEPS.has(step.type) || PURCHASE_STEPS.has(step.type) || step.type === "create_order" || CUSTOMER_STEPS.has(step.type));
+  if (!inChat && !page) return null;
+
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => open.mutate()}
-        disabled={open.isPending}
-        className="mt-1 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-xs font-semibold text-text outline-none hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-60"
-      >
+    <div className="mt-1 flex flex-wrap gap-1.5">
+      <button type="button" onClick={() => (inChat ? open.mutate("view") : navigate(page!))} disabled={open.isPending} className={linkClass}>
         {open.isPending ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} className="text-icon" aria-hidden="true" />}
-        {step.type === "create_bill" ? t("ai.workflow.viewBill") : t("ai.workflow.viewPurchase")}
+        {viewLabel}
       </button>
+      {CUSTOMER_STEPS.has(step.type) && id ? (
+        <button type="button" onClick={() => open.mutate("edit")} disabled={open.isPending} className={linkClass}>
+          <Pencil size={13} className="text-icon" aria-hidden="true" />
+          {t("ai.workflow.edit")}
+        </button>
+      ) : null}
       <InvoiceDetailModal invoice={bill} onClose={() => setBill(null)} />
       <PurchaseDetailModal purchase={purchase} onClose={() => setPurchase(null)} />
-    </>
+      <OrderDetailModal order={order} onClose={() => setOrder(null)} />
+      <PartyPortfolioModal customerId={customerId} onClose={() => setCustomerId(null)} />
+      {editCustomer ? <AddCustomerModal open onClose={() => setEditCustomer(null)} customer={editCustomer} /> : null}
+    </div>
   );
 }
 
@@ -307,10 +544,10 @@ export function WorkflowCard({ message }: { message: AiChatMessage }) {
                 {step.status === "confirmed" ? (
                   <p className="text-xs text-success">
                     {t(`ai.workflow.done.${step.type}`)}
-                    {step.resultSummary && (step.type === "create_bill" || step.type === "record_purchase") ? ` · ${step.resultSummary}` : ""}
+                    {step.resultSummary ? ` · ${step.resultSummary}` : ""}
                   </p>
                 ) : null}
-                {step.status === "confirmed" ? <OpenResult step={step} /> : null}
+                {step.status === "confirmed" ? <StepLinks step={step} /> : null}
                 {step.status === "dismissed" ? <p className="text-xs text-text-muted">{step.replaced ? t("ai.workflow.replaced") : t("ai.workflow.skipped")}</p> : null}
               </div>
               {step.status === "pending" && step.auto ? <Plus size={14} className="mt-1 shrink-0 text-icon" aria-label={t("ai.workflow.autoAdded")} /> : null}

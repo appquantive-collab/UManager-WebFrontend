@@ -1612,7 +1612,19 @@
         "record_purchase": "Purchase from {{party}}: {{items}}",
         "create_bill": "Bill for {{party}}: {{items}}",
         "create_order": "Order for {{party}}: {{items}}",
-        "mark_attendance": "Attendance: {{name}}, {{status}} ({{date}})"
+        "mark_attendance": "Attendance: {{name}}, {{status}} ({{date}})",
+        "create_staff": "Add staff: {{name}}{{department}}",
+        "receive_payment": "Money received from {{party}}: {{amount}}{{bill}}",
+        "pay_supplier": "Pay {{party}}: {{amount}}",
+        "add_expense": "Expense: {{amount}} · {{category}}{{note}}",
+        "edit_bill": "Change bill {{bill}}: {{items}}",
+        "cancel_bill": "Cancel bill {{bill}}{{reason}}",
+        "bill_order": "Bill for {{party}}'s order",
+        "update_customer": "Change customer {{name}}{{changes}}",
+        "update_supplier": "Change supplier {{name}}{{changes}}",
+        "update_product": "Change item {{name}}{{changes}}",
+        "update_staff": "Change staff {{name}}{{changes}}",
+        "adjust_stock": "Stock: {{name}} {{change}}"
       },
       "done": {
         "create_customer": "Customer added",
@@ -1621,7 +1633,19 @@
         "record_purchase": "Purchase saved, stock up",
         "create_bill": "Bill made",
         "create_order": "Order saved",
-        "mark_attendance": "Attendance marked"
+        "mark_attendance": "Attendance marked",
+        "create_staff": "Staff added",
+        "receive_payment": "Payment saved",
+        "pay_supplier": "Payment saved",
+        "add_expense": "Expense saved",
+        "edit_bill": "Bill changed",
+        "cancel_bill": "Bill cancelled",
+        "bill_order": "Bill made",
+        "update_customer": "Customer changed",
+        "update_supplier": "Supplier changed",
+        "update_product": "Item changed",
+        "update_staff": "Staff changed",
+        "adjust_stock": "Stock fixed"
       },
       "fields": {
         "name": "Name",
@@ -1633,7 +1657,23 @@
         "cost": "Cost ₹",
         "salePrice": "Sale price ₹",
         "supplier": "Supplier",
-        "customer": "Customer"
+        "customer": "Customer",
+        "department": "Department",
+        "departmentHint": "e.g. Labour",
+        "role": "Role",
+        "newName": "New name",
+        "mobile": "mobile",
+        "address": "Address",
+        "reorderLevel": "Reorder at",
+        "salary": "Salary",
+        "dailyWage": "Daily wage",
+        "amount": "Amount ₹",
+        "method": "Paid by",
+        "category": "Type",
+        "note": "Note",
+        "billNumber": "Bill no.",
+        "reason": "Reason",
+        "direction": "In / out"
       },
       "warning": {
         "INSUFFICIENT_STOCK": "Not enough stock for this. Make the bill anyway?",
@@ -1643,7 +1683,19 @@
       "listReplaced": "List changed",
       "viewBill": "View bill",
       "viewPurchase": "View purchase",
-      "openFailed": "Couldn't open it. Please try again."
+      "openFailed": "Couldn't open it. Please try again.",
+      "method": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bank_transfer": "Bank",
+        "cheque": "Cheque"
+      },
+      "stockOut": "Take out",
+      "stockIn": "Add",
+      "viewOrder": "View order",
+      "view": "View",
+      "openEdit": "View / change",
+      "edit": "Change"
     }
   },
   "reports": {

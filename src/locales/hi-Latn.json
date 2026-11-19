@@ -1612,7 +1612,19 @@
         "record_purchase": "Kharid {{party}} se: {{items}}",
         "create_bill": "Bill {{party}}: {{items}}",
         "create_order": "Order {{party}}: {{items}}",
-        "mark_attendance": "Haaziri: {{name}}, {{status}} ({{date}})"
+        "mark_attendance": "Haaziri: {{name}}, {{status}} ({{date}})",
+        "create_staff": "Naya staff: {{name}}{{department}}",
+        "receive_payment": "Paise aaye {{party}} se: {{amount}}{{bill}}",
+        "pay_supplier": "{{party}} ko payment: {{amount}}",
+        "add_expense": "Kharcha: {{amount}} · {{category}}{{note}}",
+        "edit_bill": "Bill {{bill}} badlein: {{items}}",
+        "cancel_bill": "Bill {{bill}} radd karein{{reason}}",
+        "bill_order": "{{party}} ke order ka bill",
+        "update_customer": "Customer {{name}} badlein{{changes}}",
+        "update_supplier": "Supplier {{name}} badlein{{changes}}",
+        "update_product": "Item {{name}} badlein{{changes}}",
+        "update_staff": "Staff {{name}} badlein{{changes}}",
+        "adjust_stock": "Stock: {{name}} {{change}}"
       },
       "done": {
         "create_customer": "Customer jud gaye",
@@ -1621,7 +1633,19 @@
         "record_purchase": "Kharid darj, stock badha",
         "create_bill": "Bill ban gaya",
         "create_order": "Order ban gaya",
-        "mark_attendance": "Haaziri lag gayi"
+        "mark_attendance": "Haaziri lag gayi",
+        "create_staff": "Staff jud gaye",
+        "receive_payment": "Payment jama ho gaya",
+        "pay_supplier": "Payment de diya",
+        "add_expense": "Kharcha likh liya",
+        "edit_bill": "Bill badal gaya",
+        "cancel_bill": "Bill radd ho gaya",
+        "bill_order": "Bill ban gaya",
+        "update_customer": "Customer badal gaye",
+        "update_supplier": "Supplier badal gaye",
+        "update_product": "Item badal gaya",
+        "update_staff": "Staff badal gaye",
+        "adjust_stock": "Stock theek ho gaya"
       },
       "fields": {
         "name": "Naam",
@@ -1633,7 +1657,23 @@
         "cost": "Kharid ₹",
         "salePrice": "Bikri rate ₹",
         "supplier": "Supplier",
-        "customer": "Customer"
+        "customer": "Customer",
+        "department": "Department",
+        "departmentHint": "jaise Labour",
+        "role": "Role",
+        "newName": "Naya naam",
+        "mobile": "mobile",
+        "address": "Pata",
+        "reorderLevel": "Kab mangwayein",
+        "salary": "Tankhwah",
+        "dailyWage": "Roz ki dihadi",
+        "amount": "Rakam ₹",
+        "method": "Kaise diya",
+        "category": "Kis cheez pe",
+        "note": "Note",
+        "billNumber": "Bill no.",
+        "reason": "Kyun",
+        "direction": "Jodna / nikaalna"
       },
       "warning": {
         "INSUFFICIENT_STOCK": "Itna stock nahi hai. Phir bhi bill banayein?",
@@ -1643,7 +1683,19 @@
       "listReplaced": "List badal di gayi",
       "viewBill": "Bill dekhein",
       "viewPurchase": "Kharid dekhein",
-      "openFailed": "Khul nahi paaya. Phir koshish kijiye."
+      "openFailed": "Khul nahi paaya. Phir koshish kijiye.",
+      "method": {
+        "cash": "Cash",
+        "upi": "UPI",
+        "bank_transfer": "Bank",
+        "cheque": "Cheque"
+      },
+      "stockOut": "Nikaalein",
+      "stockIn": "Jodein",
+      "viewOrder": "Order dekhein",
+      "view": "Dekhein",
+      "openEdit": "Dekhein / badlein",
+      "edit": "Badlein"
     }
   },
   "reports": {

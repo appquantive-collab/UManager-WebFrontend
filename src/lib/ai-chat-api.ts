@@ -11,7 +11,26 @@ export interface ProposedAction {
   resultSummary?: string;
 }
 
-export type StepType = "create_customer" | "create_supplier" | "create_product" | "record_purchase" | "create_bill" | "create_order" | "mark_attendance";
+export type StepType =
+  | "create_customer"
+  | "create_supplier"
+  | "create_product"
+  | "record_purchase"
+  | "create_bill"
+  | "create_order"
+  | "mark_attendance"
+  | "create_staff"
+  | "receive_payment"
+  | "pay_supplier"
+  | "add_expense"
+  | "edit_bill"
+  | "cancel_bill"
+  | "bill_order"
+  | "update_customer"
+  | "update_supplier"
+  | "update_product"
+  | "update_staff"
+  | "adjust_stock";
 
 export interface StepLine {
   productName: string;

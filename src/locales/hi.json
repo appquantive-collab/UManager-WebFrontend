@@ -1612,7 +1612,19 @@
         "record_purchase": "ख़रीद {{party}} से: {{items}}",
         "create_bill": "बिल {{party}}: {{items}}",
         "create_order": "ऑर्डर {{party}}: {{items}}",
-        "mark_attendance": "हाज़िरी: {{name}}, {{status}} ({{date}})"
+        "mark_attendance": "हाज़िरी: {{name}}, {{status}} ({{date}})",
+        "create_staff": "नया स्टाफ़: {{name}}{{department}}",
+        "receive_payment": "पैसे आए {{party}} से: {{amount}}{{bill}}",
+        "pay_supplier": "{{party}} को भुगतान: {{amount}}",
+        "add_expense": "खर्चा: {{amount}} · {{category}}{{note}}",
+        "edit_bill": "बिल {{bill}} बदलें: {{items}}",
+        "cancel_bill": "बिल {{bill}} रद्द करें{{reason}}",
+        "bill_order": "{{party}} के ऑर्डर का बिल",
+        "update_customer": "ग्राहक {{name}} बदलें{{changes}}",
+        "update_supplier": "सप्लायर {{name}} बदलें{{changes}}",
+        "update_product": "आइटम {{name}} बदलें{{changes}}",
+        "update_staff": "स्टाफ़ {{name}} बदलें{{changes}}",
+        "adjust_stock": "स्टॉक: {{name}} {{change}}"
       },
       "done": {
         "create_customer": "ग्राहक जुड़ गए",
@@ -1621,7 +1633,19 @@
         "record_purchase": "ख़रीद दर्ज, स्टॉक बढ़ा",
         "create_bill": "बिल बन गया",
         "create_order": "ऑर्डर बन गया",
-        "mark_attendance": "हाज़िरी लग गई"
+        "mark_attendance": "हाज़िरी लग गई",
+        "create_staff": "स्टाफ़ जुड़ गए",
+        "receive_payment": "भुगतान जमा हो गया",
+        "pay_supplier": "भुगतान दे दिया",
+        "add_expense": "खर्चा लिख लिया",
+        "edit_bill": "बिल बदल गया",
+        "cancel_bill": "बिल रद्द हो गया",
+        "bill_order": "बिल बन गया",
+        "update_customer": "ग्राहक बदल गए",
+        "update_supplier": "सप्लायर बदल गए",
+        "update_product": "आइटम बदल गया",
+        "update_staff": "स्टाफ़ बदल गए",
+        "adjust_stock": "स्टॉक ठीक हो गया"
       },
       "fields": {
         "name": "नाम",
@@ -1633,7 +1657,23 @@
         "cost": "ख़रीद ₹",
         "salePrice": "बिक्री रेट ₹",
         "supplier": "सप्लायर",
-        "customer": "ग्राहक"
+        "customer": "ग्राहक",
+        "department": "डिपार्टमेंट",
+        "departmentHint": "जैसे लेबर",
+        "role": "रोल",
+        "newName": "नया नाम",
+        "mobile": "मोबाइल",
+        "address": "पता",
+        "reorderLevel": "कब मँगवाएँ",
+        "salary": "तनख़्वाह",
+        "dailyWage": "रोज़ की दिहाड़ी",
+        "amount": "रकम ₹",
+        "method": "कैसे दिया",
+        "category": "किस चीज़ पर",
+        "note": "नोट",
+        "billNumber": "बिल नं.",
+        "reason": "क्यों",
+        "direction": "जोड़ना / निकालना"
       },
       "warning": {
         "INSUFFICIENT_STOCK": "इतना स्टॉक नहीं है। फिर भी बिल बनाएँ?",
@@ -1643,7 +1683,19 @@
       "listReplaced": "सूची बदल दी गई",
       "viewBill": "बिल देखें",
       "viewPurchase": "ख़रीद देखें",
-      "openFailed": "खुल नहीं पाया। फिर कोशिश कीजिए।"
+      "openFailed": "खुल नहीं पाया। फिर कोशिश कीजिए।",
+      "method": {
+        "cash": "नकद",
+        "upi": "UPI",
+        "bank_transfer": "बैंक",
+        "cheque": "चेक"
+      },
+      "stockOut": "निकालें",
+      "stockIn": "जोड़ें",
+      "viewOrder": "ऑर्डर देखें",
+      "view": "देखें",
+      "openEdit": "देखें / बदलें",
+      "edit": "बदलें"
     }
   },
   "reports": {
