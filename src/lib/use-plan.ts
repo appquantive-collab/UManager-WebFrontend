@@ -18,7 +18,8 @@ export function usePlan(): PlanState & { loaded: boolean; platformAdmin: boolean
     isPro: sub ? sub.isPro : true,
     endsAt: sub?.endsAt ?? null,
     daysLeft: sub?.daysLeft ?? 0,
-    aiTokenLimit: sub?.aiTokenLimit ?? 0,
+    aiBudgetKey: sub?.aiBudgetKey ?? null,
+    aiUnlimited: sub?.aiUnlimited ?? false,
     loaded: Boolean(sub),
     platformAdmin: Boolean(data?.platformAdmin),
   };

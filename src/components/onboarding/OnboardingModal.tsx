@@ -42,6 +42,7 @@ import { GSTIN_PATTERN } from "../../lib/gst-states";
 import { transcribeVoice, useVoiceRecorder, voiceRecordingSupported } from "../../lib/speech";
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { errorMessage } from "../../lib/api-errors";
+import { ApiError } from "../../lib/api";
 import { showError } from "../../lib/toast";
 import type { SupportedLanguageCode } from "../../lib/i18n";
 
@@ -348,8 +349,8 @@ function SetupFlow({ onClose }: { onClose: () => void }) {
     try {
       const text = await transcribeVoice(clip.blob, language, "text", { purpose: "business", durationMs: clip.durationMs });
       if (text.trim()) setDescription((d) => (d ? `${d} ${text.trim()}` : text.trim()));
-    } catch {
-      showError(t("setup.work.micError"));
+    } catch (err) {
+      showError(err instanceof ApiError && err.code ? errorMessage(err, t) : t("setup.work.micError"));
     } finally {
       setTranscribing(false);
     }

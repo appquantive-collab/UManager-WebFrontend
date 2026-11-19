@@ -165,6 +165,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
   const speak = useVoiceStore((state) => state.speak);
   const stopSpeaking = useVoiceStore((state) => state.stop);
   const speakingId = useVoiceStore((state) => state.speakingId);
+  const waitingForTap = useVoiceStore((state) => state.waitingForTap);
 
   const suggestions = t("ai.chat.suggestions", { returnObjects: true }) as unknown as string[];
 
@@ -174,16 +175,17 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
   const sendMutation = useMutation({
     mutationFn: sendMessage,
     onSuccess: async (result) => {
+      // Auto-read new replies when the speaker is on. Started before the message
+      // list reloads, so the voice is being made while the text appears.
+      if (useVoiceStore.getState().enabled && result?.assistantMessage?.content) {
+        speak(result.assistantMessage._id, result.assistantMessage.content, currentLanguage(), { interrupt: true });
+      }
       await queryClient.invalidateQueries({ queryKey: ["ai-chat-messages"] });
       // Saying "haan" can do a step (add a party, record a purchase, make a bill): refresh what it touches.
       for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders"]) {
         void queryClient.invalidateQueries({ queryKey: [key] });
       }
       setPendingText(null);
-      // Auto-read new replies when the speaker is on.
-      if (useVoiceStore.getState().enabled && result?.assistantMessage?.content) {
-        speak(result.assistantMessage._id, result.assistantMessage.content, currentLanguage(), { interrupt: true });
-      }
     },
     onError: (err, content) => {
       setPendingText(null);
@@ -246,11 +248,68 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
         el.focus();
         el.setSelectionRange(el.value.length, el.value.length);
       });
-    } catch {
-      showError(t("welcomeChat.voice.micFailed"));
+    } catch (err) {
+      // "Today's AI is used up" says so; anything else is "couldn't hear you".
+      showError(err instanceof ApiError && err.code ? errorMessage(err, t) : t("welcomeChat.voice.micFailed"));
     } finally {
       setTranscribing(false);
     }
+  };
+
+  // ---- Mic button: hold to talk (release = done, slide left = cancel), or tap to start / tap ✓ to stop ----
+  const holdRef = useRef<{ at: number; x: number; cancelled: boolean } | null>(null);
+  const [holding, setHolding] = useState(false);
+  const HOLD_MS = 350;
+  const SLIDE_CANCEL_PX = 80;
+
+  const micPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0) return;
+    if (recorder.recording) {
+      holdRef.current = null; // tap-to-stop: handled on release
+      return;
+    }
+    if (busy || transcribing) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Not fatal: release still arrives on the button in practice.
+    }
+    const hold = { at: Date.now(), x: e.clientX, cancelled: false };
+    holdRef.current = hold;
+    startRecording();
+    // Only a real hold turns the button red (a quick tap shouldn't flash it).
+    window.setTimeout(() => {
+      if (holdRef.current === hold && !hold.cancelled) {
+        setHolding(true);
+        navigator.vibrate?.(12);
+      }
+    }, HOLD_MS);
+  };
+
+  const micPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const hold = holdRef.current;
+    if (!hold || hold.cancelled || Date.now() - hold.at < HOLD_MS) return;
+    if (e.clientX - hold.x < -SLIDE_CANCEL_PX) {
+      hold.cancelled = true;
+      setHolding(false);
+      navigator.vibrate?.([10, 40, 10]);
+      void finishRecording(true);
+    }
+  };
+
+  const micPointerUp = () => {
+    const hold = holdRef.current;
+    holdRef.current = null;
+    setHolding(false);
+    if (!hold) {
+      // Tapped ✓ while recording in tap mode.
+      if (recorder.recording) void finishRecording(false);
+      return;
+    }
+    if (hold.cancelled) return;
+    // Held and let go: that's the end of what they said. A quick tap (or the mic
+    // still starting, e.g. the permission prompt) keeps recording: tap ✓ to stop.
+    if (Date.now() - hold.at >= HOLD_MS && recorder.recording) void finishRecording(false);
   };
 
   const copy = async (text: string) => {
@@ -495,6 +554,16 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
           </div>
         ) : null}
 
+        {waitingForTap ? (
+          <button
+            type="button"
+            className="mb-2 flex min-h-9 w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary-container px-3 text-sm font-semibold text-primary outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <Volume2 size={16} aria-hidden="true" />
+            {t("ai.chat.tapToHear")}
+          </button>
+        ) : null}
+
         <div className="flex items-end gap-2">
           {recorder.recording ? (
             <div className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-3xl border border-danger/30 bg-danger-container/40 px-2.5" role="status">
@@ -509,7 +578,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
               </button>
               <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-danger motion-safe:animate-pulse" aria-hidden="true" />
               <RecordingTimer startedAt={recorder.startedAt} />
-              <span className="min-w-0 truncate text-sm text-text-muted">{t("ai.chat.recordingHint")}</span>
+              <span className="min-w-0 truncate text-sm text-text-muted">{holding ? t("ai.chat.holdHint") : t("ai.chat.recordingHint")}</span>
             </div>
           ) : (
             <div className="flex min-h-12 flex-1 items-end rounded-3xl border border-border bg-background px-4 py-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15">
@@ -534,16 +603,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
           )}
 
           {/* One round button, WhatsApp-style: mic when empty, send when there's text, ✓ while recording. */}
-          {recorder.recording ? (
-            <button
-              type="button"
-              onClick={() => void finishRecording(false)}
-              aria-label={t("ai.chat.stopRecording")}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary outline-none transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
-            >
-              <Check size={22} strokeWidth={2.4} aria-hidden="true" />
-            </button>
-          ) : hasText || !voiceRecordingSupported ? (
+          {(hasText && !recorder.recording) || !voiceRecordingSupported ? (
             <button
               type="button"
               onClick={() => handleSend()}
@@ -556,13 +616,26 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
           ) : (
             <button
               type="button"
-              onClick={startRecording}
-              disabled={busy || transcribing}
-              aria-label={t("ai.chat.record")}
-              title={t("ai.chat.record")}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary outline-none transition-[transform,background-color] hover:bg-primary-hover active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:opacity-40"
+              onPointerDown={micPointerDown}
+              onPointerMove={micPointerMove}
+              onPointerUp={micPointerUp}
+              onPointerCancel={micPointerUp}
+              onContextMenu={(e) => e.preventDefault()}
+              onClick={(e) => {
+                // Keyboard (Enter / Space): start, or stop and use what was said.
+                if (e.detail !== 0) return;
+                if (recorder.recording) void finishRecording(false);
+                else startRecording();
+              }}
+              disabled={!recorder.recording && (busy || transcribing)}
+              aria-label={recorder.recording ? t("ai.chat.stopRecording") : t("ai.chat.record")}
+              title={recorder.recording ? undefined : t("ai.chat.record")}
+              className={clsx(
+                "flex h-12 w-12 shrink-0 touch-none select-none items-center justify-center rounded-full bg-primary text-on-primary outline-none transition-[transform,background-color] [-webkit-touch-callout:none] hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:opacity-40",
+                holding ? "scale-125 bg-danger hover:bg-danger" : "active:scale-95"
+              )}
             >
-              <Mic size={21} strokeWidth={2.2} aria-hidden="true" />
+              {recorder.recording && !holding ? <Check size={22} strokeWidth={2.4} aria-hidden="true" /> : <Mic size={21} strokeWidth={2.2} aria-hidden="true" />}
             </button>
           )}
         </div>

@@ -79,7 +79,7 @@ export function LandingPricing() {
                 {FEATURE_KEYS[plan.key].map((key) => (
                   <li key={key} className="flex items-start gap-2 text-sm text-text-muted">
                     <Check size={16} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
-                    {t(`plan.features.${plan.key}.${key}`, { tokens: plan.aiTokensPerMonth.toLocaleString("en-IN") })}
+                    {t(`plan.features.${plan.key}.${key}`, { questions: plan.aiQuestionsPerDay ?? "—", tokens: plan.aiTokensPerDay ? plan.aiTokensPerDay.toLocaleString("en-IN") : "—" })}
                   </li>
                 ))}
               </ul>

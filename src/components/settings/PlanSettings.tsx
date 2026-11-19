@@ -71,7 +71,8 @@ export function PlanSettings() {
   }
   const data = billing.data;
   const { state, usage } = data;
-  const usedPct = usage.limit > 0 ? Math.min(100, Math.round((usage.used / usage.limit) * 100)) : 100;
+  const usedPct = usage.unlimited ? 0 : usage.todayPct;
+  const num = (n: number) => Math.round(n).toLocaleString("en-IN");
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -84,7 +85,7 @@ export function PlanSettings() {
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="text-base font-bold text-text">{t("plan.aiTitle")}</h3>
               <p className="text-sm font-semibold tabular-nums text-text">
-                {t("plan.aiUsed", { used: usage.used.toLocaleString("en-IN"), limit: usage.limit.toLocaleString("en-IN") })}
+                {usage.unlimited ? t("plan.aiUnlimited") : t("plan.aiTokensUsed", { used: num(usage.todayTokens), total: num(usage.dailyTokens), pct: usedPct })}
               </p>
             </div>
             <div
@@ -97,7 +98,34 @@ export function PlanSettings() {
             >
               <div className={clsx("h-full rounded-full", usedPct >= 100 ? "bg-danger" : "bg-primary")} style={{ width: `${usedPct}%` }} />
             </div>
-            <p className="mt-2 text-xs text-text-muted">{usedPct >= 100 ? t("plan.aiUsedUp") : t("plan.aiHint")}</p>
+            {usage.unlimited ? (
+              <p className="mt-2 text-xs text-text-muted">{t("plan.aiUnlimitedHint")}</p>
+            ) : (
+              <>
+                {/* What's left today, in plain terms: tokens ≈ questions or minutes of speaking. */}
+                <p className={clsx("mt-2 text-sm", usage.exhausted ? "font-semibold text-danger" : "text-text")}>
+                  {usage.exhausted
+                    ? t("plan.aiUsedUp")
+                    : t("plan.aiLeft", { tokens: num(usage.remainingTokens), questions: num(usage.remainingQuestions), minutes: usage.remainingSpeechMinutes })}
+                </p>
+                {/* Where today's tokens went: voice use shows up here. */}
+                {usage.todayTokens > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {(["questions", "speaking", "voice", "other"] as const)
+                      .filter((k) => usage.todayByUse[k] > 0)
+                      .map((k) => (
+                        <span key={k} className="rounded-full border border-border px-2.5 py-1 text-xs tabular-nums text-text">
+                          {t(`plan.aiUse.${k}`)}: {num(usage.todayByUse[k])}
+                        </span>
+                      ))}
+                  </div>
+                ) : null}
+                <p className="mt-2 text-xs text-text-muted">
+                  {t("plan.aiScale", { perQuestion: num(usage.tokensPerQuestion), perMinute: num(usage.tokensPerSpeechMinute) })}{" "}
+                  {t("plan.aiMonthTokens", { used: num(usage.monthTokens), total: num(usage.monthlyTokens) })}
+                </p>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -238,7 +266,7 @@ function PlanCard({
         {FEATURE_KEYS[plan.key].map((key) => (
           <li key={key} className="flex items-start gap-2 text-sm text-text">
             <Check size={16} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
-            {t(`plan.features.${plan.key}.${key}`, { tokens: plan.aiTokensPerMonth.toLocaleString("en-IN") })}
+            {t(`plan.features.${plan.key}.${key}`, { questions: plan.aiQuestionsPerDay ?? "—", tokens: plan.aiTokensPerDay ? plan.aiTokensPerDay.toLocaleString("en-IN") : "—" })}
           </li>
         ))}
       </ul>

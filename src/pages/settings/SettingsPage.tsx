@@ -16,6 +16,7 @@ import { TeamSettings } from "../../components/settings/TeamSettings";
 import { AppSetupCard } from "../../components/settings/AppSetupCard";
 import { PlanSettings } from "../../components/settings/PlanSettings";
 import { ActivityLog } from "../../components/settings/ActivityLog";
+import { ProfileSettings } from "../../components/settings/ProfileSettings";
 
 function LanguageSettings() {
   const { t } = useTranslation();
@@ -71,6 +72,7 @@ export function SettingsPage() {
   const role = useAuthStore((state) => state.user?.role);
   const isManager = role === "OWNER" || role === "MANAGER" || role === "SUPER_ADMIN";
   const TAB_KEYS = [
+    "profile",
     ...(isManager ? ["business", "plan", "tax", "invoice", "team", "activity"] : []),
     "language",
     "display",
@@ -80,6 +82,7 @@ export function SettingsPage() {
   const setTab = (key: string) => setSearchParams({ tab: key }, { replace: true });
 
   const tabs = [
+    { key: "profile", label: t("settingsPage.tabs.profile") },
     { key: "business", label: t("settingsPage.tabs.business") },
     { key: "plan", label: t("settingsPage.tabs.plan") },
     { key: "tax", label: t("settingsPage.tabs.tax") },
@@ -100,6 +103,7 @@ export function SettingsPage() {
           <AppSetupCard />
         </div>
       )}
+      {tab === "profile" && <ProfileSettings />}
       {tab === "language" && <LanguageSettings />}
       {tab === "display" && <DisplaySettings />}
       {tab === "tax" && <GstSettings />}

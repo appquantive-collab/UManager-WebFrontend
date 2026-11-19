@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { SpeechEngineCard } from "../../components/settings/SpeechEngineCard";
 import { PricingCard } from "./PricingCard";
+import { AiBudgetsCard } from "./AiBudgetsCard";
 import { VoiceCard } from "./VoiceCard";
 import { AdminPasswordCard } from "./AdminPasswordCard";
 
@@ -14,6 +15,7 @@ export function AdminSettingsPage() {
       </div>
       <SpeechEngineCard />
       <VoiceCard />
+      <AiBudgetsCard />
       <PricingCard />
       <AdminPasswordCard />
     </div>

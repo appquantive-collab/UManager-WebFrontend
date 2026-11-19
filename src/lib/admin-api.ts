@@ -27,6 +27,8 @@ export interface AdminBusinessRow {
   state: PlanState;
   aiTokensUsed: number;
   aiTokenLimitOverride: number | null;
+  /** Today's Munshi AI against the daily allowance (null = unlimited). */
+  aiTodayPct: number | null;
 }
 
 export interface AdminUserRow {
@@ -100,6 +102,8 @@ export type AiKind = "chat" | "ask" | "order_reading" | "dashboard" | "setup" | 
 
 export interface Pricing {
   usdToInr: number;
+  /** Follow the live market rate (refreshed twice a day) instead of the typed one. */
+  usdToInrAuto: boolean;
   tokens: Record<string, { input: number; cachedInput: number; output: number }>;
   whisperPerHourUsd: Record<string, number>;
   whisperMinSeconds: number;
@@ -131,7 +135,19 @@ export interface BusinessActivity {
   topItems: { name: string; qty: number; unit: string; amount: number }[];
   recentBills: { invoiceNumber: string; customer: string | null; total: number; paid: number; paymentStatus: string; cancelled: boolean; billType: string; createdAt: string }[];
   recentPurchases: { purchaseNumber: string; supplier: string | null; total: number; purchasedAt: string }[];
-  ai: { thisMonthInr: number; estimatedInr: number; byKind: { kind: AiKind; inr: number; calls: number }[]; byMonth: { month: string; inr: number; estimated: boolean }[] };
+  ai: {
+    thisMonthInr: number;
+    estimatedInr: number;
+    byKind: { kind: AiKind; inr: number; calls: number }[];
+    byMonth: { month: string; inr: number; estimated: boolean }[];
+    /** Today's allowance (rupees per day = plan budget ÷ 30). */
+    allowance: { unlimited: boolean; monthlyInr: number; dailyInr: number; todayInr: number; todayPct: number; monthPct: number; exhausted: boolean };
+    daily: { day: string; inr: number; calls: number }[];
+    byUser: { userId: string | null; name: string; inr: number; calls: number }[];
+    recentCalls: { at: string; kind: AiKind; model: string; provider: string; inr: number; user: string | null; detail: string }[];
+  };
+  /** Who did what (bills, payments, cancellations, changes), newest first. */
+  activity: { at: string; user: string; action: string; summary: string; amount: number | null }[];
 }
 
 export function getAdminCosts(days: number): Promise<AdminCosts> {
@@ -151,12 +167,32 @@ export function getCostsByBusiness(): Promise<Record<string, number>> {
   return apiFetch("/admin/costs/by-business");
 }
 
-export function getPricing(): Promise<{ pricing: Pricing; defaults: Pricing }> {
+export interface FxRate {
+  rate: number;
+  asOf: string;
+  source: string;
+  fetchedAt: string;
+}
+
+export interface PricingView {
+  pricing: Pricing;
+  defaults: Pricing;
+  /** Last live USD → INR rate (null if it couldn't be fetched yet). */
+  fx: FxRate | null;
+  groqPricesChecked: string;
+  sources: { groq: string };
+}
+
+export function getPricing(): Promise<PricingView> {
   return apiFetch("/admin/pricing");
 }
 
-export function savePricing(pricing: Pricing): Promise<{ pricing: Pricing }> {
+export function savePricing(pricing: Pricing): Promise<PricingView> {
   return apiFetch("/admin/pricing", { method: "PUT", body: JSON.stringify(pricing) });
+}
+
+export function refreshExchangeRate(): Promise<PricingView> {
+  return apiFetch("/admin/pricing/refresh-rate", { method: "POST" });
 }
 
 // ---------- Permanent delete (cannot be undone; the name must be typed) ----------
@@ -168,4 +204,29 @@ export function deleteAdminBusiness(tenantId: string, confirmName: string): Prom
 /** withBusiness: the user owns a business → it and all its data go too. */
 export function deleteAdminUser(userId: string, confirmName: string, withBusiness: boolean): Promise<{ deleted: "user" | "business" }> {
   return apiFetch(`/admin/users/${userId}`, { method: "DELETE", body: JSON.stringify({ confirmName, withBusiness }) });
+}
+
+// ---------- Plan AI budgets (rupees a month; given out per day) ----------
+
+export interface AiBudgets {
+  basic: number;
+  pro: number;
+  trial: number;
+}
+
+export interface AiBudgetsView {
+  budgets: AiBudgets;
+  defaults: AiBudgets;
+  unitCostInr: { chatMessage: number; sarvamSpeechMinute: number; whisperSpeechMinute: number; voiceReply: number };
+  /** Kinds whose cost is measured from real calls (others are list-price estimates). */
+  measured: string[];
+  perDay: Record<keyof AiBudgets, { rupees: number; chatMessages: number; sarvamSpeechMinutes: number; whisperSpeechMinutes: number; voiceReplies: number }>;
+}
+
+export function getAiBudgets(): Promise<AiBudgetsView> {
+  return apiFetch("/admin/ai-budgets");
+}
+
+export function saveAiBudgets(budgets: AiBudgets): Promise<{ budgets: AiBudgets }> {
+  return apiFetch("/admin/ai-budgets", { method: "PUT", body: JSON.stringify(budgets) });
 }

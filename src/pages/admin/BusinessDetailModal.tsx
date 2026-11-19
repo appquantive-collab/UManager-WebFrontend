@@ -6,14 +6,15 @@ import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
 import { FilterChips, LoadingRows, ModalShell, StatusPill } from "../../components/page/kit";
-import { BusinessAiCost, BusinessWork } from "./BusinessActivity";
+import { BusinessActivityLog, BusinessAiCost, BusinessWork } from "./BusinessActivity";
+import { getBusinessActivity } from "../../lib/admin-api";
 import { GrantModal } from "../../components/settings/PlatformAdminPlans";
 import { deleteAdminBusiness, deleteAdminUser, getAdminBusiness, setAdminUserActive, updateAdminBusiness, type AdminBusinessDetail, type AdminUserRow } from "../../lib/admin-api";
 import type { AdminTenantRow } from "../../lib/billing-api";
 import { errorMessage } from "../../lib/api-errors";
 import { formatCurrency } from "../../lib/format";
 import { showError, showSuccess } from "../../lib/toast";
-import { adminDate, lastSeen, tokens } from "./admin-format";
+import { adminDate, inr, lastSeen, tokens } from "./admin-format";
 
 const UNLIMITED = 1_000_000_000;
 
@@ -124,7 +125,7 @@ export function BusinessDetailModal({ tenantId, onClose }: { tenantId: string | 
   const queryClient = useQueryClient();
   const [granting, setGranting] = useState<AdminTenantRow | null>(null);
   const [confirmSuspend, setConfirmSuspend] = useState(false);
-  const [tab, setTab] = useState<"info" | "work" | "ai">("info");
+  const [tab, setTab] = useState<"info" | "work" | "ai" | "activity">("info");
   const [deletingBusiness, setDeletingBusiness] = useState(false);
   const detail = useQuery({
     queryKey: ["admin-businesses", "detail", tenantId],
@@ -132,6 +133,8 @@ export function BusinessDetailModal({ tenantId, onClose }: { tenantId: string | 
     enabled: Boolean(tenantId),
   });
   const b = detail.data;
+  // Same data as the "AI cost" tab (cached): today's allowance for the Munshi AI box.
+  const activity = useQuery({ queryKey: ["admin-businesses", "activity", tenantId], queryFn: () => getBusinessActivity(tenantId!), enabled: Boolean(tenantId) });
 
   const update = useMutation({
     mutationFn: (patch: { suspended?: boolean; aiTokenLimit?: number | null }) => updateAdminBusiness(tenantId!, patch),
@@ -174,12 +177,13 @@ export function BusinessDetailModal({ tenantId, onClose }: { tenantId: string | 
           <div className="space-y-5">
             <FilterChips
               label={t("admin.business.tabs.label")}
-              options={(["info", "work", "ai"] as const).map((key) => ({ key, label: t(`admin.business.tabs.${key}`) }))}
+              options={(["info", "work", "ai", "activity"] as const).map((key) => ({ key, label: t(`admin.business.tabs.${key}`) }))}
               value={tab}
               onChange={setTab}
             />
             {tab === "work" ? <BusinessWork tenantId={b.tenantId} /> : null}
             {tab === "ai" ? <BusinessAiCost tenantId={b.tenantId} /> : null}
+            {tab === "activity" ? <BusinessActivityLog tenantId={b.tenantId} /> : null}
             {tab === "info" ? (
             <>
             {/* Plan */}
@@ -202,10 +206,13 @@ export function BusinessDetailModal({ tenantId, onClose }: { tenantId: string | 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t("admin.business.ai")}</p>
                 <p className="mt-1 text-sm text-text">
-                  {t("admin.business.aiUsed", { used: tokens(thisMonth?.tokens ?? 0), calls: thisMonth?.calls ?? 0 })}
-                  {" · "}
-                  {unlimited ? t("admin.business.aiUnlimited") : t("admin.business.aiLimit", { limit: tokens(b.state.aiTokenLimit) })}
+                  {unlimited
+                    ? t("admin.business.aiUnlimited")
+                    : activity.data
+                      ? `Today ${activity.data.ai.allowance.todayPct}% of ${inr(activity.data.ai.allowance.dailyInr)}/day · this month ${inr(activity.data.ai.thisMonthInr)} of ${inr(activity.data.ai.allowance.monthlyInr)}`
+                      : "…"}
                 </p>
+                <p className="text-xs text-text-muted">{t("admin.business.aiUsed", { used: tokens(thisMonth?.tokens ?? 0), calls: thisMonth?.calls ?? 0 })}</p>
               </div>
               <Button variant="secondary" isLoading={update.isPending && update.variables?.aiTokenLimit !== undefined} onClick={() => update.mutate({ aiTokenLimit: unlimited ? null : UNLIMITED })}>
                 <InfinityIcon size={16} aria-hidden="true" />

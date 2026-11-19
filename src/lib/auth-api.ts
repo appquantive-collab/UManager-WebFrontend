@@ -191,7 +191,10 @@ export interface PlanState {
   isPro: boolean;
   endsAt: string | null;
   daysLeft: number;
-  aiTokenLimit: number;
+  /** Which Munshi AI daily allowance applies (null: plan ended). */
+  aiBudgetKey: "basic" | "pro" | "trial" | null;
+  /** No AI limit (set by the VoiceMunshi team). */
+  aiUnlimited: boolean;
 }
 
 export interface Profile {
@@ -199,6 +202,8 @@ export interface Profile {
   name: string;
   email: string;
   phone: string | null;
+  /** False for Google / Apple / OTP-only sign-ups: they can set a password without an old one. */
+  hasPassword?: boolean;
   role: AuthUser["role"];
   preferredLanguage: AuthUser["preferredLanguage"];
   /** VoiceMunshi team member: can give plans to any business. */
@@ -230,8 +235,22 @@ export function getProfile(): Promise<Profile> {
   return apiFetch<Profile>("/auth/me");
 }
 
-export function updateProfile(patch: { preferredLanguage?: AuthUser["preferredLanguage"] }): Promise<{
+/** Your own login details. Blank email / phone clears it (one of the two must stay). */
+export interface ProfilePatch {
+  preferredLanguage?: AuthUser["preferredLanguage"];
+  name?: string;
+  email?: string;
+  phone?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export function updateProfile(patch: ProfilePatch): Promise<{
   preferredLanguage: AuthUser["preferredLanguage"];
+  name: string;
+  email: string;
+  phone: string | null;
+  hasPassword: boolean;
 }> {
   return apiFetch("/auth/me", {
     method: "PATCH",

@@ -218,6 +218,7 @@
   },
   "settingsPage": {
     "tabs": {
+      "profile": "My details",
       "business": "Business",
       "language": "Language",
       "tax": "GST",
@@ -1579,7 +1580,7 @@
         "How much GST do I have to pay this month?"
       ],
       "placeholder": "Message Munshi AI…",
-      "record": "Record a voice message",
+      "record": "Hold to talk, or tap to record",
       "stopRecording": "Done — turn voice into text",
       "cancelRecording": "Cancel recording",
       "recordingHint": "Recording… tap ✓ when done",
@@ -1588,7 +1589,9 @@
       "copied": "Copied",
       "copyFailed": "Couldn't copy",
       "disclaimer": "Munshi AI answers from your VoiceMunshi data. It only proposes changes — you confirm them.",
-      "back": "Back"
+      "back": "Back",
+      "holdHint": "Let go when done · slide left to cancel",
+      "tapToHear": "Tap here to hear Munshi"
     },
     "workflow": {
       "heading": "To do",
@@ -2548,7 +2551,7 @@
     "offline": "No internet connection. Check your network and try again.",
     "planExpired": "Your plan has ended. Choose a plan in Settings → Plan to save new work.",
     "proRequired": "This is a Pro feature. Upgrade in Settings → Plan.",
-    "aiLimit": "This month's Munshi AI tokens are used up. They reset on the 1st, or upgrade in Settings → Plan.",
+    "aiLimit": "Today's Munshi AI is used up. It refills tonight at 12, or take a bigger plan in Settings → Plan.",
     "paymentsOff": "Online payment isn't switched on yet. Please contact the VoiceMunshi team.",
     "paymentUnverified": "We couldn't confirm this payment. If money was taken, contact the VoiceMunshi team with the payment ID.",
     "billNumberTaken": "This bill number is already used. Please type another.",
@@ -2556,7 +2559,9 @@
     "hasReturn": "This bill has a return on it, so it can't be edited.",
     "aiBusy": "Munshi AI is busy right now. Please try again in a minute.",
     "accountSuspended": "This business account is suspended. Please contact VoiceMunshi.",
-    "accountDisabled": "Your login has been stopped. Please contact your business owner or VoiceMunshi."
+    "accountDisabled": "Your login has been stopped. Please contact your business owner or VoiceMunshi.",
+    "wrongPassword": "Current password is wrong.",
+    "needEmailOrPhone": "Keep a mobile number or an email, so you can log in."
   },
   "businessSettings": {
     "saved": "Saved. New bills will show these details.",
@@ -3230,7 +3235,7 @@
     "proTag": "Pro",
     "tagline": {
       "basic": "Everything to run your business, with Munshi AI.",
-      "pro": "Advanced stock, AI order reading and 10× more Munshi AI."
+      "pro": "Advanced stock, AI order reading and many times more Munshi AI."
     },
     "period": {
       "monthly": "Monthly",
@@ -3242,13 +3247,13 @@
     "features": {
       "basic": {
         "allCrm": "All of VoiceMunshi: bills, GST, stock, udhaar, purchases, godowns, staff, manufacturing, reports",
-        "aiTokens": "Munshi AI: {{tokens}} tokens a month",
+        "aiTokens": "Munshi AI: {{tokens}} tokens a day (about {{questions}} questions)",
         "noLimits": "No limit on bills, items, customers or team logins",
         "support": "WhatsApp support in Hindi and English"
       },
       "pro": {
         "everythingBasic": "Everything in Basic",
-        "aiTokens": "Munshi AI: {{tokens}} tokens a month",
+        "aiTokens": "Munshi AI: {{tokens}} tokens a day (about {{questions}} questions)",
         "advancedStock": "Batch & expiry, IMEI / serial numbers, sizes & colours",
         "orderReading": "Munshi AI reads WhatsApp and voice orders",
         "aiInsights": "AI dashboard made for your business",
@@ -3268,10 +3273,10 @@
     "activeBody_one": "Runs till {{date}} ({{count}} day left).",
     "activeBody_other": "Runs till {{date}} ({{count}} days left).",
     "expiredBody": "Ended on {{date}}. You can still see everything, but nothing new can be saved until you choose a plan.",
-    "aiTitle": "Munshi AI this month",
-    "aiUsed": "{{used}} of {{limit}} tokens",
-    "aiHint": "Every question, order read and AI insight uses tokens. They reset on the 1st of every month.",
-    "aiUsedUp": "This month's tokens are used up. Munshi AI starts again on the 1st, or choose Pro for more.",
+    "aiTitle": "Munshi AI today",
+    "aiUsed": "{{pct}}% used",
+    "aiHint": "Questions, speaking to type and Munshi's voice all use it. It refills every night at 12.",
+    "aiUsedUp": "Today's Munshi AI is used up. It refills tonight at 12, or take a bigger plan for more.",
     "chooseTitle": "Choose a plan",
     "chooseBody": "Pay for longer and save. Time you've already paid for is never lost.",
     "choose": "Choose {{plan}} · {{amount}}",
@@ -3288,7 +3293,20 @@
     "online": "Paid online",
     "until": "till {{date}}",
     "proOnlyTitle": "This is a Pro feature",
-    "proOnlyBody": "Upgrade to Pro in Settings → Plan to use it."
+    "proOnlyBody": "Upgrade to Pro in Settings → Plan to use it.",
+    "aiMonth": "This month: {{pct}}% used.",
+    "aiUnlimited": "No limit",
+    "aiUnlimitedHint": "Your account has no Munshi AI limit.",
+    "aiTokensUsed": "{{used}} / {{total}} tokens ({{pct}}%)",
+    "aiLeft": "{{tokens}} tokens left today ≈ {{questions}} Munshi questions, or about {{minutes}} min of speaking to type.",
+    "aiUse": {
+      "questions": "Questions",
+      "speaking": "Speaking to type",
+      "voice": "Munshi's voice",
+      "other": "Other"
+    },
+    "aiScale": "1 question ≈ {{perQuestion}} tokens · 1 minute of speaking ≈ {{perMinute}} tokens. Refills every night at 12.",
+    "aiMonthTokens": "This month: {{used}} / {{total}} tokens."
   },
   "planBanner": {
     "expired": "Your plan has ended. You can still see your records, but new bills and changes can't be saved.",
@@ -3467,7 +3485,8 @@
         "label": "Business sections",
         "info": "Details",
         "work": "Their work",
-        "ai": "AI cost"
+        "ai": "AI cost",
+        "activity": "Activity"
       }
     },
     "user": {
@@ -3602,5 +3621,33 @@
       "saved": "Prices saved",
       "note": "New AI calls use these prices; calls already recorded keep the price they had."
     }
+  },
+  "profileSettings": {
+    "title": "My details",
+    "body": "Your own login. This is how you sign in; it isn't printed on bills.",
+    "name": "Your name",
+    "nameInvalid": "Write at least 2 letters.",
+    "phone": "Mobile number",
+    "phoneHint": "10 digits. You can log in with this number.",
+    "phoneInvalid": "Enter a 10-digit mobile number.",
+    "email": "Email (optional)",
+    "emailHint": "You can also log in with this email.",
+    "emailInvalid": "This email doesn't look right.",
+    "needOne": "Keep a mobile number or an email, so you can log in.",
+    "role": "Your role",
+    "saved": "Your details are saved",
+    "passwordTitle": "Change password",
+    "passwordBody": "Type your current password, then the new one twice.",
+    "setPasswordTitle": "Set a password",
+    "setPasswordBody": "You signed in without a password. Set one to also log in with your mobile number or email.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Type new password again",
+    "passwordHint": "At least 8 letters or numbers.",
+    "passwordShort": "Use at least 8 letters or numbers.",
+    "passwordMismatch": "The two passwords don't match.",
+    "changePassword": "Change password",
+    "setPassword": "Set password",
+    "passwordSaved": "Password changed"
   }
 }

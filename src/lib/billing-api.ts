@@ -18,6 +18,10 @@ export interface PlanInfo {
   key: PlanKey;
   monthlyPrice: number;
   aiTokensPerMonth: number;
+  /** Roughly how many Munshi AI questions the daily allowance covers. */
+  aiQuestionsPerDay: number | null;
+  /** Tokens a day on the plan (same scale as the usage). */
+  aiTokensPerDay: number | null;
   proFeatures: boolean;
   prices: PlanPrice[];
 }
@@ -37,6 +41,8 @@ export const FALLBACK_PRICES: PriceList = {
       key: "basic",
       monthlyPrice: 999,
       aiTokensPerMonth: 2000,
+      aiQuestionsPerDay: 95,
+      aiTokensPerDay: 523000,
       proFeatures: false,
       prices: [
         { period: "monthly", months: 1, discountPercent: 0, price: 999, fullPrice: 999 },
@@ -48,6 +54,8 @@ export const FALLBACK_PRICES: PriceList = {
       key: "pro",
       monthlyPrice: 2999,
       aiTokensPerMonth: 20000,
+      aiQuestionsPerDay: 490,
+      aiTokensPerDay: 2588000,
       proFeatures: true,
       prices: [
         { period: "monthly", months: 1, discountPercent: 0, price: 2999, fullPrice: 2999 },
@@ -73,7 +81,25 @@ export interface BillingPayment {
 
 export interface BillingOverview extends PriceList {
   state: PlanState;
-  usage: { month: string; used: number; calls: number; limit: number };
+  /** Today's Munshi AI allowance, as percentages (resets at midnight, India time). */
+  usage: {
+    todayPct: number;
+    monthPct: number;
+    unlimited: boolean;
+    exhausted: boolean;
+    resetsAt: string;
+    /** One token scale for all AI (chat, speaking, voice): 1 token = one input token of Munshi's main model. */
+    todayTokens: number;
+    dailyTokens: number;
+    remainingTokens: number;
+    monthTokens: number;
+    monthlyTokens: number;
+    todayByUse: { questions: number; speaking: number; voice: number; other: number };
+    tokensPerQuestion: number;
+    tokensPerSpeechMinute: number;
+    remainingQuestions: number;
+    remainingSpeechMinutes: number;
+  };
   payments: BillingPayment[];
   /** Razorpay keys are set on the server. */
   onlinePayments: boolean;

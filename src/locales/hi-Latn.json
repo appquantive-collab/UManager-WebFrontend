@@ -218,6 +218,7 @@
   },
   "settingsPage": {
     "tabs": {
+      "profile": "Meri jaankari",
       "business": "Business",
       "language": "Bhasha",
       "tax": "GST",
@@ -1579,7 +1580,7 @@
         "Is mahine kitna GST dena hai?"
       ],
       "placeholder": "Munshi AI ko message karein…",
-      "record": "Voice message record karein",
+      "record": "Dabaye rakhkar bolein, ya tap karke record karein",
       "stopRecording": "Ho gaya — awaaz ko text banayein",
       "cancelRecording": "Recording radd karein",
       "recordingHint": "Record ho raha hai… ho jaye to ✓ dabayein",
@@ -1588,7 +1589,9 @@
       "copied": "Copy ho gaya",
       "copyFailed": "Copy nahi hua",
       "disclaimer": "Munshi AI aapke VoiceMunshi data se jawab deta hai. Badlaav sirf sujhata hai — aap confirm karte hain.",
-      "back": "Wapas"
+      "back": "Wapas",
+      "holdHint": "Bolkar chhod dein · radd ke liye baayein khiskaayein",
+      "tapToHear": "Munshi ki aawaz sunne ke liye yahan tap karein"
     },
     "workflow": {
       "heading": "Kaam ki list",
@@ -2548,7 +2551,7 @@
     "offline": "Internet nahi hai. Network jaanch kar dobara karein.",
     "planExpired": "Aapka plan khatam ho gaya. Naya kaam save karne ke liye Settings → Plan mein plan chunein.",
     "proRequired": "Yeh Pro feature hai. Settings → Plan mein Pro lein.",
-    "aiLimit": "Is mahine ke Munshi AI tokens khatam. 1 tareekh ko phir milenge, ya Settings → Plan mein upgrade karein.",
+    "aiLimit": "Aaj ka Munshi AI khatam ho gaya. Raat 12 baje phir milega, ya Settings → Plan mein bada plan lein.",
     "paymentsOff": "Online payment abhi chalu nahi hai. VoiceMunshi team se sampark karein.",
     "paymentUnverified": "Yeh payment confirm nahi ho paya. Agar paisa kata hai to payment ID ke saath VoiceMunshi team se baat karein.",
     "billNumberTaken": "Yeh bill number pehle se laga hai. Doosra number likhein.",
@@ -2556,7 +2559,9 @@
     "hasReturn": "Is bill par maal wapasi ho chuki hai, isliye ise badal nahi sakte.",
     "aiBusy": "Munshi AI abhi vyast hai. Ek minute baad phir koshish kijiye.",
     "accountSuspended": "Yeh business account band kiya gaya hai. VoiceMunshi se sampark karein.",
-    "accountDisabled": "Aapka login rok diya gaya hai. Apne business ke maalik ya VoiceMunshi se sampark karein."
+    "accountDisabled": "Aapka login rok diya gaya hai. Apne business ke maalik ya VoiceMunshi se sampark karein.",
+    "wrongPassword": "Abhi wala password galat hai.",
+    "needEmailOrPhone": "Mobile number ya email mein se ek rakhein, taaki login kar sakein."
   },
   "businessSettings": {
     "saved": "Save ho gaya. Naye bill par yeh vivaran dikhega.",
@@ -3230,7 +3235,7 @@
     "proTag": "Pro",
     "tagline": {
       "basic": "Business chalane ke liye sab kuch, Munshi AI ke saath.",
-      "pro": "Advanced stock, AI se order padhna aur 10 guna zyada Munshi AI."
+      "pro": "Advanced stock, AI se order padhna aur Basic se kai guna zyada Munshi AI."
     },
     "period": {
       "monthly": "Mahina",
@@ -3242,13 +3247,13 @@
     "features": {
       "basic": {
         "allCrm": "Poora VoiceMunshi: bill, GST, stock, udhaar, khareed, godaam, staff, production, reports",
-        "aiTokens": "Munshi AI: har mahine {{tokens}} tokens",
+        "aiTokens": "Munshi AI: roz {{tokens}} tokens (lagbhag {{questions}} sawaal)",
         "noLimits": "Bill, saamaan, grahak ya team login par koi limit nahi",
         "support": "Hindi aur English mein WhatsApp support"
       },
       "pro": {
         "everythingBasic": "Basic ka sab kuch",
-        "aiTokens": "Munshi AI: har mahine {{tokens}} tokens",
+        "aiTokens": "Munshi AI: roz {{tokens}} tokens (lagbhag {{questions}} sawaal)",
         "advancedStock": "Batch aur expiry, IMEI / serial number, size aur rang",
         "orderReading": "Munshi AI WhatsApp aur voice order padh leta hai",
         "aiInsights": "Aapke business ke hisaab se AI dashboard",
@@ -3268,10 +3273,10 @@
     "activeBody_one": "{{date}} tak chalega ({{count}} din baaki).",
     "activeBody_other": "{{date}} tak chalega ({{count}} din baaki).",
     "expiredBody": "{{date}} ko khatam hua. Sab dekh sakte hain, par plan chunne tak naya kuch save nahi hoga.",
-    "aiTitle": "Is mahine Munshi AI",
-    "aiUsed": "{{limit}} mein se {{used}} tokens",
-    "aiHint": "Har sawaal, order padhna aur AI insight tokens leta hai. Har mahine ki 1 tareekh ko phir se poore milte hain.",
-    "aiUsedUp": "Is mahine ke tokens khatam. Munshi AI 1 tareekh ko phir chalega, ya zyada ke liye Pro lein.",
+    "aiTitle": "Aaj ka Munshi AI",
+    "aiUsed": "{{pct}}% istemaal",
+    "aiHint": "Sawaal, bolkar likhna aur Munshi ki aawaz, sab isi mein ginte hain. Roz raat 12 baje phir se poora milta hai.",
+    "aiUsedUp": "Aaj ka Munshi AI khatam. Raat 12 baje phir milega, ya zyada ke liye bada plan lein.",
     "chooseTitle": "Plan chunein",
     "chooseBody": "Lambe samay ke liye lein aur bachayein. Pehle ka bhara hua samay kabhi bekaar nahi jaata.",
     "choose": "{{plan}} lein · {{amount}}",
@@ -3288,7 +3293,20 @@
     "online": "Online bhara",
     "until": "{{date}} tak",
     "proOnlyTitle": "Yeh Pro feature hai",
-    "proOnlyBody": "Iske liye Settings → Plan mein Pro lein."
+    "proOnlyBody": "Iske liye Settings → Plan mein Pro lein.",
+    "aiMonth": "Is mahine: {{pct}}% istemaal.",
+    "aiUnlimited": "Koi seema nahi",
+    "aiUnlimitedHint": "Aapke account mein Munshi AI ki koi seema nahi.",
+    "aiTokensUsed": "{{used}} / {{total}} tokens ({{pct}}%)",
+    "aiLeft": "Aaj {{tokens}} tokens bache ≈ {{questions}} Munshi sawaal, ya lagbhag {{minutes}} minute bolkar likhna.",
+    "aiUse": {
+      "questions": "Sawaal",
+      "speaking": "Bolkar likhna",
+      "voice": "Munshi ki aawaz",
+      "other": "Baaki"
+    },
+    "aiScale": "1 sawaal ≈ {{perQuestion}} tokens · 1 minute bolna ≈ {{perMinute}} tokens. Roz raat 12 baje phir se poore.",
+    "aiMonthTokens": "Is mahine: {{used}} / {{total}} tokens."
   },
   "planBanner": {
     "expired": "Aapka plan khatam ho gaya. Purana hisaab dekh sakte hain, par naya bill ya badlav save nahi hoga.",
@@ -3477,5 +3495,33 @@
       "title": "Settings",
       "subtitle": "Yeh settings har business par lagti hain."
     }
+  },
+  "profileSettings": {
+    "title": "Meri jaankari",
+    "body": "Aapka apna login. Isi se aap andar aate hain; yeh bill par nahi chhapta.",
+    "name": "Aapka naam",
+    "nameInvalid": "Kam se kam 2 akshar likhein.",
+    "phone": "Mobile number",
+    "phoneHint": "10 ank. Is number se login kar sakte hain.",
+    "phoneInvalid": "10 ank ka mobile number likhein.",
+    "email": "Email (zaroori nahi)",
+    "emailHint": "Is email se bhi login kar sakte hain.",
+    "emailInvalid": "Yeh email sahi nahi lag raha.",
+    "needOne": "Mobile number ya email mein se ek rakhein, taaki login kar sakein.",
+    "role": "Aapka role",
+    "saved": "Aapki jaankari save ho gayi",
+    "passwordTitle": "Password badlein",
+    "passwordBody": "Abhi wala password likhein, phir naya password do baar.",
+    "setPasswordTitle": "Password banayein",
+    "setPasswordBody": "Aapne bina password ke login kiya hai. Password banayein taaki mobile number ya email se bhi login kar sakein.",
+    "currentPassword": "Abhi wala password",
+    "newPassword": "Naya password",
+    "confirmPassword": "Naya password phir se likhein",
+    "passwordHint": "Kam se kam 8 akshar ya ank.",
+    "passwordShort": "Kam se kam 8 akshar ya ank rakhein.",
+    "passwordMismatch": "Dono password ek jaise nahi hain.",
+    "changePassword": "Password badlein",
+    "setPassword": "Password banayein",
+    "passwordSaved": "Password badal gaya"
   }
 }

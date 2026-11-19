@@ -66,7 +66,11 @@ export function AdminBusinessesPage() {
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-1">
                     <StatusPill tone={label.tone}>{label.text}</StatusPill>
-                    {b.aiTokenLimitOverride && b.aiTokenLimitOverride >= 1_000_000_000 ? <span className="text-[11px] font-semibold text-text-muted">{t("admin.business.aiUnlimited")}</span> : null}
+                    {b.aiTodayPct === null ? (
+                      <span className="text-[11px] font-semibold text-text-muted">{t("admin.business.aiUnlimited")}</span>
+                    ) : (
+                      <span className={`text-[11px] font-semibold tabular-nums ${b.aiTodayPct >= 100 ? "text-danger" : "text-text-muted"}`}>AI today {b.aiTodayPct}%</span>
+                    )}
                   </span>
                 </button>
               </li>
