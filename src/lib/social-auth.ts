@@ -89,15 +89,17 @@ export async function signInWithApple(): Promise<{ idToken: string; name?: strin
 
 let googleIdRequest: Promise<string | null> | null = null;
 
+// The backend's ID comes first: Google's token must be made for the same client
+// ID the backend checks it against (a different ID in the web build was the
+// cause of "couldn't verify that sign-in"). The build's ID is only a fallback.
 export function resolveGoogleClientId(): Promise<string | null> {
-  if (GOOGLE_CLIENT_ID) return Promise.resolve(GOOGLE_CLIENT_ID);
   if (!googleIdRequest) {
     googleIdRequest = fetch(`${API_BASE_URL}/auth/config`)
       .then((res) => (res.ok ? res.json() : null))
-      .then((body: { googleClientId?: string | null } | null) => body?.googleClientId || null)
+      .then((body: { googleClientId?: string | null } | null) => body?.googleClientId || GOOGLE_CLIENT_ID || null)
       .catch(() => {
         googleIdRequest = null;
-        return null;
+        return GOOGLE_CLIENT_ID ?? null;
       });
   }
   return googleIdRequest;
@@ -105,7 +107,7 @@ export function resolveGoogleClientId(): Promise<string | null> {
 
 /** The Google client ID once known (null while loading or when Google sign-in isn't set up). */
 export function useGoogleClientId(): string | null {
-  const [id, setId] = useState<string | null>(GOOGLE_CLIENT_ID ?? null);
+  const [id, setId] = useState<string | null>(null);
   useEffect(() => {
     if (id) return;
     let alive = true;
