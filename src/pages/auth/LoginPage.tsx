@@ -8,8 +8,9 @@ import { AuthLayout } from "../../layouts/AuthLayout";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { PhoneField } from "../../components/ui/PhoneField";
-import { Dialog } from "../../components/ui/Dialog";
-import { login, requestLoginOtp, verifyLoginOtp } from "../../lib/auth-api";
+import { GoogleSignInButton } from "../../components/auth/GoogleSignInButton";
+import { googleSignIn, login, requestLoginOtp, verifyLoginOtp } from "../../lib/auth-api";
+import { useGoogleClientId } from "../../lib/social-auth";
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../lib/auth-store";
 import { showError, showSuccess } from "../../lib/toast";
@@ -43,7 +44,7 @@ const credentialsSchema = z.object({
   email: z
     .string()
     .trim()
-    .refine((v) => /^d{10}$/.test(v) || z.string().email().safeParse(v).success, { error: () => i18n.t("auth.login.emailOrPhoneInvalid") }),
+    .refine((v) => /^\d{10}$/.test(v) || z.string().email().safeParse(v).success, { error: () => i18n.t("auth.login.emailOrPhoneInvalid") }),
   password: z.string().min(8, { error: () => i18n.t("auth.login.passwordTooShort") }),
 });
 type CredentialsFormValues = z.infer<typeof credentialsSchema>;
@@ -75,9 +76,10 @@ export function LoginPage() {
   const [shownCode, setShownCode] = useState<string | null>(null);
   const verifyingRef = useRef(false);
 
+  // Errors show once the field is left or the form is sent, not while still typing.
   const phoneForm = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
-    mode: "onChange",
+    mode: "onTouched",
     reValidateMode: "onChange",
   });
   const codeForm = useForm<CodeFormValues>({
@@ -102,9 +104,53 @@ export function LoginPage() {
   };
   const credentialsForm = useForm<CredentialsFormValues>({
     resolver: zodResolver(credentialsSchema),
-    mode: "onChange",
+    mode: "onTouched",
     reValidateMode: "onChange",
   });
+
+  // ---- OTP fills itself in ----
+  // Android Chrome: reads the code from the SMS (its last line is "@site #123456").
+  // iPhone: offers it above the keyboard (autocomplete="one-time-code").
+  useEffect(() => {
+    if (!otpPhone || typeof window === "undefined" || !("OTPCredential" in window)) return;
+    const abort = new AbortController();
+    (navigator.credentials.get({ otp: { transport: ["sms"] }, signal: abort.signal } as CredentialRequestOptions) as Promise<(Credential & { code?: string }) | null>)
+      .then((otp) => {
+        if (!otp?.code) return;
+        codeForm.setValue("code", otp.code, { shouldValidate: true });
+        void codeForm.handleSubmit(onCodeSubmit)();
+      })
+      .catch(() => undefined);
+    return () => abort.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpPhone]);
+
+  // No SMS provider yet: the server hands the code back, so put it in and sign in straight away.
+  useEffect(() => {
+    if (!shownCode || !otpPhone) return;
+    codeForm.setValue("code", shownCode, { shouldValidate: true });
+    setShownCode(null);
+    void codeForm.handleSubmit(onCodeSubmit)();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shownCode, otpPhone]);
+
+  // ---- Continue with Google ----
+  const googleClientId = useGoogleClientId();
+  const onGoogleCredential = async (credential: string) => {
+    try {
+      const result = await googleSignIn(credential);
+      if (result.status === "signed_in") {
+        setSession(result);
+        redirectAfterLogin();
+        return;
+      }
+      // A Google account with no business yet: make one (the welcome chat asks the rest).
+      showError(t("auth.login.googleNoAccount"));
+      navigate("/welcome");
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : t("auth.login.genericError"));
+    }
+  };
 
   const redirectAfterLogin = () => {
     const redirectTo = (location.state as { from?: string })?.from ?? "/app";
@@ -226,24 +272,6 @@ export function LoginPage() {
           </div>
         </form>
 
-        <Dialog open={shownCode !== null} onClose={() => setShownCode(null)} title={t("auth.otp.popupTitle")}>
-          <p className="text-sm text-text-muted">{t("auth.otp.popupBody")}</p>
-          <p className="my-5 text-center text-4xl font-bold tracking-[0.3em] text-text" aria-live="polite">
-            {shownCode}
-          </p>
-          <Button
-            type="button"
-            className="w-full"
-            onClick={() => {
-              if (!shownCode) return;
-              codeForm.setValue("code", shownCode, { shouldValidate: true });
-              setShownCode(null);
-              void codeForm.handleSubmit(onCodeSubmit)();
-            }}
-          >
-            {t("auth.otp.popupUse")}
-          </Button>
-        </Dialog>
       </AuthLayout>
     );
   }
@@ -263,32 +291,24 @@ export function LoginPage() {
             {t("auth.otp.sendCode")}
           </Button>
 
-          <div className="flex items-center gap-3 py-1">
-            <span className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-text-muted">{t("auth.login.or")}</span>
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              disabled
-              title={t("auth.login.comingSoon")}
-              className="flex h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-muted opacity-60"
-            >
-              <WhatsAppIcon />
-              {t("auth.login.whatsapp")}
-            </button>
-            <button
-              type="button"
-              disabled
-              title={t("auth.login.comingSoon")}
-              className="flex h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-muted opacity-60"
-            >
-              <GoogleIcon />
-              {t("auth.login.google")}
-            </button>
-          </div>
+          {googleClientId ? (
+            <>
+              <div className="flex items-center gap-3 py-1">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-xs font-medium text-text-muted">{t("auth.login.or")}</span>
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <GoogleSignInButton
+                onCredential={(credential) => void onGoogleCredential(credential)}
+                onUnavailable={() => showError(t("auth.login.googleUnavailable"))}
+                locale={i18n.resolvedLanguage === "en" ? "en" : "hi"}
+                width={320}
+              >
+                <GoogleIcon />
+                {t("auth.login.continueWithGoogle")}
+              </GoogleSignInButton>
+            </>
+          ) : null}
         </form>
 
         <p className="mt-6 text-center text-sm text-text-muted">
@@ -354,15 +374,6 @@ export function LoginPage() {
         </button>
       </p>
     </AuthLayout>
-  );
-}
-
-function WhatsAppIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.47 14.38c-.29-.15-1.7-.84-1.97-.93-.26-.1-.46-.15-.65.14-.19.3-.75.94-.92 1.13-.17.2-.34.22-.63.08-.3-.15-1.24-.46-2.37-1.47-.87-.78-1.46-1.74-1.63-2.03-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.5.15-.17.2-.3.3-.5.1-.19.05-.36-.02-.5-.08-.15-.65-1.58-.9-2.16-.24-.58-.48-.5-.65-.5h-.56c-.19 0-.5.07-.76.36-.26.3-1 1-1 2.4 0 1.42 1.03 2.8 1.18 3 .14.2 2.03 3.1 4.93 4.35.69.3 1.22.47 1.64.6.69.22 1.32.19 1.82.11.55-.08 1.7-.7 1.94-1.36.24-.67.24-1.24.17-1.36-.07-.12-.26-.2-.55-.34Z" />
-      <path d="M12 2a10 10 0 0 0-8.5 15.24L2 22l4.9-1.46A10 10 0 1 0 12 2Zm0 18.2a8.16 8.16 0 0 1-4.16-1.14l-.3-.18-3.08.92.93-3-.2-.31A8.2 8.2 0 1 1 12 20.2Z" />
-    </svg>
   );
 }
 

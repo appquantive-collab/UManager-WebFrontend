@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Package, ReceiptText, Sparkles } from "lucide-react";
+import { ArrowLeft, AudioLines, Package, ReceiptText, Sparkles } from "lucide-react";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
@@ -36,9 +36,9 @@ function MobileAuthLayout({ title, subtitle, children }: { title: string; subtit
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center py-6">
-        <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-elevation-2">
+        <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 shadow-card">
           <div className="flex flex-col items-center text-center">
-            <img src="/logo.svg" alt={t("brand.name")} className="h-14 w-14" />
+            <BrandBadge size={56} label={t("brand.name")} />
             <h1 className="mt-4 text-xl font-bold tracking-tight text-text">{title}</h1>
             <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
           </div>
@@ -76,7 +76,7 @@ function DesktopAuthLayout({ title, subtitle, children }: { title: string; subti
         <div className="flex flex-1 flex-col items-center justify-center py-4">
           <div className="w-full max-w-sm">
             <div className="mb-5 flex flex-col items-center text-center">
-              <img src="/logo.svg" alt={t("brand.name")} className="h-11 w-11" />
+              <BrandBadge size={48} label={t("brand.name")} />
               <h1 className="mt-3 text-2xl font-bold tracking-tight text-text">{title}</h1>
               <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
             </div>
@@ -115,5 +115,14 @@ function DesktopAuthLayout({ title, subtitle, children }: { title: string; subti
         </div>
       </div>
     </div>
+  );
+}
+
+/** The VoiceMunshi voice badge (same as the app header), bigger. */
+function BrandBadge({ size, label }: { size: number; label: string }) {
+  return (
+    <span role="img" aria-label={label} className="flex items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-brand" style={{ width: size, height: size }}>
+      <AudioLines size={Math.round(size * 0.5)} strokeWidth={2.2} aria-hidden="true" />
+    </span>
   );
 }

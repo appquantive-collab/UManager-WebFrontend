@@ -359,7 +359,10 @@
       "signInWithMobileInstead": "Sign in with mobile number instead",
       "genericError": "Something went wrong. Please try again.",
       "emailOrPhone": "Email or mobile number",
-      "emailOrPhoneInvalid": "Enter a valid email or 10-digit mobile number"
+      "emailOrPhoneInvalid": "Enter a valid email or 10-digit mobile number",
+      "googleNoAccount": "No business is linked to this Google account yet. Let us set one up.",
+      "googleUnavailable": "Google sign-in could not load. Please use your mobile number.",
+      "continueWithGoogle": "Continue with Google"
     },
     "register": {
       "title": "Get started with wholesale",

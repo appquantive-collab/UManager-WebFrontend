@@ -359,7 +359,10 @@
       "signInWithMobileInstead": "Mobile number se sign in karein",
       "genericError": "Kuch gadbad ho gayi. Dobara try karein.",
       "emailOrPhone": "Email ya mobile number",
-      "emailOrPhoneInvalid": "Valid email ya 10 digit mobile number daalein"
+      "emailOrPhoneInvalid": "Valid email ya 10 digit mobile number daalein",
+      "googleNoAccount": "Is Google account se abhi koi business nahi juda. Chaliye naya bana lete hain.",
+      "googleUnavailable": "Google sign-in khul nahi paya. Mobile number se login karein.",
+      "continueWithGoogle": "Google se aage badhein"
     },
     "register": {
       "title": "Wholesale ke saath shuru karein",

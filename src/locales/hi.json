@@ -359,7 +359,10 @@
       "signInWithMobileInstead": "मोबाइल नंबर से साइन इन करें",
       "genericError": "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
       "emailOrPhone": "ईमेल या मोबाइल नंबर",
-      "emailOrPhoneInvalid": "सही ईमेल या 10 अंकों का मोबाइल नंबर डालें"
+      "emailOrPhoneInvalid": "सही ईमेल या 10 अंकों का मोबाइल नंबर डालें",
+      "googleNoAccount": "इस Google अकाउंट से अभी कोई बिज़नेस नहीं जुड़ा। चलिए नया बना लेते हैं।",
+      "googleUnavailable": "Google साइन-इन खुल नहीं पाया। मोबाइल नंबर से लॉगिन करें।",
+      "continueWithGoogle": "Google से आगे बढ़ें"
     },
     "register": {
       "title": "होलसेल के साथ शुरुआत करें",

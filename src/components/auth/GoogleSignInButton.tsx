@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { GOOGLE_CLIENT_ID, GOOGLE_SCRIPT, loadScript } from "../../lib/social-auth";
+import { GOOGLE_SCRIPT, loadScript, useGoogleClientId } from "../../lib/social-auth";
 
 /**
  * "Continue with Google". Google only signs in through its own button, drawn
@@ -24,13 +24,13 @@ export function GoogleSignInButton({
   const overlayRef = useRef<HTMLDivElement>(null);
   const callbackRef = useRef(onCredential);
   const [ready, setReady] = useState(false);
+  const clientId = useGoogleClientId();
 
   useEffect(() => {
     callbackRef.current = onCredential;
   });
 
   useEffect(() => {
-    const clientId = GOOGLE_CLIENT_ID;
     if (!clientId) return;
     let cancelled = false;
     loadScript(GOOGLE_SCRIPT)
@@ -58,7 +58,7 @@ export function GoogleSignInButton({
     return () => {
       cancelled = true;
     };
-  }, [locale, width]);
+  }, [clientId, locale, width]);
 
   return (
     <div className="group relative mx-auto h-10 max-w-full overflow-hidden rounded-full" style={{ width }}>

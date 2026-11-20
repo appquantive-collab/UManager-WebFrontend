@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "./api";
 // Google's and Apple's own sign-in scripts. Each button appears only when its
 // client ID is configured (VITE_GOOGLE_CLIENT_ID / VITE_APPLE_CLIENT_ID); the
 // backend verifies the returned ID token with the same IDs.
@@ -79,4 +81,40 @@ export async function signInWithApple(): Promise<{ idToken: string; name?: strin
     if (code === "popup_closed_by_user" || code === "user_cancelled_authorize") throw new AppleSignInCancelled();
     throw err;
   }
+}
+
+// ---------- Google client ID: from the build, else from the backend ----------
+// The live site may be built without VITE_GOOGLE_CLIENT_ID; the backend knows the
+// same (public) client ID, so ask it once.
+
+let googleIdRequest: Promise<string | null> | null = null;
+
+export function resolveGoogleClientId(): Promise<string | null> {
+  if (GOOGLE_CLIENT_ID) return Promise.resolve(GOOGLE_CLIENT_ID);
+  if (!googleIdRequest) {
+    googleIdRequest = fetch(`${API_BASE_URL}/auth/config`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body: { googleClientId?: string | null } | null) => body?.googleClientId || null)
+      .catch(() => {
+        googleIdRequest = null;
+        return null;
+      });
+  }
+  return googleIdRequest;
+}
+
+/** The Google client ID once known (null while loading or when Google sign-in isn't set up). */
+export function useGoogleClientId(): string | null {
+  const [id, setId] = useState<string | null>(GOOGLE_CLIENT_ID ?? null);
+  useEffect(() => {
+    if (id) return;
+    let alive = true;
+    void resolveGoogleClientId().then((value) => {
+      if (alive) setId(value);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+  return id;
 }
