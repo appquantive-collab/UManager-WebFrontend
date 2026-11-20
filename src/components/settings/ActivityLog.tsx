@@ -49,7 +49,7 @@ export function ActivityLog() {
         onChange={setGroup}
         options={GROUPS.map((g) => ({ key: g, label: t(`activity.group.${g}`) }))}
       />
-      <div className="rounded-2xl border border-border bg-surface">
+      <div className="rounded-2xl border border-border bg-surface shadow-card">
         {query.isLoading ? <p className="px-4 py-3 text-sm text-text-muted">{t("common.loading")}</p> : null}
         {!query.isLoading && entries.length === 0 ? (
           <div className="flex flex-col items-center px-6 py-10 text-center">

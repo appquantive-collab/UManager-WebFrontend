@@ -37,7 +37,7 @@ function LanguageSettings() {
   });
 
   return (
-    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
       <div>
         <h3 className="text-sm font-semibold text-text">{t("language.label")}</h3>
         <p className="mt-1 text-xs text-text-muted">{t("settingsPage.languageDescription")}</p>

@@ -282,7 +282,7 @@ export function MobileInventoryStock() {
       {isLoading ? (
         <p className="py-8 text-center text-sm text-text-muted">{t("inventory.mobileStock.loadingInventory")}</p>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center shadow-card">
           <Package size={22} className="text-text-muted" strokeWidth={1.5} />
           <p className="mt-2 text-sm font-medium text-text">
             {products.length === 0

@@ -190,23 +190,23 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
               ) : null}
 
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-border bg-surface p-3">
+                <div className="rounded-xl border border-border bg-surface p-3 shadow-card">
                   <p className="text-xs text-text-muted">{t("customers.customersPage.totalPurchases")}</p>
                   <p className="mt-1 text-base font-bold text-text">{formatCurrency(data.stats.totalPurchases)}</p>
                 </div>
-                <div className="rounded-xl border border-border bg-surface p-3">
+                <div className="rounded-xl border border-border bg-surface p-3 shadow-card">
                   <p className="text-xs text-text-muted">{t("customers.customersPage.outstanding")}</p>
                   <p className={`mt-1 text-base font-bold ${data.stats.outstanding > 0 ? "text-danger" : "text-text"}`}>
                     {formatCurrency(data.stats.outstanding)}
                   </p>
                 </div>
-                <div className="rounded-xl border border-border bg-surface p-3">
+                <div className="rounded-xl border border-border bg-surface p-3 shadow-card">
                   <p className="text-xs text-text-muted">{t("customers.customersPage.creditLimit")}</p>
                   <p className="mt-1 text-base font-bold text-text">
                     {data.customer.creditLimit > 0 ? formatCurrency(data.customer.creditLimit) : t("customerForm.noLimit")}
                   </p>
                 </div>
-                <div className="rounded-xl border border-border bg-surface p-3">
+                <div className="rounded-xl border border-border bg-surface p-3 shadow-card">
                   <p className="text-xs text-text-muted">{t("customers.partyPortfolioModal.pendingOrders")}</p>
                   <p className="mt-1 text-base font-bold text-text">{data.stats.pendingOrders}</p>
                 </div>
@@ -281,7 +281,7 @@ export function PartyPortfolioModal({ customerId, onClose }: { customerId: strin
                     data.payments.map((p, i) => (
                       <div
                         key={`${p.invoiceId}-${i}`}
-                        className="flex items-center justify-between rounded-xl border border-border bg-surface p-3.5"
+                        className="flex items-center justify-between rounded-xl border border-border bg-surface p-3.5 shadow-card"
                       >
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-text">

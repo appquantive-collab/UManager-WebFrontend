@@ -206,7 +206,7 @@ export function MobileSalesOrders({
           {ordersQuery.isLoading ? (
             <p className="py-8 text-center text-sm text-text-muted">{t("sales.mobileSalesOrders.loadingOrders")}</p>
           ) : filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center shadow-card">
               <Receipt size={22} className="text-text-muted" strokeWidth={1.5} />
               <p className="mt-2 text-sm font-medium text-text">{t("sales.mobileSalesOrders.noOrdersFoundTitle")}</p>
               <p className="mt-0.5 text-xs text-text-muted">{t("sales.mobileSalesOrders.noOrdersFoundDescription")}</p>
@@ -276,7 +276,7 @@ export function MobileSalesOrders({
           {invoicesQuery.isLoading ? (
             <p className="py-8 text-center text-sm text-text-muted">{t("sales.mobileSalesOrders.loadingInvoices")}</p>
           ) : filteredInvoices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-12 text-center shadow-card">
               <FileText size={22} className="text-text-muted" strokeWidth={1.5} />
               <p className="mt-2 text-sm font-medium text-text">{t("sales.mobileSalesOrders.noInvoicesFoundTitle")}</p>
               <p className="mt-0.5 text-xs text-text-muted">{t("sales.mobileSalesOrders.noInvoicesFoundDescription")}</p>

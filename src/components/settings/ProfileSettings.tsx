@@ -8,7 +8,7 @@ import { useAuthStore } from "../../lib/auth-store";
 import { errorMessage } from "../../lib/api-errors";
 import { showError, showSuccess } from "../../lib/toast";
 
-const card = "max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6";
+const card = "max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** The signed-in person's own details: name, mobile, email. */

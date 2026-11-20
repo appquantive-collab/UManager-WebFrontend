@@ -54,7 +54,7 @@ function ActionCard({ message }: { message: AiChatMessage }) {
   });
 
   return (
-    <div className="mt-2.5 rounded-xl border border-border bg-surface p-3">
+    <div className="mt-2.5 rounded-xl border border-border bg-surface p-3 shadow-card">
       <p className="text-sm font-semibold text-text">{actionLabel(action)}</p>
       {action.status === "pending" ? (
         <div className="mt-2.5 flex gap-2">

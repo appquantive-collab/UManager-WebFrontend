@@ -158,7 +158,7 @@ export function CashbookPage() {
           </SummaryRow>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+            <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card">
               <h2 className="text-base font-bold text-text">{t("cashbook.moneyIn")}</h2>
               <p className="text-sm text-text-muted">{t("cashbook.moneyInBody")}</p>
               <dl className="mt-3 divide-y divide-border text-sm">
@@ -175,7 +175,7 @@ export function CashbookPage() {
               ) : null}
             </section>
 
-            <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+            <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card">
               <h2 className="text-base font-bold text-text">{t("cashbook.moneyOut")}</h2>
               <p className="text-sm text-text-muted">{t("cashbook.moneyOutBody")}</p>
               <dl className="mt-3 divide-y divide-border text-sm">
@@ -194,7 +194,7 @@ export function CashbookPage() {
             </section>
           </div>
 
-          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="text-base font-bold text-text">{t("cashbook.closeTitle")}</h2>
@@ -247,7 +247,7 @@ export function CashbookPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-bold text-text">{t("cashbook.expensesTitle")}</h2>

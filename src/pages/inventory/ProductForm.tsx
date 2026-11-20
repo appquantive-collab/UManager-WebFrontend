@@ -299,7 +299,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
             </div>
           </FormSection>
 
-          <section className="rounded-2xl border border-border bg-surface">
+          <section className="rounded-2xl border border-border bg-surface shadow-card">
             <button
               type="button"
               onClick={() => setMoreOpen((v) => !v)}
@@ -560,7 +560,7 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-card">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-text">{title}</h2>

@@ -462,7 +462,7 @@ export function ReportsPage() {
             <SummaryTile label={t("reports.hub.profit.profit")} value={formatCurrency(profit.profit)} detail={periodLabel} icon={IndianRupee} tone={profit.profit >= 0 ? "success" : "danger"} />
             <SummaryTile label={t("reports.hub.profit.margin")} value={`${profit.margin.toFixed(1)}%`} detail={t("reports.hub.profit.marginHint")} icon={Percent} tone="warning" />
           </SummaryRow>
-          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-base font-bold text-text">{t("reportsExtra.netTitle")}</h2>
               {/* Expenses can be added here too, for businesses that keep Rokad bahi switched off. */}

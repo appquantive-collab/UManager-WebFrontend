@@ -315,7 +315,7 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-card">
       <div className="mb-4">
         <h2 className="text-sm font-semibold text-text">{title}</h2>
         {subtitle ? <p className="mt-0.5 text-xs text-text-muted">{subtitle}</p> : null}

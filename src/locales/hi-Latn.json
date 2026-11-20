@@ -140,6 +140,12 @@
       "stock": "Stock aur khareed",
       "money": "Hisaab",
       "manage": "Team aur settings"
+    },
+    "bottom": {
+      "home": "Home",
+      "sales": "Bikri",
+      "stock": "Stock",
+      "accounts": "Hisaab"
     }
   },
   "language": {
@@ -1534,6 +1540,50 @@
       "pendingOrders_one": "{{count}} order bill hone ka intezaar mein",
       "pendingOrders_other": "{{count}} orders bill hone ke intezaar mein",
       "view": "Dekhein"
+    },
+    "home": {
+      "greeting": "Namaste, {{name}} Ji 👋",
+      "greetingNoName": "Namaste Ji 👋",
+      "subtitle": "Aaj ke business ka saar yahan hai",
+      "talk": "Munshi se baat karein",
+      "hint1": "Bill banayein",
+      "hint2": "Stock poochhein",
+      "hint3": "Hisaab dekhein",
+      "quickActions": "Jaldi ke kaam",
+      "qa": {
+        "sale": {
+          "title": "Nayi Bikri",
+          "sub": "Bill banayein"
+        },
+        "order": {
+          "title": "Naya Order",
+          "sub": "Order likhein"
+        },
+        "stock": {
+          "title": "Stock",
+          "sub": "Maal dekhein"
+        },
+        "pay": {
+          "title": "Payment",
+          "sub": "Paise jodein"
+        }
+      },
+      "todayTitle": "Aaj ka Business",
+      "todaySales": "Aaj ki Bikri",
+      "toCollect": "Paise Lene Hain",
+      "lowStock": "Low Stock",
+      "itemsCount_one": "{{count}} Item",
+      "itemsCount_other": "{{count}} Items",
+      "attentionTitle": "Aaj Dhyan Dene Wale Kaam",
+      "total": "{{count}} Total",
+      "duesRow_one": "1 customer se paise lene hain",
+      "duesRow_other": "{{count}} customers se paise lene hain",
+      "stockRow_one": "1 item ka stock khatam ho raha hai",
+      "stockRow_other": "{{count}} items ka stock khatam ho raha hai",
+      "ordersRow_one": "1 order bill hone ke intezaar mein",
+      "ordersRow_other": "{{count}} order bill hone ke intezaar mein",
+      "etc": "etc.",
+      "recentOrders": "Haal ke orders"
     }
   },
   "ai": {

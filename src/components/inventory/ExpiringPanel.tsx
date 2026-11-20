@@ -15,7 +15,7 @@ export function ExpiringPanel() {
   const daysLeft = (iso: string) => Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5" aria-label={t("expiring.title")}>
+    <section className="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-card" aria-label={t("expiring.title")}>
       <div className="flex items-start gap-3">
         <CalendarClock size={20} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
         <div className="min-w-0 flex-1">

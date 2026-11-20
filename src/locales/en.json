@@ -140,6 +140,12 @@
       "stock": "Stock & buying",
       "money": "Money",
       "manage": "Team & settings"
+    },
+    "bottom": {
+      "home": "Home",
+      "sales": "Sales",
+      "stock": "Stock",
+      "accounts": "Accounts"
     }
   },
   "language": {
@@ -1534,6 +1540,50 @@
       "pendingOrders_one": "{{count}} order waiting to be billed",
       "pendingOrders_other": "{{count}} orders waiting to be billed",
       "view": "View"
+    },
+    "home": {
+      "greeting": "Namaste, {{name}} 👋",
+      "greetingNoName": "Namaste 👋",
+      "subtitle": "Here's your business today",
+      "talk": "Talk to Munshi",
+      "hint1": "Make bills",
+      "hint2": "Ask about stock",
+      "hint3": "See accounts",
+      "quickActions": "Quick actions",
+      "qa": {
+        "sale": {
+          "title": "New sale",
+          "sub": "Make a bill"
+        },
+        "order": {
+          "title": "New order",
+          "sub": "Write an order"
+        },
+        "stock": {
+          "title": "Stock",
+          "sub": "See items"
+        },
+        "pay": {
+          "title": "Payment",
+          "sub": "Add money"
+        }
+      },
+      "todayTitle": "Today's business",
+      "todaySales": "Today's sales",
+      "toCollect": "To collect",
+      "lowStock": "Low stock",
+      "itemsCount_one": "{{count}} item",
+      "itemsCount_other": "{{count}} items",
+      "attentionTitle": "Needs attention today",
+      "total": "{{count}} total",
+      "duesRow_one": "Money to collect from 1 customer",
+      "duesRow_other": "Money to collect from {{count}} customers",
+      "stockRow_one": "1 item is running out",
+      "stockRow_other": "{{count}} items are running out",
+      "ordersRow_one": "1 order waiting to be billed",
+      "ordersRow_other": "{{count}} orders waiting to be billed",
+      "etc": "etc.",
+      "recentOrders": "Latest orders"
     }
   },
   "ai": {

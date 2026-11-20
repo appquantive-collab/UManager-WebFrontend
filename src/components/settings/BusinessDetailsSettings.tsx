@@ -98,7 +98,7 @@ function SaveBar({
   );
 }
 
-const card = "max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6";
+const card = "max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card";
 
 export function BusinessDetailsSettings() {
   const { t, form, set, changed, mutation, isLoading, canEdit } = useBusinessForm();

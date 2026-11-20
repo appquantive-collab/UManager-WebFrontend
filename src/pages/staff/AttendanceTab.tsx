@@ -86,7 +86,7 @@ export function AttendanceTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4 shadow-card">
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-text-muted" />
           <input
@@ -113,7 +113,7 @@ export function AttendanceTab() {
       {staffQuery.isLoading || attendanceQuery.isLoading ? (
         <p className="p-6 text-sm text-text-muted">{t("staff.attendanceTab.loadingAttendance")}</p>
       ) : activeStaff.length === 0 ? (
-        <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
+        <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted shadow-card">
           {t("staff.attendanceTab.noActiveStaff")}
         </p>
       ) : (
@@ -123,7 +123,7 @@ export function AttendanceTab() {
             return (
               <div
                 key={member._id}
-                className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3.5 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-card"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-text">{member.name}</p>

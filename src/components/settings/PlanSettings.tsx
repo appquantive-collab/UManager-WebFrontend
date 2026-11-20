@@ -64,7 +64,7 @@ export function PlanSettings() {
 
   if (billing.isLoading || !billing.data) {
     return (
-      <div className="max-w-3xl rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <div className="max-w-3xl rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
         <LoadingRows rows={4} />
       </div>
     );
@@ -78,7 +78,7 @@ export function PlanSettings() {
     <div className="max-w-3xl space-y-5">
       <CurrentPlan state={state} locale={locale} />
 
-      <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
         <div className="flex items-start gap-3">
           <Sparkles size={18} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
           <div className="min-w-0 flex-1">
@@ -130,7 +130,7 @@ export function PlanSettings() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-text">{t("plan.chooseTitle")}</h3>
@@ -172,7 +172,7 @@ export function PlanSettings() {
       </section>
 
       {data.payments.length > 0 ? (
-        <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+        <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
           <h3 className="text-base font-bold text-text">{t("plan.historyTitle")}</h3>
           <ul className="mt-3 divide-y divide-border">
             {data.payments.map((p) => (
@@ -200,7 +200,7 @@ function CurrentPlan({ state, locale }: { state: PlanState; locale: string }) {
   const { t } = useTranslation();
   const name = state.status === "trial" ? t("plan.trialName") : t(`plan.name.${state.plan ?? "basic"}`);
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
       <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t("plan.currentLabel")}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
         <h3 className="text-xl font-bold text-text">{state.status === "expired" && !state.plan ? t("plan.trialName") : name}</h3>

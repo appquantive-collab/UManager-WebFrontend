@@ -382,7 +382,7 @@ export function SearchPage() {
                 </div>
               </section>
             ) : null}
-            <section className="rounded-2xl border border-border bg-surface p-4">
+            <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
               <p className="text-sm font-semibold text-text">{t("search.helpTitle")}</p>
               <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-3">
                 {KIND_ORDER.map((k) => {
@@ -489,7 +489,7 @@ export function SearchPage() {
       ) : (
         <div className="space-y-4">
           {answers.length === 0 ? (
-            <section className="rounded-2xl border border-border bg-surface p-4">
+            <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
               <p className="text-sm font-semibold text-text">{t("search.ai.intro")}</p>
               <p className="mt-1 text-sm text-text-muted">{t("search.ai.introHint")}</p>
               <div className="mt-3 flex flex-wrap gap-2">

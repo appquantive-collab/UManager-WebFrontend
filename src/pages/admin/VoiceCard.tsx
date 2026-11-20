@@ -60,7 +60,7 @@ export function VoiceCard() {
   if (!s) return null;
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-4">
+    <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
       <div className="flex items-start gap-3">
         <Volume2 size={18} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
         <div>

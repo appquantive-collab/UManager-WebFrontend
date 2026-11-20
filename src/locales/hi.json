@@ -140,6 +140,12 @@
       "stock": "स्टॉक और ख़रीद",
       "money": "हिसाब",
       "manage": "टीम और सेटिंग्स"
+    },
+    "bottom": {
+      "home": "होम",
+      "sales": "बिक्री",
+      "stock": "स्टॉक",
+      "accounts": "हिसाब"
     }
   },
   "language": {
@@ -1534,6 +1540,50 @@
       "pendingOrders_one": "{{count}} ऑर्डर बिल होने के इंतज़ार में",
       "pendingOrders_other": "{{count}} ऑर्डर बिल होने के इंतज़ार में",
       "view": "देखें"
+    },
+    "home": {
+      "greeting": "नमस्ते, {{name}} जी 👋",
+      "greetingNoName": "नमस्ते जी 👋",
+      "subtitle": "आज के बिज़नेस का सार यहाँ है",
+      "talk": "मुंशी से बात करें",
+      "hint1": "बिल बनाएँ",
+      "hint2": "स्टॉक पूछें",
+      "hint3": "हिसाब देखें",
+      "quickActions": "जल्दी के काम",
+      "qa": {
+        "sale": {
+          "title": "नई बिक्री",
+          "sub": "बिल बनाएँ"
+        },
+        "order": {
+          "title": "नया ऑर्डर",
+          "sub": "ऑर्डर लिखें"
+        },
+        "stock": {
+          "title": "स्टॉक",
+          "sub": "माल देखें"
+        },
+        "pay": {
+          "title": "पेमेंट",
+          "sub": "पैसे जोड़ें"
+        }
+      },
+      "todayTitle": "आज का बिज़नेस",
+      "todaySales": "आज की बिक्री",
+      "toCollect": "पैसे लेने हैं",
+      "lowStock": "कम स्टॉक",
+      "itemsCount_one": "{{count}} आइटम",
+      "itemsCount_other": "{{count}} आइटम",
+      "attentionTitle": "आज ध्यान देने वाले काम",
+      "total": "कुल {{count}}",
+      "duesRow_one": "1 ग्राहक से पैसे लेने हैं",
+      "duesRow_other": "{{count}} ग्राहकों से पैसे लेने हैं",
+      "stockRow_one": "1 आइटम का स्टॉक ख़त्म हो रहा है",
+      "stockRow_other": "{{count}} आइटम का स्टॉक ख़त्म हो रहा है",
+      "ordersRow_one": "1 ऑर्डर बिल होने के इंतज़ार में",
+      "ordersRow_other": "{{count}} ऑर्डर बिल होने के इंतज़ार में",
+      "etc": "आदि",
+      "recentOrders": "हाल के ऑर्डर"
     }
   },
   "ai": {

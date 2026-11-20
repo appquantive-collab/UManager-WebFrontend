@@ -94,12 +94,12 @@ export function NotificationsMenu({ variant }: { variant: "mobile" | "desktop" }
         className={clsx(
           "relative flex items-center justify-center outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
           variant === "mobile"
-            ? "h-9 w-9 rounded-xl border border-border bg-surface hover:bg-surface-muted"
+            ? "h-10 w-10 rounded-full hover:bg-surface-muted"
             : "h-10 w-10 rounded-xl border border-border bg-surface hover:bg-surface-muted",
-          open ? "text-text" : "text-icon hover:text-text"
+          variant === "mobile" ? "text-text" : open ? "text-text" : "text-icon hover:text-text"
         )}
       >
-        <Bell size={18} strokeWidth={1.75} aria-hidden="true" />
+        <Bell size={variant === "mobile" ? 22 : 18} strokeWidth={1.8} aria-hidden="true" />
         {count > 0 ? (
           <span
             aria-hidden="true"

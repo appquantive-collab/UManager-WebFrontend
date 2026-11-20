@@ -32,7 +32,7 @@ export function TeamSettings() {
 
   return (
     <div className="max-w-3xl space-y-4">
-      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-text">{t("team.title")}</h3>
@@ -104,7 +104,7 @@ export function TeamSettings() {
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
         <h3 className="text-base font-bold text-text">{t("team.whoTitle")}</h3>
         <dl className="mt-3 space-y-3 text-sm">
           {(["MANAGER", "SALESMAN", "WAREHOUSE_STAFF"] as const).map((r) => (

@@ -20,7 +20,7 @@ export function SerialLookupCard({ text }: { text: string }) {
   const d = query.data;
   const locale = i18n.resolvedLanguage === "hi" ? "hi-IN" : "en-IN";
   return (
-    <section className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
+    <section className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4 shadow-card">
       <Smartphone size={20} className="mt-0.5 shrink-0 text-icon" aria-hidden="true" />
       <div className="min-w-0">
         <p className="text-sm font-bold text-text">

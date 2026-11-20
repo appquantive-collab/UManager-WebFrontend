@@ -1,43 +1,39 @@
-import { Fragment, useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
+  ArrowDown,
+  ArrowUp,
+  AudioLines,
+  Box,
+  Boxes,
   CalendarDays,
-  ChevronDown,
-  Hash,
+  ChevronRight,
+  ClipboardList,
+  IndianRupee,
   MessageCircle,
   Mic,
-  Package,
-  Receipt,
-  ShieldCheck,
+  Phone,
+  ReceiptText,
   ShoppingCart,
-  Sparkles,
   TrendingUp,
-  TrendingDown,
+  UserRound,
   Wallet,
-  Warehouse,
 } from "lucide-react";
 import clsx from "clsx";
 import type { AiDashboardLayout } from "../../lib/auth-api";
 import type { DashboardSummary } from "../../lib/dashboard-api";
+import { useAuthStore } from "../../lib/auth-store";
 import { useNewOrderModalStore } from "../../lib/new-order-store";
 import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { formatCurrency } from "../../lib/format";
-import { NeedsAttention } from "../../components/dashboard/NeedsAttention";
+import { indianMobile, whatsappLink } from "../../lib/phone";
+import { IconTile, type TileTone } from "../../components/ui/IconTile";
 
-const quickActions = [
-  { key: "new_order", i18nKey: "dashboard.mobileDashboard.quickActions.newOrder", icon: Sparkles },
-  { key: "new_sale", i18nKey: "dashboard.mobileDashboard.quickActions.newSale", icon: ShoppingCart },
-  { key: "voice_order", i18nKey: "dashboard.mobileDashboard.quickActions.voiceOrder", icon: Mic },
-  { key: "gst_bill", i18nKey: "dashboard.mobileDashboard.quickActions.gstBill", icon: Receipt },
-];
-
-const SECTION_ORDER = ["ai_brief", "quick_actions", "immediate_operations", "ledger_metrics", "order_flow"] as const;
-type SectionKey = (typeof SECTION_ORDER)[number];
-
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
+interface MobileDashboardProps {
+  aiLayout?: AiDashboardLayout | null;
+  summary?: DashboardSummary;
+  businessName?: string;
 }
 
 const statusClassName: Record<string, string> = {
@@ -47,437 +43,379 @@ const statusClassName: Record<string, string> = {
   cancelled: "bg-danger text-white",
 };
 
-interface MobileDashboardProps {
-  aiLayout?: AiDashboardLayout | null;
-  summary?: DashboardSummary;
-  businessName?: string;
-}
-
-export function MobileDashboard({ aiLayout, summary, businessName }: MobileDashboardProps) {
+/** The phone home screen: greeting + Munshi, quick actions, today's numbers, today's to-dos. */
+export function MobileDashboard({ summary, businessName }: MobileDashboardProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  // The AI's relabels and welcome note are written in English, so they're only
-  // used when the app is in English; Hinglish and Hindi use our own words.
-  const aiWords = (i18n.resolvedLanguage ?? "en") === "en" ? aiLayout : null;
-  const [briefOpen, setBriefOpen] = useState(false);
+  const ownerName = useAuthStore((state) => state.user?.name) ?? "";
+  const firstName = ownerName.trim().split(/\s+/)[0] ?? "";
   const openNewOrder = useNewOrderModalStore((state) => state.openModal);
   const openNewSale = useNewSaleModalStore((state) => state.openModal);
-  const openVoiceOrder = useNewOrderModalStore((state) => state.openVoice);
-  const openGstBill = useNewSaleModalStore((state) => state.openGstBill);
+  const lang = i18n.resolvedLanguage ?? "en";
+  const today = new Date().toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", { day: "numeric", month: "short", year: "numeric" });
 
-  const quickActionHandlers: Record<string, (() => void) | undefined> = {
-    new_order: openNewOrder,
-    new_sale: openNewSale,
-    voice_order: openVoiceOrder,
-    gst_bill: openGstBill,
-  };
+  const quickActions: { key: string; tone: TileTone; icon: typeof ReceiptText; onClick: () => void; badge?: boolean }[] = [
+    { key: "sale", tone: "sale", icon: ReceiptText, onClick: openNewSale },
+    { key: "order", tone: "order", icon: ShoppingCart, onClick: openNewOrder },
+    { key: "stock", tone: "stock", icon: Boxes, onClick: () => navigate("/app/inventory") },
+    { key: "pay", tone: "pay", icon: UserRound, onClick: () => navigate("/app/customers"), badge: true },
+  ];
 
-  const timeAgo = (iso: string): string => {
-    const diffMs = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return t("dashboard.mobileDashboard.justNow");
-    if (mins < 60) return t("dashboard.mobileDashboard.minutesAgo", { count: mins });
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return t("dashboard.mobileDashboard.hoursAgo", { count: hours });
-    const days = Math.floor(hours / 24);
-    return t("dashboard.mobileDashboard.daysAgo", { count: days });
-  };
+  const change = summary?.salesChangePercent ?? null;
+  const lowStockCount = summary?.lowStockCount ?? 0;
 
-  const statusLabel: Record<string, { label: string; className: string }> = {
-    pending: { label: t("dashboard.mobileDashboard.statusLabel.pending"), className: statusClassName.pending },
-    confirmed: { label: t("dashboard.mobileDashboard.statusLabel.confirmed"), className: statusClassName.confirmed },
-    delivered: { label: t("dashboard.mobileDashboard.statusLabel.delivered"), className: statusClassName.delivered },
-    cancelled: { label: t("dashboard.mobileDashboard.statusLabel.cancelled"), className: statusClassName.cancelled },
-  };
+  return (
+    <div className="space-y-6 pb-2">
+      {/* ---------- Hero: greeting + talk to Munshi ---------- */}
+      <section className="relative flex min-h-[13.5rem] items-center overflow-hidden rounded-3xl border border-primary/10 bg-[linear-gradient(120deg,#fff7f1_0%,#ffeadb_100%)]">
+        <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/60 blur-2xl" />
+        <MunshiAvatar />
+        {/* Soft voice bars beside Munshi. */}
+        <AudioLines size={30} strokeWidth={2.2} aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[34%] hidden text-primary/45 min-[480px]:block" />
 
-  const orderedSections = useMemo<SectionKey[]>(() => {
-    if (!aiLayout) return [...SECTION_ORDER];
-    const relevant = aiLayout.sections.filter((s): s is typeof s & { key: SectionKey } =>
-      (SECTION_ORDER as readonly string[]).includes(s.key)
-    );
-    if (relevant.length === 0) return [...SECTION_ORDER];
-    const sorted = [...relevant].sort((a, b) => a.priority - b.priority).map((s) => s.key);
-    for (const key of SECTION_ORDER) {
-      if (!sorted.includes(key)) sorted.push(key);
-    }
-    return sorted;
-  }, [aiLayout]);
-
-  const labelFor = (key: SectionKey, fallback: string) =>
-    aiWords?.sections.find((s) => s.key === key)?.label || fallback;
-
-  const fallbackBrief = summary
-    ? `${t("dashboard.mobileDashboard.fallbackBriefSales", { amount: formatCurrency(summary.todaySales) })} ${
-        summary.lowStockCount > 0
-          ? t(
-              summary.lowStockCount === 1
-                ? "dashboard.mobileDashboard.fallbackBriefLowStockOne"
-                : "dashboard.mobileDashboard.fallbackBriefLowStockOther",
-              { count: summary.lowStockCount }
-            )
-          : t("dashboard.mobileDashboard.fallbackBriefNoLowStock")
-      } ${
-        summary.topOverdueCustomerName
-          ? t("dashboard.mobileDashboard.fallbackBriefOverdue", {
-              name: summary.topOverdueCustomerName,
-              amount: formatCurrency(summary.topOverdueAmount),
-            })
-          : t("dashboard.mobileDashboard.fallbackBriefNoOverdue")
-      }`
-    : t("dashboard.mobileDashboard.loadingBrief");
-
-  const sectionRenderers: Record<SectionKey, () => React.ReactNode> = {
-    ai_brief: () => (
-      <section
-        key="ai_brief"
-        className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-elevation-1"
-      >
-        <div className="relative z-10 flex items-center gap-1 pr-2">
-        <button
-          type="button"
-          onClick={() => setBriefOpen((open) => !open)}
-          aria-expanded={briefOpen}
-          className="flex min-w-0 flex-1 items-start justify-between gap-3 p-4 pb-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        >
-          <div className="flex items-center gap-2">
-            <Sparkles size={20} strokeWidth={1.75} className="shrink-0 text-icon" aria-hidden="true" />
-            <div>
-              <span className="block font-label text-xs font-bold uppercase tracking-widest text-primary">
-                {t("dashboard.mobileDashboard.businessBriefLabel")}
-              </span>
-              <h3 className="font-headline text-[0.9375rem] font-semibold leading-tight text-text">
-                {labelFor("ai_brief", t("dashboard.mobileDashboard.autonomousBusinessBrief"))}
-              </h3>
-            </div>
-          </div>
-          <ChevronDown size={18} className={clsx("shrink-0 text-text-muted transition-transform", briefOpen && "rotate-180")} />
-        </button>
-        {/* Straight into the Munshi AI chat. */}
-        <button
-          type="button"
-          onClick={() => navigate("/app/ai")}
-          aria-label={t("dashboard.mobileDashboard.openMunshi")}
-          title={t("dashboard.mobileDashboard.openMunshi")}
-          className="relative h-11 w-11 shrink-0 rounded-full outline-none ring-2 ring-primary/30 transition-transform active:scale-95 focus-visible:ring-primary"
-        >
-          <img src="/splash-munshi.webp" alt="" className="h-full w-full rounded-full object-cover object-[center_12%]" />
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-surface bg-primary text-on-primary">
-            <MessageCircle size={10} strokeWidth={2.5} aria-hidden="true" />
-          </span>
-        </button>
-        </div>
-
-        <div
-          className={clsx(
-            "relative z-10 grid transition-all duration-200 ease-in-out",
-            briefOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-          )}
-        >
-          <div className="overflow-hidden">
-            <div className="px-4 pb-4">
-              <p className="text-[0.8125rem] leading-relaxed text-text-muted">{aiWords?.welcomeMessage || fallbackBrief}</p>
-            </div>
-          </div>
+        <div className="relative w-[70%] py-6 pl-5 min-[480px]:w-[62%]">
+          <h1 className="text-[1.375rem] font-bold leading-tight tracking-tight text-text min-[400px]:text-2xl">
+            {firstName ? t("dashboard.home.greeting", { name: firstName }) : t("dashboard.home.greetingNoName")}
+          </h1>
+          <p className="mt-1 text-sm leading-snug text-text-subtle">{t("dashboard.home.subtitle")}</p>
+          <Link
+            to="/app/ai"
+            className="mt-5 inline-flex h-12 w-fit max-w-full items-center justify-start gap-2.5 rounded-full bg-brand-gradient pl-4 pr-4 text-[0.9375rem] font-semibold text-white shadow-brand outline-none transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+          >
+            <Mic size={21} strokeWidth={2.2} className="shrink-0" aria-hidden="true" />
+            <span className="whitespace-nowrap">{t("dashboard.home.talk")}</span>
+          </Link>
+          <p className="mt-3 text-xs leading-relaxed text-text-subtle">
+            {[t("dashboard.home.hint1"), t("dashboard.home.hint2"), t("dashboard.home.hint3")].join("  •  ")}
+          </p>
         </div>
       </section>
-    ),
 
-    quick_actions: () => (
-      <section key="quick_actions" className="grid grid-cols-4 gap-2">
+      {/* ---------- Quick actions ---------- */}
+      <section className="grid grid-cols-4 gap-2.5" aria-label={t("dashboard.home.quickActions")}>
         {quickActions.map((action) => (
           <button
             key={action.key}
             type="button"
-            onClick={quickActionHandlers[action.key]}
-            // Brand orange with a soft white sheen from the top-left; white icon and text.
-            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-xl bg-[linear-gradient(145deg,#d2601f_0%,#bb4413_55%,#9e3200_100%)] p-3 text-white shadow-elevation-2 outline-none transition-all hover:brightness-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+            onClick={action.onClick}
+            className="flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-border bg-surface px-1 py-3 shadow-card text-center outline-none transition-[transform,background-color] active:scale-[0.97] active:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.08)_45%,transparent_70%)]"
+            <IconTile
+              icon={action.icon}
+              tone={action.tone}
+              round
+              badge={
+                action.badge ? (
+                  <span className="absolute -bottom-0.5 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-surface text-tile-pay">
+                    <IndianRupee size={12} strokeWidth={2.6} />
+                  </span>
+                ) : null
+              }
             />
-            <action.icon size={22} strokeWidth={1.9} className="relative text-white" aria-hidden="true" />
-            <span className="relative mt-2 text-center font-label text-xs font-semibold text-white">
-              {/* "Voice+" is a fixed name, so the AI dashboard doesn't relabel it. */}
-              {(action.key !== "voice_order" && aiWords?.quickActionLabels[action.key]) || t(action.i18nKey)}
+            <span className="w-full min-w-0">
+              <span className="block truncate text-[0.8125rem] font-semibold leading-tight text-text">{t(`dashboard.home.qa.${action.key}.title`)}</span>
+              <span className="mt-0.5 block truncate text-[0.6875rem] leading-tight text-text-muted">{t(`dashboard.home.qa.${action.key}.sub`)}</span>
             </span>
           </button>
         ))}
       </section>
-    ),
 
-    immediate_operations: () => {
-      const hasLowStock = (summary?.lowStockCount ?? 0) > 0;
-      const hasOverdue = (summary?.overdueCustomerCount ?? 0) > 0;
-      const cards = [
-        hasLowStock
-          ? {
-              icon: Package,
-              badge: t("dashboard.mobileDashboard.lowStockBadge", { count: summary!.lowStockCount }),
-              badgeClass: "bg-danger text-white",
-              title: summary!.lowStockItems.slice(0, 2).join(" • ") || t("dashboard.mobileDashboard.lowStockItemsFallback"),
-              detail: t("dashboard.mobileDashboard.belowReorderLevel"),
-            }
-          : null,
-        hasOverdue
-          ? {
-              icon: Wallet,
-              badge: t("dashboard.mobileDashboard.overdueBadge", { amount: formatCurrency(summary!.receivables) }),
-              badgeClass: "bg-primary-container text-primary",
-              title: t(
-                summary!.overdueCustomerCount === 1
-                  ? "dashboard.mobileDashboard.partyPendingOne"
-                  : "dashboard.mobileDashboard.partyPendingOther",
-                { count: summary!.overdueCustomerCount }
-              ),
-              detail: summary!.topOverdueCustomerName
-                ? t("dashboard.mobileDashboard.topOverdue", {
-                    name: summary!.topOverdueCustomerName,
-                    amount: formatCurrency(summary!.topOverdueAmount),
-                  })
-                : "",
-            }
-          : null,
-      ].filter((c): c is NonNullable<typeof c> => c !== null);
-
-      return (
-        <section key="immediate_operations" className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className={clsx("h-2 w-2 rounded-full", cards.length > 0 ? "bg-danger" : "bg-success")} />
-              <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
-                {labelFor("immediate_operations", t("dashboard.mobileDashboard.immediateOperations"))}
-              </h3>
-            </div>
-            {cards.length > 0 && (
-              <span className="rounded-full bg-danger px-2 py-0.5 font-label text-xs font-bold text-white">
-                {t("dashboard.mobileDashboard.pendingCount", { count: cards.length })}
-              </span>
-            )}
-          </div>
-
-          {cards.length === 0 ? (
-            <div className="rounded-xl border border-border bg-surface p-4 text-center text-sm text-text-muted">
-              {t("dashboard.mobileDashboard.allClear")}
-            </div>
-          ) : (
-            <div className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-1">
-              {cards.map((item) => (
-                <div
-                  key={item.title}
-                  className="flex min-w-55 shrink-0 flex-col justify-between rounded-xl border border-border bg-surface p-3.5"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <item.icon size={20} strokeWidth={1.75} className="text-icon" aria-hidden="true" />
-                    <span className={`rounded-full px-2 py-0.5 font-label text-xs font-bold ${item.badgeClass}`}>
-                      {item.badge}
-                    </span>
-                  </div>
-                  <div className="mt-2.5">
-                    <p className="truncate text-[0.8125rem] font-semibold text-text">{item.title}</p>
-                    {item.detail ? <p className="mt-0.5 font-label text-xs text-text-muted">{item.detail}</p> : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      );
-    },
-
-    ledger_metrics: () => {
-      const changePercent = summary?.salesChangePercent ?? null;
-      return (
-        <section key="ledger_metrics" className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
-              {labelFor("ledger_metrics", t("dashboard.mobileDashboard.ledgerMetrics"))}
-            </h3>
-            <span className="font-label text-xs font-medium text-text-muted">
-              {t("dashboard.mobileDashboard.updatedRealTime")}
-            </span>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-4 shadow-elevation-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <span className="block font-label text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  {t("dashboard.mobileDashboard.todaysTotalBilling")}
-                </span>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="font-headline text-3xl font-bold tracking-tight text-text">
-                    {formatCurrency(summary?.todaySales ?? 0)}
-                  </span>
-                  {changePercent != null && (
-                    <span
-                      className={clsx(
-                        "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-label text-xs font-bold",
-                        changePercent >= 0 ? "bg-success-container text-success" : "bg-danger-container text-danger"
-                      )}
-                    >
-                      {changePercent >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                      {changePercent >= 0 ? "+" : ""}
-                      {changePercent.toFixed(1)}%
-                    </span>
-                  )}
-                </div>
-                <span className="mt-1 block font-label text-xs text-text-muted">
-                  {t("dashboard.mobileDashboard.vsYesterday", { amount: formatCurrency(summary?.yesterdaySales ?? 0) })}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
-              <div className="flex items-center justify-between">
-                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
-                  {t("dashboard.mobileDashboard.monthSales")}
-                </span>
-                <CalendarDays size={17} className="text-icon" aria-hidden="true" />
-              </div>
-              <div className="mt-2.5">
-                <span className="block font-headline text-lg font-bold text-text">
-                  {formatCurrency(summary?.monthSales ?? 0)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
-              <div className="flex items-center justify-between">
-                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
-                  {t("dashboard.mobileDashboard.inventoryValShort")}
-                </span>
-                <Warehouse size={17} className="text-icon" aria-hidden="true" />
-              </div>
-              <div className="mt-2.5">
-                <span className="block font-headline text-lg font-bold text-text">
-                  {formatCurrency(summary?.inventoryValue ?? 0)}
-                </span>
-                <div className="mt-1.5 flex items-center gap-1 font-label text-xs text-text-muted">
-                  <Hash size={13} />
-                  <span>{t("dashboard.mobileDashboard.totalSkus", { count: summary?.totalSkus ?? 0 })}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
-              <div className="flex items-center justify-between">
-                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
-                  {t("dashboard.mobileDashboard.receivables")}
-                </span>
-                <Wallet size={17} className="text-icon" aria-hidden="true" />
-              </div>
-              <div className="mt-2.5">
-                <span className="block font-headline text-lg font-bold text-text">
-                  {formatCurrency(summary?.receivables ?? 0)}
-                </span>
-                {summary && summary.overdueCustomerCount > 0 ? (
-                  <div className="mt-1.5 flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-                    <span className="font-label text-xs font-bold text-danger">
-                      {t("dashboard.mobileDashboard.overdueCount", { count: summary.overdueCustomerCount })}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="mt-1.5 block font-label text-xs text-text-muted">{t("dashboard.mobileDashboard.allClear")}</span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-between rounded-xl border border-border bg-surface p-3.5">
-              <div className="flex items-center justify-between">
-                <span className="font-label text-xs font-bold uppercase tracking-wider text-text-muted">
-                  {t("dashboard.mobileDashboard.payables")}
-                </span>
-                <span className="text-xs text-text-muted">—</span>
-              </div>
-              <div className="mt-2.5">
-                <span className="block font-headline text-lg font-bold text-text-muted">{t("dashboard.mobileDashboard.notTracked")}</span>
-                <span className="mt-0.5 block font-label text-xs text-text-muted">{t("dashboard.mobileDashboard.noPurchasesModuleYet")}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    },
-
-    order_flow: () => (
-      <section key="order_flow" className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Receipt size={18} className="text-icon" aria-hidden="true" />
-            <h3 className="font-headline text-[0.875rem] font-bold uppercase tracking-wide text-text">
-              {labelFor("order_flow", t("dashboard.mobileDashboard.liveOrderFlow"))}
-            </h3>
-          </div>
+      {/* ---------- Today's numbers ---------- */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-bold tracking-tight text-text">{t("dashboard.home.todayTitle")}</h2>
+          <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text shadow-card">
+            <CalendarDays size={14} className="text-icon" aria-hidden="true" />
+            {today}
+          </span>
         </div>
-
-        {!summary || summary.recentOrders.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface p-4 text-center text-sm text-text-muted">
-            {t("dashboard.mobileDashboard.noOrdersYet")}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {summary.recentOrders.map((order) => {
-              const status = statusLabel[order.status] ?? statusLabel.pending;
-              return (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-surface p-3 transition-colors hover:bg-surface-muted"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border font-headline text-xs font-bold text-text-muted">
-                      {initialsFor(order.customerName)}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="truncate text-[0.8125rem] font-semibold text-text">{order.customerName}</span>
-                      </div>
-                      <p className="truncate font-label text-xs text-text-muted">
-                        {t(
-                          order.itemCount === 1
-                            ? "dashboard.mobileDashboard.itemsCountOne"
-                            : "dashboard.mobileDashboard.itemsCountOther",
-                          { count: order.itemCount }
-                        )}{" "}
-                        · {timeAgo(order.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end pl-2">
-                    <span className="font-label text-xs font-bold text-text">{formatCurrency(order.amount)}</span>
-                    <span className={`mt-1 rounded-full px-2 py-0.5 font-label text-xs font-bold ${status.className}`}>
-                      {status.label}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="grid grid-cols-3 gap-2.5">
+          <StatCard
+            icon={TrendingUp}
+            iconClass="text-success"
+            className="bg-[linear-gradient(160deg,#f3fcf6_0%,#ffffff_70%)]"
+            label={t("dashboard.home.todaySales")}
+            value={formatCurrency(summary?.todaySales ?? 0)}
+            extra={
+              change != null ? (
+                <span className={clsx("inline-flex items-center gap-0.5 text-xs font-semibold", change >= 0 ? "text-success" : "text-danger")}>
+                  {change >= 0 ? <ArrowUp size={12} strokeWidth={2.6} /> : <ArrowDown size={12} strokeWidth={2.6} />}
+                  {change >= 0 ? "+" : ""}
+                  {Math.round(change)}%
+                </span>
+              ) : null
+            }
+            loading={!summary}
+          />
+          <StatCard
+            icon={Wallet}
+            iconClass="text-primary"
+            className="bg-[linear-gradient(160deg,#fff6ef_0%,#ffffff_70%)]"
+            label={t("dashboard.home.toCollect")}
+            value={formatCurrency(summary?.receivables ?? 0)}
+            onClick={() => navigate("/app/customers")}
+            loading={!summary}
+          />
+          <StatCard
+            icon={Box}
+            iconClass="text-danger"
+            className={lowStockCount > 0 ? "border-danger/15 bg-[linear-gradient(160deg,#fff1f1_0%,#fff8f8_70%)]" : undefined}
+            label={t("dashboard.home.lowStock")}
+            value={t("dashboard.home.itemsCount", { count: lowStockCount })}
+            valueClass={lowStockCount > 0 ? "text-danger" : undefined}
+            onClick={() => navigate("/app/inventory")}
+            loading={!summary}
+          />
+        </div>
       </section>
-    ),
-  };
+
+      {/* ---------- Today's to-dos ---------- */}
+      <AttentionCard summary={summary} businessName={businessName} />
+
+      {/* ---------- Latest orders ---------- */}
+      {summary && summary.recentOrders.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold tracking-tight text-text">{t("dashboard.home.recentOrders")}</h2>
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+            {summary.recentOrders.map((order) => (
+              <li key={order.id} className="flex items-center gap-3 px-4 py-3">
+                <IconTile icon={ClipboardList} tone="neutral" size="sm" round />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-text">{order.customerName}</p>
+                  <p className="truncate text-xs text-text-muted">
+                    {t(order.itemCount === 1 ? "dashboard.mobileDashboard.itemsCountOne" : "dashboard.mobileDashboard.itemsCountOther", { count: order.itemCount })}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="text-sm font-bold tabular-nums text-text">{formatCurrency(order.amount)}</span>
+                  <span className={clsx("rounded-full px-2 py-0.5 text-[0.6875rem] font-semibold", statusClassName[order.status] ?? statusClassName.pending)}>
+                    {t(`dashboard.mobileDashboard.statusLabel.${order.status}`)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Munshi standing at the right of the greeting. Uses the cut-out picture
+ * /munshi-hero.png (transparent background) when it's in web/public; until
+ * then the Munshi photo, its edges faded into the card.
+ */
+function MunshiAvatar() {
+  const [cutout, setCutout] = useState(true);
+  return cutout ? (
+    <img
+      src="/munshi-hero.png"
+      alt=""
+      onError={() => setCutout(false)}
+      className="pointer-events-none absolute bottom-0 right-0 h-[96%] w-auto max-w-[44%] object-contain object-bottom"
+    />
+  ) : (
+    <img
+      src="/splash-munshi.webp"
+      alt=""
+      // One soft fade from the left only (two combined masks left a hard edge in some browsers).
+      className="pointer-events-none absolute inset-y-0 right-0 h-full w-[46%] object-cover object-[50%_18%] [mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,0.55)_28%,black_58%)] [-webkit-mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,0.55)_28%,black_58%)]"
+    />
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  iconClass,
+  label,
+  value,
+  valueClass,
+  extra,
+  className,
+  onClick,
+  loading,
+}: {
+  icon: typeof Wallet;
+  iconClass: string;
+  label: string;
+  value: string;
+  valueClass?: string;
+  extra?: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  loading?: boolean;
+}) {
+  const body = (
+    <>
+      <Icon size={22} strokeWidth={2} className={iconClass} aria-hidden="true" />
+      <span className="mt-2.5 block truncate text-xs text-text-subtle">{label}</span>
+      {loading ? (
+        <span className="mt-1.5 block h-6 w-16 animate-pulse rounded-md bg-surface-variant" />
+      ) : (
+        <span className={clsx("mt-0.5 block truncate text-lg font-bold tabular-nums tracking-tight text-text min-[400px]:text-xl", valueClass)} title={value}>
+          {value}
+        </span>
+      )}
+      {extra ? <span className="mt-0.5 block">{extra}</span> : null}
+    </>
+  );
+  const shell = clsx("min-w-0 rounded-2xl border border-border bg-surface p-3 text-left shadow-card", className);
+  return onClick ? (
+    <button type="button" onClick={onClick} className={clsx(shell, "outline-none transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40")}>
+      {body}
+    </button>
+  ) : (
+    <div className={shell}>{body}</div>
+  );
+}
+
+/** "Aaj dhyan dene wale kaam": dues, low stock and orders waiting; each row opens its details. */
+function AttentionCard({ summary, businessName }: { summary?: DashboardSummary; businessName?: string }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState<string | null>(null);
+  const dues = summary?.topDues ?? [];
+  const lowStock = summary?.lowStockDetails ?? [];
+  const pendingOrders = summary?.pendingOrderCount ?? 0;
+  const total = dues.length + lowStock.length + pendingOrders;
+  const names = (list: string[]) => (list.length > 3 ? `${list.slice(0, 3).join(", ")}, ${t("dashboard.home.etc")}` : list.join(", "));
+
+  const rows = [
+    dues.length > 0 && {
+      key: "dues",
+      tone: "sale" as TileTone,
+      icon: UserRound,
+      title: t("dashboard.home.duesRow", { count: dues.length }),
+      sub: names(dues.map((d) => d.name)),
+    },
+    lowStock.length > 0 && {
+      key: "stock",
+      tone: "sale" as TileTone,
+      icon: Box,
+      title: t("dashboard.home.stockRow", { count: lowStock.length }),
+      sub: names(lowStock.map((s) => s.name)),
+    },
+    pendingOrders > 0 && {
+      key: "orders",
+      tone: "order" as TileTone,
+      icon: ClipboardList,
+      title: t("dashboard.home.ordersRow", { count: pendingOrders }),
+      sub: "",
+    },
+  ].filter(Boolean) as { key: string; tone: TileTone; icon: typeof Box; title: string; sub: string }[];
 
   return (
-    <div className="space-y-4">
-      {orderedSections.map((key) => (
-        <Fragment key={key}>
-          {sectionRenderers[key]()}
-          {/* Today’s to-do list (dues with call/WhatsApp, low stock, waiting orders) right under the shortcuts. */}
-          {key === "quick_actions" ? <NeedsAttention summary={summary} businessName={businessName} /> : null}
-        </Fragment>
-      ))}
+    <section className="rounded-2xl border border-border bg-surface shadow-card" aria-labelledby="home-attention">
+      <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-4">
+        <h2 id="home-attention" className="text-lg font-bold tracking-tight text-text">
+          {t("dashboard.home.attentionTitle")}
+        </h2>
+        {total > 0 ? (
+          <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">{t("dashboard.home.total", { count: total })}</span>
+        ) : null}
+      </div>
 
-      <footer className="flex items-center justify-between rounded-xl border border-border bg-surface p-3">
-        <div className="flex items-center gap-2">
-          <ShieldCheck size={18} className="text-icon" aria-hidden="true" />
-          <div className="flex flex-col">
-            <span className="font-label text-xs font-bold text-text">{t("dashboard.mobileDashboard.allDataSynced")}</span>
-          </div>
+      {!summary ? (
+        <div className="space-y-2 px-4 pb-4" aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-14 animate-pulse rounded-xl bg-surface-variant" />
+          ))}
         </div>
-      </footer>
-    </div>
+      ) : rows.length === 0 ? (
+        <p className="px-4 pb-5 pt-1 text-sm text-text-muted">{t("dashboard.attention.allClear")}</p>
+      ) : (
+        <ul className="divide-y divide-border px-2 pb-2">
+          {rows.map((row) => {
+            const expanded = open === row.key;
+            return (
+              <li key={row.key}>
+                {row.key === "orders" ? (
+                  <Link to="/app/sales" className="flex items-center gap-3 rounded-xl px-2 py-3 outline-none active:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40">
+                    <IconTile icon={row.icon} tone={row.tone} round />
+                    <span className="min-w-0 flex-1 text-[0.9375rem] font-semibold text-text">{row.title}</span>
+                    <ChevronRight size={20} className="shrink-0 text-icon" aria-hidden="true" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setOpen(expanded ? null : row.key)}
+                    aria-expanded={expanded}
+                    className="flex w-full items-center gap-3 rounded-xl px-2 py-3 text-left outline-none active:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <IconTile icon={row.icon} tone={row.tone} round />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[0.9375rem] font-semibold leading-snug text-text">{row.title}</span>
+                      {row.sub ? <span className="mt-0.5 block truncate text-[0.8125rem] text-text-muted">{row.sub}</span> : null}
+                    </span>
+                    <ChevronRight size={20} className={clsx("shrink-0 text-icon transition-transform", expanded && "rotate-90")} aria-hidden="true" />
+                  </button>
+                )}
+
+                {expanded && row.key === "dues" ? (
+                  <ul className="space-y-2 px-2 pb-3">
+                    {dues.map((due) => {
+                      const mobile = indianMobile(due.phone);
+                      const reminder = t("dashboard.attention.reminderMessage", { name: due.name, amount: formatCurrency(due.due), business: businessName ?? "VoiceMunshi" });
+                      return (
+                        <li key={due.customerId} className="flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2">
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold text-text">{due.name}</span>
+                            <span className="block text-xs text-text-muted">{t("dashboard.attention.bills", { count: due.invoiceCount })}</span>
+                          </span>
+                          <span className="shrink-0 text-sm font-bold tabular-nums text-danger">{formatCurrency(due.due)}</span>
+                          {mobile ? (
+                            <>
+                              <a
+                                href={`tel:+${mobile}`}
+                                aria-label={t("dashboard.attention.call", { name: due.name })}
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                              >
+                                <Phone size={16} aria-hidden="true" />
+                              </a>
+                              <a
+                                href={whatsappLink(mobile, reminder)}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={t("dashboard.attention.whatsapp", { name: due.name })}
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-success text-white outline-none focus-visible:ring-2 focus-visible:ring-success/40"
+                              >
+                                <MessageCircle size={16} aria-hidden="true" />
+                              </a>
+                            </>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+
+                {expanded && row.key === "stock" ? (
+                  <div className="px-2 pb-3">
+                    <ul className="space-y-1.5">
+                      {lowStock.map((item) => (
+                        <li key={item.productId} className="flex items-center justify-between gap-3 rounded-xl bg-surface-muted px-3 py-2">
+                          <span className="min-w-0 truncate text-sm font-semibold text-text">{item.name}</span>
+                          <span
+                            className={clsx(
+                              "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold",
+                              item.quantity <= 0 ? "bg-danger text-white" : "bg-warning-container text-warning"
+                            )}
+                          >
+                            {item.quantity <= 0 ? t("dashboard.attention.outOfStock") : t("dashboard.attention.leftOf", { quantity: item.quantity, reorder: item.reorderLevel })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link to="/app/inventory" className="mt-2 inline-block px-1 text-sm font-semibold text-primary">
+                      {t("dashboard.attention.openInventory")}
+                    </Link>
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }

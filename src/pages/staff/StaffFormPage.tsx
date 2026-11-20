@@ -57,11 +57,11 @@ export function StaffFormPage() {
       </div>
 
       {isEdit && staffQuery.isLoading ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
+        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted shadow-card">
           {t("staff.staffFormPage.loadingStaffMember")}
         </div>
       ) : isEdit && !staffMember ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-danger">
+        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-danger shadow-card">
           {t("staff.staffFormPage.loadFailed")}
         </div>
       ) : (

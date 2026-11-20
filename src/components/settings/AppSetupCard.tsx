@@ -49,7 +49,7 @@ export function AppSetupCard() {
   });
 
   return (
-    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-card">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-base font-bold text-text">{t("appSetup.title")}</h3>

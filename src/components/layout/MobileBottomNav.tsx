@@ -1,28 +1,21 @@
-import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { Plus, Sparkles } from "lucide-react";
-import { canSee, mobileBottomNav } from "../../lib/nav";
+import { AudioLines } from "lucide-react";
+import { canSee, mobileBottomNav, type NavItem } from "../../lib/nav";
 import { useAuthStore } from "../../lib/auth-store";
 import { useAppSetup } from "../../lib/use-app-setup";
 import { getDashboardSummary } from "../../lib/dashboard-api";
-import { useDisplayStore } from "../../lib/display-settings";
 
 interface MobileBottomNavProps {
-  onQuickAction: () => void;
-  quickActionsOpen: boolean;
+  /** Kept for the layout's create sheet; the dock itself no longer has a + button. */
+  onQuickAction?: () => void;
+  quickActionsOpen?: boolean;
 }
 
-// "Liquid glass" dock: a frosted capsule (Home · Sales · + Create · Stock · Staff)
-// plus a separate round, glossy Munshi AI button. The current tab sits in a white glass pill that shows its label; when
-// you switch, the pill stretches across to the new tab like liquid, then settles.
-// With Large/Extra-large text (Settings → Display) every tab shows its label.
-
-type Rect = { x: number; w: number };
-
-const STRETCH_MS = 150;
+// Phone dock: Home · Bikri · [Munshi voice] · Stock · Hisaab. The current tab sits
+// in a soft orange pill; Munshi is the raised orange button in the middle.
 
 function CountBadge({ count, tone }: { count: number; tone: "danger" | "warning" }) {
   if (count <= 0) return null;
@@ -30,7 +23,7 @@ function CountBadge({ count, tone }: { count: number; tone: "danger" | "warning"
     <span
       aria-hidden="true"
       className={clsx(
-        "absolute -right-2.5 -top-1.5 flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full px-1 text-[0.6875rem] font-bold leading-none tabular-nums text-white ring-2 ring-white/80",
+        "absolute -right-2.5 -top-1.5 flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full px-1 text-[0.6875rem] font-bold leading-none tabular-nums text-white ring-2 ring-surface",
         tone === "danger" ? "bg-danger" : "bg-warning"
       )}
     >
@@ -39,22 +32,16 @@ function CountBadge({ count, tone }: { count: number; tone: "danger" | "warning"
   );
 }
 
-function prefersReducedMotion() {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBottomNavProps) {
+export function MobileBottomNav(_props: MobileBottomNavProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const role = useAuthStore((state) => state.user?.role);
   const { features } = useAppSetup();
   const navItems = mobileBottomNav.filter((item) => canSee(item, role, features));
-  const textSize = useDisplayStore((state) => state.textSize);
-  const showAllLabels = textSize === "large" || textSize === "xlarge";
-
-  const activeIndex = navItems.findIndex((item) =>
-    item.path === "/app" ? pathname === "/app" || pathname === "/app/" : pathname.startsWith(item.path)
-  );
+  // Two tabs on each side of Munshi when there are four; otherwise as even as possible.
+  const leftCount = Math.ceil(navItems.length / 2);
+  const left = navItems.slice(0, leftCount);
+  const right = navItems.slice(leftCount);
 
   // Live counts, shared with the dashboard's cached summary (refreshed at most once a minute).
   const { data: summary } = useQuery({ queryKey: ["dashboard-summary"], queryFn: getDashboardSummary, staleTime: 60_000 });
@@ -66,211 +53,66 @@ export function MobileBottomNav({ onQuickAction, quickActionsOpen }: MobileBotto
     return null;
   };
 
-  // ---- The sliding glass pill ----
-  const barRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [pill, setPill] = useState<Rect | null>(null);
-  const [stretching, setStretching] = useState(false);
-  const stretchingRef = useRef(false);
-  const lastIndex = useRef(activeIndex);
+  const isActive = (item: NavItem) => (item.path === "/app" ? pathname === "/app" || pathname === "/app/" : pathname.startsWith(item.path));
 
-  const rectOf = (index: number): Rect | null => {
-    const el = tabRefs.current[index];
-    return el ? { x: el.offsetLeft, w: el.offsetWidth } : null;
+  const tab = (item: NavItem) => {
+    const active = isActive(item);
+    const badge = badgeFor(item.path);
+    return (
+      <NavLink
+        key={item.path}
+        to={item.path}
+        end={item.path === "/app"}
+        className="group flex min-w-0 flex-1 justify-center outline-none"
+      >
+        <span
+          className={clsx(
+            "flex min-w-[4.25rem] flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition-colors group-focus-visible:ring-2 group-focus-visible:ring-primary/40",
+            active ? "bg-primary-container" : "group-active:bg-surface-muted"
+          )}
+        >
+          <span className="relative flex items-center justify-center">
+            <item.icon size={23} strokeWidth={active ? 2.1 : 1.8} className={active ? "text-primary" : "text-text-subtle"} aria-hidden="true" />
+            {badge ? <CountBadge count={badge.count} tone={badge.tone} /> : null}
+          </span>
+          <span className={clsx("max-w-full truncate text-xs leading-none", active ? "font-bold text-primary" : "font-medium text-text-subtle")}>
+            {t(item.labelKey)}
+          </span>
+        </span>
+        {badge ? <span className="sr-only">{badge.label}</span> : null}
+      </NavLink>
+    );
   };
-
-  // Follow the active tab while labels open/close and on resize. Every tab is
-  // watched: when the old tab's label closes, the active tab *moves* without
-  // changing size, and the pill must move with it.
-  useLayoutEffect(() => {
-    if (activeIndex < 0 || !barRef.current) return;
-    const follow = () => {
-      if (!stretchingRef.current) setPill(rectOf(activeIndex));
-    };
-    const observer = new ResizeObserver(follow);
-    observer.observe(barRef.current);
-    for (const tab of tabRefs.current) if (tab) observer.observe(tab);
-    return () => observer.disconnect();
-  }, [activeIndex, showAllLabels]);
-
-  // On a tab change: stretch from the old tab to the new one, then settle.
-  useLayoutEffect(() => {
-    const from = lastIndex.current;
-    lastIndex.current = activeIndex;
-    const to = rectOf(activeIndex);
-    if (activeIndex < 0 || !to) {
-      setPill(null);
-      return;
-    }
-    const start = from >= 0 ? rectOf(from) : null;
-    if (!start || from === activeIndex || prefersReducedMotion()) {
-      setPill(to);
-      return;
-    }
-    const left = Math.min(start.x, to.x);
-    const right = Math.max(start.x + start.w, to.x + to.w);
-    stretchingRef.current = true;
-    setStretching(true);
-    setPill({ x: left, w: right - left });
-    const timer = window.setTimeout(() => {
-      stretchingRef.current = false;
-      setStretching(false);
-      setPill(rectOf(activeIndex));
-    }, STRETCH_MS);
-    return () => window.clearTimeout(timer);
-  }, [activeIndex]);
 
   return (
     <nav
       aria-label={t("layout.mainNavigation")}
-      className={clsx(
-        // Above the Create sheet only while it is open (so its × can close it); otherwise
-        // below popups and forms, which must never have their buttons covered.
-        "pointer-events-none fixed inset-x-0 bottom-0 px-2 min-[400px]:px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
-        quickActionsOpen ? "z-[60]" : "z-40"
-      )}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_20px_-12px_rgba(16,24,40,0.18)] backdrop-blur supports-[backdrop-filter]:bg-surface/90 lg:hidden"
     >
-      <div className="pointer-events-auto mx-auto flex max-w-md items-center gap-2 min-[400px]:gap-2.5">
-        {/* Frosted capsule (falls back to near-solid white where blur isn't supported). */}
-        <div
-          ref={barRef}
-          className={clsx(
-            "relative flex h-14 min-w-0 flex-1 items-center justify-between rounded-full border border-[rgba(59,31,18,0.09)] p-1 min-[400px]:h-16 min-[400px]:p-1.5",
-            // See-through frosted glass: what scrolls behind shows through, blurred.
-            "bg-surface/95 supports-[backdrop-filter]:bg-surface/55 backdrop-blur-2xl backdrop-saturate-[1.6]",
-            // Faint warm shadow under it plus a bright inner top edge.
-            "shadow-[0_8px_28px_-10px_rgba(59,31,18,0.22),0_1px_3px_rgba(59,31,18,0.06),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(255,255,255,0.3)]"
-          )}
-        >
-          {/* Top sheen for the glass look. */}
-          <span aria-hidden="true" className="pointer-events-none absolute inset-x-5 top-0 h-1/2 rounded-t-full bg-gradient-to-b from-white/50 to-transparent" />
+      {/* Full-width bar; the tabs stay a comfortable thumb-width apart on wide screens. */}
+      <div className="relative mx-auto flex h-[4.5rem] w-full max-w-2xl items-center px-1">
+        {left.map(tab)}
 
-          {/* The white glass pill behind the current tab. */}
-          {pill ? (
-            <span
-              aria-hidden="true"
-              className={clsx(
-                "absolute inset-y-1.5 left-0 rounded-full border border-border/60 bg-surface",
-                "shadow-[0_3px_12px_-3px_rgba(59,31,18,0.22),inset_0_1px_0_rgba(255,255,255,1)]",
-                "motion-reduce:transition-none",
-                stretching
-                  ? "transition-[transform,width] duration-150 ease-out"
-                  : "transition-[transform,width] duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
-              )}
-              style={{ transform: `translateX(${pill.x}px)`, width: pill.w }}
-            />
-          ) : null}
-
-          {navItems.map((item, index) => {
-            const active = index === activeIndex;
-            // Create (+) sits in the middle of the capsule, right after Sales.
-            const createButton =
-              index === 2 ? (
-                <button
-                  type="button"
-                  onClick={onQuickAction}
-                  aria-haspopup="dialog"
-                  aria-expanded={quickActionsOpen}
-                  aria-label={quickActionsOpen ? t("layoutExtra.quickActionSheet.close") : t("quickActions.create")}
-                  className={clsx(
-                    "relative z-10 flex h-full shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40",
-                    showAllLabels ? "min-w-0 flex-1 flex-col gap-0.5 px-1" : "px-2.5 min-[400px]:px-3.5"
-                  )}
-                >
-                  <Plus
-                    size={showAllLabels ? 22 : 25}
-                    strokeWidth={1.9}
-                    aria-hidden="true"
-                    className={clsx(
-                      "transition-transform duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] active:scale-90 motion-reduce:transition-none",
-                      quickActionsOpen ? "rotate-45 text-text" : "text-icon"
-                    )}
-                  />
-                  {showAllLabels ? <span className="text-xs font-medium leading-none text-text-muted">{t("quickActions.create")}</span> : null}
-                </button>
-              ) : null;
-            const badge = badgeFor(item.path);
-            const labelVisible = active || showAllLabels;
-            return (
-              <Fragment key={item.path}>
-              {createButton}
-              <NavLink
-                ref={(el) => {
-                  tabRefs.current[index] = el;
-                }}
-                to={item.path}
-                end={item.path === "/app"}
-                className={clsx(
-                  "relative z-10 flex h-full shrink-0 items-center justify-center rounded-full outline-none transition-[padding] duration-300 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40",
-                  showAllLabels
-                    ? "min-w-0 flex-1 flex-col gap-0.5 px-1"
-                    : clsx("gap-1.5 min-[400px]:gap-2", active ? "px-3 min-[400px]:px-4" : "px-2.5 min-[400px]:px-3.5")
-                )}
-              >
-                <span className="relative flex items-center justify-center transition-transform active:scale-90">
-                  <item.icon
-                    size={showAllLabels ? 21 : 23}
-                    strokeWidth={active ? 2.1 : 1.75}
-                    className={active ? "text-text" : "text-icon"}
-                    aria-hidden="true"
-                  />
-                  {badge ? <CountBadge count={badge.count} tone={badge.tone} /> : null}
-                </span>
-                <span
-                  className={clsx(
-                    "overflow-hidden whitespace-nowrap leading-none transition-[max-width,opacity] duration-300",
-                    showAllLabels ? "text-xs" : "text-sm",
-                    active ? "font-bold text-text" : "font-medium text-text-muted",
-                    labelVisible ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0",
-                    !showAllLabels && "max-[359px]:hidden"
-                  )}
-                >
-                  {t(item.labelKey)}
-                </span>
-                {badge ? <span className="sr-only">{badge.label}</span> : null}
-              </NavLink>
-              </Fragment>
-            );
-          })}
+        {/* Munshi AI: the raised orange voice button. */}
+        <div className="flex w-20 shrink-0 justify-center">
+          <NavLink
+            to="/app/ai"
+            aria-label={t("nav.ai")}
+            title={t("nav.ai")}
+            className={({ isActive: onMunshi }) =>
+              clsx(
+                "relative -mt-9 flex h-16 w-16 items-center justify-center rounded-full bg-brand-gradient text-white shadow-brand ring-[5px] ring-surface outline-none",
+                "transition-transform duration-200 active:scale-95 focus-visible:ring-primary/40",
+                onMunshi && "scale-105"
+              )
+            }
+          >
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-primary/40 opacity-0 motion-safe:animate-[munshi-halo_2.8s_ease-out_infinite]" />
+            <AudioLines size={28} strokeWidth={2.2} className="relative" aria-hidden="true" />
+          </NavLink>
         </div>
 
-        {/* Munshi AI button: his face in a brand-orange ring, with a small AI sparkle on the edge. */}
-        <NavLink
-          to="/app/ai"
-          aria-label={t("nav.ai")}
-          title={t("nav.ai")}
-          className={({ isActive }) =>
-            clsx(
-              "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full p-[3px] outline-none min-[400px]:h-16 min-[400px]:w-16",
-              "shadow-[0_12px_26px_-10px_rgba(178,60,14,0.65)]",
-              "transition-transform duration-200 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2",
-              // On the Munshi AI screen: an outer ring shows it's the current place.
-              isActive && "ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
-            )
-          }
-        >
-          {/* Soft halo that breathes out from the button. */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full bg-primary/40 opacity-0 motion-safe:animate-[munshi-halo_2.8s_ease-out_infinite]"
-          />
-          {/* Orange ring with a light streak that slowly goes round. */}
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,#b23c0e,#d4572a,#ffb48a,#ef7a45,#b23c0e)] motion-safe:animate-[munshi-spin_4s_linear_infinite]"
-          />
-          <span
-            aria-hidden="true"
-            className="relative block h-full w-full rounded-full border-2 border-white bg-surface-muted bg-no-repeat"
-            style={{ backgroundImage: "url(/splash-munshi.webp)", backgroundSize: "190%", backgroundPosition: "50% 18%" }}
-          />
-          <span
-            aria-hidden="true"
-            className="absolute -right-0.5 -top-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-sm"
-          >
-            <Sparkles size={12} strokeWidth={2.4} className="motion-safe:animate-[munshi-twinkle_3.5s_ease-in-out_infinite]" />
-          </span>
-        </NavLink>
+        {right.map(tab)}
       </div>
     </nav>
   );

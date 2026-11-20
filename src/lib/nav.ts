@@ -1,19 +1,20 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  Box,
   Boxes,
+  ChartColumn,
   Building2,
   House,
   LayoutDashboard,
   Package,
-  ReceiptIndianRupee,
+  ReceiptText,
   Settings,
   ShoppingCart,
   Sparkles,
   Truck,
   UserCog,
   Users,
-  UsersRound,
   Wallet,
   Warehouse,
 } from "lucide-react";
@@ -64,9 +65,10 @@ export const inventorySubNav: NavItem[] = [
 ];
 
 // Condensed set for the mobile bottom bar — the full nav lives in the drawer.
+// Home · Bikri · [Munshi] · Stock · Hisaab (the Munshi button sits in the middle).
 export const mobileBottomNav: NavItem[] = [
-  { labelKey: "nav.home", path: "/app", icon: House },
-  { labelKey: "nav.sales", path: "/app/sales", icon: ReceiptIndianRupee, hiddenFor: ["WAREHOUSE_STAFF"] },
-  { labelKey: "nav.stock", path: "/app/inventory", icon: Package },
-  { labelKey: "nav.staff", path: "/app/staff", icon: UsersRound, hiddenFor: ["SALESMAN", "WAREHOUSE_STAFF"], feature: "staff" },
+  { labelKey: "nav.bottom.home", path: "/app", icon: House },
+  { labelKey: "nav.bottom.sales", path: "/app/sales", icon: ReceiptText, hiddenFor: ["WAREHOUSE_STAFF"] },
+  { labelKey: "nav.bottom.stock", path: "/app/inventory", icon: Box },
+  { labelKey: "nav.bottom.accounts", path: "/app/reports", icon: ChartColumn, hiddenFor: ["SALESMAN", "WAREHOUSE_STAFF"] },
 ];

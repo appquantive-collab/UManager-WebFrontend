@@ -60,11 +60,11 @@ export function ProductFormPage() {
       </div>
 
       {isEdit && productQuery.isLoading ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
+        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted shadow-card">
           {t("inventory.productFormPage.loadingProduct")}
         </div>
       ) : isEdit && !productQuery.data ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-danger">
+        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-danger shadow-card">
           {t("inventory.productFormPage.loadFailed")}
         </div>
       ) : (

@@ -99,7 +99,7 @@ export function DashboardMockup() {
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {stats.map((stat) => (
-                  <div key={stat.key} className="rounded-2xl border border-border bg-surface p-4">
+                  <div key={stat.key} className="rounded-2xl border border-border bg-surface p-4 shadow-card">
                     <div className="text-[11px] font-medium text-text-muted">{t(`landing.mockup.statLabels.${stat.key}`)}</div>
                     <div className="mt-1.5 font-headline text-lg font-bold text-text">{stat.value}</div>
                     <div className="mt-1 text-[11px] font-semibold text-success">{stat.delta}</div>
@@ -108,7 +108,7 @@ export function DashboardMockup() {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-border bg-surface p-4 sm:col-span-2">
+                <div className="rounded-2xl border border-border bg-surface p-4 sm:col-span-2 shadow-card">
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-sm font-semibold text-text">{t("landing.mockup.revenueTrend")}</span>
                     <span className="text-[11px] text-text-muted">{t("landing.mockup.last7Days")}</span>
@@ -123,7 +123,7 @@ export function DashboardMockup() {
                     ))}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border bg-surface p-4">
+                <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
                   <span className="text-sm font-semibold text-text">{t("landing.mockup.topProducts")}</span>
                   <div className="mt-3 space-y-2.5">
                     {["Coca-Cola 300ml", "Tata Salt 1kg", "Surf Excel 1kg"].map((name, i) => (
