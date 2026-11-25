@@ -29,6 +29,9 @@ import { AdminUsersPage } from "../pages/admin/AdminUsersPage";
 import { AdminSettingsPage } from "../pages/admin/AdminSettingsPage";
 import { AdminGrowthPage } from "../pages/admin/AdminGrowthPage";
 import { AdminCostsPage } from "../pages/admin/AdminCostsPage";
+import { CataloguesPage } from "../pages/catalogue/CataloguesPage";
+import { ChatsPage } from "../pages/chats/ChatsPage";
+import { PublicCataloguePage } from "../pages/catalogue/PublicCataloguePage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -36,6 +39,8 @@ export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  // A shop's shared catalogue: public, no sign-in.
+  { path: "/c/:token", element: <PublicCataloguePage /> },
   // VoiceMunshi team console: its own sign-in and session, separate from shop logins.
   { path: "/admin/login", element: <AdminLoginPage /> },
   {
@@ -75,6 +80,9 @@ export const router = createBrowserRouter([
           { path: "staff/:id/edit", element: <StaffFormPage /> },
           { path: "settings", element: <SettingsPage /> },
           { path: "cashbook", element: <CashbookPage /> },
+          { path: "catalogue", element: <CataloguesPage /> },
+          { path: "chats", element: <ChatsPage /> },
+          { path: "chats/:conversationId", element: <ChatsPage /> },
         ],
       },
     ],

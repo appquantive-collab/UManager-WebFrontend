@@ -32,7 +32,8 @@ export function PlanSettings() {
   const canPay = role === "OWNER" || role === "SUPER_ADMIN";
   const locale = i18n.resolvedLanguage === "hi" ? "hi-IN" : "en-IN";
   const billing = useQuery({ queryKey: ["billing"], queryFn: getBilling });
-  const [period, setPeriod] = useState<BillingPeriod>("annual");
+  const [period, setPeriod] = useState<BillingPeriod>("monthly");
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>("basic");
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["billing"] });
@@ -147,13 +148,15 @@ export function PlanSettings() {
           />
         </div>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div role="radiogroup" aria-label={t("plan.chooseTitle")} className="mt-5 grid gap-4 sm:grid-cols-2">
           {data.plans.map((plan) => (
             <PlanCard
               key={plan.key}
               plan={plan}
               period={period}
               state={state}
+              selected={selectedPlan === plan.key}
+              onSelect={() => setSelectedPlan(plan.key)}
               canPay={canPay && data.onlinePayments}
               paying={pay.isPending && pay.variables === plan.key}
               disabled={pay.isPending}
@@ -227,6 +230,8 @@ function PlanCard({
   plan,
   period,
   state,
+  selected,
+  onSelect,
   canPay,
   paying,
   disabled,
@@ -235,6 +240,8 @@ function PlanCard({
   plan: PlanInfo;
   period: BillingPeriod;
   state: PlanState;
+  selected: boolean;
+  onSelect: () => void;
   canPay: boolean;
   paying: boolean;
   disabled: boolean;
@@ -245,12 +252,28 @@ function PlanCard({
   if (!price) return null;
   const perMonth = Math.round(price.price / price.months);
   const isCurrent = state.status === "active" && state.plan === plan.key;
-  const highlight = plan.key === "pro";
+  const popular = plan.key === "pro";
   return (
-    <div className={clsx("flex flex-col rounded-2xl p-5", highlight ? "border-2 border-primary" : "border border-border")}>
+    // The whole card picks the plan; the button pays for it.
+    <div
+      role="radio"
+      aria-checked={selected}
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.target === e.currentTarget && (e.key === " " || e.key === "Enter")) {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className={clsx(
+        "flex cursor-pointer flex-col rounded-2xl p-5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+        selected ? "border-2 border-primary bg-primary-container/30" : "border-2 border-border hover:border-primary/40"
+      )}
+    >
       <div className="flex items-center justify-between gap-2">
         <h4 className="text-lg font-bold text-text">{t(`plan.name.${plan.key}`)}</h4>
-        {isCurrent ? <StatusPill tone="success">{t("plan.current")}</StatusPill> : highlight ? <StatusPill tone="primary">{t("plan.popular")}</StatusPill> : null}
+        {isCurrent ? <StatusPill tone="success">{t("plan.current")}</StatusPill> : popular ? <StatusPill tone="primary">{t("plan.popular")}</StatusPill> : null}
       </div>
       <p className="mt-0.5 text-sm text-text-muted">{t(`plan.tagline.${plan.key}`)}</p>
       <div className="mt-4 flex flex-wrap items-baseline gap-x-2">
@@ -271,7 +294,7 @@ function PlanCard({
         ))}
       </ul>
       {canPay ? (
-        <Button className="mt-5 w-full" variant={highlight ? "primary" : "secondary"} isLoading={paying} disabled={disabled} onClick={onPay}>
+        <Button className="mt-5 w-full" variant={selected ? "primary" : "secondary"} isLoading={paying} disabled={disabled} onClick={onPay}>
           {isCurrent ? t("plan.renew", { amount: formatCurrency(price.price) }) : t("plan.choose", { plan: t(`plan.name.${plan.key}`), amount: formatCurrency(price.price) })}
         </Button>
       ) : null}

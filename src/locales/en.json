@@ -146,7 +146,9 @@
       "sales": "Sales",
       "stock": "Stock",
       "accounts": "Accounts"
-    }
+    },
+    "catalogue": "Catalogue",
+    "chats": "Chats"
   },
   "language": {
     "label": "Language",
@@ -334,6 +336,14 @@
       "title": "Cash book",
       "subtitle": "Today's money in and out, and your galla count",
       "subtitle_firm": "Today's money in and out, and your cash in hand"
+    },
+    "catalogue": {
+      "title": "Catalogue",
+      "subtitle": "Turn your items into a catalogue and share it on WhatsApp."
+    },
+    "chats": {
+      "title": "Chats",
+      "subtitle": "Talk to customers and suppliers who use VoiceMunshi"
     }
   },
   "auth": {
@@ -1644,7 +1654,14 @@
       "disclaimer": "Munshi AI answers from your VoiceMunshi data. It only proposes changes — you confirm them.",
       "back": "Back",
       "holdHint": "Let go when done · slide left to cancel",
-      "tapToHear": "Tap here to hear Munshi"
+      "tapToHear": "Tap here to hear Munshi",
+      "usageTitle": "Today's AI tokens",
+      "usageLeft": "{{left}} of {{total}} left",
+      "usageUnlimited": "Unlimited",
+      "usageExhausted": "Used up · refills at midnight",
+      "usageAria": "Munshi AI today: {{left}} of {{total}} tokens left. Open plan.",
+      "returnGreeting": "Namaste {{name}} ji 🙏 How can I help you today? Just tell me.",
+      "returnGreetingNoName": "Namaste ji 🙏 How can I help you today? Just tell me."
     },
     "workflow": {
       "heading": "To do",
@@ -1796,7 +1813,7 @@
         "lastMonth": "Last month",
         "fy": "This financial year"
       },
-      "download": "Download CSV",
+      "download": "Download",
       "print": "Print this report",
       "col": {
         "product": "Product",
@@ -2951,7 +2968,13 @@
     "taxHint": "Used on GST bills.",
     "gstRate": "GST rate",
     "hsn": "HSN code",
-    "hsnHint": "4–8 digits, printed on GST bills."
+    "hsnHint": "4–8 digits, printed on GST bills.",
+    "trackStockLabel": "Keep stock for this item?",
+    "trackStockYes": "Yes, keep stock",
+    "trackStockYesHint": "Bills reduce stock; low stock alerts.",
+    "trackStockNo": "No",
+    "trackStockNoHint": "Made to order or services: no stock count.",
+    "stockNotKept": "Stock not kept"
   },
   "team": {
     "title": "Team logins",
@@ -3688,7 +3711,7 @@
       "stt": "Speech-to-text",
       "stt_live": "Live words while speaking",
       "stt_cleanup": "Fixing what was heard",
-      "tts": "Hindi voice rewrite",
+      "tts": "Munshi's voice (Sarvam voice + Hindi rewrite)",
       "pre_login": "Welcome-screen Munshi"
     },
     "work": {
@@ -3754,5 +3777,319 @@
     "changePassword": "Change password",
     "setPassword": "Set password",
     "passwordSaved": "Password changed"
+  },
+  "catalogue": {
+    "intro": "Pick items, choose if prices show, and send a neat catalogue link on WhatsApp. Customers can order or save it as PDF.",
+    "new": "New catalogue",
+    "newTitle": "New catalogue",
+    "editTitle": "Change catalogue",
+    "defaultTitle": "Our products",
+    "titleLabel": "Catalogue name",
+    "noteLabel": "A line for customers (optional)",
+    "notePlaceholder": "e.g. Wholesale rates, delivery in 2 days",
+    "priceLabel": "Prices",
+    "priceMode": {
+      "retail": "Retail price",
+      "wholesale": "Wholesale price",
+      "hidden": "Hide price"
+    },
+    "showStock": "Show in stock / out of stock",
+    "showStockHint": "Only for items you keep stock for.",
+    "itemsLabel": "Items",
+    "selectShown": "Select all shown",
+    "unselectShown": "Unselect shown",
+    "searchItems": "Search items",
+    "allCategories": "All",
+    "noItems": "No items found.",
+    "pickedCount_one": "{{count}} item picked",
+    "pickedCount_other": "{{count}} items picked",
+    "create": "Make catalogue",
+    "save": "Save changes",
+    "created": "Catalogue ready. Share it on WhatsApp.",
+    "saved": "Catalogue saved",
+    "failed": "Could not save. Please try again.",
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items",
+    "withStock": "shows stock",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareText": "{{title}}: see our items here {{link}}",
+    "open": "Open catalogue",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "copyFailed": "Could not copy the link",
+    "edit": "Change",
+    "delete": "Delete",
+    "deleteTitle": "Delete catalogue?",
+    "deleteBody": "\"{{title}}\" will be deleted and its link will stop working.",
+    "deleted": "Catalogue deleted",
+    "emptyTitle": "No catalogue yet",
+    "emptyBody": "Make one from your items in a minute and send it to customers on WhatsApp.",
+    "public": {
+      "notFound": "This catalogue is not available",
+      "order": "Order on WhatsApp",
+      "orderItem": "Order {{item}} on WhatsApp",
+      "orderText": "Hello, I saw your catalogue \"{{title}}\" and want to order.",
+      "orderItemText": "Hello, I want to order {{item}} (from your catalogue \"{{title}}\").",
+      "print": "Print / Save PDF",
+      "inStock": "In stock",
+      "outOfStock": "Out of stock",
+      "askPrice": "Ask for price",
+      "madeWith": "Made with VoiceMunshi"
+    }
+  },
+  "pager": {
+    "label": "Pages",
+    "showing": "Showing {{from}} to {{to}} of {{total}}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "loadingMore": "Loading more…",
+    "loadMore": "Load more"
+  },
+  "tour": {
+    "step": "{{n}} of {{total}}",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "start": "Talk to Munshi",
+    "cardTitle": "Munshi did this",
+    "welcome": {
+      "title": "Meet Munshi, your shop's assistant",
+      "body": "Speak or type like you talk at the counter. Munshi makes bills, records purchases and keeps your accounts.",
+      "reply": "Namaste! I'm Munshi. Tell me what to do, in Hindi, Hinglish or English."
+    },
+    "bill": {
+      "title": "Make a bill by speaking",
+      "body": "Say who bought what. Munshi makes the bill; you check and confirm.",
+      "user": "Ravi ji ko 2 kg cheeni, 45 rupaye kilo, bill bana do",
+      "reply": "Here it is, check and confirm.",
+      "line": "Bill · Ravi: Cheeni 2 kg @ ₹45 = ₹90",
+      "done": "Bill made · INV-0012"
+    },
+    "purchase": {
+      "title": "Record purchases, stock goes up",
+      "body": "Tell Munshi what came in from a supplier. Stock and the supplier's dues update.",
+      "user": "Rajesh ji se 50 kg aalu liya, 20 rupaye kilo",
+      "reply": "Purchase ready to save.",
+      "line": "Purchase · Rajesh: Aalu 50 kg = ₹1,000",
+      "done": "Saved · stock +50 kg"
+    },
+    "dues": {
+      "title": "Know who owes you",
+      "body": "Ask about udhaar any time and send reminders on WhatsApp in one tap.",
+      "user": "Kis kis se paise lene hain?",
+      "reply": "Jai Ram ₹34,435 · Jaya Ram ₹31,600 · The Sruthilaya ₹5,500. Shall I send them a reminder?"
+    },
+    "stock": {
+      "title": "Ask about stock",
+      "body": "What's running out, what to order, how much is left. Just ask.",
+      "user": "Kaun sa maal mangwana hai?",
+      "reply": "Khartaal Wooden is out, Dholak has 3 left. Order these two first."
+    },
+    "today": {
+      "title": "Today's accounts in a line",
+      "body": "Sales, profit, payments, GST. Munshi knows your books.",
+      "user": "Aaj kitni bikri hui?",
+      "reply": "Today ₹12,450 from 9 bills, 8% more than yesterday. ₹3,200 still to collect."
+    },
+    "catalogue": {
+      "title": "Share your catalogue",
+      "body": "Make a neat catalogue of your items and send the link on WhatsApp. Customers order from it.",
+      "user": "Naye items ka catalogue bhej do",
+      "reply": "Your catalogue is ready to share.",
+      "cardTitle": "Catalogue link"
+    }
+  },
+  "dateRange": {
+    "custom": "Custom",
+    "from": "From",
+    "to": "To"
+  },
+  "export": {
+    "excel": {
+      "label": "Excel",
+      "hint": "Open in Excel or Google Sheets"
+    },
+    "pdf": {
+      "label": "PDF",
+      "hint": "Pick “Save as PDF” to keep or share"
+    },
+    "csv": {
+      "label": "CSV",
+      "hint": "Plain file for other software"
+    }
+  },
+  "chat": {
+    "title": "Chats",
+    "newChat": "New chat",
+    "search": "Search chats",
+    "filterLabel": "Show",
+    "filter": {
+      "all": "All",
+      "unread": "Unread",
+      "customer": "Customers",
+      "supplier": "Suppliers"
+    },
+    "kindTag": {
+      "customer": "Customer",
+      "supplier": "Supplier"
+    },
+    "noMessagesYet": "No messages yet",
+    "noMatch": "No chats match.",
+    "emptyTitle": "Chat with your customers and suppliers",
+    "emptyBody": "Shops that use VoiceMunshi can chat here: messages, photos, voice notes, bills and payment reminders.",
+    "unreadCount": "{{count}} unread",
+    "typing": "typing…",
+    "online": "online",
+    "lastSeenToday": "last seen today at {{time}}",
+    "lastSeenYesterday": "last seen yesterday at {{time}}",
+    "lastSeenOn": "last seen {{date}}",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "you": "You",
+    "deleted": "This message was deleted",
+    "deletedByYou": "You deleted this message",
+    "blocked": "Blocked",
+    "block": "Block this shop",
+    "unblock": "Unblock",
+    "blockedNotice": "You blocked this shop.",
+    "blockedToast": "{{name}} is blocked",
+    "unblockedToast": "{{name}} is unblocked",
+    "newMessage": "New message",
+    "open": "Open",
+    "pickTitle": "Pick a chat",
+    "pickBody": "Choose a customer or supplier on the left, or start a new chat. Messages arrive instantly.",
+    "placeholder": "Message",
+    "send": "Send",
+    "cancelReply": "Cancel reply",
+    "tapToRetry": "Not sent. Tap to try again.",
+    "privacyNote": "Messages are between your shop and {{name}} only. Bills and reminders come from your own books.",
+    "loading": "Loading…",
+    "loadingOlder": "Loading older messages…",
+    "sayHello": "Say hello to {{name}}",
+    "helloText": "Namaste!",
+    "scrollDown": "Go to latest messages",
+    "notFound": "This chat isn't available.",
+    "backToChats": "Back to chats",
+    "copied": "Copied",
+    "download": "Download",
+    "kind": {
+      "text": "Message",
+      "image": "Photo",
+      "voice": "Voice message",
+      "file": "File",
+      "card": "Card"
+    },
+    "status": {
+      "sending": "Sending",
+      "failed": "Not sent",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read"
+    },
+    "menu": {
+      "open": "Message options",
+      "more": "More options",
+      "reply": "Reply",
+      "copy": "Copy",
+      "deleteForEveryone": "Delete for everyone",
+      "cancel": "Cancel",
+      "viewCustomer": "View customer",
+      "viewSupplier": "View supplier"
+    },
+    "attach": {
+      "open": "Attach",
+      "photo": "Photos",
+      "camera": "Camera",
+      "file": "Document",
+      "bill": "Bill",
+      "catalogue": "Catalogue",
+      "dues": "Dues"
+    },
+    "voice": {
+      "hold": "Hold to record a voice message",
+      "hint": "Hold the mic to record, let go to send. Tap once to record hands-free.",
+      "recording": "Recording…",
+      "releaseToSend": "Let go to send",
+      "discard": "Delete recording",
+      "play": "Play voice message",
+      "pause": "Pause",
+      "failed": "Can't play",
+      "denied": "Microphone is blocked. Allow it in your browser settings to send voice messages.",
+      "unsupported": "This browser can't record voice messages."
+    },
+    "card": {
+      "bill": "Bill {{number}}",
+      "billShort": "Bill {{number}}",
+      "moreItems": "+{{count}} more items",
+      "total": "Total",
+      "due": "{{amount}} due",
+      "paid": "Fully paid",
+      "cancelled": "This bill was cancelled",
+      "viewBill": "View bill",
+      "payUpi": "Pay by UPI",
+      "catalogueItems": "{{count}} items · {{shop}}",
+      "openCatalogue": "Open catalogue",
+      "duesShort": "Payment reminder",
+      "duesAskSent": "Payment reminder sent",
+      "duesAskReceived": "{{shop}}: amount due from you",
+      "duesPaySent": "Amount you owe them",
+      "duesPayReceived": "{{shop}} owes you",
+      "duesBills": "From {{count}} bills",
+      "duesNote": "Payment of dues",
+      "asOf": "As of {{date}}"
+    },
+    "bill": {
+      "item": "Item",
+      "qty": "Qty",
+      "amount": "Amount",
+      "tax": "GST",
+      "paid": "Paid",
+      "due": "Balance due"
+    },
+    "new": {
+      "title": "New chat",
+      "help": "Chat with customers and suppliers who also use VoiceMunshi. We find them by the mobile number saved with them.",
+      "byNumber": "Mobile number",
+      "start": "Chat",
+      "search": "Search your customers and suppliers",
+      "onPlatform": "On VoiceMunshi ({{count}})",
+      "noneOnPlatform": "None of your saved customers or suppliers use VoiceMunshi yet. Invite them below, or type a number above.",
+      "invite": "Invite to VoiceMunshi",
+      "inviteButton": "Invite",
+      "inviteText": "Namaste! I use VoiceMunshi for billing and accounts. Join it free so we can share bills, payments and messages directly: {{link}}",
+      "notOnPlatform": "This number is not on VoiceMunshi yet. Invite them to join.",
+      "badPhone": "Enter a valid 10-digit mobile number.",
+      "failed": "Couldn't start the chat. Please try again."
+    },
+    "share": {
+      "billTitle": "Send a bill",
+      "catalogueTitle": "Send a catalogue",
+      "duesTitle": "Send payment reminder",
+      "searchBills": "Search bill number or customer",
+      "noBills": "No bills yet.",
+      "noCatalogues": "No catalogues yet. Make one in Catalogue.",
+      "catalogueItems": "{{count}} items",
+      "duesHelp": "Munshi adds up everything this customer owes you from your bills and sends it with a Pay by UPI button.",
+      "duesHelpSupplier": "Sends this supplier the balance you owe them, from your purchase records.",
+      "notAContact": "Save this shop as your customer or supplier (with this mobile number) to send dues.",
+      "sendDues": "Send reminder"
+    },
+    "push": {
+      "banner": "Turn on notifications so you don't miss messages",
+      "turnOn": "Turn on notifications",
+      "on": "Notifications are on",
+      "denied": "Notifications are blocked. Allow them in your browser settings.",
+      "unsupported": "This browser can't show notifications. On iPhone, add VoiceMunshi to your home screen first."
+    },
+    "errors": {
+      "generic": "Couldn't send. Check your internet and try again.",
+      "BLOCKED": "This shop is not accepting your messages.",
+      "YOU_BLOCKED": "You blocked this shop. Unblock to send messages.",
+      "NO_DUES": "Nothing is due right now.",
+      "NOT_A_CONTACT": "Save this shop as your customer or supplier first.",
+      "TOO_BIG": "File is bigger than 16 MB.",
+      "BAD_FILE": "This kind of file can't be sent.",
+      "NO_STORAGE": "Sending files isn't set up yet."
+    }
   }
 }

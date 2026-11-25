@@ -1,7 +1,9 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../lib/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUp, Check, Copy, Loader2, Mic, RotateCcw, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowUp, Check, Copy, Gauge, Loader2, Mic, RotateCcw, Square, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import clsx from "clsx";
 import { Badge } from "../ui/Badge";
 import { ApiError } from "../../lib/api";
@@ -10,6 +12,7 @@ import { showError, showSuccess } from "../../lib/toast";
 import { currentLanguage } from "../../lib/i18n";
 import { transcribeVoice, useVoiceRecorder, useVoiceStore, voiceOutputSupported, voiceRecordingSupported } from "../../lib/speech";
 import { confirmAction, dismissAction, listMessages, sendMessage, type AiChatMessage } from "../../lib/ai-chat-api";
+import { getBilling } from "../../lib/billing-api";
 import { WorkflowCard } from "./WorkflowCard";
 
 // Munshi AI chat: WhatsApp-style composer (grows as you type; mic when empty,
@@ -88,6 +91,50 @@ function ActionCard({ message }: { message: AiChatMessage }) {
 }
 
 /** Renders **bold** and simple "- " / "1. " lists from replies, safely (no HTML injection). */
+/**
+ * Today's Munshi AI tokens, under the chat header: used / daily, how many are
+ * left, and a thin bar. Taps through to Settings → Plan. Refreshes after each reply.
+ */
+function AiUsageBar() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { data } = useQuery({ queryKey: ["billing"], queryFn: getBilling, staleTime: 30_000, retry: false });
+  const usage = data?.usage;
+  if (!usage) return null;
+  const num = (n: number) => Math.round(n).toLocaleString("en-IN");
+  const pct = usage.unlimited ? 0 : Math.min(100, Math.max(0, usage.todayPct));
+  const tone = usage.unlimited ? "bg-success" : usage.exhausted || pct >= 90 ? "bg-danger" : pct >= 70 ? "bg-warning" : "bg-primary";
+  return (
+    <button
+      type="button"
+      onClick={() => navigate("/app/settings?tab=plan")}
+      className="block w-full shrink-0 border-b border-border bg-surface px-4 py-2 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted"
+      aria-label={t("ai.chat.usageAria", { left: num(usage.remainingTokens), total: num(usage.dailyTokens) })}
+    >
+      <span className="flex items-center justify-between gap-2 text-xs">
+        <span className="flex min-w-0 items-center gap-1.5 font-semibold text-text">
+          <Gauge size={14} className="shrink-0 text-icon" aria-hidden="true" />
+          <span className="truncate">{t("ai.chat.usageTitle")}</span>
+        </span>
+        <span className="shrink-0 tabular-nums text-text-muted">
+          {usage.unlimited ? (
+            t("ai.chat.usageUnlimited")
+          ) : usage.exhausted ? (
+            <span className="font-semibold text-danger">{t("ai.chat.usageExhausted")}</span>
+          ) : (
+            t("ai.chat.usageLeft", { left: num(usage.remainingTokens), total: num(usage.dailyTokens) })
+          )}
+        </span>
+      </span>
+      {usage.unlimited ? null : (
+        <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-surface-variant" aria-hidden="true">
+          <span className={clsx("block h-full rounded-full transition-[width] duration-500", tone)} style={{ width: `${pct}%` }} />
+        </span>
+      )}
+    </button>
+  );
+}
+
 function RichText({ text }: { text: string }) {
   const inline = (line: string): ReactNode[] =>
     line.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
@@ -156,6 +203,20 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [pendingText, setPendingText] = useState<string | null>(null);
+  // Opened after a while away (see TenantAdminLayout): Munshi greets first. Not saved; gone once you write.
+  const location = useLocation();
+  const routerNavigate = useNavigate();
+  const ownerName = useAuthStore((state) => state.user?.name) ?? "";
+  const [greeting, setGreeting] = useState<string | null>(() =>
+    (location.state as { greet?: number } | null)?.greet ? (ownerName.trim() ? t("ai.chat.returnGreeting", { name: ownerName.trim().split(/\s+/)[0] }) : t("ai.chat.returnGreetingNoName")) : null
+  );
+  useEffect(() => {
+    if (!(location.state as { greet?: number } | null)?.greet) return;
+    // Forget the greet flag, so a reload doesn't greet again.
+    routerNavigate(location.pathname, { replace: true, state: null });
+    if (greeting && useVoiceStore.getState().enabled) useVoiceStore.getState().speak("return-greeting", greeting, currentLanguage(), { interrupt: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [transcribing, setTranscribing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -181,6 +242,8 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
         speak(result.assistantMessage._id, result.assistantMessage.content, currentLanguage(), { interrupt: true });
       }
       await queryClient.invalidateQueries({ queryKey: ["ai-chat-messages"] });
+      // Each answer uses tokens: keep the usage bar current.
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
       // Saying "haan" can do a step (add a party, record a purchase, make a bill): refresh what it touches.
       for (const key of ["customers", "suppliers", "products", "purchases", "invoices", "stock-levels", "dashboard-summary", "orders", "staff", "departments", "expenses", "daybook"]) {
         void queryClient.invalidateQueries({ queryKey: [key] });
@@ -195,10 +258,23 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
     },
   });
 
-  // Keep the newest message in view.
+  // Keep the newest message in view: jump straight to it when the chat opens,
+  // glide to it for new messages. Cards and images can grow after the first
+  // paint, so the opening jump is repeated once the layout has settled.
+  const openedRef = useRef(false);
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length, pendingText, sendMutation.isPending]);
+    const el = scrollRef.current;
+    if (!el || messages.length === 0) return;
+    if (!openedRef.current) {
+      openedRef.current = true;
+      el.scrollTop = el.scrollHeight;
+      const settle = window.setTimeout(() => {
+        el.scrollTop = el.scrollHeight;
+      }, 250);
+      return () => window.clearTimeout(settle);
+    }
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages.length, pendingText, sendMutation.isPending, greeting, waitingForTap]);
 
   // WhatsApp-style box: grows with the text up to ~6 lines, then scrolls.
   useLayoutEffect(() => {
@@ -212,6 +288,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
     const content = (text ?? input).trim();
     if (!content || sendMutation.isPending) return;
     stopSpeaking();
+    setGreeting(null);
     setPendingText(content);
     setInput("");
     sendMutation.mutate(content);
@@ -341,7 +418,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
   const busy = sendMutation.isPending;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
       {/* Header */}
       <div
         className={clsx(
@@ -384,10 +461,12 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
         ) : null}
       </div>
 
+      <AiUsageBar />
+
       {/* Messages */}
       <div
         ref={scrollRef}
-        className={clsx("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4", fullScreen && "bg-background px-3")}
+        className={clsx("min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4", fullScreen && "bg-background px-3")}
         role="log"
         aria-live="polite"
       >
@@ -396,7 +475,7 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
             <div className="h-10 w-2/3 animate-pulse rounded-2xl bg-surface-variant" />
             <div className="ml-auto h-10 w-1/2 animate-pulse rounded-2xl bg-surface-variant" />
           </div>
-        ) : messages.length === 0 && !pendingText ? (
+        ) : messages.length === 0 && !pendingText && !greeting ? (
           <div className="flex h-full flex-col items-center justify-center px-2 text-center">
             <img src="/splash-munshi.webp" alt="" className="h-16 w-16 rounded-full border border-border object-cover object-[center_12%]" />
             <p className="mt-3 text-base font-bold text-text">{t("ai.chat.welcomeTitle")}</p>
@@ -418,16 +497,16 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
           <>
             {messages.map((message) =>
               message.role === "user" ? (
-                <div key={message._id} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-[0.9375rem] text-on-primary shadow-elevation-1 sm:max-w-md">
-                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                <div key={message._id} className="flex min-w-0 justify-end">
+                  <div className="min-w-0 max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-[0.9375rem] text-on-primary shadow-elevation-1 sm:max-w-md">
+                    <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{message.content}</p>
                     <p className="mt-0.5 text-right text-[0.6875rem] text-on-primary/75">{timeOf(message.createdAt)}</p>
                   </div>
                 </div>
               ) : (
-                <div key={message._id} className="flex justify-start">
-                  <div className="max-w-[88%] sm:max-w-lg">
-                    <div className="rounded-2xl rounded-bl-md border border-border bg-surface px-3.5 py-2 text-[0.9375rem] leading-relaxed text-text shadow-elevation-1">
+                <div key={message._id} className="flex min-w-0 justify-start">
+                  <div className="min-w-0 max-w-[88%] sm:max-w-lg">
+                    <div className="min-w-0 rounded-2xl rounded-bl-md border border-border bg-surface px-3.5 py-2 text-[0.9375rem] leading-relaxed text-text shadow-elevation-1 [overflow-wrap:anywhere]">
                       <RichText text={message.content} />
                       {message.proposedAction ? <ActionCard message={message} /> : null}
                       {message.steps?.length ? <WorkflowCard message={message} /> : null}
@@ -482,10 +561,17 @@ export function AiChatPanel({ onBack }: { onBack?: () => void } = {}) {
                 </div>
               ) : null;
             })()}
+            {greeting ? (
+              <div className="flex min-w-0 justify-start">
+                <div className="min-w-0 max-w-[88%] rounded-2xl rounded-bl-md border border-primary/20 bg-primary-container px-3.5 py-2 text-[0.9375rem] leading-relaxed text-text shadow-elevation-1 sm:max-w-lg">
+                  {greeting}
+                </div>
+              </div>
+            ) : null}
             {pendingText ? (
               <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-[0.9375rem] text-on-primary opacity-80 sm:max-w-md">
-                  <p className="whitespace-pre-wrap break-words">{pendingText}</p>
+                <div className="min-w-0 max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-[0.9375rem] text-on-primary opacity-80 sm:max-w-md">
+                  <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{pendingText}</p>
                 </div>
               </div>
             ) : null}

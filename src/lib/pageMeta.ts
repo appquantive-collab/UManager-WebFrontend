@@ -21,6 +21,8 @@ const routeKeys: Record<string, string> = {
   "/app/staff/new": "staffNew",
   "/app/settings": "settings",
   "/app/cashbook": "cashbook",
+  "/app/catalogue": "catalogue",
+  "/app/chats": "chats",
 };
 
 function metaFor(key: string, context?: string): PageMeta {
@@ -32,6 +34,7 @@ function metaFor(key: string, context?: string): PageMeta {
 
 /** `context` is the business wording from useAppSetup().vocab ("firm" for traders/manufacturers). */
 export function getPageMeta(pathname: string, context?: string): PageMeta {
+  if (pathname.startsWith("/app/chats/")) return metaFor("chats", context);
   if (/^\/app\/inventory\/[^/]+\/edit$/.test(pathname)) {
     return metaFor("inventoryEdit", context);
   }

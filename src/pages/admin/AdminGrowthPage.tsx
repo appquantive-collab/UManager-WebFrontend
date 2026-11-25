@@ -16,7 +16,7 @@ export function AdminGrowthPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold text-text">{t("admin.growth.title")}</h1>
+        <h1 className="text-[1.625rem] font-bold tracking-tight text-text">{t("admin.growth.title")}</h1>
         <p className="text-sm text-text-muted">{t("admin.growth.subtitle")}</p>
       </div>
       {!g ? (

@@ -3,13 +3,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useAppSetup } from "../../lib/use-app-setup";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { BarChart3, Boxes, Download, FileSpreadsheet, IndianRupee, Landmark, Percent, Plus, ReceiptText, Truck, Wallet } from "lucide-react";
+import { BarChart3, Boxes, FileSpreadsheet, IndianRupee, Landmark, Percent, Plus, ReceiptText, Truck, Wallet } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "../../components/ui/Button";
 import { ProBadge, useProGate } from "../../components/ui/ProBadge";
 import { AddExpenseModal } from "../../components/cashbook/AddExpenseModal";
 import { EmptyHelp, FilterChips, LoadingRows, PageIntro, SummaryRow, SummaryTile, TableShell, Th } from "../../components/page/kit";
 import { formatCurrency } from "../../lib/format";
+import { exportTable, type Cell, type ExportFormat } from "../../lib/table-export";
+import { ExportMenu } from "../../components/page/ExportMenu";
+import { CustomDateInputs, customRangeLabel, customRangeMs, defaultCustomRange, type CustomRange } from "../../components/page/CustomDateRange";
+import { getProfile } from "../../lib/auth-api";
 import { outT, printInEnglish } from "../../lib/output-lang";
 import { isCancelled, listInvoices, type Invoice } from "../../lib/invoices-api";
 import { listExpenses } from "../../lib/expenses-api";
@@ -24,11 +28,12 @@ import { listSuppliers } from "../../lib/suppliers-api";
 // customer and supplier balances. Every table can be downloaded as CSV.
 
 type Report = "sales" | "purchases" | "profit" | "stock" | "dues" | "gst";
-type Period = "today" | "week" | "month" | "lastMonth" | "fy";
+type Period = "today" | "week" | "month" | "lastMonth" | "fy" | "custom";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function periodRange(period: Period, now: Date): [number, number] {
+function periodRange(period: Period, now: Date, custom: CustomRange): [number, number] {
+  if (period === "custom") return customRangeMs(custom);
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
   const end = now.getTime() + 1;
@@ -48,36 +53,13 @@ const inRange = (iso: string, [from, to]: [number, number]) => {
 
 const customerName = (invoice: Invoice) => (typeof invoice.customerId === "string" ? "—" : invoice.customerId.name);
 
-function downloadCsv(filename: string, rows: (string | number)[][]) {
-  const escape = (value: string | number) => {
-    const text = String(value);
-    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-  };
-  // BOM so Excel opens Hindi names correctly.
-  const blob = new Blob(["﻿" + rows.map((r) => r.map(escape).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function Section({ title, onExport, exportLabel, pro, children }: { title: string; onExport?: () => void; exportLabel?: string; pro?: boolean; children: ReactNode }) {
+function Section({ title, onExport, exportLabel, pro, children }: { title: string; onExport?: (format: ExportFormat, title: string) => void; exportLabel?: string; pro?: boolean; children: ReactNode }) {
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-base font-bold text-text">{title}</h2>
         {onExport ? (
-          <button
-            type="button"
-            onClick={onExport}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-primary outline-none hover:bg-primary-container focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
-            <Download size={15} aria-hidden="true" />
-            {exportLabel}
-            {pro ? <ProBadge /> : null}
-          </button>
+          <ExportMenu label={exportLabel ?? ""} badge={pro ? <ProBadge /> : null} onExport={(format) => onExport(format, title)} />
         ) : null}
       </div>
       {children}
@@ -123,6 +105,7 @@ export function ReportsPage() {
   const { vocab } = useAppSetup();
   const [report, setReport] = useState<Report>("sales");
   const [period, setPeriod] = useState<Period>("month");
+  const [custom, setCustom] = useState<CustomRange>(() => defaultCustomRange());
   const [now] = useState(() => new Date());
   const [expenseOpen, setExpenseOpen] = useState(false);
   const proGate = useProGate();
@@ -138,7 +121,7 @@ export function ReportsPage() {
   const expensesQuery = useQuery({ queryKey: ["expenses", "all"], queryFn: () => listExpenses() });
   const returnsQuery = useQuery({ queryKey: ["returns"], queryFn: listReturns });
 
-  const range = useMemo(() => periodRange(period, now), [period, now]);
+  const range = useMemo(() => periodRange(period, now, custom), [period, now, custom]);
   // Cancelled bills are left out of every report.
   const activeInvoices = useMemo(() => (invoicesQuery.data ?? []).filter((i) => !isCancelled(i)), [invoicesQuery.data]);
   const invoices = useMemo(() => activeInvoices.filter((i) => inRange(i.createdAt, range)), [activeInvoices, range]);
@@ -147,8 +130,14 @@ export function ReportsPage() {
   const productById = useMemo(() => new Map(products.map((p) => [p._id, p])), [products]);
   const stock = useMemo(() => stockQuery.data ?? {}, [stockQuery.data]);
 
-  const exportName = (name: string) => `sethsathi-${name}-${period}.csv`;
-  const periodLabel = t(`reports.hub.period.${period}`);
+  const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
+  const businessName = profile?.tenant?.businessName ?? "VoiceMunshi";
+  const periodLabel = period === "custom" ? customRangeLabel(custom, locale) : t(`reports.hub.period.${period}`);
+  const periodSlug = period === "custom" ? `${custom.from}_${custom.to}` : period;
+  const exportName = (name: string) => `voicemunshi-${name}-${periodSlug}`;
+  /** One download, in the format picked from the menu. `dated` = false for reports that are "as of now" (dues). */
+  const download = (format: ExportFormat, title: string, name: string, rows: Cell[][], dated = true) =>
+    exportTable(format, { name, title, subtitle: [businessName, dated ? periodLabel : new Date().toLocaleDateString(locale, { dateStyle: "medium" })] }, rows);
 
   // ---- Sales
   const sales = useMemo(() => {
@@ -350,12 +339,15 @@ export function ReportsPage() {
       <p className="text-sm text-text-muted">{t(`reports.hub.help.${report}`)}</p>
 
       {report !== "dues" ? (
-        <FilterChips
-          label={t("reports.hub.periodLabel")}
-          value={period}
-          onChange={setPeriod}
-          options={(["today", "week", "month", "lastMonth", "fy"] as const).map((key) => ({ key, label: t(`reports.hub.period.${key}`) }))}
-        />
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <FilterChips
+            label={t("reports.hub.periodLabel")}
+            value={period}
+            onChange={setPeriod}
+            options={(["today", "week", "month", "lastMonth", "fy", "custom"] as const).map((key) => ({ key, label: key === "custom" ? t("dateRange.custom") : t(`reports.hub.period.${key}`) }))}
+          />
+          {period === "custom" ? <CustomDateInputs value={custom} onChange={setCustom} /> : null}
+        </div>
       ) : null}
 
       {loading ? (
@@ -401,7 +393,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.sales.topProducts")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-products"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...sales.topProducts.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
+              onExport={(format, title) => download(format, title, exportName("top-products"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...sales.topProducts.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")]}
@@ -412,7 +404,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.sales.topCustomers")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-customers"), [[outT("reports.hub.col.customer"), outT("reports.hub.col.bills"), outT("reports.hub.col.amount")], ...sales.topCustomers.map((r) => [r.name, r.bills, r.amount.toFixed(2)])])}
+              onExport={(format, title) => download(format, title, exportName("top-customers"), [[outT("reports.hub.col.customer"), outT("reports.hub.col.bills"), outT("reports.hub.col.amount")], ...sales.topCustomers.map((r) => [r.name, r.bills, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.customer"), t("reports.hub.col.bills"), t("reports.hub.col.amount")]}
@@ -433,7 +425,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.buy.topSuppliers")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("top-suppliers"), [[outT("reports.hub.col.supplier"), outT("reports.hub.col.purchases"), outT("reports.hub.col.amount")], ...buying.topSuppliers.map((r) => [r.name, r.count, r.amount.toFixed(2)])])}
+              onExport={(format, title) => download(format, title, exportName("top-suppliers"), [[outT("reports.hub.col.supplier"), outT("reports.hub.col.purchases"), outT("reports.hub.col.amount")], ...buying.topSuppliers.map((r) => [r.name, r.count, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.supplier"), t("reports.hub.col.purchases"), t("reports.hub.col.amount")]}
@@ -444,7 +436,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.buy.topItems")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv(exportName("purchased-items"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...buying.topItems.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
+              onExport={(format, title) => download(format, title, exportName("purchased-items"), [[outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.col.amount")], ...buying.topItems.map((r) => [r.name, `${r.qty} ${r.unit}`, r.amount.toFixed(2)])])}
             >
               <RankTable
                 head={[t("reports.hub.col.product"), t("reports.hub.col.qty"), t("reports.hub.col.amount")]}
@@ -493,8 +485,8 @@ export function ReportsPage() {
           <Section
             title={t("reports.hub.profit.byProduct")}
             exportLabel={t("reports.hub.download")}
-            onExport={() =>
-              downloadCsv(exportName("profit"), [
+            onExport={(format, title) =>
+              download(format, title, exportName("profit"), [
                 [outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.profit.revenue"), outT("reports.hub.profit.cost"), outT("reports.hub.profit.profit")],
                 ...profit.rows.map((r) => [r.name, r.qty, r.revenue.toFixed(2), r.cost.toFixed(2), r.profit.toFixed(2)]),
               ])
@@ -539,8 +531,8 @@ export function ReportsPage() {
           <Section
             title={t("reports.hub.stock.list")}
             exportLabel={t("reports.hub.download")}
-            onExport={() =>
-              downloadCsv(exportName("stock"), [
+            onExport={(format, title) =>
+              download(format, title, exportName("stock"), [
                 [outT("reports.hub.col.product"), outT("reports.hub.col.qty"), outT("reports.hub.stock.atCost"), outT("reports.hub.stock.atWholesale"), outT("reports.hub.stock.soldInPeriod")],
                 ...stockReport.rows.map((r) => [r.name, `${r.qty} ${r.unit}`, r.cost.toFixed(2), r.wholesale.toFixed(2), r.sold ? "yes" : "no"]),
               ])
@@ -590,7 +582,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.customersOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("voicemunshi-customer-dues.csv", [[outT("reports.hub.col.customer"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])])}
+              onExport={(format, title) => download(format, title, "voicemunshi-customer-dues", [[outT("reports.hub.col.customer"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.receivable.map((c) => [c.name, c.phone ?? "", c.outstanding.toFixed(2)])], false)}
             >
               <RankTable
                 head={[t("reports.hub.col.customer"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}
@@ -601,7 +593,7 @@ export function ReportsPage() {
             <Section
               title={t("reports.hub.dues.youOwe")}
               exportLabel={t("reports.hub.download")}
-              onExport={() => downloadCsv("voicemunshi-supplier-dues.csv", [[outT("reports.hub.col.supplier"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])])}
+              onExport={(format, title) => download(format, title, "voicemunshi-supplier-dues", [[outT("reports.hub.col.supplier"), outT("reports.hub.col.phone"), outT("reports.hub.col.amount")], ...dues.payable.map((s) => [s.name, s.phone ?? "", (s.outstanding ?? 0).toFixed(2)])], false)}
             >
               <RankTable
                 head={[t("reports.hub.col.supplier"), t("reports.hub.col.phone"), t("reports.hub.col.amount")]}
@@ -629,8 +621,8 @@ export function ReportsPage() {
             title={t("reports.hub.gst.byRate")}
             exportLabel={t("reports.hub.download")}
             pro={proGate.locked}
-            onExport={() =>
-              proGate.guard(() => downloadCsv(exportName("gst"), [
+            onExport={(format, title) =>
+              proGate.guard(() => download(format, title, exportName("gst"), [
                 ["GST %", outT("reports.hub.gst.salesTaxable"), outT("reports.hub.gst.output"), outT("reports.hub.gst.buyTaxable"), outT("reports.hub.gst.input")],
                 ...gst.rows.map((r) => [r.rate, r.salesTaxable.toFixed(2), r.salesTax.toFixed(2), r.buyTaxable.toFixed(2), r.buyTax.toFixed(2)]),
               ]))

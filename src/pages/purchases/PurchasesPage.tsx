@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { CustomDateInputs, customRangeMs, defaultCustomRange, type CustomRange } from "../../components/page/CustomDateRange";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Building2, CalendarDays, FileText, PackagePlus, Phone, Plus, Truck, Wallet, type LucideIcon } from "lucide-react";
@@ -26,7 +28,7 @@ import { indianMobile } from "../../lib/phone";
 import { initialParam } from "../../lib/url-params";
 
 type Tab = "purchases" | "payments";
-type DateRange = "all" | "today" | "week" | "month";
+type DateRange = "all" | "today" | "week" | "month" | "custom";
 type StatusFilter = "all" | "due" | "paid";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -47,6 +49,7 @@ export function PurchasesPage() {
   const [tab, setTab] = useState<Tab>("purchases");
   const [search, setSearch] = useState(() => initialParam("q"));
   const [range, setRange] = useState<DateRange>("all");
+  const [custom, setCustom] = useState<CustomRange>(() => defaultCustomRange());
   const [status, setStatus] = useState<StatusFilter>("all");
   const [method, setMethod] = useState<"all" | PaymentMethod>("all");
   const [now] = useState(() => new Date());
@@ -80,7 +83,12 @@ export function PurchasesPage() {
   );
 
   const query = search.trim().toLowerCase();
-  const since = rangeStart(range, now);
+  // Custom range has an end date too; the quick ones run up to now.
+  const [since, until] = range === "custom" ? customRangeMs(custom) : [rangeStart(range, now), Number.POSITIVE_INFINITY];
+  const inPeriod = (iso: string) => {
+    const time = new Date(iso).getTime();
+    return time >= since && time < until;
+  };
   const matches = (p: Purchase) => {
     if (!query) return true;
     const supplier = supplierOf(p);
@@ -90,12 +98,12 @@ export function PurchasesPage() {
   };
   const visiblePurchases = purchases.filter(
     (p) =>
-      new Date(p.purchasedAt).getTime() >= since &&
+      inPeriod(p.purchasedAt) &&
       matches(p) &&
       (status === "all" || (status === "due" && balanceOf(p) > 0) || (status === "paid" && balanceOf(p) === 0))
   );
   const visiblePayments = payments.filter(
-    (p) => new Date(p.paidAt).getTime() >= since && matches(p.purchase) && (method === "all" || p.method === method)
+    (p) => inPeriod(p.paidAt) && matches(p.purchase) && (method === "all" || p.method === method)
   );
 
   const tabs: { key: Tab; label: string; count: number; icon: LucideIcon }[] = [
@@ -103,6 +111,8 @@ export function PurchasesPage() {
     { key: "payments", label: t("purchases.page.tabs.payments"), count: payments.length, icon: Wallet },
   ];
 
+  const purchasesPaged = usePaged(visiblePurchases, { resetKey: visiblePurchases.length });
+  const paymentsPaged = usePaged(visiblePayments, { resetKey: visiblePayments.length });
   return (
     <div className="space-y-5">
       <PageIntro text={t("purchases.page.intro")}>
@@ -211,8 +221,9 @@ export function PurchasesPage() {
           label={t("sales.hub.dateLabel")}
           value={range}
           onChange={setRange}
-          options={(["all", "today", "week", "month"] as const).map((key) => ({ key, label: t(`sales.hub.range.${key}`) }))}
+          options={(["all", "today", "week", "month", "custom"] as const).map((key) => ({ key, label: key === "custom" ? t("dateRange.custom") : t(`sales.hub.range.${key}`) }))}
         />
+        {range === "custom" ? <CustomDateInputs value={custom} onChange={setCustom} /> : null}
         <div className="lg:ml-auto">
           {tab === "purchases" ? (
             <FilterChips
@@ -253,6 +264,7 @@ export function PurchasesPage() {
           <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("sales.hub.empty.noMatchBody")} />
         ) : (
           <TableShell
+            pager={purchasesPaged.footer}
             footer={
               <>
                 <span className="text-text-muted">{t("purchases.page.footer.count", { count: visiblePurchases.length })}</span>
@@ -277,7 +289,7 @@ export function PurchasesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {visiblePurchases.map((purchase) => {
+              {purchasesPaged.visible.map((purchase) => {
                 const supplier = supplierOf(purchase);
                 const balance = balanceOf(purchase);
                 const mobile = indianMobile(supplier.phone);
@@ -346,6 +358,7 @@ export function PurchasesPage() {
         <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("sales.hub.empty.noMatchBody")} />
       ) : (
         <TableShell
+          pager={paymentsPaged.footer}
           footer={
             <>
               <span className="text-text-muted">{t("sales.hub.footer.payments", { count: visiblePayments.length })}</span>
@@ -365,7 +378,7 @@ export function PurchasesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {visiblePayments.map((payment) => (
+            {paymentsPaged.visible.map((payment) => (
               <tr key={payment.key} onClick={() => setSelected(payment.purchase)} className="cursor-pointer hover:bg-surface-muted">
                 <td className="px-4 py-3 text-text">{formatDate(payment.paidAt)}</td>
                 <td className="px-4 py-3 font-semibold text-text">{supplierOf(payment.purchase).name}</td>

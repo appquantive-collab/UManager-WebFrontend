@@ -21,13 +21,20 @@ function SyncLanguageWithUser() {
   return null;
 }
 
+// A shared catalogue link is for the shop's customers: no Munshi splash or app tutorial.
+const isPublicCatalogue = typeof window !== "undefined" && /^\/c\//.test(window.location.pathname);
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SyncLanguageWithUser />
-      <SplashScreen>
+      {isPublicCatalogue ? (
         <RouterProvider router={router} />
-      </SplashScreen>
+      ) : (
+        <SplashScreen>
+          <RouterProvider router={router} />
+        </SplashScreen>
+      )}
       <Toaster
         position="top-center"
         richColors

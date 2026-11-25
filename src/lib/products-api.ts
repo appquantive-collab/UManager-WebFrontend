@@ -29,6 +29,8 @@ export interface Product {
   altUnit?: { name: string; factor: number } | null;
   trackBatch?: boolean;
   trackSerial?: boolean;
+  /** false: no stock kept for this item (made to order, services). */
+  trackStock?: boolean;
   variantGroup?: string;
   size?: string;
   color?: string;
@@ -56,6 +58,8 @@ export interface ProductInput {
   altUnit?: { name: string; factor: number } | null;
   trackBatch?: boolean;
   trackSerial?: boolean;
+  /** false: no stock kept for this item (made to order, services). */
+  trackStock?: boolean;
   variantGroup?: string;
   size?: string;
   color?: string;

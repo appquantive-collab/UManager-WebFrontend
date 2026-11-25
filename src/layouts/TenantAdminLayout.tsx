@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { AudioLines, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { canSee, tenantNav } from "../lib/nav";
 import { useAppSetup } from "../lib/use-app-setup";
 import { PLAN_PATH, usePlan } from "../lib/use-plan";
@@ -18,6 +18,7 @@ import { PlanBanner } from "../components/layout/PlanBanner";
 import { UserMenu } from "../components/layout/UserMenu";
 import { NotificationsMenu } from "../components/layout/NotificationsMenu";
 import { OnboardingModal } from "../components/onboarding/OnboardingModal";
+import { FeatureTour, tourSeen } from "../components/tour/FeatureTour";
 import { NewOrderModal } from "../components/orders/NewOrderModal";
 import { NewSaleModal } from "../components/orders/NewSaleModal";
 import { NewPurchaseModal } from "../components/purchases/NewPurchaseModal";
@@ -25,6 +26,9 @@ import { AddCustomerModal } from "../components/customers/AddCustomerModal";
 import { AddExpenseModal } from "../components/cashbook/AddExpenseModal";
 import { useNewOrderModalStore } from "../lib/new-order-store";
 import { useNewSaleModalStore } from "../lib/new-sale-store";
+import { ChatLive } from "../components/chat/ChatLive";
+import { CHAT_ROLES, getUnreadTotal } from "../lib/chat-api";
+import { chatKeys } from "../lib/chat-cache";
 
 const ONBOARDING_SKIPPED_KEY = "umanager.onboarding-skipped";
 
@@ -51,6 +55,11 @@ export function TenantAdminLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  // Desktop: text a step larger inside the app (see .app-root in index.css).
+  useEffect(() => {
+    document.documentElement.classList.add("app-root");
+    return () => document.documentElement.classList.remove("app-root");
+  }, []);
   const user = useAuthStore((state) => state.user);
   const { features: appFeatures, vocab } = useAppSetup();
   const plan = usePlan();
@@ -94,6 +103,48 @@ export function TenantAdminLayout() {
   const showOnboarding =
     Boolean(profile) && profile?.role === "OWNER" && !profile?.tenant?.onboarding.completed && (tenantId === null || dismissedFor !== tenantId);
 
+  // New login on this device: a short tour of what Munshi does (after the setup wizard, never on top of it).
+  const [tourClosed, setTourClosed] = useState(false);
+  const showTour = Boolean(profile) && !showOnboarding && !tourClosed && !tourSeen(profile?.userId);
+
+  // Back after a while (30 min+): open Munshi with a greeting, like opening a chat.
+  // Only when the app opens on its home screen, so a shared link still goes where it points.
+  useEffect(() => {
+    const KEY = "voicemunshi.lastActiveAt";
+    const GAP_MS = 30 * 60 * 1000;
+    const read = () => {
+      try {
+        return Number(localStorage.getItem(KEY) || 0);
+      } catch {
+        return 0;
+      }
+    };
+    const write = () => {
+      try {
+        localStorage.setItem(KEY, String(Date.now()));
+      } catch {
+        // Without storage there's simply no greeting.
+      }
+    };
+    const maybeGreet = () => {
+      const last = read();
+      const path = window.location.pathname.replace(/\/+$/, "");
+      if (last && Date.now() - last > GAP_MS && tourSeen(useAuthStore.getState().user?.userId) && (path === "/app" || path === "/app/ai")) {
+        navigate("/app/ai", { state: { greet: Date.now() } });
+      }
+      write();
+    };
+    maybeGreet();
+    const onVisibility = () => (document.visibilityState === "visible" ? maybeGreet() : write());
+    document.addEventListener("visibilitychange", onVisibility);
+    const timer = window.setInterval(write, 60_000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const dismissOnboarding = () => {
     try {
       if (tenantId) sessionStorage.setItem(ONBOARDING_SKIPPED_KEY, tenantId);
@@ -128,8 +179,15 @@ export function TenantAdminLayout() {
     navigate("/login", { replace: true });
   };
 
+  const chatAllowed = Boolean(user?.role && (CHAT_ROLES as readonly string[]).includes(user.role));
+  const chatUnread = useQuery({ queryKey: chatKeys.unread, queryFn: getUnreadTotal, enabled: chatAllowed, refetchInterval: 120_000 }).data?.total ?? 0;
   const { title, subtitle } = getPageMeta(location.pathname, vocab);
   const visibleNav = tenantNav.filter((item) => canSee(item, user?.role, appFeatures));
+  // Chat: full-height page; an open chat on a phone hides the app bars (it has its own header and input).
+  const canChat = chatAllowed;
+  const chatRoute = location.pathname.startsWith("/app/chats");
+  const chatOpen = /^\/app\/chats\/[^/]+$/.test(location.pathname);
+  const hideMobileBars = isFullPageForm(location.pathname) || chatOpen;
   const navGroups = (["main", "sell", "stock", "money", "manage"] as const)
     .map((group) => ({ group, items: visibleNav.filter((item) => (item.group ?? "main") === group) }))
     .filter((g) => g.items.length > 0);
@@ -141,7 +199,7 @@ export function TenantAdminLayout() {
         : t(`plan.name.${plan.plan ?? "basic"}`) + " · " + t("layout.planDays", { count: plan.daysLeft });
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background lg:bg-surface-muted">
       {drawerOpen && (
         <button
           type="button"
@@ -156,15 +214,20 @@ export function TenantAdminLayout() {
           "z-40 flex shrink-0 flex-col border-r border-surface-variant bg-surface transition-transform",
           "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:w-72",
           drawerOpen ? "max-lg:translate-x-0" : "max-lg:-translate-x-full",
-          collapsed ? "lg:w-20" : "lg:w-67"
+          collapsed ? "lg:w-20" : "lg:w-72"
         )}
       >
         <div className="flex shrink-0 items-center justify-between gap-2 px-4 pb-3 pt-4">
           {collapsed ? (
-            <img src="/logo.svg" alt={t("brand.name")} className="hidden h-9 w-9 lg:block" />
+            <span role="img" aria-label={t("brand.name")} className="hidden h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-brand lg:flex">
+              <AudioLines size={18} strokeWidth={2.2} aria-hidden="true" />
+            </span>
           ) : (
             <div className="flex min-w-0 items-center gap-2.5">
-              <img src="/logo.svg" alt="" className="h-9 w-9 shrink-0" />
+              <img src="/logo.svg" alt="" className="h-9 w-9 shrink-0 lg:hidden" />
+              <span aria-hidden="true" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-brand lg:flex">
+                <AudioLines size={18} strokeWidth={2.2} />
+              </span>
               <div className="min-w-0">
                 <div className="truncate text-base font-extrabold leading-tight tracking-tight text-text">
                   {profile?.tenant?.businessName ?? t("brand.name")}
@@ -197,9 +260,9 @@ export function TenantAdminLayout() {
         </div>
 
 
-        <nav aria-label={t("layout.mainNavigation")} className="scrollbar-hide flex-1 overflow-y-auto border-t border-surface-variant px-3 py-2">
+        <nav aria-label={t("layout.mainNavigation")} className="scrollbar-hide flex-1 overflow-y-auto border-t border-surface-variant px-3 py-2 lg:border-t-0">
           {navGroups.map(({ group, items }, groupIndex) => (
-            <div key={group} className={clsx(groupIndex > 0 && "mt-2 border-t border-surface-variant pt-2", collapsed && "lg:mt-1 lg:pt-1")}>
+            <div key={group} className={clsx(groupIndex > 0 && "mt-2 border-t border-surface-variant pt-2 lg:mt-4 lg:border-t-0 lg:pt-0", collapsed && "lg:mt-1 lg:pt-1")}>
               {group !== "main" ? (
                 <p className={clsx("px-3 pb-1 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-text-muted", collapsed && "lg:hidden")}>
                   {t(`nav.group.${group}`)}
@@ -214,15 +277,35 @@ export function TenantAdminLayout() {
                     title={collapsed ? t(item.labelKey) : undefined}
                     className={({ isActive }) =>
                       clsx(
-                        "flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm outline-none transition-colors",
+                        "relative flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm outline-none transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-primary/40",
                         collapsed && "lg:justify-center lg:px-0",
-                        isActive ? "bg-primary font-semibold text-on-primary" : "font-medium text-text-muted hover:bg-surface-muted hover:text-text"
+                        isActive
+                          ? "bg-primary font-semibold text-on-primary lg:bg-primary-container lg:text-primary"
+                          : "font-medium text-text-muted hover:bg-surface-muted hover:text-text lg:text-text-subtle"
                       )
                     }
                   >
-                    <item.icon size={18} strokeWidth={1.75} className="shrink-0" />
-                    <span className={clsx("truncate", collapsed && "lg:hidden")}>{t(item.labelKey)}</span>
+                    {({ isActive }) => (
+                      <>
+                        {/* Desktop: a thin orange bar marks the open page. */}
+                        {isActive ? <span aria-hidden="true" className="absolute -left-3 bottom-2 top-2 hidden w-1 rounded-r-full bg-primary lg:block" /> : null}
+                        <item.icon size={18} strokeWidth={isActive ? 2.1 : 1.75} className="shrink-0" />
+                        <span className={clsx("truncate", collapsed && "lg:hidden")}>{t(item.labelKey)}</span>
+                        {item.path === "/app/chats" && chatUnread ? (
+                          <span
+                            className={clsx(
+                              "ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] font-bold",
+                              isActive ? "bg-on-primary text-primary lg:bg-primary lg:text-on-primary" : "bg-primary text-on-primary",
+                              collapsed && "lg:absolute lg:right-1.5 lg:top-1 lg:h-4 lg:min-w-4 lg:px-1 lg:text-[0.625rem]"
+                            )}
+                            aria-label={t("chat.unreadCount", { count: chatUnread })}
+                          >
+                            {chatUnread > 99 ? "99+" : chatUnread}
+                          </span>
+                        ) : null}
+                      </>
+                    )}
                   </NavLink>
                 ))}
               </div>
@@ -261,7 +344,7 @@ export function TenantAdminLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Desktop header: page title + utility icons. */}
-        <header className="hidden shrink-0 items-center justify-between gap-3 border-b border-surface-variant bg-surface px-8 py-5 lg:flex">
+        <header className="hidden shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-8 py-4 lg:flex">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-bold leading-tight text-text">{title}</h1>
             {subtitle ? <p className="mt-1 text-sm text-text-muted">{subtitle}</p> : null}
@@ -281,7 +364,10 @@ export function TenantAdminLayout() {
         </header>
 
         {/* Mobile header: hamburger + tenant switcher, no duplicate page title. */}
+        {chatOpen ? null : (
         <MobileTopBar
+          chatUnread={canChat ? chatUnread : null}
+          onChatClick={canChat ? () => navigate("/app/chats") : undefined}
           onMenuClick={() => setDrawerOpen(true)}
           onSearchClick={() => navigate("/app/search")}
           businessName={profile?.tenant?.businessName ?? "—"}
@@ -289,15 +375,23 @@ export function TenantAdminLayout() {
           userInitials={initialsFor(user?.name ?? "?")}
           onLogout={handleLogout}
         />
+        )}
 
         {/* Bottom padding clears the fixed mobile nav bar — skipped on full-page forms, which have no bottom nav to clear. */}
-        <main className={clsx("min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6", isFullPageForm(location.pathname) ? "pb-4" : "pb-[calc(6.5rem+max(0.75rem,env(safe-area-inset-bottom)))]")}>
-          <PlanBanner />
+        <main
+          className={clsx(
+            chatRoute
+              ? "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:px-8 lg:pb-6 lg:pt-6"
+              : "min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 lg:px-8 lg:pb-6 lg:pt-6",
+            hideMobileBars ? (chatRoute ? "pb-0" : "pb-4") : "pb-[calc(6.5rem+max(0.75rem,env(safe-area-inset-bottom)))]"
+          )}
+        >
+          {chatRoute ? null : <PlanBanner />}
           <Outlet />
         </main>
       </div>
 
-      {!isFullPageForm(location.pathname) && (
+      {!hideMobileBars && (
         <>
           {/* Hidden while the side menu is open, so it never covers the account area at its bottom. */}
           {!drawerOpen ? (
@@ -315,7 +409,9 @@ export function TenantAdminLayout() {
           />
         </>
       )}
+      {canChat ? <ChatLive /> : null}
       <OnboardingModal open={showOnboarding} onClose={dismissOnboarding} />
+      {showTour ? <FeatureTour userId={profile?.userId} onClose={() => setTourClosed(true)} /> : null}
       <NewOrderModal open={newOrderOpen} onClose={closeNewOrder} />
       <NewSaleModal open={newSaleOpen} onClose={closeNewSale} />
       <NewPurchaseModal open={purchaseOpen} onClose={() => setPurchaseOpen(false)} />

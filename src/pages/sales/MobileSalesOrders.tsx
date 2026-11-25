@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FileText, Receipt, Sparkles } from "lucide-react";
@@ -108,6 +109,8 @@ export function MobileSalesOrders({
   const grossValue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
   const avgTicket = orders.length > 0 ? grossValue / orders.length : 0;
 
+  const ordersPaged = usePaged(filteredOrders, { resetKey: `${tab}|${filter}|${search}` });
+  const invoicesPaged = usePaged(filteredInvoices, { resetKey: `${tab}|${filter}|${search}` });
   return (
     <div className="space-y-3">
       <SalesGuide onNewOrder={() => onNewOrder?.()} onNewSale={() => onNewSale?.()} />
@@ -213,7 +216,7 @@ export function MobileSalesOrders({
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredOrders.map((order) => {
+              {ordersPaged.visible.map((order) => {
                 const status = orderStatusBadge[order.status];
                 return (
                   <button
@@ -251,6 +254,7 @@ export function MobileSalesOrders({
                   </button>
                 );
               })}
+              {ordersPaged.footer}
             </div>
           )}
 
@@ -283,7 +287,7 @@ export function MobileSalesOrders({
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredInvoices.map((invoice) => (
+              {invoicesPaged.visible.map((invoice) => (
                 <button
                   key={invoice._id}
                   type="button"
@@ -312,6 +316,7 @@ export function MobileSalesOrders({
                   </div>
                 </button>
               ))}
+              {invoicesPaged.footer}
             </div>
           )}
           {/* Archived bills sit apart; this switches the list between the two. */}

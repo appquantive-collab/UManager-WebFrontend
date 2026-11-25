@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, BellRing, Clock, FileText, MessageCircle, Phone, Plus, ReceiptText, ShieldCheck, UserPlus, Users, Wallet } from "lucide-react";
@@ -64,6 +65,7 @@ export function CustomersPage() {
       return a.name.localeCompare(b.name, i18n.resolvedLanguage);
     });
 
+  const customersPaged = usePaged(visible, { resetKey: visible.length });
   return (
     <div className="space-y-5">
       <PageIntro text={t("customers.hub.intro")}>
@@ -189,8 +191,9 @@ export function CustomersPage() {
       ) : visible.length === 0 ? (
         <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("customers.hub.empty.noMatchBody")} />
       ) : (
+        <>
         <ul className="grid gap-3 xl:grid-cols-2">
-          {visible.map((customer) => {
+          {customersPaged.visible.map((customer) => {
             const mobile = indianMobile(customer.phone);
             const usage = customer.creditLimit > 0 ? Math.min(1, customer.outstanding / customer.creditLimit) : 0;
             const reminder = t("dashboard.attention.reminderMessage", {
@@ -293,6 +296,8 @@ export function CustomersPage() {
             );
           })}
         </ul>
+          {customersPaged.footer}
+        </>
       )}
 
       <AddCustomerModal open={addOpen} onClose={() => setAddOpen(false)} />

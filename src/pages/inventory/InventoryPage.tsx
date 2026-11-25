@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
@@ -87,7 +88,8 @@ export function InventoryPage() {
   }, [products, tab]);
 
   const qtyOf = (product: Product) => stockLevels?.[product._id]?.total ?? 0;
-  const stateOf = (product: Product): "out" | "low" | "ok" => {
+  const stateOf = (product: Product): "out" | "low" | "ok" | "untracked" => {
+    if (product.trackStock === false) return "untracked";
     const qty = qtyOf(product);
     if (qty <= 0) return "out";
     if (qty <= product.reorderLevel) return "low";
@@ -99,15 +101,15 @@ export function InventoryPage() {
     return {
       count: scoped.length,
       value: scoped.reduce((sum, p) => sum + Math.max(0, qty(p)) * (p.purchasePrice ?? 0), 0),
-      low: scoped.filter((p) => qty(p) > 0 && qty(p) <= p.reorderLevel).length,
-      out: scoped.filter((p) => qty(p) <= 0).length,
+      low: scoped.filter((p) => p.trackStock !== false && qty(p) > 0 && qty(p) <= p.reorderLevel).length,
+      out: scoped.filter((p) => p.trackStock !== false && qty(p) <= 0).length,
     };
   }, [scoped, stockLevels]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     const qty = (p: Product) => stockLevels?.[p._id]?.total ?? 0;
-    const state = (p: Product) => (qty(p) <= 0 ? "out" : qty(p) <= p.reorderLevel ? "low" : "ok");
+    const state = (p: Product) => (p.trackStock === false ? "untracked" : qty(p) <= 0 ? "out" : qty(p) <= p.reorderLevel ? "low" : "ok");
     return scoped
       .filter(
         (p) =>
@@ -125,6 +127,7 @@ export function InventoryPage() {
   const actionButton =
     "rounded-lg p-2 text-text-muted outline-none transition-colors hover:bg-surface-variant hover:text-text focus-visible:ring-2 focus-visible:ring-primary/40";
 
+  const productsPaged = usePaged(filtered, { resetKey: `${tab}|${search}|${filtered.length}` });
   return (
     <>
       <div className="lg:hidden">
@@ -222,6 +225,7 @@ export function InventoryPage() {
         />
       ) : (
         <TableShell
+          pager={productsPaged.footer}
           footer={
             <>
               <span className="text-text-muted">{t("inventory.hub.footer.count", { count: filtered.length })}</span>
@@ -245,7 +249,7 @@ export function InventoryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filtered.map((product) => {
+            {productsPaged.visible.map((product) => {
               const qty = qtyOf(product);
               const state = stateOf(product);
               const margin = product.purchasePrice > 0 ? ((product.wholesalePrice - product.purchasePrice) / product.purchasePrice) * 100 : null;
@@ -271,11 +275,13 @@ export function InventoryPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <p className="font-bold tabular-nums text-text">
-                      {qty} <span className="text-xs font-semibold text-text-muted">{product.unit}</span>
+                      {state === "untracked" ? "—" : qty} {state === "untracked" ? null : <span className="text-xs font-semibold text-text-muted">{product.unit}</span>}
                     </p>
                     <div className="mt-1">
-                      <StatusPill tone={state === "out" ? "danger" : state === "low" ? "warning" : "success"}>
-                        {state === "out"
+                      <StatusPill tone={state === "out" ? "danger" : state === "low" ? "warning" : state === "untracked" ? "neutral" : "success"}>
+                        {state === "untracked"
+                          ? t("productExtras.stockNotKept")
+                          : state === "out"
                           ? t("inventory.hub.state.out")
                           : state === "low"
                             ? t("inventory.hub.state.low", { level: product.reorderLevel })

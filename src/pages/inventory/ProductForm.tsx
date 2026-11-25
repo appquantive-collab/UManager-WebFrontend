@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -78,6 +79,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
   );
   // A new item in a medical store starts batch-tracked, in a mobile shop IMEI-tracked.
   const [trackBatch, setTrackBatch] = useState(initialValues ? Boolean(initialValues.trackBatch) : Boolean(setupTemplate) && setupFeatures.batch && !proGate.locked);
+  const [trackStock, setTrackStock] = useState(initialValues ? initialValues.trackStock !== false : true);
   const [trackSerial, setTrackSerial] = useState(initialValues ? Boolean(initialValues.trackSerial) : Boolean(setupTemplate) && setupFeatures.serial && !proGate.locked);
   const [size, setSize] = useState(initialValues?.size ?? "");
   const [color, setColor] = useState(initialValues?.color ?? "");
@@ -182,6 +184,7 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
         altUnit: altUnitValid ? { name: altUnitName.trim(), factor: altFactor } : initialValues?.altUnit ? null : undefined,
         trackBatch,
         trackSerial,
+        trackStock,
         size: size.trim() || undefined,
         color: color.trim() || undefined,
         isRawMaterial,
@@ -515,14 +518,40 @@ export function ProductForm({ initialValues, defaultIsRawMaterial, onSubmit, onC
           </FormSection>
 
           <FormSection title={t("inventory.productForm.stock")}>
-            <TextField
-              label={t("inventory.productForm.reorderLevel")}
-              type="number"
-              step="1"
-              error={errors.reorderLevel?.message}
-              placeholder="0"
-              {...register("reorderLevel")}
-            />
+            {/* Keep stock for this item? Made-to-order items, services and loose goods often don't. */}
+            <div>
+              <p className="text-sm font-semibold text-text">{t("productExtras.trackStockLabel")}</p>
+              <div className="mt-1.5 grid grid-cols-2 gap-2" role="radiogroup" aria-label={t("productExtras.trackStockLabel")}>
+                {([true, false] as const).map((value) => (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    role="radio"
+                    aria-checked={trackStock === value}
+                    onClick={() => setTrackStock(value)}
+                    className={clsx(
+                      "rounded-xl border px-3 py-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+                      trackStock === value ? "border-primary bg-primary-container" : "border-border bg-surface hover:bg-surface-muted"
+                    )}
+                  >
+                    <span className={clsx("block text-sm font-semibold", trackStock === value ? "text-primary" : "text-text")}>
+                      {value ? t("productExtras.trackStockYes") : t("productExtras.trackStockNo")}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-text-muted">{value ? t("productExtras.trackStockYesHint") : t("productExtras.trackStockNoHint")}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {trackStock ? (
+              <TextField
+                label={t("inventory.productForm.reorderLevel")}
+                type="number"
+                step="1"
+                error={errors.reorderLevel?.message}
+                placeholder="0"
+                {...register("reorderLevel")}
+              />
+            ) : null}
           </FormSection>
         </div>
       </div>

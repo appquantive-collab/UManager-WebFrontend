@@ -1,4 +1,4 @@
-const CACHE = "voicemunshi-shell-v6";
+const CACHE = "voicemunshi-shell-v7";
 // Replaced at build time with the hashed asset list (see vite.config.ts).
 const SHELL = ["/", "/manifest.webmanifest", "/logo-192.png", "/logo-512.png"];
 
@@ -82,5 +82,48 @@ self.addEventListener("fetch", (event) => {
         return response;
       });
     })
+  );
+});
+
+// ---- Chat notifications (Web Push) ----
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+  event.waitUntil(
+    (async () => {
+      // If VoiceMunshi is open and in front, the app shows the message itself.
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      if (windows.some((w) => w.focused)) return;
+      await self.registration.showNotification(data.title || "VoiceMunshi", {
+        body: data.body || "",
+        tag: data.tag || "voicemunshi-chat",
+        renotify: true,
+        icon: "/logo-192.png",
+        badge: "/logo-64.png",
+        data: { url: data.url || "/app/chats" },
+      });
+    })()
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/app/chats";
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const app = windows.find((w) => new URL(w.url).origin === self.location.origin);
+      if (app) {
+        await app.focus();
+        // The open app moves to the chat without reloading.
+        app.postMessage({ type: "vm-open", url });
+        return;
+      }
+      await self.clients.openWindow(url);
+    })()
   );
 });

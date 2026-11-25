@@ -22,7 +22,7 @@ export function AdminCostsPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-text">{t("admin.costs.title")}</h1>
+          <h1 className="text-[1.625rem] font-bold tracking-tight text-text">{t("admin.costs.title")}</h1>
           <p className="text-sm text-text-muted">{t("admin.costs.subtitle")}</p>
         </div>
         <FilterChips label={t("admin.costs.range")} options={RANGES.map((key) => ({ key, label: t("admin.costs.days", { count: Number(key) }) }))} value={range} onChange={setRange} />

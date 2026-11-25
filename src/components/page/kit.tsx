@@ -170,7 +170,8 @@ export function FilterChips<T extends string>({
   );
 }
 
-export function TableShell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+/** `pager`: page numbers (desktop) or the load-more row (phones) from usePaged. */
+export function TableShell({ children, footer, pager }: { children: ReactNode; footer?: ReactNode; pager?: ReactNode }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-elevation-1">
       <div className="overflow-x-auto">
@@ -181,6 +182,7 @@ export function TableShell({ children, footer }: { children: ReactNode; footer?:
           {footer}
         </div>
       ) : null}
+      {pager ? <div className="border-t border-border px-4">{pager}</div> : null}
     </div>
   );
 }

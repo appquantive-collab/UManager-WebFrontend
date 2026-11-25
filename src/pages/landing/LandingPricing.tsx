@@ -18,7 +18,8 @@ const FEATURE_KEYS: Record<PlanKey, string[]> = {
 /** Basic and Pro, monthly / quarterly / annual — the same prices the app charges. */
 export function LandingPricing() {
   const { t } = useTranslation();
-  const [period, setPeriod] = useState<BillingPeriod>("annual");
+  const [period, setPeriod] = useState<BillingPeriod>("monthly");
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>("basic");
   const { data } = useQuery({ queryKey: ["price-list"], queryFn: getPriceList, staleTime: 3_600_000 });
   const prices = data ?? FALLBACK_PRICES;
 
@@ -42,20 +43,31 @@ export function LandingPricing() {
         />
       </div>
 
-      <div className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-5 md:grid-cols-2">
+      <div role="radiogroup" aria-label={t("plan.chooseTitle")} className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-5 md:grid-cols-2">
         {prices.plans.map((plan) => {
           const price = plan.prices.find((p) => p.period === period);
           if (!price) return null;
-          const highlighted = plan.key === "pro";
+          const popular = plan.key === "pro";
+          const highlighted = selectedPlan === plan.key;
           return (
             <div
               key={plan.key}
+              role="radio"
+              aria-checked={highlighted}
+              tabIndex={0}
+              onClick={() => setSelectedPlan(plan.key)}
+              onKeyDown={(e) => {
+                if (e.target === e.currentTarget && (e.key === " " || e.key === "Enter")) {
+                  e.preventDefault();
+                  setSelectedPlan(plan.key);
+                }
+              }}
               className={clsx(
-                "relative flex flex-col rounded-3xl bg-surface p-7",
-                highlighted ? "border-2 border-primary shadow-elevation-3" : "border border-border shadow-elevation-1"
+                "relative flex cursor-pointer flex-col rounded-3xl bg-surface p-7 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+                highlighted ? "border-2 border-primary shadow-elevation-3" : "border-2 border-border shadow-elevation-1 hover:border-primary/40"
               )}
             >
-              {highlighted ? (
+              {popular ? (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-on-primary">
                   {t("landing.pricing.mostPopular")}
                 </span>

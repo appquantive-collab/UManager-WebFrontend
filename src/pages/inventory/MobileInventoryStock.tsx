@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
-import { AlertTriangle, Ban, CheckCircle2, Hammer, Package, PackagePlus, Plus, Warehouse } from "lucide-react";
+import { AlertTriangle, Ban, CheckCircle2, Hammer, Package, PackagePlus, Plus, Warehouse, Minus } from "lucide-react";
 import { SearchInput } from "../../components/ui/SearchInput";
 import { Dialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
@@ -21,15 +22,17 @@ import { initialParam } from "../../lib/url-params";
 type StatusFilter = "all" | "low" | "out";
 type TypeFilter = "products" | "raw-materials";
 
-function stockStatus(quantity: number, reorderLevel: number): "normal" | "low" | "out" {
+function stockStatus(quantity: number, reorderLevel: number, tracked = true): "normal" | "low" | "out" | "untracked" {
+  if (!tracked) return "untracked";
   if (quantity <= 0) return "out";
   if (quantity <= reorderLevel) return "low";
   return "normal";
 }
 
-const statusBadge: Record<"normal" | "low" | "out", { labelKey: string; className: string; icon: typeof CheckCircle2 }> = {
+const statusBadge: Record<"normal" | "low" | "out" | "untracked", { labelKey: string; className: string; icon: typeof CheckCircle2 }> = {
   normal: { labelKey: "inventory.mobileStock.statusInStock", className: "bg-success-container text-success", icon: CheckCircle2 },
   low: { labelKey: "inventory.mobileStock.statusLowStock", className: "bg-warning-container text-warning", icon: AlertTriangle },
+  untracked: { labelKey: "productExtras.stockNotKept", className: "bg-surface-variant text-text-subtle", icon: Minus },
   out: { labelKey: "inventory.mobileStock.statusOutOfStock", className: "bg-danger text-white", icon: Ban },
 };
 
@@ -88,7 +91,7 @@ export function MobileInventoryStock() {
     for (const p of products) {
       const qty = quantityFor(p);
       valuation += Math.max(0, qty) * p.wholesalePrice;
-      const status = stockStatus(qty, p.reorderLevel);
+      const status = stockStatus(qty, p.reorderLevel, p.trackStock !== false);
       if (status === "low") lowCount += 1;
       if (status === "out") outCount += 1;
     }
@@ -111,7 +114,7 @@ export function MobileInventoryStock() {
     const query = search.trim().toLowerCase();
     return products.filter((p) => {
       const qty = quantityFor(p);
-      const status = stockStatus(qty, p.reorderLevel);
+      const status = stockStatus(qty, p.reorderLevel, p.trackStock !== false);
       const matchesStatus = statusFilter === "all" || status === statusFilter;
       const matchesSearch =
         !query || p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query);
@@ -122,6 +125,7 @@ export function MobileInventoryStock() {
 
   const isLoading = productsQuery.isLoading || stockLevelsQuery.isLoading;
 
+  const productsPaged = usePaged(filtered, { resetKey: `${statusFilter}|${search}|${warehouseFilter}` });
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
@@ -309,7 +313,7 @@ export function MobileInventoryStock() {
         </div>
       ) : (
         <div className="flex flex-col space-y-3">
-          {filtered.map((product) => (
+          {productsPaged.visible.map((product) => (
             <SkuCard
               key={product._id}
               product={product}
@@ -320,6 +324,7 @@ export function MobileInventoryStock() {
               onAssemble={product.bom.length > 0 ? () => setAssembleProductState(product) : undefined}
             />
           ))}
+          {productsPaged.footer}
         </div>
       )}
 
@@ -368,7 +373,7 @@ function SkuCard({
   onAssemble?: () => void;
 }) {
   const { t } = useTranslation();
-  const status = stockStatus(quantity, product.reorderLevel);
+  const status = stockStatus(quantity, product.reorderLevel, product.trackStock !== false);
   const badge = statusBadge[status];
   const warehouseNameById = new Map(warehouses.map((w) => [w._id, w.name]));
   const splitLabel =

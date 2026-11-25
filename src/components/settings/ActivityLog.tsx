@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { LoadMoreSentinel } from "../ui/Paged";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Banknote, FileText, History, Package, Settings, Undo2, Users, Wallet, type LucideIcon } from "lucide-react";
-import { Button } from "../ui/Button";
 import { FilterChips } from "../page/kit";
 import { listAudit, type AuditEntry } from "../../lib/team-api";
 
@@ -79,10 +79,14 @@ export function ActivityLog() {
           })}
         </ul>
       </div>
+      {/* Older entries load by themselves on reaching the end. */}
       {query.hasNextPage ? (
-        <Button variant="secondary" isLoading={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
-          {t("activity.more")}
-        </Button>
+        <LoadMoreSentinel
+          key={query.data?.pages.length ?? 0}
+          onLoad={() => {
+            if (!query.isFetchingNextPage) void query.fetchNextPage();
+          }}
+        />
       ) : null}
     </div>
   );

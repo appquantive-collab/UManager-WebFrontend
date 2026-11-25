@@ -146,7 +146,9 @@
       "sales": "Bikri",
       "stock": "Stock",
       "accounts": "Hisaab"
-    }
+    },
+    "catalogue": "Catalogue",
+    "chats": "Chats"
   },
   "language": {
     "label": "Bhasha",
@@ -334,6 +336,14 @@
       "title": "Rokad bahi",
       "subtitle": "Aaj ka paisa aaya-gaya aur galle ki ginti",
       "subtitle_firm": "Aaj ka paisa aaya-gaya aur haath mein cash"
+    },
+    "catalogue": {
+      "title": "Catalogue",
+      "subtitle": "Apne items ka catalogue banayein aur WhatsApp par bhejein."
+    },
+    "chats": {
+      "title": "Chats",
+      "subtitle": "VoiceMunshi wale grahak aur supplier se baat karein"
     }
   },
   "auth": {
@@ -1644,7 +1654,14 @@
       "disclaimer": "Munshi AI aapke VoiceMunshi data se jawab deta hai. Badlaav sirf sujhata hai — aap confirm karte hain.",
       "back": "Wapas",
       "holdHint": "Bolkar chhod dein · radd ke liye baayein khiskaayein",
-      "tapToHear": "Munshi ki aawaz sunne ke liye yahan tap karein"
+      "tapToHear": "Munshi ki aawaz sunne ke liye yahan tap karein",
+      "usageTitle": "Aaj ke AI tokens",
+      "usageLeft": "{{total}} mein se {{left}} bache",
+      "usageUnlimited": "Unlimited",
+      "usageExhausted": "Khatam · raat 12 baje phir milenge",
+      "usageAria": "Munshi AI aaj: {{total}} mein se {{left}} tokens bache. Plan kholein.",
+      "returnGreeting": "Namaste {{name}} ji 🙏 Main aapki kis kaam mein help karun? Batayein.",
+      "returnGreetingNoName": "Namaste ji 🙏 Main aapki kis kaam mein help karun? Batayein."
     },
     "workflow": {
       "heading": "Kaam ki list",
@@ -1796,7 +1813,7 @@
         "lastMonth": "Pichhle mahine",
         "fy": "Is financial year"
       },
-      "download": "CSV download",
+      "download": "Download",
       "print": "Report print karein",
       "col": {
         "product": "Product",
@@ -2951,7 +2968,13 @@
     "taxHint": "GST bill par lagta hai.",
     "gstRate": "GST rate",
     "hsn": "HSN code",
-    "hsnHint": "4–8 ank, GST bill par chhapta hai."
+    "hsnHint": "4–8 ank, GST bill par chhapta hai.",
+    "trackStockLabel": "Is item ka stock rakhna hai?",
+    "trackStockYes": "Haan, stock rakhein",
+    "trackStockYesHint": "Bill par stock ghatega; kam hone par alert.",
+    "trackStockNo": "Nahi",
+    "trackStockNoHint": "Order par banta hai ya service: stock ginti nahi.",
+    "stockNotKept": "Stock nahi rakhte"
   },
   "team": {
     "title": "Team login",
@@ -3628,5 +3651,319 @@
     "changePassword": "Password badlein",
     "setPassword": "Password banayein",
     "passwordSaved": "Password badal gaya"
+  },
+  "catalogue": {
+    "intro": "Items chunein, daam dikhana hai ya nahi tay karein, aur sundar catalogue ka link WhatsApp par bhejein. Customer wahin se order kar sakte hain ya PDF bana sakte hain.",
+    "new": "Naya catalogue",
+    "newTitle": "Naya catalogue",
+    "editTitle": "Catalogue badlein",
+    "defaultTitle": "Hamare products",
+    "titleLabel": "Catalogue ka naam",
+    "noteLabel": "Customers ke liye ek line (zaroori nahi)",
+    "notePlaceholder": "jaise Wholesale rate, 2 din mein delivery",
+    "priceLabel": "Daam",
+    "priceMode": {
+      "retail": "Retail daam",
+      "wholesale": "Wholesale daam",
+      "hidden": "Daam chhupayein"
+    },
+    "showStock": "Stock hai / khatam dikhayein",
+    "showStockHint": "Sirf un items par jinka stock rakhte hain.",
+    "itemsLabel": "Items",
+    "selectShown": "Dikhe hue sab chunein",
+    "unselectShown": "Dikhe hue hatayein",
+    "searchItems": "Item khojein",
+    "allCategories": "Sab",
+    "noItems": "Koi item nahi mila.",
+    "pickedCount_one": "{{count}} item chuna",
+    "pickedCount_other": "{{count}} items chune",
+    "create": "Catalogue banayein",
+    "save": "Badlav save karein",
+    "created": "Catalogue taiyaar. WhatsApp par bhejiye.",
+    "saved": "Catalogue save ho gaya",
+    "failed": "Save nahi ho paya. Phir koshish karein.",
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items",
+    "withStock": "stock dikhata hai",
+    "shareWhatsApp": "WhatsApp par bhejein",
+    "shareText": "{{title}}: hamare items yahan dekhein {{link}}",
+    "open": "Catalogue kholein",
+    "copyLink": "Link copy karein",
+    "linkCopied": "Link copy ho gaya",
+    "copyFailed": "Link copy nahi ho paya",
+    "edit": "Badlein",
+    "delete": "Hatayein",
+    "deleteTitle": "Catalogue hatayein?",
+    "deleteBody": "\"{{title}}\" hat jaayega aur uska link band ho jaayega.",
+    "deleted": "Catalogue hata diya",
+    "emptyTitle": "Abhi koi catalogue nahi",
+    "emptyBody": "Apne items se ek minute mein banayein aur customers ko WhatsApp par bhejein.",
+    "public": {
+      "notFound": "Yeh catalogue uplabdh nahi hai",
+      "order": "WhatsApp par order karein",
+      "orderItem": "{{item}} WhatsApp par order karein",
+      "orderText": "Namaste, maine aapka catalogue \"{{title}}\" dekha, order karna hai.",
+      "orderItemText": "Namaste, mujhe {{item}} order karna hai (aapke catalogue \"{{title}}\" se).",
+      "print": "Print / PDF save karein",
+      "inStock": "Stock mein",
+      "outOfStock": "Stock khatam",
+      "askPrice": "Daam ke liye poochhein",
+      "madeWith": "VoiceMunshi se bana"
+    }
+  },
+  "pager": {
+    "label": "Pages",
+    "showing": "{{total}} mein se {{from}}–{{to}}",
+    "previous": "Pichhla page",
+    "next": "Agla page",
+    "loadingMore": "Aur dikha rahe hain…",
+    "loadMore": "Aur dikhayein"
+  },
+  "tour": {
+    "step": "{{total}} mein se {{n}}",
+    "skip": "Chhodein",
+    "back": "Peeche",
+    "next": "Aage",
+    "start": "Munshi se baat karein",
+    "cardTitle": "Munshi ne kiya",
+    "welcome": {
+      "title": "Miliye Munshi se, aapki dukaan ke sahayak",
+      "body": "Jaise counter par baat karte hain, waise hi bolein ya likhein. Munshi bill banata hai, kharid darj karta hai aur hisaab rakhta hai.",
+      "reply": "Namaste! Main hoon Munshi. Bataiye kya karna hai, Hindi, Hinglish ya English mein."
+    },
+    "bill": {
+      "title": "Bolkar bill banwayein",
+      "body": "Bas bataiye kisne kya liya. Munshi bill bana deta hai, aap dekh kar confirm karein.",
+      "user": "Ravi ji ko 2 kg cheeni, 45 rupaye kilo, bill bana do",
+      "reply": "Yeh raha, dekh kar confirm kijiye.",
+      "line": "Bill · Ravi: Cheeni 2 kg @ ₹45 = ₹90",
+      "done": "Bill ban gaya · INV-0012"
+    },
+    "purchase": {
+      "title": "Kharid darj karein, stock badhe",
+      "body": "Supplier se kya aaya, bas Munshi ko bataiye. Stock aur supplier ka hisaab apne aap badal jaata hai.",
+      "user": "Rajesh ji se 50 kg aalu liya, 20 rupaye kilo",
+      "reply": "Kharid save karne ke liye taiyaar.",
+      "line": "Kharid · Rajesh: Aalu 50 kg = ₹1,000",
+      "done": "Save ho gaya · stock +50 kg"
+    },
+    "dues": {
+      "title": "Udhaar ka pura hisaab",
+      "body": "Kabhi bhi poochhiye kisse paise lene hain, aur ek tap mein WhatsApp par yaad dilaiye.",
+      "user": "Kis kis se paise lene hain?",
+      "reply": "Jai Ram ₹34,435 · Jaya Ram ₹31,600 · The Sruthilaya ₹5,500. Yaad dila doon?"
+    },
+    "stock": {
+      "title": "Stock poochhiye",
+      "body": "Kya khatam ho raha hai, kya mangwana hai, kitna bacha hai. Bas poochhiye.",
+      "user": "Kaun sa maal mangwana hai?",
+      "reply": "Khartaal Wooden khatam hai, Dholak 3 bache hain. Pehle yeh do mangwa lijiye."
+    },
+    "today": {
+      "title": "Aaj ka hisaab ek line mein",
+      "body": "Bikri, munafa, payment, GST. Munshi aapke khate jaanta hai.",
+      "user": "Aaj kitni bikri hui?",
+      "reply": "Aaj ₹12,450 ki bikri, 9 bill, kal se 8% zyada. ₹3,200 abhi lene baaki."
+    },
+    "catalogue": {
+      "title": "Catalogue bhejiye",
+      "body": "Apne items ka sundar catalogue banaiye aur link WhatsApp par bhejiye. Customer usi se order karte hain.",
+      "user": "Naye items ka catalogue bhej do",
+      "reply": "Aapka catalogue bhejne ke liye taiyaar hai.",
+      "cardTitle": "Catalogue link"
+    }
+  },
+  "dateRange": {
+    "custom": "Apni tareekh",
+    "from": "Se",
+    "to": "Tak"
+  },
+  "export": {
+    "excel": {
+      "label": "Excel",
+      "hint": "Excel ya Google Sheets mein kholein"
+    },
+    "pdf": {
+      "label": "PDF",
+      "hint": "“Save as PDF” chunein, rakhein ya bhejein"
+    },
+    "csv": {
+      "label": "CSV",
+      "hint": "Dusre software ke liye saadi file"
+    }
+  },
+  "chat": {
+    "title": "Chats",
+    "newChat": "Nayi chat",
+    "search": "Chat dhoondhein",
+    "filterLabel": "Dikhayein",
+    "filter": {
+      "all": "Sab",
+      "unread": "Bina padhe",
+      "customer": "Grahak",
+      "supplier": "Supplier"
+    },
+    "kindTag": {
+      "customer": "Grahak",
+      "supplier": "Supplier"
+    },
+    "noMessagesYet": "Abhi koi message nahi",
+    "noMatch": "Koi chat nahi mili.",
+    "emptyTitle": "Apne grahak aur supplier se chat karein",
+    "emptyBody": "Jo dukaan VoiceMunshi use karti hain, unse yahan baat karein: message, photo, voice note, bill aur payment reminder.",
+    "unreadCount": "{{count}} bina padhe",
+    "typing": "likh rahe hain…",
+    "online": "online",
+    "lastSeenToday": "aaj {{time}} baje dekha",
+    "lastSeenYesterday": "kal {{time}} baje dekha",
+    "lastSeenOn": "{{date}} ko dekha",
+    "today": "Aaj",
+    "yesterday": "Kal",
+    "you": "Aap",
+    "deleted": "Yeh message delete kar diya gaya",
+    "deletedByYou": "Aapne yeh message delete kiya",
+    "blocked": "Block",
+    "block": "Is dukaan ko block karein",
+    "unblock": "Unblock karein",
+    "blockedNotice": "Aapne is dukaan ko block kiya hai.",
+    "blockedToast": "{{name}} block ho gaya",
+    "unblockedToast": "{{name}} unblock ho gaya",
+    "newMessage": "Naya message",
+    "open": "Kholein",
+    "pickTitle": "Koi chat chunein",
+    "pickBody": "Baayein taraf se grahak ya supplier chunein, ya nayi chat shuru karein. Message turant pahunchte hain.",
+    "placeholder": "Message likhein",
+    "send": "Bhejein",
+    "cancelReply": "Reply hatayein",
+    "tapToRetry": "Nahi gaya. Dobara bhejne ke liye tap karein.",
+    "privacyNote": "Yeh baatcheet sirf aapki dukaan aur {{name}} ke beech hai. Bill aur reminder aapke apne khate se aate hain.",
+    "loading": "Load ho raha hai…",
+    "loadingOlder": "Purane message aa rahe hain…",
+    "sayHello": "{{name}} ko namaste bolein",
+    "helloText": "Namaste!",
+    "scrollDown": "Naye message par jaayein",
+    "notFound": "Yeh chat nahi mili.",
+    "backToChats": "Chats par wapas",
+    "copied": "Copy ho gaya",
+    "download": "Download",
+    "kind": {
+      "text": "Message",
+      "image": "Photo",
+      "voice": "Voice message",
+      "file": "File",
+      "card": "Card"
+    },
+    "status": {
+      "sending": "Ja raha hai",
+      "failed": "Nahi gaya",
+      "sent": "Bheja gaya",
+      "delivered": "Pahunch gaya",
+      "read": "Padh liya"
+    },
+    "menu": {
+      "open": "Message ke options",
+      "more": "Aur options",
+      "reply": "Reply",
+      "copy": "Copy",
+      "deleteForEveryone": "Sabke liye delete",
+      "cancel": "Rehne dein",
+      "viewCustomer": "Grahak dekhein",
+      "viewSupplier": "Supplier dekhein"
+    },
+    "attach": {
+      "open": "Jodein",
+      "photo": "Photo",
+      "camera": "Camera",
+      "file": "Document",
+      "bill": "Bill",
+      "catalogue": "Catalogue",
+      "dues": "Udhaar"
+    },
+    "voice": {
+      "hold": "Voice message ke liye dabakar rakhein",
+      "hint": "Mic dabakar bolein, chhodte hi chala jaayega. Ek baar tap karein to bina dabaye record hoga.",
+      "recording": "Record ho raha hai…",
+      "releaseToSend": "Chhodein, chala jaayega",
+      "discard": "Recording hatayein",
+      "play": "Voice message sunein",
+      "pause": "Rokein",
+      "failed": "Chal nahi raha",
+      "denied": "Mic band hai. Voice message ke liye browser settings mein mic allow karein.",
+      "unsupported": "Is browser mein voice message record nahi hota."
+    },
+    "card": {
+      "bill": "Bill {{number}}",
+      "billShort": "Bill {{number}}",
+      "moreItems": "+{{count}} aur saamaan",
+      "total": "Kul",
+      "due": "{{amount}} baaki",
+      "paid": "Poora bhugtaan",
+      "cancelled": "Yeh bill cancel ho gaya",
+      "viewBill": "Bill dekhein",
+      "payUpi": "UPI se bharein",
+      "catalogueItems": "{{count}} saamaan · {{shop}}",
+      "openCatalogue": "Catalogue kholein",
+      "duesShort": "Payment reminder",
+      "duesAskSent": "Payment reminder bheja",
+      "duesAskReceived": "{{shop}}: aapki baaki rakam",
+      "duesPaySent": "Aapko inhe dene hain",
+      "duesPayReceived": "{{shop}} aapko denge",
+      "duesBills": "{{count}} bill se",
+      "duesNote": "Baaki rakam ka bhugtaan",
+      "asOf": "{{date}} tak"
+    },
+    "bill": {
+      "item": "Saamaan",
+      "qty": "Maatra",
+      "amount": "Rakam",
+      "tax": "GST",
+      "paid": "Mila",
+      "due": "Baaki"
+    },
+    "new": {
+      "title": "Nayi chat",
+      "help": "Jo grahak aur supplier bhi VoiceMunshi use karte hain, unse chat karein. Unke saved mobile number se dhoondhte hain.",
+      "byNumber": "Mobile number",
+      "start": "Chat",
+      "search": "Apne grahak aur supplier dhoondhein",
+      "onPlatform": "VoiceMunshi par ({{count}})",
+      "noneOnPlatform": "Aapke saved grahak ya supplier mein se abhi koi VoiceMunshi par nahi hai. Neeche se bulaayein, ya upar number likhein.",
+      "invite": "VoiceMunshi par bulaayein",
+      "inviteButton": "Bulaayein",
+      "inviteText": "Namaste! Main billing aur hisaab ke liye VoiceMunshi use karta hoon. Aap bhi free judiye, taaki bill, payment aur message seedhe share ho sakein: {{link}}",
+      "notOnPlatform": "Yeh number abhi VoiceMunshi par nahi hai. Unhe judne ke liye bulaayein.",
+      "badPhone": "10 ank ka sahi mobile number likhein.",
+      "failed": "Chat shuru nahi ho payi. Dobara koshish karein."
+    },
+    "share": {
+      "billTitle": "Bill bhejein",
+      "catalogueTitle": "Catalogue bhejein",
+      "duesTitle": "Payment reminder bhejein",
+      "searchBills": "Bill number ya grahak dhoondhein",
+      "noBills": "Abhi koi bill nahi.",
+      "noCatalogues": "Abhi koi catalogue nahi. Catalogue mein banaiye.",
+      "catalogueItems": "{{count}} saamaan",
+      "duesHelp": "Munshi aapke bills se is grahak ka poora baaki jodkar \"UPI se bharein\" button ke saath bhejega.",
+      "duesHelpSupplier": "Aapki kharid ke hisaab se is supplier ko jitna dena hai, woh bhejega.",
+      "notAContact": "Udhaar bhejne ke liye is dukaan ko isi mobile number ke saath grahak ya supplier mein save karein.",
+      "sendDues": "Reminder bhejein"
+    },
+    "push": {
+      "banner": "Notification chalu karein taaki koi message na chhoote",
+      "turnOn": "Notification chalu karein",
+      "on": "Notification chalu ho gaye",
+      "denied": "Notification band hain. Browser settings mein allow karein.",
+      "unsupported": "Is browser mein notification nahi aate. iPhone par pehle VoiceMunshi ko home screen par jodein."
+    },
+    "errors": {
+      "generic": "Nahi gaya. Internet check karke dobara bhejein.",
+      "BLOCKED": "Yeh dukaan aapke message nahi le rahi.",
+      "YOU_BLOCKED": "Aapne is dukaan ko block kiya hai. Message ke liye unblock karein.",
+      "NO_DUES": "Abhi koi baaki nahi hai.",
+      "NOT_A_CONTACT": "Pehle is dukaan ko grahak ya supplier mein save karein.",
+      "TOO_BIG": "File 16 MB se badi hai.",
+      "BAD_FILE": "Is tarah ki file nahi bhej sakte.",
+      "NO_STORAGE": "File bhejna abhi chalu nahi hai."
+    }
   }
 }

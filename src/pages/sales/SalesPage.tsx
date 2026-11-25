@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { CustomDateInputs, customRangeMs, defaultCustomRange, type CustomRange } from "../../components/page/CustomDateRange";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import {
   ClipboardList,
@@ -31,7 +33,7 @@ import { useNewSaleModalStore } from "../../lib/new-sale-store";
 import { initialParam } from "../../lib/url-params";
 
 type Tab = "orders" | "bills" | "payments";
-type DateRange = "all" | "today" | "week" | "month";
+type DateRange = "all" | "today" | "week" | "month" | "custom";
 type OrderFilter = "all" | "open" | "billed" | "cancelled";
 type BillFilter = "all" | "due" | "paid" | "archived";
 type MethodFilter = "all" | PaymentMethod;
@@ -75,6 +77,7 @@ export function SalesPage() {
   });
   const [search, setSearch] = useState(() => initialParam("q"));
   const [range, setRange] = useState<DateRange>("all");
+  const [custom, setCustom] = useState<CustomRange>(() => defaultCustomRange());
   const [orderFilter, setOrderFilter] = useState<OrderFilter>("all");
   const [billFilter, setBillFilter] = useState<BillFilter>("all");
   const [methodFilter, setMethodFilter] = useState<MethodFilter>("all");
@@ -121,7 +124,12 @@ export function SalesPage() {
   );
 
   const query = search.trim().toLowerCase();
-  const since = rangeStart(range, now);
+  // Custom range has an end date too; the quick ones run up to now.
+  const [since, until] = range === "custom" ? customRangeMs(custom) : [rangeStart(range, now), Number.POSITIVE_INFINITY];
+  const inPeriod = (iso: string) => {
+    const time = new Date(iso).getTime();
+    return time >= since && time < until;
+  };
   const matchesCustomer = (entity: { customerId: { name: string; phone?: string } | string }, extra = "") => {
     if (!query) return true;
     const customer = customerOf(entity);
@@ -130,7 +138,7 @@ export function SalesPage() {
 
   const visibleOrders = orders.filter(
     (o) =>
-      new Date(o.createdAt).getTime() >= since &&
+      inPeriod(o.createdAt) &&
       matchesCustomer(o) &&
       (orderFilter === "all" ||
         (orderFilter === "open" && (o.status === "pending" || o.status === "confirmed")) ||
@@ -139,17 +147,22 @@ export function SalesPage() {
   );
   const visibleBills = invoices.filter(
     (i) =>
-      new Date(i.createdAt).getTime() >= since &&
+      inPeriod(i.createdAt) &&
       matchesCustomer(i, i.invoiceNumber) &&
       (billFilter === "archived" ? isArchived(i) : !isArchived(i)) &&
       (billFilter === "all" || billFilter === "archived" || (billFilter === "due" && due(i) > 0) || (billFilter === "paid" && due(i) === 0 && !isCancelled(i)))
   );
   const visiblePayments = payments.filter(
     (p) =>
-      new Date(p.paidAt).getTime() >= since &&
+      inPeriod(p.paidAt) &&
       matchesCustomer(p.invoice, p.invoice.invoiceNumber) &&
       (methodFilter === "all" || p.method === methodFilter)
   );
+  // Long lists: pages on desktop, load-as-you-scroll on phones.
+  const pagedKey = `${tab}|${search}|${since}|${until}|${orderFilter}|${billFilter}|${methodFilter}`;
+  const ordersPaged = usePaged(visibleOrders, { resetKey: pagedKey });
+  const billsPaged = usePaged(visibleBills, { resetKey: pagedKey });
+  const paymentsPaged = usePaged(visiblePayments, { resetKey: pagedKey });
 
   const showTab = (next: Tab, apply?: () => void) => {
     setTab(next);
@@ -277,8 +290,9 @@ export function SalesPage() {
             label={t("sales.hub.dateLabel")}
             value={range}
             onChange={setRange}
-            options={(["all", "today", "week", "month"] as const).map((key) => ({ key, label: t(`sales.hub.range.${key}`) }))}
+            options={(["all", "today", "week", "month", "custom"] as const).map((key) => ({ key, label: key === "custom" ? t("dateRange.custom") : t(`sales.hub.range.${key}`) }))}
           />
+          {range === "custom" ? <CustomDateInputs value={custom} onChange={setCustom} /> : null}
           <div className="ml-auto">
             {tab === "orders" ? (
               <FilterChips
@@ -332,6 +346,7 @@ export function SalesPage() {
             <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("sales.hub.empty.noMatchBody")} />
           ) : (
             <TableShell
+              pager={ordersPaged.footer}
               footer={
                 <>
                   <span className="text-text-muted">{t("sales.hub.footer.orders", { count: visibleOrders.length })}</span>
@@ -352,7 +367,7 @@ export function SalesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {visibleOrders.map((order) => {
+                {ordersPaged.visible.map((order) => {
                   const customer = customerOf(order);
                   const status = orderStatus[order.status];
                   const open = order.status === "pending" || order.status === "confirmed";
@@ -408,6 +423,7 @@ export function SalesPage() {
             <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("sales.hub.empty.noMatchBody")} />
           ) : (
             <TableShell
+              pager={billsPaged.footer}
               footer={
                 <>
                   <span className="text-text-muted">{t("sales.hub.footer.bills", { count: visibleBills.length })}</span>
@@ -431,7 +447,7 @@ export function SalesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {visibleBills.map((invoice) => {
+                {billsPaged.visible.map((invoice) => {
                   const customer = customerOf(invoice);
                   const status = isCancelled(invoice) ? { label: t("bill.cancelled"), tone: "neutral" as Tone } : billStatus[invoice.paymentStatus];
                   const balance = due(invoice);
@@ -506,6 +522,7 @@ export function SalesPage() {
           <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("sales.hub.empty.noMatchBody")} />
         ) : (
           <TableShell
+            pager={paymentsPaged.footer}
             footer={
               <>
                 <span className="text-text-muted">{t("sales.hub.footer.payments", { count: visiblePayments.length })}</span>
@@ -525,7 +542,7 @@ export function SalesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {visiblePayments.map((payment) => (
+              {paymentsPaged.visible.map((payment) => (
                 <tr key={payment.key} onClick={() => setSelectedInvoice(payment.invoice)} className="cursor-pointer hover:bg-surface-muted">
                   <td className="px-4 py-3 text-text">{formatDate(payment.paidAt)}</td>
                   <td className="px-4 py-3 font-semibold text-text">

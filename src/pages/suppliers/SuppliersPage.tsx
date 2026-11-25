@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Building2, FileText, MessageCircle, PackagePlus, Phone, Plus, Truck, Wallet } from "lucide-react";
@@ -48,6 +49,7 @@ export function SuppliersPage() {
     // Who you owe the most comes first.
     .sort((a, b) => (b.outstanding ?? 0) - (a.outstanding ?? 0) || (b.totalPurchased ?? 0) - (a.totalPurchased ?? 0));
 
+  const suppliersPaged = usePaged(visible, { resetKey: visible.length });
   return (
     <div className="space-y-5">
       <PageIntro text={t("suppliers.hub.intro")}>
@@ -130,8 +132,9 @@ export function SuppliersPage() {
       ) : visible.length === 0 ? (
         <EmptyHelp icon={FileText} title={t("sales.hub.empty.noMatchTitle")} body={t("suppliers.hub.empty.noMatchBody")} />
       ) : (
+        <>
         <ul className="space-y-3">
-          {visible.map((supplier) => {
+          {suppliersPaged.visible.map((supplier) => {
             const mobile = indianMobile(supplier.phone);
             const owed = supplier.outstanding ?? 0;
             return (
@@ -203,6 +206,8 @@ export function SuppliersPage() {
             );
           })}
         </ul>
+          {suppliersPaged.footer}
+        </>
       )}
 
       <AddSupplierModal open={addOpen} onClose={() => setAddOpen(false)} />

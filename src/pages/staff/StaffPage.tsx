@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePaged } from "../../components/ui/Paged";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -47,6 +48,7 @@ function TeamTab() {
     });
   }, [staff, search, filter]);
 
+  const staffPaged = usePaged(filtered, { resetKey: filtered.length });
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -72,7 +74,7 @@ function TeamTab() {
         />
       ) : (
         <div className="space-y-3">
-          {filtered.map((member) => (
+          {staffPaged.visible.map((member) => (
             <button
               key={member._id}
               type="button"
@@ -112,6 +114,7 @@ function TeamTab() {
               </div>
             </button>
           ))}
+          {staffPaged.footer}
         </div>
       )}
     </div>

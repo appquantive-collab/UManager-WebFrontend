@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileSpreadsheet, Shirt } from "lucide-react";
+import { BookOpen, FileSpreadsheet, Shirt } from "lucide-react";
+import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { ImportProductsModal } from "./ImportProductsModal";
 import { VariantsModal } from "./VariantsModal";
@@ -27,6 +28,12 @@ export function InventoryExtraActions({ compact = false }: { compact?: boolean }
 
   return (
     <>
+      {/* Turn items into a shareable catalogue (everyone but godown staff). */}
+      {role !== "WAREHOUSE_STAFF" ? (
+        <Link to="/app/catalogue" className={button}>
+          <BookOpen size={16} className="text-icon" aria-hidden="true" /> {t("catalogue.new")}
+        </Link>
+      ) : null}
       {canImport ? (
         <button type="button" className={button} onClick={() => proGate.guard(() => setImportOpen(true))}>
           <FileSpreadsheet size={16} className="text-icon" aria-hidden="true" /> {t("importItems.button")}

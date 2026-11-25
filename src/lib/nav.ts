@@ -1,12 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  BookOpen,
   Box,
   Boxes,
   ChartColumn,
   Building2,
   House,
   LayoutDashboard,
+  MessagesSquare,
   Package,
   ReceiptText,
   Settings,
@@ -48,11 +50,14 @@ export function canSee(item: NavItem, role: UserRole | undefined, features?: App
 export const tenantNav: NavItem[] = [
   { labelKey: "nav.dashboard", path: "/app", icon: LayoutDashboard, group: "main" },
   { labelKey: "nav.ai", path: "/app/ai", icon: Sparkles, group: "main" },
+  // Shop-to-shop chat: owner and managers only (see backend chat.roles).
+  { labelKey: "nav.chats", path: "/app/chats", icon: MessagesSquare, hiddenFor: ["SALESMAN", "WAREHOUSE_STAFF"], group: "main" },
   { labelKey: "nav.sales", path: "/app/sales", icon: ShoppingCart, hiddenFor: ["WAREHOUSE_STAFF"], group: "sell" },
   { labelKey: "nav.customers", path: "/app/customers", icon: Users, hiddenFor: ["WAREHOUSE_STAFF"], group: "sell" },
   { labelKey: "nav.inventory", path: "/app/inventory", icon: Package, group: "stock" },
   { labelKey: "nav.purchases", path: "/app/purchases", icon: Truck, hiddenFor: ["SALESMAN"], feature: "purchases", group: "stock" },
   { labelKey: "nav.suppliers", path: "/app/suppliers", icon: Building2, hiddenFor: ["SALESMAN"], feature: "purchases", group: "stock" },
+  { labelKey: "nav.catalogue", path: "/app/catalogue", icon: BookOpen, hiddenFor: ["WAREHOUSE_STAFF"], group: "stock" },
   { labelKey: "nav.warehouses", path: "/app/warehouses", icon: Warehouse, feature: "warehouses", group: "stock" },
   { labelKey: "nav.cashbook", path: "/app/cashbook", icon: Wallet, hiddenFor: ["SALESMAN", "WAREHOUSE_STAFF"], feature: "cashbook", group: "money" },
   { labelKey: "nav.reports", path: "/app/reports", icon: BarChart3, hiddenFor: ["SALESMAN", "WAREHOUSE_STAFF"], group: "money" },
