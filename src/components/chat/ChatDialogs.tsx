@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Download, MessageCircle, ReceiptText, Search, Send, Share2, Wallet, X } from "lucide-react";
+import { Ban, BookOpen, Building2, Download, MessageCircle, ReceiptText, Search, Send, Share2, UserPlus, Users, Wallet, X } from "lucide-react";
 import clsx from "clsx";
 import { Dialog } from "../ui/Dialog";
 import { Button } from "../ui/Button";
@@ -11,9 +11,13 @@ import { ApiError } from "../../lib/api";
 import { indianMobile, whatsappLink } from "../../lib/phone";
 import { listInvoices, isCancelled, type Invoice } from "../../lib/invoices-api";
 import { listCatalogues } from "../../lib/catalogues-api";
-import { listChatContacts, startChat, type BillCardData, type ChatCardType, type ChatContact, type Conversation } from "../../lib/chat-api";
+import { getChatProfile, listChatContacts, startChat, type BillCardData, type ChatCardType, type ChatContact, type Conversation } from "../../lib/chat-api";
 import { chatKeys } from "../../lib/chat-cache";
+import { useAuthStore } from "../../lib/auth-store";
+import { addFromDirectory, type AddAs } from "../../lib/directory-api";
+import { showError, showSuccess } from "../../lib/toast";
 import { ChatAvatar } from "./ConversationList";
+import { BusinessDirectory } from "../directory/BusinessDirectory";
 
 /** Pick a customer / supplier who is on VoiceMunshi, or type a number. Others can be invited. */
 export function NewChatDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -95,7 +99,7 @@ export function NewChatDialog({ open, onClose }: { open: boolean; onClose: () =>
         <label className="flex h-10 items-center gap-2 rounded-xl border border-border bg-surface-muted px-3 focus-within:border-primary">
           <Search size={16} className="text-icon" aria-hidden="true" />
           <span className="sr-only">{t("chat.new.search")}</span>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("chat.new.search")} className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("chat.new.searchAll")} className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted" />
         </label>
 
         {contacts.isLoading ? <p className="py-6 text-center text-sm text-text-muted">{t("chat.loading")}</p> : null}
@@ -125,6 +129,9 @@ export function NewChatDialog({ open, onClose }: { open: boolean; onClose: () =>
         {!contacts.isLoading && onPlatform.length === 0 ? (
           <p className="rounded-xl bg-surface-muted px-4 py-3 text-sm text-text-muted">{t("chat.new.noneOnPlatform")}</p>
         ) : null}
+
+        {/* Any business on VoiceMunshi, even ones not saved yet. */}
+        <BusinessDirectory query={query} compact onNavigate={onClose} />
 
         {others.length > 0 ? (
           <section>
@@ -332,5 +339,108 @@ export function ImageViewer({ url, onClose }: { url: string | null; onClose: () 
         <img src={url} alt="" className={clsx("max-h-full max-w-full rounded-lg object-contain")} onClick={(e) => e.stopPropagation()} />
       </div>
     </div>
+  );
+}
+
+/**
+ * The other shop's profile (tap the chat header): what they are, what I have
+ * them saved as, save them as customer / supplier / both, and restrict.
+ */
+export function ChatProfileDialog({
+  conversation,
+  open,
+  onClose,
+  onToggleRestrict,
+}: {
+  conversation: Conversation;
+  open: boolean;
+  onClose: () => void;
+  onToggleRestrict: () => void;
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const profile = useQuery({ queryKey: chatKeys.profile(conversation._id), queryFn: () => getChatProfile(conversation._id), enabled: open });
+  const add = useMutation({
+    mutationFn: (as: AddAs) => addFromDirectory(conversation.other.tenantId, as),
+    onSuccess: (_r, as) => {
+      void qc.invalidateQueries({ queryKey: chatKeys.profile(conversation._id) });
+      void qc.invalidateQueries({ queryKey: chatKeys.one(conversation._id) });
+      void qc.invalidateQueries({ queryKey: chatKeys.list });
+      void qc.invalidateQueries({ queryKey: chatKeys.contacts });
+      void qc.invalidateQueries({ queryKey: ["customers"] });
+      void qc.invalidateQueries({ queryKey: ["suppliers"] });
+      void qc.invalidateQueries({ queryKey: ["directory"] });
+      showSuccess(t(`directory.added.${as}`, { name: conversation.other.businessName }));
+    },
+    onError: () => showError(t("directory.addFailed")),
+  });
+
+  const p = profile.data;
+  const isCustomer = Boolean(p?.saved.customerId);
+  const isSupplier = Boolean(p?.saved.supplierId);
+  const canCustomer = role !== "WAREHOUSE_STAFF";
+  const canSupplier = role !== "SALESMAN";
+  const options = (["customer", "supplier", "both"] as const).filter((as) =>
+    as === "customer" ? canCustomer && !isCustomer : as === "supplier" ? canSupplier && !isSupplier : canCustomer && canSupplier && !isCustomer && !isSupplier
+  );
+  const name = conversation.other.businessName || conversation.other.savedName || "";
+
+  return (
+    <Dialog open={open} onClose={onClose} title={t("chat.profile.title")}>
+      <div className="flex flex-col items-center text-center">
+        <ChatAvatar name={conversation.other.savedName || name} size={76} />
+        <p className="mt-3 text-lg font-bold text-text">{name}</p>
+        {conversation.other.savedName && conversation.other.savedName !== name ? (
+          <p className="text-sm text-text-muted">{t("chat.profile.savedAs", { name: conversation.other.savedName })}</p>
+        ) : null}
+        {p ? <p className="mt-1 text-sm text-text-muted">{[p.businessType, p.place, p.phoneMasked].filter(Boolean).join(" · ")}</p> : null}
+        <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+          {isCustomer ? <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">✓ {t("chat.kindTag.customer")}</span> : null}
+          {isSupplier ? <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">✓ {t("chat.kindTag.supplier")}</span> : null}
+          {p && !isCustomer && !isSupplier ? <span className="rounded-md bg-surface-muted px-2 py-0.5 text-xs font-semibold text-text-muted">{t("chat.profile.notSaved")}</span> : null}
+        </div>
+      </div>
+
+      {profile.isLoading ? <p className="py-6 text-center text-sm text-text-muted">{t("chat.loading")}</p> : null}
+
+      {p && options.length > 0 && p.reachable ? (
+        <section className="mt-5 rounded-xl border border-border p-4">
+          <h3 className="flex items-center gap-2 text-sm font-bold text-text">
+            <UserPlus size={17} className="text-primary" aria-hidden="true" />
+            {t("chat.profile.saveTitle")}
+          </h3>
+          <p className="mt-1 text-xs text-text-muted">{t("chat.profile.saveHelp")}</p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {options.map((as) => (
+              <Button key={as} variant={as === "both" ? "primary" : "secondary"} disabled={add.isPending} onClick={() => add.mutate(as)}>
+                {t(`directory.as.${as}`)}
+              </Button>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <div className="mt-4 divide-y divide-border rounded-xl border border-border">
+        {isCustomer ? (
+          <button type="button" onClick={() => navigate(`/app/customers?q=${encodeURIComponent(conversation.other.savedName ?? name)}`)} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-text hover:bg-surface-muted">
+            <Users size={17} className="text-icon" aria-hidden="true" />
+            {t("chat.menu.viewCustomer")}
+          </button>
+        ) : null}
+        {isSupplier ? (
+          <button type="button" onClick={() => navigate(`/app/suppliers?q=${encodeURIComponent(conversation.other.savedName ?? name)}`)} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-text hover:bg-surface-muted">
+            <Building2 size={17} className="text-icon" aria-hidden="true" />
+            {t("chat.menu.viewSupplier")}
+          </button>
+        ) : null}
+        <button type="button" onClick={onToggleRestrict} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-danger hover:bg-surface-muted">
+          <Ban size={17} aria-hidden="true" />
+          {conversation.blockedByMe ? t("chat.unblock") : t("chat.block")}
+        </button>
+      </div>
+      <p className="mt-3 text-center text-xs text-text-muted">{t("chat.profile.restrictHelp")}</p>
+    </Dialog>
   );
 }

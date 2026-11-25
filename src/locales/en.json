@@ -3948,12 +3948,12 @@
     "you": "You",
     "deleted": "This message was deleted",
     "deletedByYou": "You deleted this message",
-    "blocked": "Blocked",
-    "block": "Block this shop",
-    "unblock": "Unblock",
-    "blockedNotice": "You blocked this shop.",
-    "blockedToast": "{{name}} is blocked",
-    "unblockedToast": "{{name}} is unblocked",
+    "blocked": "Restricted",
+    "block": "Restrict",
+    "unblock": "Remove restriction",
+    "blockedNotice": "You restricted this business.",
+    "blockedToast": "{{name}} is restricted",
+    "unblockedToast": "{{name}} can message you again",
     "newMessage": "New message",
     "open": "Open",
     "pickTitle": "Pick a chat",
@@ -3977,7 +3977,8 @@
       "image": "Photo",
       "voice": "Voice message",
       "file": "File",
-      "card": "Card"
+      "card": "Card",
+      "system": "Notice"
     },
     "status": {
       "sending": "Sending",
@@ -4059,7 +4060,8 @@
       "inviteText": "Namaste! I use VoiceMunshi for billing and accounts. Join it free so we can share bills, payments and messages directly: {{link}}",
       "notOnPlatform": "This number is not on VoiceMunshi yet. Invite them to join.",
       "badPhone": "Enter a valid 10-digit mobile number.",
-      "failed": "Couldn't start the chat. Please try again."
+      "failed": "Couldn't start the chat. Please try again.",
+      "searchAll": "Search your contacts or any business on VoiceMunshi"
     },
     "share": {
       "billTitle": "Send a bill",
@@ -4083,13 +4085,76 @@
     },
     "errors": {
       "generic": "Couldn't send. Check your internet and try again.",
-      "BLOCKED": "This shop is not accepting your messages.",
-      "YOU_BLOCKED": "You blocked this shop. Unblock to send messages.",
+      "BLOCKED": "This business isn't accepting your messages.",
+      "YOU_BLOCKED": "You restricted this business. Remove the restriction to send messages.",
       "NO_DUES": "Nothing is due right now.",
       "NOT_A_CONTACT": "Save this shop as your customer or supplier first.",
       "TOO_BIG": "File is bigger than 16 MB.",
       "BAD_FILE": "This kind of file can't be sent.",
       "NO_STORAGE": "Sending files isn't set up yet."
-    }
+    },
+    "system": {
+      "youAdded": {
+        "customer": "You saved {{name}} as your customer",
+        "supplier": "You saved {{name}} as your supplier",
+        "both": "You saved {{name}} as your customer and supplier"
+      },
+      "addedYou": {
+        "customer": "{{name}} saved you as their customer",
+        "supplier": "{{name}} saved you as their supplier",
+        "both": "{{name}} saved you as their customer and supplier"
+      },
+      "youAddedShort": {
+        "customer": "You saved them as customer",
+        "supplier": "You saved them as supplier",
+        "both": "You saved them as customer and supplier"
+      },
+      "addedYouShort": {
+        "customer": "Saved you as their customer",
+        "supplier": "Saved you as their supplier",
+        "both": "Saved you as customer and supplier"
+      }
+    },
+    "request": {
+      "tag": "Request",
+      "addedYou": "{{name}} added you on VoiceMunshi. Continue the chat?",
+      "started": "{{name}} started a chat with you.",
+      "notSaved": "They are not in your customers or suppliers.",
+      "continue": "Continue chat"
+    },
+    "profile": {
+      "title": "Business profile",
+      "open": "Open {{name}}'s profile",
+      "view": "View profile",
+      "savedAs": "Saved as \"{{name}}\"",
+      "notSaved": "Not in your contacts",
+      "saveTitle": "Save to contacts",
+      "saveHelp": "Save them as your customer, supplier or both. You can then send bills, dues and reminders.",
+      "restrictHelp": "A restricted business can't message you. You can undo it any time."
+    },
+    "tapToRetryShort": "Tap to try again."
+  },
+  "directory": {
+    "title": "Businesses on VoiceMunshi",
+    "help": "Save any of these as your customer or supplier. Then you can chat, send bills and payment reminders.",
+    "searchHint": "Other businesses",
+    "searching": "Searching businesses…",
+    "none": "No business named \"{{query}}\" on VoiceMunshi yet.",
+    "add": "Add",
+    "addAs": "Save {{name}} as",
+    "as": {
+      "customer": "Customer",
+      "supplier": "Supplier",
+      "both": "Both"
+    },
+    "added": {
+      "customer": "{{name}} saved as your customer",
+      "supplier": "{{name}} saved as your supplier",
+      "both": "{{name}} saved as customer and supplier"
+    },
+    "alreadySaved": "It was already in your list.",
+    "addFailed": "Couldn't save. Please try again.",
+    "noPhone": "No mobile yet",
+    "chatWith": "Chat with {{name}}"
   }
 }

@@ -2,12 +2,14 @@ import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, use
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowLeft, Ban, Bell, Copy, CornerUpLeft, Lock, MoreVertical, Trash2, UserRound } from "lucide-react";
+import { ArrowDown, ArrowLeft, Ban, Bell, Copy, CornerUpLeft, Lock, MessageCircle, MoreVertical, Trash2, UserPlus, UserRound } from "lucide-react";
 import clsx from "clsx";
 import { useAuthStore } from "../../lib/auth-store";
 import { ApiError } from "../../lib/api";
 import { showError, showSuccess } from "../../lib/toast";
 import {
+  acceptChat,
+  isRequest,
   chatName,
   deleteChatMessage,
   getConversation,
@@ -31,7 +33,7 @@ import { enablePush, pushState } from "../../lib/push";
 import { ChatAvatar } from "./ConversationList";
 import { MessageBubble, type BubbleActions } from "./MessageBubble";
 import { Composer } from "./Composer";
-import { BillCardDialog, ImageViewer, ShareCardDialog } from "./ChatDialogs";
+import { BillCardDialog, ChatProfileDialog, ImageViewer, ShareCardDialog } from "./ChatDialogs";
 import { dayLabel, lastSeenLabel, sameDay } from "./chat-format";
 
 /** Phone photos are 3–8 MB; send a sharp 1600px JPEG instead (saves data on both sides). */
@@ -57,6 +59,9 @@ const voiceName = (mime: string) => `voice-${Date.now()}.${mime.includes("mp4") 
 function errorText(t: (k: string) => string, err: unknown): string {
   const code = err instanceof ApiError ? err.code : undefined;
   if (code && ["BLOCKED", "YOU_BLOCKED", "NO_DUES", "NOT_A_CONTACT", "TOO_BIG", "BAD_FILE", "NO_STORAGE"].includes(code)) return t(`chat.errors.${code}`);
+  if (err instanceof ApiError && err.status === 413) return t("chat.errors.TOO_BIG");
+  // Anything else the server explained (4xx) is shown as it said; network trouble gets the generic line.
+  if (err instanceof ApiError && err.status >= 400 && err.status < 500 && err.message) return err.message;
   return t("chat.errors.generic");
 }
 
@@ -74,6 +79,7 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
   const [image, setImage] = useState<string | null>(null);
   const [menu, setMenu] = useState<ChatMessage | null>(null);
   const [headerMenu, setHeaderMenu] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [highlight, setHighlight] = useState<string | null>(null);
   const [atBottom, setAtBottom] = useState(true);
   const [newBelow, setNewBelow] = useState(0);
@@ -227,15 +233,16 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
 
       let uploaded: ChatAttachment | undefined = body.attachment;
       const attempt = async () => {
-        patchMessage(qc, conversationId, clientId, { local: "sending" });
+        patchMessage(qc, conversationId, clientId, { local: "sending", localError: undefined });
         try {
           if (upload && !uploaded) uploaded = await upload();
           const saved = await sendChatMessage(conversationId, { ...body, attachment: uploaded, clientId, replyToId: reply?._id });
           upsertMessage(qc, saved);
           retries.current.delete(clientId);
         } catch (err) {
-          patchMessage(qc, conversationId, clientId, { local: "failed" });
-          showError(errorText(t, err));
+          const reason = errorText(t, err);
+          patchMessage(qc, conversationId, clientId, { local: "failed", localError: reason });
+          showError(reason);
         }
       };
       retries.current.set(clientId, () => void attempt());
@@ -290,6 +297,17 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
     onRetry: (m) => m.clientId && retries.current.get(m.clientId)?.(),
     onJumpTo: jumpTo,
   };
+
+  const accept = async () => {
+    try {
+      const next = await acceptChat(conversationId);
+      qc.setQueryData(chatKeys.one(conversationId), next);
+      void qc.invalidateQueries({ queryKey: chatKeys.list });
+    } catch (err) {
+      showError(errorText(t, err));
+    }
+  };
+  const addedMe = list.some((m) => m.kind === "system" && m.senderTenantId !== myTenantId);
 
   const toggleBlock = async () => {
     if (!c) return;
@@ -346,6 +364,12 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
         >
           <ArrowLeft size={22} aria-hidden="true" />
         </button>
+        <button
+          type="button"
+          onClick={() => c && setProfileOpen(true)}
+          aria-label={t("chat.profile.open", { name })}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-xl py-0.5 pr-2 text-left outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
         {c ? <ChatAvatar name={name} online={presence?.online} size={42} /> : <span className="h-10.5 w-10.5 animate-pulse rounded-full bg-surface-variant" />}
         <div className="min-w-0 flex-1 px-1">
           <p className="truncate text-base font-bold text-text">{name || "…"}</p>
@@ -353,6 +377,7 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
             {subtitle}
           </p>
         </div>
+        </button>
         <div className="relative">
           <button
             type="button"
@@ -367,6 +392,16 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
             <>
               <button type="button" aria-hidden="true" tabIndex={-1} className="fixed inset-0 z-10 cursor-default" onClick={() => setHeaderMenu(false)} />
               <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-60 overflow-hidden rounded-xl border border-border bg-surface py-1 shadow-elevation-3">
+                <button type="button" role="menuitem" onClick={() => (setHeaderMenu(false), setProfileOpen(true))} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-text hover:bg-surface-muted">
+                  <UserRound size={17} className="text-icon" aria-hidden="true" />
+                  {t("chat.profile.view")}
+                </button>
+                {!c.other.kind ? (
+                  <button type="button" role="menuitem" onClick={() => (setHeaderMenu(false), setProfileOpen(true))} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-text hover:bg-surface-muted">
+                    <UserPlus size={17} className="text-icon" aria-hidden="true" />
+                    {t("chat.profile.saveTitle")}
+                  </button>
+                ) : null}
                 {c.other.kind && c.other.contactId ? (
                   <button
                     type="button"
@@ -403,6 +438,30 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
           <Bell size={16} aria-hidden="true" />
           {t("chat.push.banner")}
         </button>
+      ) : null}
+
+      {/* A chat another shop started: continue, save them, or restrict. */}
+      {c && isRequest(c) ? (
+        <div className="shrink-0 border-b border-border bg-surface px-4 py-3">
+          <p className="text-sm font-semibold text-text">{addedMe ? t("chat.request.addedYou", { name }) : t("chat.request.started", { name })}</p>
+          {!c.other.kind ? <p className="mt-0.5 text-xs text-text-muted">{t("chat.request.notSaved")}</p> : null}
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <button type="button" onClick={() => void accept()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-gradient px-3.5 text-sm font-semibold text-white shadow-brand outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+              <MessageCircle size={16} aria-hidden="true" />
+              {t("chat.request.continue")}
+            </button>
+            {!c.other.kind ? (
+              <button type="button" onClick={() => setProfileOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3.5 text-sm font-semibold text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-primary/40">
+                <UserPlus size={16} aria-hidden="true" />
+                {t("chat.profile.saveTitle")}
+              </button>
+            ) : null}
+            <button type="button" onClick={() => void toggleBlock()} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-danger/40 px-3.5 text-sm font-semibold text-danger outline-none hover:bg-danger/5 focus-visible:ring-2 focus-visible:ring-danger/40">
+              <Ban size={16} aria-hidden="true" />
+              {t("chat.block")}
+            </button>
+          </div>
+        </div>
       ) : null}
 
       {/* Messages */}
@@ -475,6 +534,7 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
 
       {c ? <ShareCardDialog type={share} contact={c.other} onClose={() => setShare(null)} onSend={(card) => void sendCard(card)} /> : null}
       <BillCardDialog data={billView} onClose={() => setBillView(null)} />
+      {c ? <ChatProfileDialog conversation={c} open={profileOpen} onClose={() => setProfileOpen(false)} onToggleRestrict={() => (setProfileOpen(false), void toggleBlock())} /> : null}
       <ImageViewer url={image} onClose={() => setImage(null)} />
 
       {/* Long-press / ▾ menu for one message */}

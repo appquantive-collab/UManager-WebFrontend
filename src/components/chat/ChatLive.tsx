@@ -10,8 +10,9 @@ import { connectChat, disconnectChat, useChatLive } from "../../lib/chat-socket"
 import { refreshPush, showLocalNotification } from "../../lib/push";
 
 /** What a message says in a toast / notification. */
-export function messagePreview(t: (k: string, o?: Record<string, unknown>) => string, m: Pick<ChatMessage, "kind" | "text" | "attachment" | "card">): string {
+export function messagePreview(t: (k: string, o?: Record<string, unknown>) => string, m: Pick<ChatMessage, "kind" | "text" | "attachment" | "card" | "system">): string {
   if (m.kind === "text") return m.text;
+  if (m.kind === "system") return t(`chat.system.addedYouShort.${m.system?.as ?? "customer"}`);
   if (m.kind === "image") return `📷 ${m.text || t("chat.kind.image")}`;
   if (m.kind === "voice") return `🎤 ${t("chat.kind.voice")}`;
   if (m.kind === "file") return `📄 ${m.attachment?.name || t("chat.kind.file")}`;

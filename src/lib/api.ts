@@ -118,13 +118,25 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 // For file uploads: unlike apiFetch, this must NOT set Content-Type — the
 // browser sets its own multipart/form-data boundary when given a FormData body.
 export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
-  const token = useAuthStore.getState().accessToken;
+  const send = (token: string | null) =>
+    fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: formData,
+    });
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    body: formData,
-  });
+  let res = await send(useAuthStore.getState().accessToken);
+  // An expired login is renewed and the upload tried once more (same as apiFetch).
+  if (res.status === 401) {
+    let fresh: string;
+    try {
+      fresh = await refreshAccessToken();
+    } catch {
+      useAuthStore.getState().clearSession();
+      throw new ApiError("Session expired. Please sign in again.", 401);
+    }
+    res = await send(fresh);
+  }
 
   if (!res.ok) return parseErrorBody(res);
   return res.json() as Promise<T>;

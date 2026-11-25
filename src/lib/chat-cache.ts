@@ -8,6 +8,7 @@ export const chatKeys = {
   one: (id: string) => ["chat", id] as const,
   messages: (id: string) => ["chat-messages", id] as const,
   contacts: ["chat-contacts"] as const,
+  profile: (id: string) => ["chat-profile", id] as const,
 };
 
 export type MessagesData = { messages: ChatMessage[]; hasMore: boolean };
@@ -59,7 +60,7 @@ export function applyReceipt(qc: QueryClient, r: { conversationId: string; deliv
   });
 }
 
-const previewText = (m: ChatMessage) => m.text || m.attachment?.name || (m.card?.type === "bill" ? m.card.data.invoiceNumber : m.card?.type === "catalogue" ? m.card.data.title : "");
+const previewText = (m: ChatMessage) => (m.kind === "system" ? (m.system?.as ?? "") : "") || m.text || m.attachment?.name || (m.card?.type === "bill" ? m.card.data.invoiceNumber : m.card?.type === "catalogue" ? m.card.data.title : "");
 
 /**
  * A new message reached the chat list: move the chat to the top with the new

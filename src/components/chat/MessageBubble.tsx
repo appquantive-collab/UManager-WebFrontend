@@ -208,6 +208,19 @@ export function MessageBubble({
   const ref = useRef<HTMLDivElement>(null);
   const press = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // "X saved you as their customer": a notice in the middle, not a bubble.
+  if (m.kind === "system") {
+    const as = m.system?.as ?? "customer";
+    return (
+      <div id={`msg-${m._id}`} className="my-3 flex justify-center px-6">
+        <span className="max-w-md rounded-xl bg-[#fff5d6] px-3 py-1.5 text-center text-xs leading-relaxed text-text-subtle shadow-sm">
+          {mine ? t(`chat.system.youAdded.${as}`, { name: theirName }) : t(`chat.system.addedYou.${as}`, { name: theirName })}
+          <span className="ml-1.5 text-text-muted">{timeOf(m.createdAt)}</span>
+        </span>
+      </div>
+    );
+  }
+
   // Long-press on phones opens the message menu.
   const startPress = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" || m.local) return;
@@ -328,7 +341,11 @@ export function MessageBubble({
           </button>
         ) : null}
         {body}
-        {m.local === "failed" ? <p className="mt-0.5 text-xs font-semibold text-danger">{t("chat.tapToRetry")}</p> : null}
+        {m.local === "failed" ? (
+          <p className="mt-0.5 text-xs font-semibold text-danger">
+            {m.localError ? `${m.localError} ${t("chat.tapToRetryShort")}` : t("chat.tapToRetry")}
+          </p>
+        ) : null}
         {!m.local && !m.deleted ? (
           <button
             type="button"

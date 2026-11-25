@@ -3822,12 +3822,12 @@
     "you": "Aap",
     "deleted": "Yeh message delete kar diya gaya",
     "deletedByYou": "Aapne yeh message delete kiya",
-    "blocked": "Block",
-    "block": "Is dukaan ko block karein",
-    "unblock": "Unblock karein",
-    "blockedNotice": "Aapne is dukaan ko block kiya hai.",
-    "blockedToast": "{{name}} block ho gaya",
-    "unblockedToast": "{{name}} unblock ho gaya",
+    "blocked": "Restricted",
+    "block": "Restrict karein",
+    "unblock": "Restriction hatayein",
+    "blockedNotice": "Aapne is business ko restrict kiya hai.",
+    "blockedToast": "{{name}} restrict ho gaya",
+    "unblockedToast": "{{name}} ab aapko message kar sakte hain",
     "newMessage": "Naya message",
     "open": "Kholein",
     "pickTitle": "Koi chat chunein",
@@ -3851,7 +3851,8 @@
       "image": "Photo",
       "voice": "Voice message",
       "file": "File",
-      "card": "Card"
+      "card": "Card",
+      "system": "Soochna"
     },
     "status": {
       "sending": "Ja raha hai",
@@ -3933,7 +3934,8 @@
       "inviteText": "Namaste! Main billing aur hisaab ke liye VoiceMunshi use karta hoon. Aap bhi free judiye, taaki bill, payment aur message seedhe share ho sakein: {{link}}",
       "notOnPlatform": "Yeh number abhi VoiceMunshi par nahi hai. Unhe judne ke liye bulaayein.",
       "badPhone": "10 ank ka sahi mobile number likhein.",
-      "failed": "Chat shuru nahi ho payi. Dobara koshish karein."
+      "failed": "Chat shuru nahi ho payi. Dobara koshish karein.",
+      "searchAll": "Apne contact ya VoiceMunshi ka koi bhi business dhoondhein"
     },
     "share": {
       "billTitle": "Bill bhejein",
@@ -3957,13 +3959,76 @@
     },
     "errors": {
       "generic": "Nahi gaya. Internet check karke dobara bhejein.",
-      "BLOCKED": "Yeh dukaan aapke message nahi le rahi.",
-      "YOU_BLOCKED": "Aapne is dukaan ko block kiya hai. Message ke liye unblock karein.",
+      "BLOCKED": "Yeh business abhi aapke message nahi le raha.",
+      "YOU_BLOCKED": "Aapne is business ko restrict kiya hai. Message ke liye restriction hatayein.",
       "NO_DUES": "Abhi koi baaki nahi hai.",
       "NOT_A_CONTACT": "Pehle is dukaan ko grahak ya supplier mein save karein.",
       "TOO_BIG": "File 16 MB se badi hai.",
       "BAD_FILE": "Is tarah ki file nahi bhej sakte.",
       "NO_STORAGE": "File bhejna abhi chalu nahi hai."
-    }
+    },
+    "system": {
+      "youAdded": {
+        "customer": "Aapne {{name}} ko apna grahak banaya",
+        "supplier": "Aapne {{name}} ko apna supplier banaya",
+        "both": "Aapne {{name}} ko grahak aur supplier dono banaya"
+      },
+      "addedYou": {
+        "customer": "{{name}} ne aapko apne grahak ke roop mein joda",
+        "supplier": "{{name}} ne aapko apne supplier ke roop mein joda",
+        "both": "{{name}} ne aapko grahak aur supplier dono ke roop mein joda"
+      },
+      "youAddedShort": {
+        "customer": "Aapne grahak banaya",
+        "supplier": "Aapne supplier banaya",
+        "both": "Aapne grahak aur supplier banaya"
+      },
+      "addedYouShort": {
+        "customer": "Aapko apna grahak banaya",
+        "supplier": "Aapko apna supplier banaya",
+        "both": "Aapko grahak aur supplier banaya"
+      }
+    },
+    "request": {
+      "tag": "Naya",
+      "addedYou": "{{name}} ne aapko VoiceMunshi par joda hai. Chat jaari rakhein?",
+      "started": "{{name}} ne aapse chat shuru ki hai.",
+      "notSaved": "Yeh aapke grahak ya supplier mein nahi hain.",
+      "continue": "Chat jaari rakhein"
+    },
+    "profile": {
+      "title": "Business ki jaankari",
+      "open": "{{name}} ki profile kholein",
+      "view": "Profile dekhein",
+      "savedAs": "\"{{name}}\" naam se saved",
+      "notSaved": "Aapke contacts mein nahi",
+      "saveTitle": "Contact mein save karein",
+      "saveHelp": "Inhe apna grahak, supplier ya dono banaiye. Phir bill, udhaar aur reminder bhej sakte hain.",
+      "restrictHelp": "Restrict kiya hua business aapko message nahi kar sakta. Kabhi bhi hata sakte hain."
+    },
+    "tapToRetryShort": "Dobara bhejne ke liye tap karein."
+  },
+  "directory": {
+    "title": "VoiceMunshi par businesses",
+    "help": "Inme se kisi ko bhi apna grahak ya supplier banaiye. Phir chat, bill aur payment reminder bhej sakte hain.",
+    "searchHint": "Doosre business",
+    "searching": "Business dhoondh rahe hain…",
+    "none": "\"{{query}}\" naam ka koi business abhi VoiceMunshi par nahi hai.",
+    "add": "Jodein",
+    "addAs": "{{name}} ko kya banayein",
+    "as": {
+      "customer": "Grahak",
+      "supplier": "Supplier",
+      "both": "Dono"
+    },
+    "added": {
+      "customer": "{{name}} aapka grahak ban gaya",
+      "supplier": "{{name}} aapka supplier ban gaya",
+      "both": "{{name}} grahak aur supplier dono ban gaya"
+    },
+    "alreadySaved": "Yeh pehle se aapki list mein tha.",
+    "addFailed": "Save nahi ho paya. Dobara koshish karein.",
+    "noPhone": "Mobile nahi hai",
+    "chatWith": "{{name}} se chat karein"
   }
 }

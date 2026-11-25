@@ -1,6 +1,12 @@
 import { apiFetch, apiUpload } from "./api";
+import type { DirectoryBusiness } from "./directory-api";
 
-export type ChatKind = "text" | "image" | "file" | "voice" | "card";
+export type ChatKind = "text" | "image" | "file" | "voice" | "card" | "system";
+/** A notice in the chat: the sender saved the other shop as customer / supplier / both. */
+export interface ChatSystemEvent {
+  event: "added";
+  as: "customer" | "supplier" | "both";
+}
 export type ChatCardType = "bill" | "catalogue" | "dues";
 export type MessageStatus = "sent" | "delivered" | "read";
 /** Not saved yet (on its way) or failed to send. Only for this device's own messages. */
@@ -57,11 +63,14 @@ export interface ChatMessage {
   attachment: ChatAttachment | null;
   card: ChatCard | null;
   replyTo: { messageId: string; text: string; kind: ChatKind; senderTenantId: string } | null;
+  system?: ChatSystemEvent | null;
   clientId: string | null;
   deleted: boolean;
   createdAt: string;
   /** Set only on this device while sending. */
   local?: LocalState;
+  /** Why it failed to send (shown under the message). */
+  localError?: string;
   /** A local preview (blob URL) shown while the upload runs. */
   localPreview?: string;
 }
@@ -79,6 +88,10 @@ export interface Conversation {
   lastMessage: { text: string; kind: ChatKind | "deleted"; mine: boolean; createdAt: string; status: MessageStatus | null } | null;
   unread: number;
   blockedByMe: boolean;
+  /** null on chats from before this was recorded. */
+  startedByMe: boolean | null;
+  /** I said "continue chat", wrote in it, or started it. */
+  accepted: boolean;
   otherLastReadAt: string | null;
   otherLastDeliveredAt: string | null;
   lastMessageAt: string;
@@ -117,6 +130,12 @@ export const sendChatMessage = (conversationId: string, body: SendBody) =>
   apiFetch<ChatMessage>(`/chats/${conversationId}/messages`, { method: "POST", body: JSON.stringify(body) });
 export const markChatRead = (conversationId: string) => apiFetch<void>(`/chats/${conversationId}/read`, { method: "POST" });
 export const deleteChatMessage = (messageId: string) => apiFetch<ChatMessage>(`/chats/messages/${messageId}`, { method: "DELETE" });
+/** Chat the other shop started that I have not answered yet (continue / restrict). */
+export const isRequest = (c: Pick<Conversation, "startedByMe" | "accepted" | "blockedByMe">) => c.startedByMe === false && !c.accepted && !c.blockedByMe;
+export const acceptChat = (conversationId: string) => apiFetch<Conversation>(`/chats/${conversationId}/accept`, { method: "POST" });
+export type ChatProfile = DirectoryBusiness & { savedName: string | null };
+export const getChatProfile = (conversationId: string) => apiFetch<ChatProfile>(`/chats/${conversationId}/profile`);
+
 export const setChatBlocked = (conversationId: string, blocked: boolean) =>
   apiFetch<Conversation>(`/chats/${conversationId}/block`, { method: "POST", body: JSON.stringify({ blocked }) });
 

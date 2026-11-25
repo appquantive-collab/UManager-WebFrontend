@@ -199,7 +199,7 @@ export function TenantAdminLayout() {
         : t(`plan.name.${plan.plan ?? "basic"}`) + " · " + t("layout.planDays", { count: plan.daysLeft });
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background lg:bg-surface-muted">
+    <div className="flex h-dvh overflow-hidden bg-background lg:bg-surface-muted">
       {drawerOpen && (
         <button
           type="button"

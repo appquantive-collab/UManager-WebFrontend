@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { Ban, Check, CheckCheck, MessageCirclePlus, MessagesSquare, Search } from "lucide-react";
 import clsx from "clsx";
-import { chatName, type Conversation } from "../../lib/chat-api";
+import { chatName, isRequest, type Conversation } from "../../lib/chat-api";
 import { useChatLive } from "../../lib/chat-socket";
 import { initials, listTime } from "./chat-format";
 
@@ -61,6 +61,7 @@ export function ConversationList({
     const m = c.lastMessage;
     if (!m) return t("chat.noMessagesYet");
     if (m.kind === "deleted") return t("chat.deleted");
+    if (m.kind === "system") return m.mine ? t(`chat.system.youAddedShort.${m.text || "customer"}`) : t(`chat.system.addedYouShort.${m.text || "customer"}`);
     if (m.kind === "image") return `📷 ${m.text || t("chat.kind.image")}`;
     if (m.kind === "voice") return `🎤 ${t("chat.kind.voice")}`;
     if (m.kind === "file") return `📄 ${m.text || t("chat.kind.file")}`;
@@ -160,7 +161,9 @@ export function ConversationList({
                     ) : null}
                   </span>
                   <span className="mt-0.5 flex items-center gap-1.5">
-                    {c.other.kind ? (
+                    {isRequest(c) ? (
+                      <span className="shrink-0 rounded-md bg-primary-container px-1.5 py-px text-[0.6875rem] font-semibold text-primary">{t("chat.request.tag")}</span>
+                    ) : c.other.kind ? (
                       <span className="shrink-0 rounded-md bg-surface-muted px-1.5 py-px text-[0.6875rem] font-semibold text-text-muted">{t(`chat.kindTag.${c.other.kind}`)}</span>
                     ) : null}
                     {isTyping ? (

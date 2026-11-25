@@ -32,6 +32,8 @@ import { listStaff } from "../../lib/staff-api";
 import { askBusinessQuestion } from "../../lib/ai-chat-api";
 import { ApiError } from "../../lib/api";
 import { errorMessage } from "../../lib/api-errors";
+import { BusinessDirectory } from "../../components/directory/BusinessDirectory";
+import { Store } from "lucide-react";
 
 // One place to find anything (Normal search) or ask about the business in
 // plain words (AI search). Normal results open the right page already filtered
@@ -394,6 +396,10 @@ export function SearchPage() {
                     </li>
                   );
                 })}
+                <li className="flex items-center gap-2 text-sm text-text-muted">
+                  <Store size={16} className="shrink-0 text-icon" aria-hidden="true" />
+                  {t("directory.searchHint")}
+                </li>
               </ul>
               <button
                 type="button"
@@ -484,6 +490,8 @@ export function SearchPage() {
                 );
               })
             )}
+            {/* Other shops on VoiceMunshi: save them as customer / supplier, then chat. */}
+            <BusinessDirectory query={text} />
           </div>
         )
       ) : (
